@@ -1,5 +1,9 @@
 """
-WireClaim Source Package.
+WireClaim API Package.
+
+Modules:
+- `tournament`: QuantCo tournament API (list_games, get_decryption_key, submit_price, submit_prices)
+- `llm`: Azure OpenAI / OpenAI LLM queries (get_llm_client, query_llm)
 """
 
 from src.api.llm import get_llm_client, query_llm
@@ -12,11 +16,13 @@ from src.api.tournament import (
 )
 
 __all__ = [
+    # Tournament API
     "list_games",
     "get_decryption_key",
     "submit_price",
     "submit_prices",
     "print_submissions",
+    # LLM API
     "get_llm_client",
     "query_llm",
 ]

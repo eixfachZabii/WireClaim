@@ -7,7 +7,7 @@ from dotenv import find_dotenv, load_dotenv
 ENV_PATH = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent / ".env")
 load_dotenv(dotenv_path=ENV_PATH, override=True)
 
-from src.api import get_decryption_key, list_games, submit_price
+from src.api import get_decryption_key, list_games, query_llm, submit_price
 
 
 def main() -> None:
@@ -17,22 +17,26 @@ def main() -> None:
     parser.add_argument("--limit", type=float, default=430.0, help="Acceptance limit b (Default: 430.0)")
     args = parser.parse_args()
 
-    # 1. Verfügbare Spiele anzeigen
+    # 1. LLM Test / Abfrage
+    llm_response = query_llm("Answer only with: API works")
+    print("LLM Response:", llm_response)
+
+    # 2. Verfügbare Spiele anzeigen
     games = list_games()
     print("Verfügbare Games:", games)
 
-    # 2. Decryption Key für das Spiel abrufen
+    # 3. Decryption Key für das Spiel abrufen
     key = get_decryption_key(args.game_id)
     print(f"Decryption Key für Game {args.game_id}: {key}")
 
-    # 3. Preis submitten
+    # 4. Preis submitten
     result = submit_price(
         game_id=args.game_id,
         charge_price=args.charge,
         acceptance_limit=args.limit,
     )
 
-    # 4. Bestätigung ausgeben
+    # 5. Bestätigung ausgeben
     print("Submission Ergebnis:", result)
 
 

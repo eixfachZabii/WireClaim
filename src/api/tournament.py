@@ -1,5 +1,5 @@
 """
-QuantCo Claim-to-Fame Functional API Client & Submission Module.
+QuantCo Claim-to-Fame Functional Tournament API Client & Submission Module.
 
 This module provides purely functional helpers (no class instantiation needed)
 to interact with the QuantCo Claim-to-Fame tournament backend:
@@ -25,19 +25,15 @@ from __future__ import annotations
 
 import math
 import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import requests
+from dotenv import find_dotenv, load_dotenv
 
-# Load .env file automatically if python-dotenv is installed
-try:
-    from pathlib import Path
-    from dotenv import find_dotenv, load_dotenv
-
-    env_file = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent.parent / ".env")
-    load_dotenv(dotenv_path=env_file, override=True)
-except ImportError:
-    pass
+# Load .env file automatically
+env_file = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent.parent.parent / ".env")
+load_dotenv(dotenv_path=env_file, override=True)
 
 DEFAULT_BASE_URL = "https://c2f.public.quantco.cloud/"
 
@@ -46,18 +42,7 @@ def _get_config(
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
 ) -> Tuple[str, str]:
-    """Resolve API key and base URL from arguments or environment variables.
-
-    Args:
-        api_key: Optional explicit API key.
-        base_url: Optional explicit base URL.
-
-    Returns:
-        Tuple of (resolved_api_key, resolved_base_url).
-
-    Raises:
-        ValueError: If no API key is provided or found in the environment.
-    """
+    """Resolve API key and base URL from arguments or environment variables."""
     key = (api_key or os.environ.get("TEAM_API_KEY", "")).strip()
     if not key:
         raise ValueError(
@@ -69,18 +54,7 @@ def _get_config(
 
 
 def _validate_price(name: str, value: float) -> float:
-    """Validate that a monetary price is numeric, finite, and non-negative.
-
-    Args:
-        name: Parameter name for error messages (e.g. 'charge_price').
-        value: The price value to check.
-
-    Returns:
-        The validated float value.
-
-    Raises:
-        ValueError: If value is negative, NaN, infinite, or not a number.
-    """
+    """Validate that a monetary price is numeric, finite, and non-negative."""
     if not isinstance(value, (int, float)):
         raise TypeError(f"'{name}' must be a number, got {type(value).__name__}")
     val_float = float(value)
@@ -92,18 +66,7 @@ def _validate_price(name: str, value: float) -> float:
 
 
 def _check_response(response: requests.Response, action: str) -> requests.Response:
-    """Check API response status and raise descriptive error if not HTTP 200.
-
-    Args:
-        response: Response object from requests.
-        action: Human-readable action description.
-
-    Returns:
-        The successful response object.
-
-    Raises:
-        RuntimeError: If response status code is not 200, containing status and error details.
-    """
+    """Check API response status and raise descriptive error if not HTTP 200."""
     if response.status_code == 200:
         return response
 
@@ -139,21 +102,6 @@ def list_games(
     """Fetch the list of all tournament games and their scheduled start times.
 
     Calls `GET /api/games/list`.
-    Game 0 is typically a permanent test game always available for testing.
-
-    Args:
-        api_key: Team API key (defaults to `TEAM_API_KEY` env var).
-        base_url: Base URL (defaults to `BASE_URL` env var or production default).
-        timeout: Request timeout in seconds (default: 30.0).
-
-    Returns:
-        List[Dict[str, Any]]: List of game dictionaries, e.g.:
-            `[{'id': 0, 'start_time': '2026-08-22T12:00:00Z'}, ...]`
-
-    Example:
-        >>> games = list_games()
-        >>> for g in games:
-        ...     print(f"Game {g['id']} starts at {g['start_time']}")
     """
     key, url = _get_config(api_key, base_url)
     headers = {"X-API-Key": key}
@@ -171,20 +119,6 @@ def get_decryption_key(
     """Fetch the AES-256 decryption key for a game's case zip archive.
 
     Calls `GET /api/games/{game_id}/key`.
-    Note: The decryption key only becomes available after the game's `start_time`.
-
-    Args:
-        game_id: Integer ID of the game (e.g. 0 for test game).
-        api_key: Team API key (defaults to `TEAM_API_KEY` env var).
-        base_url: Base URL (defaults to `BASE_URL` env var or production default).
-        timeout: Request timeout in seconds (default: 30.0).
-
-    Returns:
-        str: Decryption key password to unpack `case_{game_id:02d}.zip`.
-
-    Example:
-        >>> key = get_decryption_key(0)
-        >>> print(f"Decryption key: {key}")
     """
     key, url = _get_config(api_key, base_url)
     headers = {"X-API-Key": key}
@@ -203,31 +137,7 @@ def submit_price(
     base_url: Optional[str] = None,
     timeout: float = 30.0,
 ) -> Dict[str, Any]:
-    """Submit a single line item price for an active game round.
-
-    Convenience function for submitting 1 line item directly without wrapping
-    in lists or dictionaries.
-
-    Both amounts MUST be the gross total for the line item (not per-unit and not net).
-
-    Args:
-        game_id: Integer ID of the target game (e.g., 0).
-        charge_price: Charge price 'a' (amount charged to opposing teams as Handyman).
-        acceptance_limit: Acceptance limit 'b' (maximum amount willing to pay as Insurance).
-        index: 1-based line item index on the invoice (default: 1).
-        api_key: Team API key (defaults to `TEAM_API_KEY` env var).
-        base_url: Base URL (defaults to `BASE_URL` env var or production default).
-        timeout: Request timeout in seconds (default: 30.0).
-
-    Returns:
-        Dict[str, Any]: The confirmed submission record from the server, e.g.:
-            `{'game_id': 0, 'team_id': 1, 'line_item_index': 1, 'charge_price': 410.0, 'acceptance_limit': 430.0, 'submitted_at': '...'}`
-
-    Example:
-        >>> # Submit charge price a=410.0, acceptance limit b=430.0 for line item 1
-        >>> result = submit_price(game_id=0, charge_price=410.0, acceptance_limit=430.0)
-        >>> print(result)
-    """
+    """Submit a single line item price for an active game round."""
     results = submit_prices(
         game_id=game_id,
         submissions=[{"index": index, "charge_price": charge_price, "acceptance_limit": acceptance_limit}],
@@ -248,27 +158,6 @@ def submit_prices(
     """Submit or update line item prices for an active game round.
 
     Calls `PUT /api/games/{game_id}/submissions`.
-    Implements upsert semantics (last write wins during the 1-minute round).
-
-    Supports multiple input formats:
-    - List of dicts: `[{"index": 1, "charge_price": 410.0, "acceptance_limit": 430.0}]`
-    - List of tuples (auto-indexed 1..N): `[(410.0, 430.0), (120.0, 150.0)]` -> index 1 & 2
-
-    Args:
-        game_id: Integer ID of the target game.
-        submissions: Sequence of line item submissions (dicts or (charge_price, acceptance_limit) tuples).
-        api_key: Team API key (defaults to `TEAM_API_KEY` env var).
-        base_url: Base URL (defaults to `BASE_URL` env var or production default).
-        timeout: Request timeout in seconds (default: 30.0).
-
-    Returns:
-        List[Dict[str, Any]]: List of confirmed submission dictionaries from the server.
-
-    Example:
-        >>> # Using list of dicts:
-        >>> res = submit_prices(0, [{"index": 1, "charge_price": 410.0, "acceptance_limit": 430.0}])
-        >>> # Or using simple tuples (auto-indexed starting at 1):
-        >>> res = submit_prices(0, [(410.0, 430.0), (120.0, 150.0)])
     """
     key, url = _get_config(api_key, base_url)
     headers = {"X-API-Key": key, "Content-Type": "application/json"}
@@ -301,11 +190,7 @@ def submit_prices(
 
 
 def print_submissions(results: Sequence[Dict[str, Any]]) -> None:
-    """Print confirmed submissions in a formatted ASCII table.
-
-    Args:
-        results: List of submission response dictionaries from `submit_prices` or `submit_price`.
-    """
+    """Print confirmed submissions in a formatted ASCII table."""
     if not results:
         print("  No submissions to display.")
         return
