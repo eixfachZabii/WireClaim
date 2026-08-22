@@ -25,7 +25,14 @@ from src.strategies.strategy2.strategy import build_proposal, propose
 
 def case_with(*line_items: LineItem) -> CaseData:
     return CaseData(
-        game_id=42,
+        # 9042, not 42. A real Game id here means `build_proposal` -> `decisions.record()`
+        # writes into `var/decisions/game_042.json` on every `pixi run test`, quietly
+        # overwriting a settled Game's record with two fixture items. That is how Game 42's
+        # log came to say `no-decision-log` for sixteen of the seventeen Line Items it had
+        # actually priced, and it sent an hour of diagnosis after a pipeline failure that
+        # never happened. `var/decisions/` is tracked now, so it also dirtied the tree on
+        # every test run. Ids above 100 cannot collide with a Game.
+        game_id=9042,
         case_dir=Path(tempfile.gettempdir()),
         policy_text="PART 3 - EXCLUSIONS\n3.1 Wear and tear is not covered under this policy at all.\n",
         description_text="Water damage.",
