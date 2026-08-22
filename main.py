@@ -131,7 +131,7 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
     except Exception as error:
         logger.warning("Could not warm OpenAI resources: %s", error)
     await coordinator.start()
-    coordinator.publish(manager.snapshot())
+    coordinator.publish(manager.snapshot(), reason="standard")
     tasks = [
         asyncio.create_task(_emit_result(events, "fast_path", llm_values(case), game_id)),
         asyncio.create_task(_emit_result(events, "fraud", detect_fraud(case), game_id)),
@@ -152,8 +152,17 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
                 event = await asyncio.wait_for(events.get(), timeout=deadline - loop.time())
             except TimeoutError:
                 break
-            if _apply_event(manager, event):
-                coordinator.publish(manager.snapshot())
+            changed = _apply_event(manager, event)
+            reason = f"{event.kind}:{event.value.source}" if isinstance(event.value, Proposal) else event.kind
+            logger.info(
+                "event_received game=%s kind=%s reason=%s changed=%s",
+                game_id,
+                event.kind,
+                reason,
+                changed,
+            )
+            if changed or dry_run:
+                coordinator.publish(manager.snapshot(), reason=reason, force=dry_run)
     finally:
         for task in tasks:
             if not task.done():

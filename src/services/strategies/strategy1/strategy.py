@@ -147,9 +147,9 @@ def build_input_content(case: CaseData) -> list[dict[str, Any]]:
     return content
 
 
-def _request_evidence(case: CaseData) -> tuple[Evidence, ...]:
+def _request_evidence(case: CaseData, model: str | None = None) -> tuple[Evidence, ...]:
     client = get_llm_client()
-    model = get_model_name()
+    model = get_model_name(model)
     response = client.responses.create(
         model=model,
         timeout=LLM_TIMEOUT_SECONDS,
@@ -232,7 +232,7 @@ def _limit_from_estimate(estimate: Estimate) -> float:
     return min(max(limit, 0.0), median)
 
 
-def proposal_from_estimates(estimates: tuple[Estimate, ...]) -> Proposal | None:
+def proposal_from_estimates(estimates: tuple[Estimate, ...], source: str = STRATEGY_NAME) -> Proposal | None:
     prices: list[ItemPrice] = []
     for estimate in estimates:
         median = (estimate.low + estimate.high) / 2
@@ -245,19 +245,27 @@ def proposal_from_estimates(estimates: tuple[Estimate, ...]) -> Proposal | None:
                 index=estimate.index,
                 charge_price=charge,
                 acceptance_limit=limit,
-                source=STRATEGY_NAME,
+                source=source,
             )
         )
     if not prices:
         return None
-    return Proposal(source=STRATEGY_NAME, prices=tuple(prices))
+    return Proposal(source=source, prices=tuple(prices))
+
+
+async def propose_with_model(
+    case: CaseData,
+    model: str | None = None,
+    source: str = STRATEGY_NAME,
+) -> Proposal | None:
+    started_at = start_timer()
+    try:
+        evidence = await asyncio.to_thread(_request_evidence, case, model)
+        estimates = estimate_fair_values(case, evidence)
+        return proposal_from_estimates(estimates, source)
+    finally:
+        log_timing(logger, source, started_at, game=case.game_id, model=get_model_name(model))
 
 
 async def propose(case: CaseData) -> Proposal | None:
-    started_at = start_timer()
-    try:
-        evidence = await asyncio.to_thread(_request_evidence, case)
-        estimates = estimate_fair_values(case, evidence)
-        return proposal_from_estimates(estimates)
-    finally:
-        log_timing(logger, "strategy1", started_at, game=case.game_id)
+    return await propose_with_model(case)
