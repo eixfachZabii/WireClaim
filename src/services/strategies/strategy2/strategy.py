@@ -12,7 +12,7 @@ This module is the orchestration only. The pieces live next to it:
 | `strategy.py`  | this file: gather evidence, price it, always answer              |
 
 The division of labour that matters is ADR 0001: **the model reads, the engine prices.**
-The model returns a coverage probability and a gross-total price band; `src/pricing.py`
+The model returns a coverage probability and a gross-total price band; `src/domain/pricing/engine.py`
 turns that into a Charge and a Limit. No model output is ever submitted directly.
 
 ## The two failure modes this is built around
@@ -60,7 +60,7 @@ submission time. A correction fitted against the first table is fitted backwards
 **The Charge and the Limit want opposite corrections and share one median.** That same fit
 applied to the Limit alone is worth +2,776 and applied to the Charge alone -57,489. Nothing
 in the evidence layer can separate them, because both numbers come from one median, so what
-little there is to win belongs on the Limit side of `src/pricing.py` -- and it is worth
+little there is to win belongs on the Limit side of `src/domain/pricing/engine.py` -- and it is worth
 thousands, not the six figures the by-true-`t` table appears to promise.
 
 What would pay is not a level shift at all. Moving each median to *its own* true `t`, holding
@@ -76,8 +76,8 @@ import asyncio
 import logging
 
 from src.data.models import CaseData, ItemPrice, Proposal
-from src.decision_log import GameDecisions, ItemDecision, record
-from src.pricing import Evidence, price_item
+from src.domain.pricing.engine import Evidence, price_item
+from src.observability.decisions import GameDecisions, ItemDecision, record
 from src.services.strategies.fast_path import STANDARD_CHARGE, STANDARD_LIMIT
 from src.services.strategies.strategy2.blend import blend, combine
 from src.services.strategies.strategy2.channels import local_evidence
@@ -88,7 +88,7 @@ from src.services.strategies.strategy2.constants import (
 )
 from src.services.strategies.strategy2.model import request_evidence
 from src.services.strategies.strategy2.prompts import ENSEMBLE_PROMPTS
-from src.timing import log_timing, start_timer
+from src.observability.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 

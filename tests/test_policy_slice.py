@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from src.policy_slice import (
+from src.services.policy.slice import (
     CLAIM_SPECIFIC_PART,
     DEFAULT_KEEP,
     MIN_SLICE_CHARS,

@@ -15,7 +15,7 @@ So this script does three separate things, in that order:
    euro-weighted, over the recovered Fair Values. This is the minimum-log-error map, not
    the maximum-euro one -- it is printed so the two can be compared.
 3. **The euro sweep and a held-out check.** Every candidate `(c0, c1)` is applied to the
-   blended ensemble evidence, repriced through the shipped `src/pricing.py`, and scored with
+   blended ensemble evidence, repriced through the shipped `src/domain/pricing/engine.py`, and scored with
    `replay_payoffs.replay` against the real Field. `--holdout` refits/reselects on a subset
    of Games and reports the score on the Games it never saw.
 
@@ -101,7 +101,7 @@ from level_compat import (  # noqa: E402
     submission_of,
 )
 
-from src.pricing import Evidence  # noqa: E402
+from src.domain.pricing.engine import Evidence  # noqa: E402
 
 BAND_Z = 1.645
 
@@ -201,7 +201,7 @@ def recalibrate(ev: Evidence, c0: float, c1: float, sigma_floor: float = 0.0) ->
 
 
 def nets(loaded: list[tuple], c0: float, c1: float, sigma_floor: float = 0.0) -> dict[int, float]:
-    """Net per Game under one candidate map, priced by the shipped `src/pricing.py`."""
+    """Net per Game under one candidate map, priced by the shipped `src/domain/pricing/engine.py`."""
     out: dict[int, float] = {}
     for snap, case, model in loaded:
         adjusted = {i: recalibrate(ev, c0, c1, sigma_floor) for i, ev in model.items()}

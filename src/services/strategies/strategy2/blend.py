@@ -6,13 +6,13 @@ Two different merges happen here and they answer different questions.
 the estimator's variance, and variance is what the payoff table punishes — a Charge one euro
 above `t` earns nothing at all, so a noisy estimate is hurt far worse than a biased one.
 
-More importantly it produces a width we can believe. `implied_sigma` in `src/pricing.py`
+More importantly it produces a width we can believe. `implied_sigma` in `src/domain/pricing/engine.py`
 reads the width the *model asserts*, which has a median of 0.375 against a measured log
 error near 0.8, and which does not even correlate with the actual error — sorting Line Items
 by asserted width puts the narrow third at a slightly *worse* error than the wide third. The
 spread *between framings* is a different quantity: disagreement we observed rather than
 confidence the model claimed. `blend` adds it in quadrature, so the band widens on exactly
-the items the two readings disagree about, and `src/pricing.py` then lowers both the Charge
+the items the two readings disagree about, and `src/domain/pricing/engine.py` then lowers both the Charge
 multiplier and the Limit quantile for them.
 
 Measured on the cached evidence for Games 1-15 and 17-19, replayed against the real Field:
@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import math
 
-from src.pricing import Evidence
+from src.domain.pricing.engine import Evidence
 from src.services.strategies.strategy2.constants import (
     BAND_Z,
     MEMORY_SIGMA,

@@ -33,7 +33,7 @@ leave-one-out sigma from 0.67 to 0.43.
 
 Usage::
 
-    from src.price_memory import lookup
+    from src.domain.pricing.memory import lookup
     hit = lookup("Skilled worker hours", unit="hrs", quantity=8)
     if hit is not None:
         anchor = hit.median          # gross, for the whole Line Item

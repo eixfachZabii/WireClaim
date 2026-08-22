@@ -64,7 +64,7 @@ from level_compat import (  # noqa: E402
     set_model_sigma_prior,
 )
 
-import src.price_memory as pm  # noqa: E402
+import src.domain.pricing.memory as pm  # noqa: E402
 
 PRIORS = (0.43, 0.6, 0.8, 1.0, 1.3, 1.6)
 

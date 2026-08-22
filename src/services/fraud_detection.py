@@ -7,8 +7,8 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, FraudDecision, LineItem
-from src.policy_quote import is_policy_quote
-from src.timing import format_fraud_lock_card, log_timing, start_timer
+from src.services.policy.quotes import is_policy_quote
+from src.observability.timing import format_fraud_lock_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 FRAUD_TIMEOUT_SECONDS = 15.0

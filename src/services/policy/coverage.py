@@ -3,7 +3,7 @@
 This replaces the binary gate in `services/fraud_detection.py`. The reason it is a
 probability and not a boolean is arithmetic, not taste:
 
-The Limit is the bottom-third quantile of the posterior over `t` (`src/pricing.py`), and
+The Limit is the bottom-third quantile of the posterior over `t` (`src/domain/pricing/engine.py`), and
 a coverage doubt enters that posterior as probability mass at zero. Below
 `p_covered = 1/3` the bottom third *is* zero, so the Limit collapses on its own, with no
 threshold anywhere in the code. A boolean destroys exactly the middle of that range --
@@ -56,9 +56,9 @@ from typing import Any, Iterable, Sequence
 
 from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, LineItem
-from src.policy_quote import is_policy_quote, normalize
-from src.policy_slice import slice_policy
-from src.timing import log_timing, start_timer
+from src.services.policy.quotes import is_policy_quote, normalize
+from src.services.policy.slice import slice_policy
+from src.observability.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ DEFAULT_P_COVERED = 0.9
 
 #: This module's own threshold for "a verdict that on its own kills the Limit".
 #:
-#: **It is deliberately *not* `src.pricing.COVERAGE_FLOOR`, and an earlier comment claiming
+#: **It is deliberately *not* `src.domain.pricing.engine.COVERAGE_FLOOR`, and an earlier comment claiming
 #: it was is wrong.** The pricing engine collapses the Limit at `p <= 1 - LIMIT_QUANTILE`,
 #: i.e. **2/3**, because the posterior carries mass `1 - p` at zero and its one-third
 #: quantile falls inside that atom as soon as `1 - p >= 1/3`.
@@ -137,7 +137,7 @@ SUBMISSION_RESERVE_SECONDS = 5.0
 
 @dataclass(frozen=True)
 class CoverageVerdict:
-    """One coverage judgement, in the form `src.pricing.Evidence` can consume."""
+    """One coverage judgement, in the form `src.domain.pricing.engine.Evidence` can consume."""
 
     index: int
     """The POS number printed on the invoice, gaps preserved. Case 11 has no POS 12 and
@@ -150,7 +150,7 @@ class CoverageVerdict:
     """The supporting Policy sentence, verbatim."""
 
     quote_verified: bool
-    """Whether `src.policy_quote.is_policy_quote` accepted `clause` against the Policy."""
+    """Whether `src.services.policy.quotes.is_policy_quote` accepted `clause` against the Policy."""
 
     reasoning: str = ""
 
@@ -344,7 +344,7 @@ def _clause_start(policy_text: str, position: int) -> int:
 def repair_quote(clause: str, policy_text: str) -> str:
     """Return a quote that `is_policy_quote` accepts, or "" if none can be built.
 
-    The gate in `src.policy_quote` is deliberately unforgiving and we do not touch it --
+    The gate in `src.services.policy.quotes` is deliberately unforgiving and we do not touch it --
     it decides whether a Limit goes to zero. What we can do is stop throwing away correct
     verdicts over citation *formatting*: anchor on the longest run of the model's quote
     that really is in the Policy, then widen the span backwards through the actual Policy
@@ -631,5 +631,5 @@ async def assess_coverage(
 
 
 def coverage_probabilities(verdicts: Iterable[CoverageVerdict]) -> dict[int, float]:
-    """`{index: p_covered}`, the shape `src.pricing.Evidence` wants."""
+    """`{index: p_covered}`, the shape `src.domain.pricing.engine.Evidence` wants."""
     return {verdict.index: verdict.p_covered for verdict in verdicts}

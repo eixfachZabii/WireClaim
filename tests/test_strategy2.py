@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.data.models import CaseData, LineItem
-from src.pricing import Evidence
+from src.domain.pricing.engine import Evidence
 from src.services.strategies.strategy2.blend import blend as _blend, combine as _combine
 from src.services.strategies.strategy2.constants import (
     LLM_TIMEOUT_SECONDS,
@@ -315,7 +315,7 @@ class ProposeTests(unittest.TestCase):
 
         with patch(
             "src.services.strategies.strategy2.strategy.request_evidence", side_effect=flaky
-        ), patch("src.price_memory.lookup", return_value=None):
+        ), patch("src.domain.pricing.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertEqual(len(calls), 2)
@@ -335,7 +335,7 @@ class ProposeTests(unittest.TestCase):
         with patch(
             "src.services.strategies.strategy2.strategy.request_evidence",
             side_effect=RuntimeError("model down"),
-        ), patch("src.price_memory.lookup", return_value=None):
+        ), patch("src.domain.pricing.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertIsNotNone(proposal)

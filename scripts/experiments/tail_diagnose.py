@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from replay_payoffs import replay, snapshot  # noqa: E402
 from tail_replay import case_of, load_evidence, submission_of  # noqa: E402
 
-from src.pricing import Evidence, price_item  # noqa: E402
+from src.domain.pricing.engine import Evidence, price_item  # noqa: E402
 
 INF = math.inf
 BAND_Z = 1.645

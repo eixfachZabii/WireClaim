@@ -1,7 +1,7 @@
 """What we ask the model, and what has already been tried and failed.
 
 The model returns **evidence only** — a coverage probability, a gross-total price band and
-a quoted Policy clause. It never returns a Charge, a Limit or a Fair Value; `src/pricing.py`
+a quoted Policy clause. It never returns a Charge, a Limit or a Fair Value; `src/domain/pricing/engine.py`
 derives those deterministically (ADR 0001). Two regenerations over one invoice must not
 disagree about the number we are scored on.
 """

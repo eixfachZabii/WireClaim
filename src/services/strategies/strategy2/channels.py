@@ -22,7 +22,7 @@ import logging
 import re
 
 from src.data.models import CaseData
-from src.pricing import Evidence
+from src.domain.pricing.engine import Evidence
 from src.services.strategies.strategy2.constants import SETTLED_MEDIAN
 
 logger = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ def worthless_evidence(index: int) -> Evidence:
 def local_evidence(case: CaseData) -> dict[int, Evidence]:
     """Channels A and B together, keyed by Line Item index. Never raises."""
     try:
-        from src.price_memory import lookup
+        from src.domain.pricing.memory import lookup
     except Exception:  # pragma: no cover - the memory channel is optional
         return {}
 
