@@ -1,96 +1,119 @@
-# Track plan — four owners, checkable tasks
+# Track plan — who does what
 
-Live as of Game 5 (Sat ~16:00). We are **5th, 7,139**, having been 3rd. Game 5 cost us
-−10,604. ~95 Games and ~20 hours remain.
-
-**Assign a name to each track and tick boxes as they land.** Everything in P0 is worth
-more than everything below it combined.
+**Live as of Game 7, Sat 16:18. We are 12th at −30,369.** Leader `error404 ai` is at
++85,197. Games 5, 6 and 7 all lost: **−10,604, −3,940, −33,568.**
 
 ---
 
-## The critique first — Markus's workflow
+## 🔴 STOP THIS FIRST — we are submitting `a = 0, b = ∞`
 
-His shape is right and two details are wrong.
+Game 7: **income 0, costs 33,568, 100 % from accepting, zero rejections.**
 
-> *Neuer Case: Fallback instant prefillen → unzip → parallel Fault-Detection (KI) +
-> Algo-`t` → Strategie. Wenn Fault: `b = 0` und `a` extra Strategie. 1-min-Limit
-> vermeiden.*
+| item | true `t` | our Charge | we paid up to |
+| ---: | --- | ---: | ---: |
+| 1 | `[1232, 1756)` | **0.00** | **3,500** |
+| 2 | `< 683` | **0.00** | **2,000** |
+| 4 | `< 323` | **0.00** | **765** |
 
-- ✅ **Instant fallback prefill.** Correct, and it is the Fast Path. **But the fallback
-  must be `b = 0`, not a large `b`.** A too-low Limit costs `0.5a`; a too-high one costs
-  `min(a,c)` with `c ≥ 4t`. Game 5 is the proof: 99 % of our costs were acceptances.
-- ✅ **Fault detection and `t` in parallel.** Correct — they are independent and the gate
-  matters more than the number.
-- ✅ **`b = 0` on fault.** This is *the* missing fix. It is worth more than every other
-  item on this page.
-- ❌ **"`a` extra Strategie" on fault — the direction matters.** If not covered then
-  `t = 0`, the honest branch pays exactly zero, and a rejected Overcharge costs nothing.
-  So `a` must go **up**, toward the Cap floor — not down, and never to 0. Game 3: two
-  teams charged on an all-uncovered Case and took ~400 each while the rest of us scored 0.
-- ❌ **"1-Minuten-Limit vermeiden" — not possible.** `GET /api/games/{id}/key` returns
-  **403 before `start_time`**; I verified it. The window cannot be extended. What *can*
-  be removed is everything around it: the archives are **already on disk** (all 100,
-  committed), so the only network call at T0 is the key fetch. Then decrypt locally,
-  fan out per Line Item, and use `PUT`'s last-write-wins to submit twice — cheap at
-  T+3 s, considered at T+50 s. That buys the whole minute for thinking, which is the
-  real goal.
+This is **worse than going dark** — the default (`0, 0`) at least rejects everything.
+"Act as if no fraud" has been implemented as "accept everything". It does not mean that.
+It means *assume the item is covered, price it normally, and set the Limit to the bottom
+third of that price*.
+
+**Two hard clamps, in deterministic code, ignoring whatever any model says:**
+
+```
+b = clamp(b, 0, t̂)          # never above our own estimate. NEVER unbounded.
+a = max(a, FALLBACK)        # never 0. FALLBACK ≈ 150, fitted from settled Games.
+```
+
+Ship these before anything else on this page. They are ~4 lines and they are worth more
+than the rest of the tournament.
 
 ---
 
-## P0 — stop the bleeding (tonight, before anything else)
+## Lukas — the fraud AI
 
-- [ ] **Coverage verdict drives the Limit.** `not covered ⇒ b = 0`. Owner: ______
-- [ ] **Cap the Limit globally.** Never unbounded, never above `t̂`. Target the bottom
-      third of the posterior. Owner: ______
-- [ ] **Invert the "not covered ⇒ a = 0" rule.** Not covered ⇒ charge **high** (toward
-      the Cap floor), because it is free (R6c). Owner: ______
-- [ ] **Audit the coverage gate — it is emitting false "uncovered" on covered items.**
-      Only 2 of 17 Game 5 Line Items were truly uncovered; we charged 0 on ones worth
-      500+. This is now the #1 root cause. Owner: ______
-- [ ] **Never submit `a = 0`** on any Line Item, for any reason. Owner: ______
-- [ ] **Verify on the next settled Game**: paid-on-ACCEPT should fall below paid-on-REJECT.
+Owns the fault detector.
 
-## P1 — the measurement loop (needed to know if P0 worked)
+- [ ] Detect uncovered Line Items from **quoted evidence only** — a policy exclusion
+      quoted verbatim, or a disqualifier in the item's own wording ("no confirmed water
+      contact", "was already failing before the storm", "no diagnostic report provided").
+      **No quote, no verdict.**
+- [ ] Emit a **third verdict for betterment**, not just fraud/clean. "Upgrade from
+      pre-loss ceramic tiling", "premium solid-oak … higher specification than the
+      original" are *covered at the pre-loss standard* — a haircut, not a zero.
+- [ ] Emit a **quantity plausibility flag**. One call-out billed at 3 pcs, one kitchen
+      table at 3 pcs, 14 hrs for a leak detection. Covered item, implausible quantity.
+- [ ] **Default is CLEAN.** Only 2 of 17 Line Items in Game 5 were genuinely uncovered.
+      Over-flagging costs twice: we forfeit the Charge and then fund the Field on the
+      same item.
+- [ ] Never block the Submission. Runs in parallel; a late verdict overwrites via `PUT`.
 
-- [ ] **Post-Settlement analyser.** One script, run after every Game: income; costs split
-      accept vs reject; per-Line-Item `t` bracket vs our `a` and `b`; count of Charges we
-      accepted above the bracket. *This is the dashboard* — it is what found the Game 5
-      bug, and without it we are flying blind. Owner: ______
-- [ ] **Append each Game's numbers to `field-findings.md`.** Owner: ______
-- [ ] **Alarm**: if accept-share of costs > 60 %, or if we accept anything above `t̂`,
-      shout in Discord. Owner: ______
+**Done when:** on Cases 1–7, the detector flags ≤ 20 % of Line Items and every flag
+carries a quote.
 
-## P2 — the estimate (the 2.5× undercharge is still unfixed)
+## Sebi (+ Claude) — the strategy
 
-- [ ] **Coverage/relatedness gate reads the policy scope clause first.** Case 3 was
-      entirely uncovered; Case 1 has betterment items covered only at the pre-loss
-      standard. Owner: ______
-- [ ] **Exploit self-labelling Line Items** — the disqualifier is in the text
-      ("no confirmed water contact", "upgrade from pre-loss ceramic tiling", "was already
-      failing before the storm", "no diagnostic report provided"). Owner: ______
-- [ ] **Few-shot from past Cases.** All played Cases stay decryptable; pair them with
-      settled brackets. Owner: ______
-- [ ] **Stop tuning the global multiplier.** After Game 5 the Charge is high-*variance*,
-      not low-*bias*: zeros on covered items and 2× overshoots in the same Case. A global
-      constant cannot fix that. Owner: ______
+Owns how verdicts become `a` and `b`.
 
-## P3 — resilience and the pitch (do not skip; half the prize)
+- [ ] The two clamps above, in code.
+- [ ] The decision table:
 
-- [ ] **Two-phase submit** — cheap at T+3 s, considered at T+50 s, merged per Line Item.
-- [ ] **Never go dark.** 13 teams took exactly −8,273.70 in Game 1 for doing so.
-- [ ] **Start the write-up now**, not Sunday morning. `strat-warroom/PLAN.md` has a timed
-      5-minute script already written.
-- [ ] **Freeze the pricing algorithm 08:00 Sunday.** Games 82–100 are worth less than a
-      botched deploy costs.
-
----
-
-## What "done" looks like
-
-| signal | now | target |
+| verdict | Charge `a` | Limit `b` |
 | --- | --- | --- |
-| share of costs from accepting | **99 %** | < 40 % |
-| Line Items with `a = 0` | many | **0** |
-| Limit on uncovered items | up to 1,121 | **0** |
-| our Charge ÷ `t` on covered items | ~0.4 | 0.8–1.0 |
-| Games missed | 1 (Game 2) | 0 |
+| covered | `t̂` | `Q₁ᐟ₃(t̂)` — finite, above 0 |
+| betterment | `t̂` at the pre-loss standard | `Q₁ᐟ₃` of that |
+| implausible quantity | `t̂` for the plausible quantity | `Q₁ᐟ₃` of that |
+| **not covered** | a **realistic** price, ~`t̂` as if covered | **0** |
+| unsure | mid | low, never above `t̂` |
+
+- [ ] **Uncovered ⇒ charge realistically, not high.** Game 3: `error404 ai` charged
+      101.32 and `Non Deterministic` 100.00 on uncovered items; each was accepted by 2 of
+      16 for ~200. The only buyers are teams that mis-classified the item as covered, so
+      their Limit is set for a plausible price.
+- [ ] Fallback Charge fitted from settled brackets (observed `t` spans 42–900, median
+      ~150–230). Log every time it fires.
+
+**Done when:** accept-share of costs < 40 %, no Line Item submitted at `a = 0`, no `b`
+above `t̂`.
+
+## Matthi & Markus — analysis
+
+Own the measurement loop and the read on the Field.
+
+- [ ] **Post-Settlement analyser**, run after every Game: income; costs split accept vs
+      reject; per-item `t` bracket vs our `a` and `b`; count of Charges accepted above the
+      bracket. This is what found Games 5, 6 and 7 — without it we are blind.
+- [ ] **Pull several teams' rows, never only ours.** Our own Transactions bound `t` only
+      where we were a counterparty; reading Game 5 from our rows alone made covered items
+      look uncovered.
+- [ ] **Alarm** into Discord if accept-share > 60 %, or any `b` exceeds `t̂`, or any
+      Submission has `a = 0`.
+- [ ] Append each Game's numbers to [`field-findings.md`](field-findings.md).
+- [ ] **What the leaders do.** `error404 ai` is at +85,197 with the same Cases we get.
+      Invert their Charges and Limits per item and write down where they differ from ours.
+- [ ] Keep extracting new Cases each Game (CLAUDE.md rule 2) and note new trap patterns.
+
+**Done when:** every settled Game has a row in `field-findings.md` within 10 minutes.
+
+---
+
+## Non-negotiables everyone needs to know
+
+1. **Never submit `a = 0`.** Covered ⇒ we forfeit guaranteed income. Uncovered ⇒ charging
+   is free. There is no case where 0 is right.
+2. **Never submit `b` above `t̂`, and never unbounded.** Generosity costs `min(a,c)` with
+   `c ≥ 4t`; strictness costs `0.5a`. ~8× asymmetry.
+3. **Gross total for the whole Line Item.** Never net (÷1.19), never per-unit (÷quantity).
+4. **Submit twice.** Cheap early, considered at ~T+50 s. `PUT` is last-write-wins.
+5. **Most items are legitimate.** COVERED is the default.
+
+## Scoreboard of our own health
+
+| signal | Game 7 | target |
+| --- | ---: | --- |
+| costs from accepting | **100 %** | < 40 % |
+| Line Items at `a = 0` | **6 of 6** | 0 |
+| max `b` above `t̂` | **≥ 3,500** | 0 |
+| net | **−33,568** | positive |

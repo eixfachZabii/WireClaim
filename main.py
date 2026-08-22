@@ -1,145 +1,191 @@
+from __future__ import annotations
+
 import argparse
-import os
-import subprocess
-import time
+import asyncio
+import logging
+from collections.abc import Awaitable
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
+
+from src.api import list_games
+from src.data.case_loader import load_case
+from src.data.models import CaseData, FraudDecision, ItemPrice, Proposal
+from src.services.fraud_detection import detect_fraud
+from src.services.strategy_router import StrategyRouter
+from src.services.strategies.fast_path import llm_values, standard_values
+from src.services.submission_coordinator import SubmissionCoordinator
+
+logger = logging.getLogger(__name__)
+RUN_SECONDS = 60.0
 
 
-def load_env() -> None:
-    """Load the KEY=value pairs from .env using python-dotenv or stdlib fallback."""
+@dataclass(frozen=True)
+class RunEvent:
+    kind: str
+    value: Proposal | FraudDecision
+
+
+class RunManager:
+    def __init__(self, standard: Proposal) -> None:
+        if standard.is_empty:
+            raise ValueError("Standard values must cover at least one Line Item.")
+        self._standard = standard
+        self._fast_path: Proposal | None = None
+        self._strategy: Proposal | None = None
+        self._fraud_indices: set[int] = set()
+
+    def set_fast_path(self, proposal: Proposal) -> bool:
+        if proposal.is_empty:
+            return False
+        self._fast_path = proposal
+        return True
+
+    def set_strategy(self, proposal: Proposal) -> bool:
+        if proposal.is_empty:
+            return False
+        self._strategy = proposal
+        return True
+
+    def apply_fraud(self, decision: FraudDecision) -> bool:
+        current = self._fraud_indices.copy()
+        self._fraud_indices.update(decision.fraud_indices)
+        return current != self._fraud_indices
+
+    def snapshot(self) -> tuple[ItemPrice, ...]:
+        prices = self._standard.by_index()
+        valid_indices = set(prices)
+        for proposal in (self._fast_path, self._strategy):
+            if proposal is not None:
+                prices.update(
+                    (index, price)
+                    for index, price in proposal.by_index().items()
+                    if index in valid_indices
+                )
+        return tuple(
+            price.with_limit(0.0) if index in self._fraud_indices else price
+            for index, price in sorted(prices.items())
+        )
+
+
+async def run_game(game_id: int) -> None:
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + RUN_SECONDS
     try:
-        from dotenv import find_dotenv, load_dotenv
-
-        env_file = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent / ".env")
-        load_dotenv(dotenv_path=env_file, override=True)
-    except ImportError:
-        path = Path(".env")
-        if not path.exists():
+        remaining = deadline - loop.time()
+        if remaining <= 0:
             return
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if line.strip() and not line.lstrip().startswith("#") and "=" in line:
-                name, value = line.split("=", 1)
-                if name.strip():
-                    os.environ.setdefault(name.strip(), value.strip().strip('"\''))
+        case = await asyncio.wait_for(load_case(game_id, deadline), timeout=remaining)
+    except Exception as error:
+        logger.error("Game %s could not be loaded: %s", game_id, error)
+        return
+    if loop.time() >= deadline:
+        logger.error("Game %s finished loading after its submission window.", game_id)
+        return
+
+    manager = RunManager(standard_values(case))
+    coordinator = SubmissionCoordinator(game_id, deadline)
+    events: asyncio.Queue[RunEvent] = asyncio.Queue()
+    router = StrategyRouter()
+    await coordinator.start()
+    coordinator.publish(manager.snapshot())
+    tasks = [
+        asyncio.create_task(_emit_result(events, "fast_path", llm_values(case), game_id)),
+        asyncio.create_task(_emit_result(events, "fraud", detect_fraud(case), game_id)),
+        asyncio.create_task(_forward_strategies(events, router, case)),
+    ]
+    try:
+        while loop.time() < deadline:
+            if all(task.done() for task in tasks) and events.empty():
+                try:
+                    await asyncio.wait_for(
+                        coordinator.wait_until_idle(),
+                        timeout=deadline - loop.time(),
+                    )
+                except TimeoutError:
+                    pass
+                break
+            try:
+                event = await asyncio.wait_for(events.get(), timeout=deadline - loop.time())
+            except TimeoutError:
+                break
+            if _apply_event(manager, event):
+                coordinator.publish(manager.snapshot())
+    finally:
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+        await coordinator.close()
 
 
-load_env()
+async def _emit_result(
+    events: asyncio.Queue[RunEvent],
+    kind: str,
+    operation: Awaitable[Proposal | FraudDecision | None],
+    game_id: int,
+) -> None:
+    try:
+        result = await operation
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        logger.exception("%s failed for Game %s.", kind, game_id)
+        return
+    if result is not None:
+        await events.put(RunEvent(kind, result))
 
-from src.ab_calculation import calculate_ab
-from src.api import APIError, get_decryption_key, list_games, query_llm
-from src.api_post import post_result
-from src.lineitem_checks import check_line_items
-from src.parse_invoice import parse_invoice
 
-ARCHIVE_DIR = Path("[PUBLIC] EHL Cases/cases")
-OUTPUT_DIR = Path("var/cases")
+async def _forward_strategies(
+    events: asyncio.Queue[RunEvent],
+    router: StrategyRouter,
+    case: CaseData,
+) -> None:
+    async for proposal in router.start_strategies(case):
+        await events.put(RunEvent("strategy", proposal))
+
+
+def _apply_event(manager: RunManager, event: RunEvent) -> bool:
+    if event.kind == "fast_path" and isinstance(event.value, Proposal):
+        return manager.set_fast_path(event.value)
+    if event.kind == "strategy" and isinstance(event.value, Proposal):
+        return manager.set_strategy(event.value)
+    if event.kind == "fraud" and isinstance(event.value, FraudDecision):
+        return manager.apply_fraud(event.value)
+    raise ValueError(f"Unsupported RunEvent: {event.kind}")
 
 
 def parse_time(value: str) -> datetime:
-    """Parse ISO timestamp to UTC datetime."""
     return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
 
 
-def extract_case(game_id: int, key: str) -> Path:
-    """Decrypt one case into var/cases/case_XX."""
-    name = f"case_{game_id:02d}"
-    candidate_archives = [
-        ARCHIVE_DIR / f"{name}.zip",
-        Path("cases") / f"{name}.zip",
-        Path(f"{name}.zip"),
-    ]
-    archive = next((a for a in candidate_archives if a.exists()), None)
-    if not archive:
-        raise FileNotFoundError(f"Missing case archive for {name} in candidate locations.")
-
-    case_dir = OUTPUT_DIR / name
-    case_dir.mkdir(parents=True, exist_ok=True)
-
-    subprocess.run(
-        ["7z", "x", "-y", f"-p{key}", f"-o{case_dir}", str(archive)],
-        check=True,
-        capture_output=True,
-        text=True,
+async def watch_games() -> None:
+    games = sorted(
+        await asyncio.to_thread(list_games),
+        key=lambda game: parse_time(str(game["start_time"])),
     )
-    print(f"Game {game_id} extracted to {case_dir}")
-    return case_dir
-
-
-def process_case(game_id: int, case_dir: Path) -> None:
-    """Entry point for pricing analysis and submission."""
-    print(f"Game {game_id} is ready: {case_dir}")
-    line_items = parse_invoice(case_dir / "invoices.pdf")
-    checked_line_items = check_line_items(
-        line_items,
-        policy_path=case_dir / "policy.txt",
-        description_path=case_dir / "description.txt",
-    )
-    ab_result = calculate_ab(checked_line_items)
-    post_result(game_id, ab_result)
-
-
-def handle_game(game_id: int) -> None:
-    """Fetch the released key, decrypt the archive, and trigger processing."""
-    key = None
-    for attempt in range(10):
-        try:
-            key = get_decryption_key(game_id)
-            break
-        except APIError as error:
-            if error.status_code != 403 or attempt == 9:
-                raise
-            time.sleep(0.5)
-
-    if not key:
-        raise RuntimeError(f"Could not retrieve decryption key for game {game_id}")
-
-    print(f"Decryption key for game {game_id}: {key}")
-    case_dir = extract_case(game_id, key)
-    process_case(game_id, case_dir)
-
-
-def watch_games() -> None:
-    """Wait through the published schedule and handle each game at its start."""
-    games = sorted(list_games(), key=lambda game: parse_time(game["start_time"]))
-    print(f"Loaded {len(games)} scheduled games. Press Ctrl-C to stop.")
+    logger.info("Loaded %s scheduled Games.", len(games))
     for game in games:
+        game_id = int(game["id"])
+        start_time = parse_time(str(game["start_time"]))
         now = datetime.now(timezone.utc)
-        start_time = parse_time(game["start_time"])
-        if start_time + timedelta(minutes=1) < now:
+        if start_time + timedelta(seconds=RUN_SECONDS) <= now:
             continue
         wait_seconds = (start_time - now).total_seconds()
         if wait_seconds > 0:
-            print(f"Game {game['id']} starts at {start_time.isoformat()}")
-            time.sleep(wait_seconds)
-        handle_game(int(game["id"]))
+            logger.info("Game %s starts at %s.", game_id, start_time.isoformat())
+            await asyncio.sleep(wait_seconds)
+        await run_game(game_id)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="WireClaim - QuantCo Claim-to-Fame Runner")
-    parser.add_argument(
-        "--game-id",
-        type=int,
-        default=None,
-        help="Process one game immediately instead of watching the schedule",
-    )
-    parser.add_argument(
-        "--test-llm",
-        action="store_true",
-        help="Test LLM connection and exit",
-    )
+    parser = argparse.ArgumentParser(description="WireClaim Game runner")
+    parser.add_argument("--game-id", type=int, help="Process one Game immediately.")
     args = parser.parse_args()
-
-    if args.test_llm:
-        print("Testing LLM...")
-        llm_response = query_llm("Answer only with: API works")
-        print("LLM Response:", llm_response)
-        return
-
-    if args.game_id is not None:
-        handle_game(args.game_id)
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    if args.game_id is None:
+        asyncio.run(watch_games())
     else:
-        watch_games()
+        asyncio.run(run_game(args.game_id))
 
 
 if __name__ == "__main__":

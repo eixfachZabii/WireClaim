@@ -1,7 +1,17 @@
 # Which strategy actually wins this — a ranking against real data
 
-Written Sat 15:30 CEST, after Games 1–3 settled. **We are Bin busy, 3rd of 17 (14,223).**
-~20 hours and ~95 Games remain.
+Written Sat 15:30 CEST after Games 1–3; **standing refreshed after Game 6.**
+
+**We are Bin busy, 5th of 17 (3,199)** — Games 5 and 6 both lost, by opposite failures
+(`b` unbounded, then `b` ≈ 0). ~20 hours and ~94 Games remain.
+
+> **The ranking below still holds, but the problem it is ranked against has moved.**
+> When this was written we were losing to *timidity as Issuer*. We are now losing to an
+> uncontrolled *Limit* and a pricing pipeline that falls back to a constant. Read
+> [`actnow.md`](actnow.md) first; it is current through Game 6. The tier order here —
+> flywheel and wildcard's controller first — is if anything reinforced: both are
+> self-correcting mechanisms, and the last two Games are exactly what an open-loop
+> pipeline looks like.
 
 ---
 
