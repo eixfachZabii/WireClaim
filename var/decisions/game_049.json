@@ -1,0 +1,497 @@
+{
+  "game_id": 49,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 66.47,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 42.75,
+      "name": "Filling valve (internal frost-burst fitting) (1 pcs)",
+      "price_high": 165.0,
+      "price_low": 55.0,
+      "price_median": 95.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.33392470780185707
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 20.78,
+      "coverage_probability": 0.97,
+      "index": 2,
+      "limit": 14.4,
+      "name": "Connection hose (1 pcs)",
+      "price_high": 65.0,
+      "price_low": 15.0,
+      "price_median": 32.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.4456951576879717
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 218.12,
+      "coverage_probability": 0.98,
+      "index": 3,
+      "limit": 128.25,
+      "name": "Senior installer hours (3 hrs)",
+      "price_high": 390.0,
+      "price_low": 210.0,
+      "price_median": 285.0,
+      "quantity": 3.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.1881578141052351
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 26.78,
+      "coverage_probability": 0.96,
+      "index": 4,
+      "limit": 18.9,
+      "name": "Auxiliary and cleaning material (1 pcs)",
+      "price_high": 85.0,
+      "price_low": 18.0,
+      "price_median": 42.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.4718174767763379
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 58.15,
+      "coverage_probability": 0.94,
+      "index": 5,
+      "limit": 58.15,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 149.17903418259488,
+      "price_low": 47.2406507176794,
+      "price_median": 83.94828555855516,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 423.8,
+      "coverage_probability": 0.98,
+      "index": 6,
+      "limit": 252.0,
+      "name": "Thermal imaging camera (leak detection) (1 pcs)",
+      "price_high": 850.0,
+      "price_low": 430.0,
+      "price_median": 560.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.20712800632120185
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.01,
+      "index": 7,
+      "limit": 0.0,
+      "name": "Vehicle costs \u2013 return visit",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 284.29,
+      "coverage_probability": 0.97,
+      "index": 8,
+      "limit": 189.0,
+      "name": "Facade frost damage - remove loose and spalled (2 pcs)",
+      "price_high": 780.0,
+      "price_low": 220.0,
+      "price_median": 420.0,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.38470102532865524
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 184.91,
+      "coverage_probability": 0.97,
+      "index": 9,
+      "limit": 126.0,
+      "name": "Base plaster (1 pcs)",
+      "price_high": 560.0,
+      "price_low": 140.0,
+      "price_median": 280.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 209.06,
+      "coverage_probability": 0.96,
+      "index": 10,
+      "limit": 146.25,
+      "name": "Newly plastered substrate (1 pcs)",
+      "price_high": 680.0,
+      "price_low": 150.0,
+      "price_median": 325.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.45940957570635155
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 104.25,
+      "coverage_probability": 0.96,
+      "index": 11,
+      "limit": 72.0,
+      "name": "Priming (1 pcs)",
+      "price_high": 320.0,
+      "price_low": 75.0,
+      "price_median": 160.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.44098263898403095
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 255.37,
+      "coverage_probability": 0.96,
+      "index": 12,
+      "limit": 175.5,
+      "name": "Drying (1 pcs)",
+      "price_high": 750.0,
+      "price_low": 180.0,
+      "price_median": 390.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.43377396827967957
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 537.12,
+      "coverage_probability": 0.97,
+      "index": 13,
+      "limit": 360.0,
+      "name": "Facade paint (4 coats) (1 pcs)",
+      "price_high": 1550.0,
+      "price_low": 420.0,
+      "price_median": 800.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.39688616979813934
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 366.08,
+      "coverage_probability": 0.97,
+      "index": 14,
+      "limit": 213.75,
+      "name": "Painter hours (5 hrs)",
+      "price_high": 625.0,
+      "price_low": 350.0,
+      "price_median": 475.0,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.1762366246969429
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 598.72,
+      "coverage_probability": 0.95,
+      "index": 15,
+      "limit": 382.5,
+      "name": "Scaffolding hire (1 pcs)",
+      "price_high": 1450.0,
+      "price_low": 500.0,
+      "price_median": 850.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.32362028480013016
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 488.21,
+      "coverage_probability": 0.01,
+      "index": 16,
+      "limit": 0.0,
+      "name": "Repaint of undamaged rear elevation (no frost loss (1 flat rate)",
+      "price_high": 1500.0,
+      "price_low": 350.0,
+      "price_median": 750.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4423365448653015
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 105.01,
+      "coverage_probability": 0.96,
+      "index": 17,
+      "limit": 69.75,
+      "name": "Waste disposal of removed plaster (1 pcs)",
+      "price_high": 300.0,
+      "price_low": 85.0,
+      "price_median": 155.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3833225587130348
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 48.82,
+      "coverage_probability": 0.0,
+      "index": 18,
+      "limit": 0.0,
+      "name": "Administrative flat rate (1 pcs)",
+      "price_high": 150.0,
+      "price_low": 35.0,
+      "price_median": 75.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4423365448653015
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 19,
+      "limit": 0.0,
+      "name": "Catering for work crew",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    }
+  ],
+  "memory_items": 3,
+  "model_draws": 1,
+  "model_items": 19,
+  "proposals": {
+    "strategy2": {
+      "1": [
+        66.47,
+        42.75
+      ],
+      "10": [
+        209.06,
+        146.25
+      ],
+      "11": [
+        104.25,
+        72.0
+      ],
+      "12": [
+        255.37,
+        175.5
+      ],
+      "13": [
+        537.12,
+        360.0
+      ],
+      "14": [
+        366.08,
+        213.75
+      ],
+      "15": [
+        598.72,
+        382.5
+      ],
+      "16": [
+        488.21,
+        0.0
+      ],
+      "17": [
+        105.01,
+        69.75
+      ],
+      "18": [
+        48.82,
+        0.0
+      ],
+      "19": [
+        64.06,
+        0.0
+      ],
+      "2": [
+        20.78,
+        14.4
+      ],
+      "3": [
+        218.12,
+        128.25
+      ],
+      "4": [
+        26.78,
+        18.9
+      ],
+      "5": [
+        58.15,
+        58.15
+      ],
+      "6": [
+        423.8,
+        252.0
+      ],
+      "7": [
+        64.06,
+        0.0
+      ],
+      "8": [
+        284.29,
+        189.0
+      ],
+      "9": [
+        184.91,
+        126.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        150.0,
+        0.0
+      ],
+      "10": [
+        315.0,
+        35.0
+      ],
+      "11": [
+        150.0,
+        35.0
+      ],
+      "12": [
+        150.0,
+        35.0
+      ],
+      "13": [
+        490.0,
+        35.0
+      ],
+      "14": [
+        750.0,
+        35.0
+      ],
+      "15": [
+        910.0,
+        35.0
+      ],
+      "16": [
+        1085.0,
+        0.0
+      ],
+      "17": [
+        192.5,
+        35.0
+      ],
+      "18": [
+        150.0,
+        16.67
+      ],
+      "19": [
+        150.0,
+        0.0
+      ],
+      "2": [
+        150.0,
+        35.0
+      ],
+      "3": [
+        450.0,
+        0.0
+      ],
+      "4": [
+        150.0,
+        35.0
+      ],
+      "5": [
+        150.0,
+        0.0
+      ],
+      "6": [
+        150.0,
+        35.0
+      ],
+      "7": [
+        150.0,
+        0.0
+      ],
+      "8": [
+        420.0,
+        35.0
+      ],
+      "9": [
+        238.0,
+        35.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787440007.95157,
+  "recorded_at": 1787439989.023787,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

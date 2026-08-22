@@ -37,7 +37,9 @@
   "memory_items": 0,
   "model_draws": 1,
   "model_items": 1,
-  "recorded_at": 1787440008.251466,
+  "partial": true,
+  "partial_note": "INCOMPLETE \u2014 do not use for attribution. The real run priced and submitted all 17 Line Items (runner log, 23:37:54: model_draws=2 model_items=17 memory_items=10 priced=17). This file holds 2, because tests/test_strategy2.py's fixture used game_id=42 and called decisions.record() without mocking DECISIONS_DIR, so every `pixi run test` overwrote it. The per-item evidence is unrecoverable. Fixed two ways since: the fixture now uses 9042, and _write_merged merges items by index instead of replacing the list.",
+  "recorded_at": 1787440353.155055,
   "schema": 2,
   "strategy": "strategy2"
 }
