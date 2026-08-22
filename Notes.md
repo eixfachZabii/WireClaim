@@ -4,6 +4,7 @@
 - t value guess (condifenz interval)
 - given t value guess, error margin and PV (policy violation boolean) calculate a and b per lineitem
 - post to api
+- strategie optimization
 
 
 
