@@ -92,6 +92,28 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(run_game.await_count, 1)
         self.assertEqual(run_game.await_args.args, (1,))
 
+    async def test_a_case_that_never_loads_still_submits_a_floor(self) -> None:
+        """Games 11 and 12 submitted nothing and scored the (0, 0) default: -36,017 and
+        -43,381, identical to the teams that never showed up. A Case that fails to load
+        must still leave a non-zero Charge and a non-zero Limit on the board."""
+        with patch.object(main, "load_case", side_effect=RuntimeError("no key")):
+            with self.assertLogs("main", level="INFO") as logs:
+                await main.run_game(99, dry_run=True)
+
+        payloads = [line for line in logs.output if "DRY RUN SUBMISSION" in line]
+        self.assertTrue(payloads, "a failed Case load must still publish a Submission")
+        self.assertIn("PUT /api/games/99/submissions", payloads[0])
+        self.assertNotIn('"charge_price": 0.0', payloads[0])
+        self.assertNotIn('"acceptance_limit": 0.0', payloads[0])
+
+    def test_blind_floor_covers_every_index_a_case_might_use(self) -> None:
+        floor = main.blind_floor()
+
+        self.assertEqual([price.index for price in floor], list(range(1, 9)))
+        for price in floor:
+            self.assertGreater(price.charge_price, 0.0)
+            self.assertGreater(price.acceptance_limit, 0.0)
+
     def test_dry_submit_logs_payload_without_api_call(self) -> None:
         submissions = [{"index": 1, "charge_price": 150.0, "acceptance_limit": 75.0}]
 

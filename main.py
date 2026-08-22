@@ -5,6 +5,7 @@ import asyncio
 import json
 import logging
 from collections.abc import Awaitable
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
@@ -13,7 +14,12 @@ from src.data.case_loader import load_case
 from src.data.models import CaseData, FraudDecision, ItemPrice, Proposal
 from src.services.fraud_detection import detect_fraud
 from src.services.strategy_router import StrategyRouter
-from src.services.strategies.fast_path import llm_values, standard_values
+from src.services.strategies.fast_path import (
+    STANDARD_CHARGE,
+    STANDARD_LIMIT,
+    llm_values,
+    standard_values,
+)
 from src.services.submission_coordinator import SubmissionCoordinator
 from src.timing import log_timing, start_timer
 
@@ -69,6 +75,31 @@ class RunManager:
         )
 
 
+# A Game with no Submission at all is not a zero: it is the (0, 0) default, which
+# wrongfully rejects every fair claim at 1.5a and charges nothing. Games 11 and 12 went
+# out that way and cost 36,017 and 43,381 -- scores identical to the teams that never
+# showed up. So we publish a floor before loading anything, and only then start work.
+#
+# We cannot know the Line Item count before the Case loads, so we cover a fixed range.
+# Settled Games 1-13 all carry 2-4 items (max index 4); 8 is generous headroom while
+# keeping the payload small, and indices beyond the real count are accepted and ignored
+# (verified against the test Game: PUT of indices 1-8 returned 200). Once the Case
+# loads, RunManager.snapshot() drops anything outside its real indices.
+BLIND_LINE_ITEMS = 8
+
+
+def blind_floor() -> tuple[ItemPrice, ...]:
+    return tuple(
+        ItemPrice(
+            index=index,
+            charge_price=STANDARD_CHARGE,
+            acceptance_limit=STANDARD_LIMIT,
+            source="blind_floor",
+        )
+        for index in range(1, BLIND_LINE_ITEMS + 1)
+    )
+
+
 def format_dry_run_submission(game_id: int, submissions: list[dict[str, float | int]]) -> str:
     rows = [
         (
@@ -101,37 +132,44 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
     run_started_at = start_timer()
     loop = asyncio.get_running_loop()
     deadline = loop.time() + RUN_SECONDS
-    case_load_started_at = start_timer()
-    try:
-        remaining = deadline - loop.time()
-        if remaining <= 0:
-            return
-        case = await asyncio.wait_for(load_case(game_id, deadline), timeout=remaining)
-    except Exception as error:
-        logger.error("Game %s could not be loaded: %s", game_id, error)
-        log_timing(logger, "case_load", case_load_started_at, "failed", game=game_id)
-        log_timing(logger, "game", run_started_at, "failed", game=game_id, dry_run=dry_run)
-        return
-    log_timing(logger, "case_load", case_load_started_at, game=game_id)
-    if loop.time() >= deadline:
-        logger.error("Game %s finished loading after its submission window.", game_id)
-        log_timing(logger, "game", run_started_at, "expired", game=game_id, dry_run=dry_run)
-        return
-
-    manager = RunManager(standard_values(case))
     coordinator = (
         SubmissionCoordinator(game_id, deadline, submitter=dry_run_submit)
         if dry_run
         else SubmissionCoordinator(game_id, deadline)
     )
+    await coordinator.start()
+    coordinator.publish(blind_floor())
+
+    case_load_started_at = start_timer()
+    try:
+        remaining = deadline - loop.time()
+        if remaining <= 0:
+            await coordinator.close()
+            return
+        case = await asyncio.wait_for(load_case(game_id, deadline), timeout=remaining)
+    except Exception as error:
+        logger.error("Game %s could not be loaded: %s - blind floor stands.", game_id, error)
+        log_timing(logger, "case_load", case_load_started_at, "failed", game=game_id)
+        with suppress(TimeoutError):
+            await asyncio.wait_for(coordinator.wait_until_idle(), timeout=max(deadline - loop.time(), 0.0))
+        await coordinator.close()
+        log_timing(logger, "game", run_started_at, "failed", game=game_id, dry_run=dry_run)
+        return
+    log_timing(logger, "case_load", case_load_started_at, game=game_id)
+    if loop.time() >= deadline:
+        logger.error("Game %s finished loading after its submission window.", game_id)
+        await coordinator.close()
+        log_timing(logger, "game", run_started_at, "expired", game=game_id, dry_run=dry_run)
+        return
+
+    manager = RunManager(standard_values(case))
     events: asyncio.Queue[RunEvent] = asyncio.Queue()
     router = StrategyRouter()
     try:
         warm_llm_resources()
     except Exception as error:
         logger.warning("Could not warm OpenAI resources: %s", error)
-    await coordinator.start()
-    coordinator.publish(manager.snapshot(), reason="standard")
+    coordinator.publish(manager.snapshot(), reason="case_loaded", force=dry_run)
     tasks = [
         asyncio.create_task(_emit_result(events, "fast_path", llm_values(case), game_id)),
         asyncio.create_task(_emit_result(events, "fraud", detect_fraud(case), game_id)),
@@ -269,12 +307,15 @@ def main() -> None:
     if args.game_id is not None and args.retry_dry:
         parser.error("--game-id and --retry_dry cannot be used together.")
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    if args.retry_dry:
-        asyncio.run(retry_expired_games())
-    elif args.game_id is None:
-        asyncio.run(watch_games())
-    else:
-        asyncio.run(run_game(args.game_id))
+    try:
+        if args.retry_dry:
+            asyncio.run(retry_expired_games())
+        elif args.game_id is None:
+            asyncio.run(watch_games())
+        else:
+            asyncio.run(run_game(args.game_id))
+    except KeyboardInterrupt:
+        logger.info("Stopping WireClaim runner.")
 
 
 if __name__ == "__main__":
