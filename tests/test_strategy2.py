@@ -132,6 +132,24 @@ class CombineTests(unittest.TestCase):
 
         self.assertAlmostEqual(combined.coverage_probability, 0.2)
 
+    def test_a_zero_model_band_keeps_the_memory_anchor(self) -> None:
+        """The model zeroes the band on items it judges uncovered, and that used to throw
+        the anchor away: Game 31 item 17 had an exact memory hit at 300 and was Charged
+        39.62 (`FALLBACK_MEDIAN`) against a Fair Value of at least 315."""
+        combined = _combine(
+            Evidence(1, 0.3, 0.0, 0.0, 0.0),
+            Evidence(1, 0.9, 195.0, 300.0, 461.0),
+        )
+
+        self.assertEqual(combined.price_median, 300.0)
+        # The coverage verdict is still the model's, so the Limit collapses as before.
+        self.assertAlmostEqual(combined.coverage_probability, 0.3)
+
+    def test_a_zero_model_band_with_no_anchor_is_left_alone(self) -> None:
+        only_model = Evidence(1, 0.3, 0.0, 0.0, 0.0)
+
+        self.assertIs(_combine(only_model, Evidence(1, 0.9, 0.0, 0.0, 0.0)), only_model)
+
     def test_either_side_alone_is_enough(self) -> None:
         only_model = Evidence(1, 0.9, 80.0, 100.0, 125.0)
         only_memory = Evidence(1, 0.9, 80.0, 100.0, 125.0)

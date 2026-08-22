@@ -87,8 +87,28 @@ def combine(model: Evidence | None, memory: Evidence | None) -> Evidence | None:
     """Inverse-variance blend of the model's reading and a Price Memory anchor."""
     if model is None:
         return memory
-    if memory is None or memory.price_median <= 0 or model.price_median <= 0:
+    if memory is None or memory.price_median <= 0:
         return model
+    if model.price_median <= 0:
+        # The model zeroes the band on items it judges uncovered — every one of the nine
+        # zero-band Line Items in the logged Games came back with coverage <= 0.30. That
+        # conflates "not covered" with "worth nothing", and discarding the anchor here
+        # dropped the item through `Evidence.with_defaults` onto `FALLBACK_MEDIAN`, so
+        # every such item was Charged the same 39.62 whatever it was worth. Game 31 item
+        # 17 had an exact memory hit at 300 from Game 5 and a Fair Value of at least 315.
+        #
+        # `price_item` prices the Charge as if the item were covered on purpose: an
+        # uncovered item has `t = 0`, so a rejected Charge costs nothing and charging is a
+        # free option (README R6c). Keep the model's coverage verdict — the Limit still
+        # collapses — and take the anchor's band. Replayed over the logged Games this is
+        # +3,190, positive in all four Games it touches and neutral in the rest.
+        return Evidence(
+            index=model.index,
+            coverage_probability=model.coverage_probability,
+            price_low=memory.price_low,
+            price_median=memory.price_median,
+            price_high=memory.price_high,
+        )
     if memory.coverage_probability == 0.0:
         # Channel A proved the item is worthless. A price must not talk it out of that:
         # keep coverage at zero so the Limit collapses, but take the better band.
