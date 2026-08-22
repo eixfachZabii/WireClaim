@@ -12,9 +12,9 @@ on:
       - "case_analysis/*.py"
   schedule:
     # Games settle every ~12.6 minutes during the tournament window.
-    # Offset from :00/:15/:30/:45 — on-the-hour slots are the most congested
+    # Offset from :00/:10/:20/... — on-the-hour slots are the most congested
     # on GitHub's scheduler and get delayed or dropped the most.
-    - cron: "4,19,34,49 * * * *"
+    - cron: "4,14,24,34,44,54 * * * *"
 
 permissions:
   contents: write
@@ -46,21 +46,13 @@ jobs:
       - run: pip install matplotlib
 
       - name: Run pipeline
-        run: |
-          python3 case_analysis/fetch_data.py
-          python3 case_analysis/analyze.py
-          python3 case_analysis/dashboard.py --save
-          python3 case_analysis/report.py
-          python3 case_analysis/money.py
+        run: python3 case_analysis/run_all.py
 
       - name: Commit refreshed artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add case_analysis/data/analysis.json case_analysis/data/dashboard.png \
-                  case_analysis/data/table_binbusy.png case_analysis/data/table_binbusy.csv \
-                  case_analysis/data/table_averages.png case_analysis/data/table_averages.csv \
-                  case_analysis/data/binbusy_money.png case_analysis/data/binbusy_money.csv
+          git add case_analysis/data  # raw/ is gitignored; adds every generated artifact
           if git diff --cached --quiet; then
             echo "no changes"
             exit 0
