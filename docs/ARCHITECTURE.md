@@ -229,7 +229,7 @@ handbook is explicit. Hence invariant 1 above.
 
 ### The blind floor
 
-`run_game` publishes `blind_floor()` — `STANDARD_CHARGE` / `STANDARD_LIMIT` on indices 1–8
+`run_game` publishes `blind_floor()` — `STANDARD_CHARGE` / `STANDARD_LIMIT` on indices 1–40
 — **before it tries to load the Case**, and the floor stands if the load fails.
 
 This is the single highest-value line in the runner. Games 11 and 12 submitted nothing and
@@ -238,10 +238,10 @@ scored −36,017 and −43,381, *identical to the teams that never showed up at 
 claim at `1.5a`. Game 13, where the pipeline did run, cost only −2,607. Uptime, not
 accuracy, is what the last four Games were decided on.
 
-The index range is fixed at 8 because the Line Item count is unknowable before the Case
-loads. Settled Games 1–13 all carry 2–4 items (max index 4), and indices past the real
-count are accepted and ignored — verified against the test Game, where a `PUT` of indices
-1–8 returned `200`. `RunManager.snapshot()` drops the surplus once the Case is in.
+The index range is fixed at 40 because the Line Item count is unknowable before the Case
+loads. The validated local corpus contains up to 39 Line Items (Game 8); indices past the
+real count are accepted and ignored. `RunManager.snapshot()` drops the surplus once the
+Case is in.
 
 ---
 

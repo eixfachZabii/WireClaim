@@ -81,11 +81,10 @@ class RunManager:
 # showed up. So we publish a floor before loading anything, and only then start work.
 #
 # We cannot know the Line Item count before the Case loads, so we cover a fixed range.
-# Settled Games 1-13 all carry 2-4 items (max index 4); 8 is generous headroom while
-# keeping the payload small, and indices beyond the real count are accepted and ignored
-# (verified against the test Game: PUT of indices 1-8 returned 200). Once the Case
-# loads, RunManager.snapshot() drops anything outside its real indices.
-BLIND_LINE_ITEMS = 8
+# The validated local corpus contains up to 39 Line Items (Game 8); 40 leaves one slot of
+# headroom. Indices beyond the real count are accepted and ignored, and once the Case loads,
+# RunManager.snapshot() drops anything outside its real indices.
+BLIND_LINE_ITEMS = 40
 
 
 def blind_floor() -> tuple[ItemPrice, ...]:
