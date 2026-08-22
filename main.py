@@ -299,6 +299,7 @@ async def retry_expired_games(now: datetime | None = None) -> None:
         if start_time + timedelta(seconds=RUN_SECONDS) > reference_time:
             logger.info("Stopping dry retry before Game %s at %s.", game["id"], start_time.isoformat())
             return
+        logger.info("\n\n\n################ CASE %s ##################\n\n\n", game["id"])
         logger.info("Dry retry for expired Game %s.", game["id"])
         await run_game(int(game["id"]), dry_run=True)
 
@@ -333,16 +334,14 @@ def main() -> None:
         help="Run expired Games in order and print submissions without posting them.",
     )
     args = parser.parse_args()
-    if args.game_id is not None and args.retry_dry:
-        parser.error("--game-id and --retry_dry cannot be used together.")
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     try:
-        if args.retry_dry:
+        if args.game_id is not None:
+            asyncio.run(run_game(args.game_id, dry_run=args.retry_dry))
+        elif args.retry_dry:
             asyncio.run(retry_expired_games())
-        elif args.game_id is None:
-            asyncio.run(watch_games())
         else:
-            asyncio.run(run_game(args.game_id))
+            asyncio.run(watch_games())
     except KeyboardInterrupt:
         logger.info("Stopping WireClaim runner.")
 
