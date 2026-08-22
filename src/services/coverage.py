@@ -67,9 +67,19 @@ logger = logging.getLogger(__name__)
 #: and then fund the field on the same item through the 1.5a wrongful-rejection penalty.
 DEFAULT_P_COVERED = 0.9
 
-#: Below this the bottom-third quantile of the posterior is zero, so this is the value at
-#: which a verdict actually starts to move money. Named here so the tests and the
-#: calibration read the same constant as `src.pricing.COVERAGE_FLOOR`.
+#: This module's own threshold for "a verdict that on its own kills the Limit".
+#:
+#: **It is deliberately *not* `src.pricing.COVERAGE_FLOOR`, and an earlier comment claiming
+#: it was is wrong.** The pricing engine collapses the Limit at `p <= 1 - LIMIT_QUANTILE`,
+#: i.e. **2/3**, because the posterior carries mass `1 - p` at zero and its one-third
+#: quantile falls inside that atom as soon as `1 - p >= 1/3`.
+#:
+#: So the two differ on purpose and the gap has a consequence worth knowing: an item this
+#: module reports between 1/3 and 2/3 passes *this* gate and still receives a zero Limit
+#: downstream. That interacts with `UNVERIFIED_SHRINK` below, which shrinks an unquoted
+#: doubt to about 0.48 precisely so a story cannot zero a Limit — an intention the pricing
+#: engine does not currently honour. Resolve it when this module is wired in; it is
+#: imported by nothing today, so nothing is broken by writing the truth down.
 LIMIT_COLLAPSE = 1.0 / 3.0
 
 #: An unquoted doubt is still information -- the model is right more often than not -- but

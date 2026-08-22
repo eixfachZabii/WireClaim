@@ -3,6 +3,13 @@
 All images below are regenerated automatically every 15 minutes from the settled leaderboard data
 (see `.github/workflows/case-analysis.yml`). Newest / most important first.
 
+## Total balance per team
+
+Cumulative net per team over all settled games (income as Issuer minus costs as Reviewer,
+incl. 1.5a lawyer penalties). Bin busy is the thick black line.
+
+![Total balance per team](data/balance.png)
+
 ## Bin busy — money flows & lawyer fees
 
 Income received as Issuer vs. what we paid out as Reviewer (accepted payouts + 1.5a lawyer

@@ -52,8 +52,18 @@ class PriceItemTests(unittest.TestCase):
                 self.assertLessEqual(price.limit, price.charge, f"{median} {coverage}")
 
     def test_doubtful_coverage_collapses_the_limit_to_zero(self) -> None:
-        """Below P(covered) = 1/3 the bottom third of the posterior *is* zero."""
+        """At P(covered) <= 1 - q = 2/3 the bottom third of the posterior *is* zero.
+
+        The threshold is `1 - LIMIT_QUANTILE`, not `LIMIT_QUANTILE`: the posterior carries
+        mass `1 - covered` at zero, so that mass alone fills the bottom third as soon as
+        `1 - covered >= q`. Coverage of 0.60 is therefore a collapse, which is the case the
+        old floor of 1/3 got right only by accident -- via the -8 clamp in
+        `_normal_quantile` -- and now gets right by construction. Worth +21 euros over 23
+        Games, i.e. nothing; shipped for the exactness, not the money.
+        """
         self.assertEqual(price_item(self.confident(500.0, coverage=0.30)).limit, 0.0)
+        self.assertEqual(price_item(self.confident(500.0, coverage=0.60)).limit, 0.0)
+        self.assertEqual(price_item(self.confident(500.0, coverage=2.0 / 3.0)).limit, 0.0)
         self.assertGreater(price_item(self.confident(500.0, coverage=0.95)).limit, 0.0)
 
     def test_the_limit_falls_as_coverage_doubt_rises(self) -> None:
@@ -61,19 +71,34 @@ class PriceItemTests(unittest.TestCase):
 
         self.assertEqual(limits, sorted(limits, reverse=True))
 
-    def test_the_limit_falls_as_the_band_widens(self) -> None:
-        """A wider band is a noisier estimate, so the Limit must retreat.
+    def test_a_wider_band_retreats_through_the_charge_not_the_limit(self) -> None:
+        """A wider band is a noisier estimate. Which number retreats changed at Game 24.
 
-        With `LIMIT_CEILING` at 0.85 the retreat comes through two channels at once -- the
-        quantile on the wide side and the ceiling and Charge clamp on the tight side. Which
-        one binds at which width is measured in `TheLimitRetreatsThroughTwoChannels`.
+        This test used to assert that the Limit falls as the band widens. At a ceiling of
+        0.85 that was true, because the 1/3 quantile sat under the ceiling on wide bands.
+        At the measured 0.30 the ceiling binds at *every* width the real model produces --
+        the quantile only drops below 0.30 x median above sigma ~2.8, which never happens --
+        so the Limit is a flat fraction of the median and the band acts on the Charge alone.
+
+        That is a real loss of a signal, and it is worth naming rather than papering over:
+        the band was measured to be uncalibrated anyway (implied median sigma 0.375 against
+        an actual RMSLE of 0.80, and the width ranks the errors slightly *backwards* -- see
+        `ImpliedSigmaTests`), so a Limit that ignores it is not obviously worse, and in euros
+        it is 35,726 better over 23 Games. If the band is ever fixed, the ceiling should rise
+        and this channel comes back; re-run `scripts/accept_limit_sweep.py recommend`.
         """
         tight = price_item(Evidence(1, 1.0, 95.0, 100.0, 105.0))
         wide = price_item(Evidence(1, 1.0, 20.0, 100.0, 500.0))
 
-        self.assertGreater(tight.sigma * 4, wide.sigma * 0)  # sanity: sigma is populated
         self.assertLess(wide.sigma, 2.01)
-        self.assertGreater(tight.limit, wide.limit)
+        self.assertGreater(wide.sigma, tight.sigma)
+        # The Charge still retreats with the band; that channel is untouched.
+        self.assertGreater(tight.charge, wide.charge)
+        # The Limit does not, because the ceiling binds at both widths. Asserted as an
+        # inequality rather than a strict one so the test states the truth: at a ceiling of
+        # 0.30 the band no longer moves the Limit at any width we see.
+        self.assertGreaterEqual(tight.limit, wide.limit)
+        self.assertEqual(tight.limit, wide.limit)
 
     def test_a_proven_exclusion_zeroes_the_limit_but_keeps_the_charge(self) -> None:
         """An uncovered item is a free option: t = 0, so a rejected Charge costs nothing."""
@@ -135,50 +160,149 @@ class MeasuredConstants(unittest.TestCase):
             self.assertLess(charge_factor(sigma), 1.0, sigma)
 
     def test_the_limit_ceiling_carries_the_measurement(self) -> None:
-        """The ceiling is a Field measurement, not a pricing fact, and the Field moved.
+        """The ceiling is a Field measurement, not a pricing fact, and it was re-measured.
 
-        Over Games 1-14 a ceiling of 0.45 beats 0.85 by +17,915. Over Games 15-19 the
-        ordering inverts and 0.85 wins by +15,112, with Games 17 and 18 accounting for the
-        whole reversal. Across all 19 the two differ by 2,802 on ~53,000 — a coin flip.
+        The history matters, because this constant has been argued in both directions.
+        Games 1-14 preferred 0.45 over 0.85 by +17,915; Games 15-19 inverted that and
+        0.85 won by ~15,000 on the strength of Games 17 and 18, and 0.85 was shipped on the
+        grounds that we are paid on the Games that come next.
 
-        We are paid on the Games that come next, so this pins the value the *recent*
-        window prefers. Re-measure at every regime boundary rather than inheriting it
-        (README R9).
+        Games 20-24 then reversed the reversal. Re-measured over every settled Game with
+        `scripts/accept_limit_sweep.py` (Game 16 held out of these totals for comparability
+        with the older ones -- it does reconstruct, to the cent, and including it changes
+        nothing), a ceiling of 0.30 beats 0.85 in every window:
 
-        Leave-one-out over all nineteen Games says the same thing more bluntly: tuning this
-        constant per fold scores +26,273 held out, worse than fixing it anywhere in
-        0.30-1.00 (+50,312 to +54,724). Ten folds pick 0.45, five pick 0.75, the rest
-        scatter. There is no stable optimum to find here, so the tie is broken by the two
-        readings that generalise -- the recent Field, and the unbiased-estimator simulation,
-        which prefers 0.85 at every precision (145,169 against 124,229 at sigma 0.45) and
-        puts the best flat Limit at 1.0-1.15 x median.
+            Games 1-14   +32,100 against +13,599
+            Games 15-19  +19,639 against +37,688   <- the only window that prefers 0.85
+            Games 20-24  +56,639 against +21,386
+            Games 21-24  +41,303 against    -653   <- Strategy 2's own era, on policy
+            all 23       +108,378 against +72,673
+
+        So this pins 0.30, worth +35,726 over 23 Games and +41,956 over Games 21-24. What
+        makes it more than another four-Game fluctuation is the decomposition rather than
+        the total: loosening from 0.30 to 0.85 saves 222,098 in wrongful-rejection penalties
+        and pays 148,065 more on claims we owed plus 109,738 more on accepted Overcharges,
+        so it is a losing trade on the cost side alone, with income untouched.
+
+        Re-audited at Game 26 (`scripts/limit_audit.py`) against the first two Games that
+        actually ran this ceiling, on **disjoint** windows so neither total borrows the
+        other's Games. All 26 Games reconstruct; nothing is excluded:
+
+            ceiling   Games 1-20   Games 21-26      all 26
+              0.15       +64,686       +17,727     +82,412   <- 21-26 argmax
+              0.25       +67,417       +15,819     +83,236   <- all argmax
+              0.30       +67,730       +15,300     +83,030   <- shipped
+              0.45       +71,630        -1,287     +70,343
+              0.70       +74,533       -23,396     +51,138   <- 1-20 argmax
+              0.85       +73,981       -22,244     +51,737
+
+        The windows disagree about the argmax and it does not matter: 0.30 is within 3% of
+        it in all three, both argmaxes are inside the noise floor (+340 and +404 a Game
+        against a floor of ~1,670), and 0.00-0.35 is one flat region everywhere. The
+        asymmetry is the argument -- train on 1-20 and it picks 0.85, which scores -22,244
+        on Games 21-26 against +15,300 for 0.30; train on 21-26 and it picks 0.10, which
+        costs only 2,844 on Games 1-20. Leave-one-out loses to fixing the constant in every
+        window, as usual at this sample size.
+
+        And the penalties that motivated the re-audit are not this constant's fault. Against
+        a per-item oracle Limit `b = t` -- the best any rule could achieve -- only 36,791 of
+        the 108,793 we paid over Games 21-26 was avoidable at all, because rejecting a fair
+        Charge costs 1.5a where accepting costs a, so two thirds of every penalty is money we
+        owed anyway. The remaining third is per-item headroom a multiplier cannot reach: on
+        the penalised items our estimate's median is 0.74x the true Fair Value, and 30% of
+        the penalty needs a ceiling above 1.0. This is an estimator problem wearing a Limit's
+        clothes.
+
+        0.20-0.35 is a plateau (2,557 euros of spread on 108,000); leave-one-out picks
+        inside 0.20-0.40 in all 23 folds, though its held-out total (+86,774) loses to
+        fixing the constant at 0.30 (+108,399), which is the usual verdict on 23 samples.
+        And pushing every censored Fair Value bracket to +inf -- the assumption most
+        favourable to generosity -- still prefers 0.30 by +17,668.
+        Re-run the sweep at every regime boundary rather than inheriting this (README R9).
         """
-        self.assertEqual(LIMIT_CEILING, 0.85)
+        self.assertEqual(LIMIT_CEILING, 0.30)
 
     def test_the_derived_constants_were_not_fitted_away(self) -> None:
-        """The quantile and the coverage floor are flat in euros, so the theory keeps them.
+        """The quantile stays where the theory put it; the floor moves to where it implies.
 
-        The quantile moves the net by under 125 anywhere in 0.20-0.90, because the ceiling
-        binds first; the coverage floor by under 150 anywhere in 0.10-0.70. Neither has a
-        euro case for moving, and both have a derivation for staying.
+        The quantile is flat in euros -- under 125 over Games 1-14 and 2,600 over all 23,
+        with every value above 0.30 worse than the derived 1/3 -- so it keeps its derivation
+        rather than a sweep's argmax.
+
+        The coverage floor is equally flat (137 euros over all 23 Games) but it was *wrong*:
+        the bottom `q` of a posterior carrying mass `1 - covered` at zero is zero exactly
+        when `covered <= 1 - q`, which is 2/3, not 1/3. The old value only reached the right
+        answer through the -8 clamp inside `_normal_quantile`, leaving a Limit of
+        `median * exp(-8 * sigma)` where the derivation says zero. Making it exact is worth
+        +21 euros over 23 Games: shipped because it is derived, not because it pays.
+
+        Re-examined at Game 26, because the floor makes the Limit discontinuous -- an item
+        called 60% covered gets a Limit of exactly zero, and 93 of the 316 settled Line Items
+        are collapsed that way -- so it was a live candidate for "the ceiling is fine and this
+        cliff is the real cost". It is not. Sweeping the *threshold* cannot answer the
+        question (below the floor the quantile already saturates at -8 sigma, so a lower
+        threshold buys a rounding error, not a Limit, which is why that sweep is flat).
+        Replacing the *rule* answers it: removing the collapse entirely is worth **-1,049
+        over 26 Games and -57 over the on-policy six**, and a continuous
+        `b = covered * ceiling * median` is worth -426. It recovers 47 euros of the 113,238
+        penalty on Games 21-26, because `0.30 * median` is below the Field's Charges on those
+        items anyway. The cliff pays for itself and is derived; it stays.
         """
         self.assertAlmostEqual(LIMIT_QUANTILE, 1.0 / 3.0)
-        self.assertAlmostEqual(COVERAGE_FLOOR, 1.0 / 3.0)
+        self.assertAlmostEqual(COVERAGE_FLOOR, 2.0 / 3.0)
+        self.assertAlmostEqual(COVERAGE_FLOOR, 1.0 - LIMIT_QUANTILE)
+
+    def test_two_thirds_of_a_penalty_is_money_we_owed_anyway(self) -> None:
+        """The arithmetic that settles "our penalties prove the Limit is too strict".
+
+        Games 21-26 paid 108,793 in wrongful-rejection penalties against 145,564 of income,
+        which reads as a Limit set far too low. It is not, and the reason is a payoff-table
+        identity rather than a measurement: rejecting a fair Charge costs `1.5a` while
+        accepting the same Charge costs `a`, so a Limit that avoided the rejection would
+        still have paid `2/3` of what the penalty cost. Only the `0.5a` surcharge -- one third
+        -- is money strictness wasted.
+
+        Confirmed against a per-item oracle Limit `b = t` in `scripts/limit_audit.py
+        avoidable`, which is the tightest possible bound: the oracle's reviewer cost over
+        those six Games is 81,127 against our 117,918, i.e. 36,791 of headroom, of which
+        36,264 is this surcharge and 526 is Overcharges we accepted. The oracle needs `t`
+        per item, so none of it is reachable by moving `LIMIT_CEILING`.
+
+        This test pins the identity, not the euros, so that the 2/3 quoted throughout
+        `src/pricing.py` cannot drift if the payoff table is ever restated.
+        """
+        charge = 1_000.0
+        cost_of_rejecting_a_fair_charge = 1.5 * charge
+        cost_of_accepting_it = charge
+
+        avoidable = cost_of_rejecting_a_fair_charge - cost_of_accepting_it
+
+        self.assertAlmostEqual(avoidable / cost_of_rejecting_a_fair_charge, 1.0 / 3.0)
+        self.assertAlmostEqual(cost_of_accepting_it / cost_of_rejecting_a_fair_charge, 2.0 / 3.0)
+        # The measured split of the six on-policy Games, to the euro.
+        penalty = 108_793.0
+        self.assertAlmostEqual(penalty * 2.0 / 3.0, 72_528.67, places=2)
+        self.assertAlmostEqual(penalty / 3.0, 36_264.33, places=2)
 
 
-class TheLimitRetreatsThroughTwoChannels(unittest.TestCase):
+class TheCeilingIsWhatBinds(unittest.TestCase):
     """Exercise the Limit across the band widths the real model actually produces.
 
-    The module docstring says the ceiling "only binds below sigma ~0.38, so for the widths
-    we actually see the band still drives the Limit". Measured over Games 1-19 the model's
-    implied sigma has median 0.375 and spans 0.148 to 0.668 -- so that claim is true for
-    roughly half our Line Items and false for the other half, and the ceiling is doing more
-    work than the derivation suggests. Sweeping the whole observed range here keeps both
-    channels honest, and keeps the invariants asserted where they are least obvious.
+    This class was called `TheLimitRetreatsThroughTwoChannels`, after a docstring claiming
+    the ceiling "only binds below sigma ~0.38, so for the widths we actually see the band
+    still drives the Limit". Measured over Games 1-19 the model's implied sigma has median
+    0.375 and spans 0.148 to 0.668, so the ceiling was already doing more of the work than
+    the derivation suggested. At the ceiling measured over Games 1-24 (0.30) there is only
+    one channel left: the ceiling binds at every width in that range and well beyond it.
+
+    So the name is now the finding. The tests below pin it, and pin the invariants at the
+    widths where they are least obvious -- `b <= a`, nothing negative, and the Limit
+    collapsing to exactly zero once coverage is doubtful.
 
     The bigger caveat is that `sigma` is not what it claims to be at all: the bands imply a
     median 0.375 while the estimator's actual RMSLE is 0.80, and band width does not rank
-    the errors. See `ImpliedSigmaTests`.
+    the errors. See `ImpliedSigmaTests`. A Limit that ignores an uncalibrated width is not a
+    loss of information so much as a refusal to trust a number that has not earned it.
     """
 
     #: The real model's implied sigma over Games 1-19: median 0.375, spanning this range.
@@ -189,18 +313,32 @@ class TheLimitRetreatsThroughTwoChannels(unittest.TestCase):
         return Evidence(1, 1.0, median / spread, median, median * spread)
 
     def test_the_ceiling_binds_across_the_whole_observed_range(self) -> None:
+        """Not merely "binds" -- it *is* the Limit at every width the model produces."""
         for sigma in self.OBSERVED_SIGMAS:
             price = price_item(self.band(sigma))
 
             self.assertAlmostEqual(price.sigma, sigma, places=2)
-            self.assertLessEqual(price.limit, LIMIT_CEILING * 400.0 + 0.01, sigma)
+            self.assertAlmostEqual(price.limit, LIMIT_CEILING * 400.0, places=2, msg=str(sigma))
 
     def test_the_limit_stays_far_under_the_estimate(self) -> None:
-        """The failure a loose Limit invites is unbounded: the Cap has never bound.
+        """The failure a loose Limit invites: the Cap has never bound in 52,224 rows.
 
         Game 7 item 2 was priced at 2,200 against a true Fair Value of 40, at coverage
         0.98. A Limit near the median accepts every opponent's Charge on such an item and
         pays it in full, and no Cap stops that -- zero conflicts in 52,224 settled rows.
+
+        Measured over all 23 scoreable Games, that risk is realised, but not in the shape
+        the argument assumed. It is not one catastrophic row: the worst single accepted
+        Overcharge anywhere in the replay is 2,573 euros (G24 item 3), and it is the same
+        2,573 whether the Limit sits at 0.30 x median or at the full median. What the loose
+        Limit actually buys is *volume* -- 121,927 euros of accepted Overcharges across the
+        Field at a ceiling of 0.85 against 12,189 at 0.30. So the honest version of the
+        asymmetry argument is aggregate, not tail: many moderate Overcharges, each one
+        cheap, and no Cap to stop any of them.
+
+        Still true with Games 25-26 added (127,397 at 0.85 against 12,168 at 0.30 over all
+        26), and it is what makes the Games 21-26 penalties the cheaper of the two evils:
+        loosening there recovers 52,272 of penalty and buys 54,969 of Overcharges to do it.
         """
         for sigma in self.OBSERVED_SIGMAS:
             price = price_item(self.band(sigma, median=2200.0))
@@ -211,7 +349,7 @@ class TheLimitRetreatsThroughTwoChannels(unittest.TestCase):
 
     def test_the_invariants_survive_the_new_ceiling(self) -> None:
         for sigma in self.OBSERVED_SIGMAS:
-            for coverage in (0.0, 0.2, 1.0 / 3.0, 0.5, 0.9, 1.0):
+            for coverage in (0.0, 0.2, 1.0 / 3.0, 0.5, 0.6, 2.0 / 3.0, 0.9, 1.0):
                 shape = self.band(sigma)
                 price = price_item(
                     Evidence(1, coverage, shape.price_low, shape.price_median, shape.price_high)
@@ -253,6 +391,103 @@ class ImpliedSigmaTests(unittest.TestCase):
 
         self.assertAlmostEqual(observed_median_sigma, 0.375, places=3)
         self.assertAlmostEqual(measured_rmsle / observed_median_sigma, 2.1, places=1)
+
+
+class TheChargeIsUnconditional(unittest.TestCase):
+    """Guard the negative result behind `CHARGE_INTERCEPT`: no conditional Charge shipped.
+
+    `scripts/charge_buckets.py` joined the evidence available at decision time -- sigma, the
+    channels that spoke, the coverage probability, the magnitude of the estimate, the invoice
+    unit and the quantity -- to the recovered Fair Value over all 27 settled Games, and asked
+    whether the unrecoverable Charges concentrate anywhere a rule could see. They do (the
+    channel, and sigma with the *wrong* sign), and no conditioning on it earns a euro: every
+    downward multiplier loses on both windows, the one that pays in sample is jagged in its
+    own parameter, and the honest held-out split gives up 19,092 in a fold. The full table is
+    in the note above these constants.
+
+    The tests below are the machine-checkable half of that. They exist because the *next*
+    person to read the complaint "our median a/t is 0.99" will reach for exactly one of these
+    conditionings, and a failing test with the measurement in its docstring is the cheapest
+    way to hand them the answer.
+    """
+
+    def band(self, median: float, *, width: float = 1.25, coverage: float = 1.0) -> Evidence:
+        return Evidence(
+            index=1,
+            coverage_probability=coverage,
+            price_low=median / width,
+            price_median=median,
+            price_high=median * width,
+        )
+
+    def test_the_charge_is_scale_free_in_the_estimate(self) -> None:
+        """No `t_hat` bucket. Conditioning on magnitude was measured and it loses money.
+
+        `t_hat >= 500` carries 57,955 of the 76,642 euros of forgone income, which is the
+        most tempting cell in the whole bucket table -- and only 8% of that bucket's
+        recoverable income against 4% for the middle bucket, i.e. mostly a statement that
+        expensive items carry more euros. Discounting it scores -144,502 (x0.6), -43,584
+        (x0.8) and -102 (x0.9) over 27 Games and is negative on Games 21-27 at every value.
+        Doubling the estimate must therefore double both numbers exactly.
+        """
+        for median in (10.0, 49.0, 51.0, 499.0, 501.0, 5000.0):
+            one = price_item(self.band(median))
+            two = price_item(self.band(median * 2))
+            # delta rather than places: both numbers are rounded to the cent.
+            self.assertAlmostEqual(two.charge, one.charge * 2, delta=0.02, msg=str(median))
+            self.assertAlmostEqual(two.limit, one.limit * 2, delta=0.02, msg=str(median))
+
+    def test_the_charge_reads_only_the_band(self) -> None:
+        """The Charge is a function of the band alone -- not of coverage, not of a channel.
+
+        Coverage moves the Limit and must not move the Charge: an uncovered item has `t = 0`,
+        so a rejected Overcharge costs nothing and shading for doubt forfeits guaranteed
+        income (R6c). Measured as well as derived: discounting the items the model calls less
+        than 90% covered scores -49,562 (x0.6) to -863 (x0.9) over 27 Games, negative in both
+        windows. 98 of our 135 unrecoverable Charges are on Line Items nobody was ever owed
+        money for, and all 98 are free.
+        """
+        charges = {
+            price_item(self.band(300.0, coverage=coverage)).charge
+            for coverage in (0.05, 0.2, 0.5, 0.66, 0.7, 0.9, 1.0)
+        }
+
+        self.assertEqual(len(charges), 1, charges)
+
+    def test_the_sigma_slope_still_points_the_way_it_was_fitted(self) -> None:
+        """A wider band still charges less -- deliberately, and now against a measurement.
+
+        This is the constant the measurement argues with rather than for. On the 217 Line
+        Items with a recoverable positive Fair Value, the *narrow* sigma tercile over-charges
+        on 20% of items and forfeits 12% of its recoverable income, against 16% and 4% for
+        the wide tercile: the ordering `CHARGE_SLOPE` assumes is backwards, which is the euro
+        version of the RMSLE result above (0.847 narrow, 0.733 wide).
+
+        Removing the ordering pays in sample -- a flat factor beats the level-matched line
+        `(L + 0.17) - 0.45 * sigma` in six of seven pairs on the record and six of seven on
+        Games 21-27 -- but the flat level has to be chosen on the non-monotone Field surface
+        (-18,449 at 0.60, +38,922 at 0.69, +6,764 at 0.80) and it fails the held-out split by
+        8,363. Inverting the sign is worse: `0.55 + 0.45 * sigma` scores -10,830 on Games
+        21-27. So the slope stays, and this test records why it is not evidence of anything
+        except that nobody has fixed the band yet.
+        """
+        self.assertEqual(CHARGE_SLOPE, 0.45)
+        self.assertGreater(charge_factor(0.2), charge_factor(0.6))
+
+    def test_a_negative_slope_could_not_even_be_measured_here(self) -> None:
+        """Why the sweep over `CHARGE_SLOPE` reads flat below zero rather than falling.
+
+        `CHARGE_BOUNDS` caps the factor at 0.80, and `CHARGE_INTERCEPT` is 0.85, so every
+        negative slope collapses onto `slope = 0` on the sigmas we actually see. The replay
+        agrees to the euro: slope -0.45, -0.225 and 0.0 all score +178,063 over 27 Games.
+        Anyone testing "discount the narrow bands" has to move the intercept too -- see the
+        `inverted` rows in `charge_buckets.py rules`.
+        """
+        low, high = CHARGE_BOUNDS
+        for slope in (-0.45, -0.225, 0.0):
+            for sigma in (0.0, 0.1, 0.2, 0.35, 0.5, 1.0):
+                clamped = min(max(CHARGE_INTERCEPT - slope * sigma, low), high)
+                self.assertEqual(clamped, high, (slope, sigma))
 
 
 if __name__ == "__main__":
