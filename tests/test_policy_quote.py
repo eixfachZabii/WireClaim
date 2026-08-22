@@ -1,6 +1,6 @@
 import unittest
 
-from src.policy_quote import MIN_QUOTE_LENGTH, is_policy_quote, normalize
+from src.policy_quote import MIN_QUOTE_LENGTH, has_explicit_line_item_exclusion, is_policy_quote, normalize
 
 POLICY = (
     "3.1 general exclusions\n"
@@ -19,6 +19,21 @@ class PolicyQuoteTests(unittest.TestCase):
                 POLICY,
             )
         )
+
+    def test_an_unambiguous_noncoverage_phrase_passes(self) -> None:
+        exclusion = "Charges relating to a liability risk fall outside this cover and are not indemnified."
+
+        self.assertTrue(is_policy_quote(exclusion, exclusion))
+
+    def test_property_scope_exclusions_match_the_line_item(self) -> None:
+        policy = (
+            "This is not an insurance of the movable belongings of people who live there, "
+            "and it is not an insurance of any form of transport used by them."
+        )
+
+        self.assertTrue(has_explicit_line_item_exclusion("Clothing stolen from a car", policy))
+        self.assertTrue(has_explicit_line_item_exclusion("Vehicle costs", policy))
+        self.assertFalse(has_explicit_line_item_exclusion("Repair to a building wall", policy))
 
     def test_line_wrapping_does_not_defeat_the_match(self) -> None:
         """Policies wrap; a quote split across lines is still verbatim."""

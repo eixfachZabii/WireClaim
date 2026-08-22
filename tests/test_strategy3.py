@@ -17,7 +17,7 @@ class Strategy3Tests(unittest.IsolatedAsyncioTestCase):
 
         self.assertIs(proposal, expected)
         runner.assert_awaited_once_with(case, model=LUNA_MODEL, source=STRATEGY_NAME)
-        self.assertEqual(LUNA_MODEL, "luna")
+        self.assertEqual(LUNA_MODEL, "gpt-5.6-luna")
 
 
 if __name__ == "__main__":
