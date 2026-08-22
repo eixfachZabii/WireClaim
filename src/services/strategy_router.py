@@ -5,8 +5,8 @@ import logging
 from collections.abc import AsyncIterator, Awaitable, Callable
 
 from src.data.models import CaseData, Proposal
-from src.services.strategies.strategy_1 import propose as strategy_1
-from src.services.strategies.strategy_2 import propose as strategy_2
+from src.services.strategies.strategy1 import propose as strategy1
+from src.services.strategies.strategy2 import propose as strategy2
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[[CaseData], Awaitable[Proposal | None]]
@@ -14,7 +14,7 @@ Strategy = Callable[[CaseData], Awaitable[Proposal | None]]
 
 class StrategyRouter:
     def __init__(self, strategies: tuple[Strategy, ...] | None = None) -> None:
-        self._strategies = (strategy_1, strategy_2) if strategies is None else strategies
+        self._strategies = (strategy1, strategy2) if strategies is None else strategies
         self._current: Proposal | None = None
 
     @property
