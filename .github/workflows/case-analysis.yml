@@ -42,12 +42,15 @@ jobs:
           python3 case_analysis/fetch_data.py
           python3 case_analysis/analyze.py
           python3 case_analysis/dashboard.py --save
+          python3 case_analysis/report.py
 
       - name: Commit refreshed artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add case_analysis/data/analysis.json case_analysis/data/dashboard.png
+          git add case_analysis/data/analysis.json case_analysis/data/dashboard.png \
+                  case_analysis/data/table_binbusy.png case_analysis/data/table_binbusy.csv \
+                  case_analysis/data/table_averages.png case_analysis/data/table_averages.csv
           if git diff --cached --quiet; then
             echo "no changes"
           else
