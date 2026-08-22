@@ -68,11 +68,16 @@ cell gains +16,346 while that same cell *loses* 11,722 on the first draw, which 
 26,622 noise floor looks like from the inside.
 
 So the level is left exactly as the model returns it, and the reason is not that nobody
-tried: a monotone function of `t_hat` cannot repair an error that is item-specific. Moving
-each median to its own true `t` is worth six figures; no reparameterisation of `t_hat`
-recovers any part of it. `level_units.py`, `level_width.py`, `level_blend.py`,
-`level_anchors.py`, `level_prompt_anchors.py` and `level_memory.py` close off the six
-neighbouring ideas, all measured, all negative or inside the noise.
+tried: a monotone function of `t_hat` cannot repair an error that is item-specific. `--oracle`
+sizes what is actually there -- 127,292 shipped, **228,987** with every median moved to its
+own true `t` and the band and coverage untouched, 811,569 charging and accepting at `t`. That
++101,695 is item accuracy, and no reparameterisation of `t_hat` recovers any part of it.
+
+`level_units.py`, `level_width.py`, `level_blend.py`, `level_anchors.py`,
+`level_prompt_anchors.py` and `level_memory.py` close off the six neighbouring ideas: the
+invoice unit, the band width, the aggregator over draws, per-trade multipliers, the prompt's
+own price anchors and the model/memory weighting. All measured in euros, all negative or
+inside the noise floor.
 """
 
 from __future__ import annotations
@@ -208,6 +213,34 @@ def total(loaded: list[tuple], c0: float, c1: float, sigma_floor: float = 0.0) -
     return sum(nets(loaded, c0, c1, sigma_floor).values())
 
 
+def oracle_totals(loaded: list[tuple]) -> dict[str, float]:
+    """What perfect item-level accuracy is worth, as the ceiling every candidate is judged by.
+
+    `oracle-median` keeps the model's band width and its coverage probability and moves only
+    the median to the recovered `t`, so it isolates exactly the quantity a recalibration map
+    is trying to fix. `oracle` charges and accepts at `t` outright.
+    """
+    shipped = median_moved = both = 0.0
+    for snap, case, model in loaded:
+        adjusted: dict[int, Evidence] = {}
+        for index, ev in model.items():
+            t = snap.fair_point(index) if index in snap.fair_brackets else 0.0
+            scale = t / ev.price_median if ev.price_median > 0 and t > 0 else 1.0
+            adjusted[index] = Evidence(
+                index=index,
+                coverage_probability=ev.coverage_probability,
+                price_low=ev.price_low * scale,
+                price_median=ev.price_median * scale,
+                price_high=ev.price_high * scale,
+            )
+        shipped += replay(snap, submission_of(case, model)).net
+        median_moved += replay(snap, submission_of(case, adjusted)).net
+        both += replay(
+            snap, {i: (snap.fair_point(i), snap.fair_point(i)) for i in snap.line_items}
+        ).net
+    return {"shipped": shipped, "oracle-median": median_moved, "oracle": both}
+
+
 def pivoted(c1: float, pivot: float) -> tuple[float, float]:
     """The `(c0, c1)` whose map leaves `pivot` EUR unchanged: a one-knob family."""
     return math.log(pivot) * (1.0 - c1), c1
@@ -244,6 +277,7 @@ def main() -> None:
     parser.add_argument("--holdout", default=None, choices=("even", "odd", "late", "loo"))
     parser.add_argument("--sigma-floor", type=float, default=0.0)
     parser.add_argument("--apply", nargs=2, type=float, metavar=("C0", "C1"), default=None)
+    parser.add_argument("--oracle", action="store_true", help="the item-accuracy ceiling")
     args = parser.parse_args()
 
     games = parse_games(args.games)
@@ -278,6 +312,11 @@ def main() -> None:
         print(f"{'TOTAL':>5} {baseline:12,.0f} {sum(after.values()):14,.0f} {change:12,.0f}")
         deltas = sorted(after[g] - baseline_by_game[g] for g in after)
         print(f"{'MEDIAN':>5} {'':>12} {'':>14} {deltas[len(deltas) // 2]:12,.0f}")
+
+    if args.oracle:
+        print()
+        for label, value in oracle_totals(loaded).items():
+            print(f"{label:>16} {value:14,.0f}")
 
     if args.sweep:
         results = sweep(loaded, baseline)

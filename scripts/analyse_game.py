@@ -27,10 +27,13 @@ Charges that all reviewers accepted are unclassified, and those fall back to the
 
 Two traps this script is built to avoid:
 
-* the ``/matrix`` ``cells`` array is **not indexed by game id** -- it is aligned with the
-  ``game_ids`` array in the same payload, which currently starts at 4. Nets are derived
-  from Transactions and only cross-checked against ``cells[game_ids.index(game_id)]``.
-* **Game 16 does not reconstruct** and is excluded from every aggregate by default.
+* the ``/matrix`` ``cells`` array is **not indexed by game id** -- it is a sliding window
+  over the last twenty Games, aligned with the ``game_ids`` array in the same payload. Nets
+  are derived from Transactions and only cross-checked against
+  ``cells[game_ids.index(game_id)]``.
+* **"Game 16 does not reconstruct" was that same bug**, not a broken Game: -4,721.32 is
+  Game 16's own net and -63,789.25 is Game 17's. Indexed correctly, every completed Game
+  closes to 0.00. See ``BROKEN_GAMES``.
 """
 
 from __future__ import annotations
@@ -53,7 +56,13 @@ from pull_transactions import _get, teams, transactions  # noqa: E402
 INF = math.inf
 US = "Bin busy"
 LEADERS = ("eyay", "OPUSMOPUS", "error404 ai")
-BROKEN_GAMES = frozenset({16})
+#: Games whose Transactions genuinely do not reconstruct. Empty, and that is the finding:
+#: Game 16 was believed broken because `matrix()[us][game_id - 1]` was read against a
+#: sliding twenty-Game window, so Game 16's rows (net -4,721.32) were compared with Game
+#: 17's published net (-63,789.25). Indexed by `game_ids`, every completed Game closes to
+#: the cent. Leave the machinery in place -- a real break is possible -- but do not exclude
+#: a Game without a residual to show for it.
+BROKEN_GAMES: frozenset[int] = frozenset()
 CASE_DIRS = (Path("[PUBLIC] EHL Cases/cases"), Path("var/cases"))
 PENALTY = 1.5
 
@@ -651,7 +660,11 @@ def main() -> None:
     parser.add_argument("--sweep", action="store_true", help="Limit multiplier sweep")
     parser.add_argument("--anchor", choices=("charge", "limit"), default="charge")
     parser.add_argument("--detail", action="store_true", help="every Charge we reviewed, per item")
-    parser.add_argument("--include-broken", action="store_true", help="do not drop Game 16")
+    parser.add_argument(
+        "--include-broken",
+        action="store_true",
+        help="no-op today: BROKEN_GAMES is empty because every Game reconstructs",
+    )
     parser.add_argument("--json", help="write the per-Game summary here")
     args = parser.parse_args()
 

@@ -63,9 +63,11 @@ in the evidence layer can separate them, because both numbers come from one medi
 little there is to win belongs on the Limit side of `src/pricing.py` -- and it is worth
 thousands, not the six figures the by-true-`t` table appears to promise.
 
-What would pay is not a level shift at all: moving each median to *its own* true `t`, holding
-the band and the coverage fixed, is worth six figures. That is item accuracy, and it comes
-from better evidence -- not from any monotone function of the number we already have.
+What would pay is not a level shift at all. Moving each median to *its own* true `t`, holding
+the band and the coverage exactly as the model stated them, takes Games 1-24 from 127,292 to
+**228,987** (`level_fit.py --oracle`; charging and accepting at `t` outright would be
+811,569). So there is +101,695 on the table and none of it is reachable by a function of
+`t_hat` -- it is item accuracy, and it has to come from better evidence.
 """
 
 from __future__ import annotations

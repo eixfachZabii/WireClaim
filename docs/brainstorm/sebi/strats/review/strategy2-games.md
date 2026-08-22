@@ -1,4 +1,4 @@
-# Strategy 2, Games 21–24 — why we lost, item by item
+# Strategy 2, Games 21–25 — why we lost, item by item
 
 Strategy 2 went live at `c9634a8`; **Game 21 onward is the first data that measures it**
 ([`live-changelog.md`](live-changelog.md)). Games 1–20 ran older code and are used here only
@@ -407,6 +407,30 @@ lightning and no storm. `t < 246` on a three-unit replacement is consistent with
 On that reading, our 1,855 was a free option that eight opponents paid, and OPUSMOPUS's
 17,578 payout was the mirror image.
 
+**Game 25 items 1 and 13 — skilled worker hours (−1,773 with 8,644 in penalties, and +2,394
+with 7,405).** The two labour lines are the largest single penalties in the whole window, and
+neither is a coverage question: they are the trade hours of the covered repair, admitted as
+*"the labour of the trades engaged, at rates customary for that trade and locality"*
+(7.1.7(g)), and both have `t` **above** our own Charge (`t ≥ 629` against `a = 429`;
+`t ≥ 1,097` against `a = 865`). We rejected twelve fair Charges on item 1 (up to 629) and five
+on item 13 (up to 1,097) with a Limit at ~256 and ~850. **Pure Limit loss on items whose price
+we had essentially right** — item 1's `b < 256` is the more damaging of the two, at 0.41× a
+`t` we ourselves estimated at ~613 (`a/0.7`).
+
+**Game 25 item 4 — indoor leak detection (−1,161, 3,764 in penalties).** Same shape: `t ≥ 471`,
+we charged 214, our Limit `[206, 218)` — the Limit sat at 0.45× `t` while the identical item in
+Game 24 settled at `t ∈ [490, 700)`. **This is the strongest single argument for Price Memory
+on the Limit side:** the same Line Item description had already settled one Game earlier with a
+bracket we could have read off the leaderboard.
+
+**Game 25 item 14 — material costs (the only leniency in five Games, 313).** `t < 59`; we
+charged 118 and set `b ∈ [93, 136)`, so we accepted a surcharge the *description itself*
+flags — *"the drying bill includes an unexplained material surcharge"* — and the policy
+excludes: *"general administrative, handling or processing charges levied in addition to
+itemised labour and materials"* (7.1.8(b)). A named red flag
+in the damage description should force `b = 0` on the matching Line Item; that is a
+deterministic rule and it is not being applied.
+
 ---
 
 ## 6. Baseline: the three worst pre-Strategy-2 Games
@@ -419,43 +443,49 @@ Same script, same identity, residual 0.00.
 | 10 | 6 | 5,300 | 0 | 65,806 | **−60,506** | 40.6 % | 66.7 % | **21,935** | 0 |
 | 17 | 20 | 20,580 | 70,736 | 13,633 | **−63,789** | 70.6 % | 67.8 % | 4,544 | 14,954 |
 
-Read against Games 21–24 this is the whole arc in one table. Game 8 is the open tap: `b`
+Read against Games 21–25 this is the whole arc in one table. Game 8 is the open tap: `b`
 above `t` on 39 items, 16 of 16 acceptances on most of them, 45,567 of pure leniency. Game 10
 is the default submission — the Limit at 0 with almost no Charge, so 21,935 of strictness
 excess *and* 117,338 of forfeited income. Game 17 is the `max(coverage, 0.9)` floor. Note the
 size of the income column in all three: 3,429, 5,300, 20,580 against Fair Values summing into
 six figures. **In every losing Game, pre- and post-Strategy 2, the Charge side was the larger
-error; the Limit was just the more spectacular one.**
+error; the Limit was just the more spectacular one.** Games 21–25 collect 124,257 of income
+against 29,309 across those three — that, and not the accept rate, is what turned the sign.
 
 ---
 
 ## 7. Prioritised list of what to change
 
-1. **Do not raise the Limit as a level.** Measured: the best scalar is worth 1,695 over four
-   Games and the wrong side of it costs tens of thousands. Two independent measurements now
-   agree (this sweep and `fast_path.py:33-39`). The 6–19 % accept rate is a symptom of the
-   field being above `t`, not a defect. *(measured)*
-2. **Fix the Charge level on the fat items — 52,562 was forfeited in Game 24 alone.** Median
-   `a/t` was 1.18 in G24 and 1.13 in G23 against the R5b target of 0.70; the implied
-   `t̂/t` median is 1.68 with RMSLE 1.08 in G24 (CLAUDE.md rule 10's σ, and it is far above the
-   0.85 break-even). The offenders are the flat-rate lines: G24 item 3 at 5.98× `t`, item 2 at
-   2.26×, G23 item 2 at 1.50×. *(measured)*
-3. **Stop pricing flat-rate lines like itemised ones.** Every Charge above 2× `t` in this
-   window is a `1 flat rate` or grouped multi-thing line (G24 items 2, 3, 4; G23 item 3 is the
-   counter-example we got right at 1.00×). A flat rate is a whole-job envelope that the policy
-   then confines to the affected area (7.1.5, 7.1.6) or to a capped cluster (4.8.2, 4.8.3).
-   *(inferred from 6 items; worth a rule, not yet a constant)*
-4. **Let the Limit see the Charge.** `b < 57` while `a = 3,430` on the same Line Item is
-   internally incoherent: our own estimate said the item was worth ~1,500 and our Limit said
-   ~0. Tying `b` to a fraction of `a` is the only scalar with any measured value (0.5 → 1,695)
-   and it removes the incoherence. Do it as `b = 0.5a` with the coverage verdict able to zero
-   it, not as a free constant. *(measured, small)*
-5. **Add the missing rows to `live-changelog.md` for Games 22–24.** Every conclusion above is
-   attributed to "whatever was live", and for the Limit we had to infer the constant from the
-   brackets. This is cheap and it is the difference between a result and an anecdote.
-6. **Re-measure the fair share after every Game.** The 52.9 % vs 67.4 % shift is the single
-   number that decides the Limit, and CLAUDE.md rule 9 says it will not survive a phase
-   boundary. `analyse_game.py --games 21-` prints it.
+1. **Do not move the Limit as a level — make it move with the Case.** Measured: the best global
+   factor is *worse* than what we do now (−1,429), one factor per Game is worth 11,050, and
+   perfect per-item knowledge is worth 28,564. The whole Limit-side prize is discrimination,
+   and 12,478 of the 28,564 is available from Case-level discrimination alone. *(measured)*
+2. **Fix the Charge level on the flat-rate lines — 52,562 was forfeited in Game 24 alone.**
+   Median `a/t` was 1.18 in G24 and 1.13 in G23 against the R5b target of 0.70 (implied
+   `t̂/t` 1.68, RMSLE 1.08 — CLAUDE.md rule 10's σ, above the 0.85 break-even). Game 25 shows
+   this is fixable and may already be fixed: median `a/t` 0.66, RMSLE 0.80, 91 % of the
+   `a = 0.7t` income captured. Confirm it holds on the next multi-trade Case. *(measured)*
+3. **Stop pricing flat-rate and grouped lines like itemised ones.** Every Charge above 2× `t`
+   in this window is a `1 flat rate` or a grouped multi-thing line (G24 items 2, 3, 4; G23
+   item 2). A flat rate is a whole-job envelope the policy then confines to the affected area
+   (7.1.5, 7.1.6) or to a capped cluster (4.8.2, 4.8.3). *(inferred from 6 items; a rule, not
+   yet a constant)*
+4. **Feed settled brackets back into the Limit (Price Memory on the `b` side).** Game 25 item 4
+   (leak detection, `t ≥ 471`) is the same Line Item as Game 24 item 1 (`t ∈ [490, 700)`), one
+   Game earlier, and we set `b ≈ 212` on it and paid 3,764. The bracket was public before the
+   Game started. Same for the billiard cluster (Case 08 → Case 24) and the robot vacuum.
+   *(measured on 3 repeated items)*
+5. **Force `b = 0` on Line Items the damage description itself flags.** Case 25's description
+   names three: the unexplained material surcharge, the duplicated waste disposal, the
+   unrelated attic plaster. We accepted the first (item 14, `t < 59`) — the only leniency in
+   five Games. Cheap, deterministic, and 7.1.8(b)/(c) back it. *(measured, small)*
+6. **Add the missing rows to `live-changelog.md` for Games 22–25.** Every conclusion here is
+   attributed to "whatever was live"; the Limit changed materially between Games 24 and 25 and
+   the repo cannot say why. This is the difference between a result and an anecdote.
+7. **Re-measure the fair share after every Game.** 52.9 % over Games 21–24, 83.3 % in Game 25,
+   67.4 % in the baseline — this is the number that decides the Limit, it swings by 30 points
+   between Cases, and CLAUDE.md rule 9 says it will not survive a phase boundary.
+   `analyse_game.py --games 21-` prints it.
 
 ---
 
@@ -463,24 +493,28 @@ error; the Limit was just the more spectacular one.**
 
 **Measured** (from settled Transactions, self-checked to the cent): every `t` bracket; our
 `a` and `b` brackets; income, cash paid on accepts, penalties, and the net per Game and per
-Line Item; the observed side of `t` for **229 of the 272** Charges we reviewed (the other 43
+Line Item; the observed side of `t` for **425 of the 512** Charges we reviewed (the other 87
 were accepted by every reviewer, or are a Charge of 0, and carry no evidence — they fall back
-to the bracket midpoint); accept rates and reviewer costs for
-every team; the fair share (52.9 % now, 67.4 % in the baseline Games); every sweep number.
+to the bracket midpoint); accept rates and reviewer costs for every team; the fair share
+(52.9 % over Games 21–24, 83.3 % in Game 25, 67.2 % pooled, 67.4 % in the baseline Games);
+every sweep number.
 
-**Inferred:** that our live Limit was the constant 35 rather than some other value below the
-bounds; that `t = 0` on Game 22 item 1 (the bracket allows any `t < 246`) and on Game 21 item 1
-(`t < 11`); the reading of which clause set each Fair Value — the clauses are quoted verbatim,
-but the generator's arithmetic is not published, so a clause is an explanation and not a proof;
-and the claim that the field's leniency, rather than something else, is what put all three
-named leaders behind us in this window.
+**Inferred:** that our live Limit in Games 21–24 was the constant 35 rather than some other
+value below the bounds; that `t = 0` on Game 22 item 1 (the bracket allows any `t < 246`) and on
+Game 21 item 1 (`t < 11`); the reading of which clause set each Fair Value — the clauses are
+quoted verbatim, but the generator's arithmetic is not published, so a clause is an explanation
+and not a proof; and the claim that the field's leniency, rather than something else, is what
+put all three named leaders behind us in this window.
 
-**Known limits of the sample.** Four Games, 17 Line Items, 272 reviewed Charges. Game 21 has
-two Line Items and Game 22 has one, so the pooled totals are Game 24's story with three
-footnotes. Two brackets have no upper bound (G23 item 3, G24 item 5), so `a/t` and `b/t` there
-use `t = t_lo` and are *upper* bounds on the ratio. And the sweep in §4.2 changes
-only the Limit — it holds the field's Charges and our own Charge fixed, so it cannot answer
-what happens once we stop overcharging.
+**Known limits of the sample.** Five Games, 32 Line Items, 512 reviewed Charges. Game 21 has
+two Line Items and Game 22 has one, so those Games are single anecdotes; Games 24 and 25 carry
+81 % of the reviewed Charges between them. Eight brackets have no upper bound (G23 item 3,
+G24 item 5, G25 items 1, 3, 4, 12, 13, 15), so `a/t` and `b/t` there use `t = t_lo` and are
+*upper* bounds on the ratio — which means the Game 25 undercharging is if anything understated.
+The sweep in §4.2 changes only the Limit: it holds the field's Charges and our own Charge fixed,
+so it cannot say what happens once we stop overcharging. And five Games is a sample in which
+one Case type (Game 25's ordinary trade work) moved the pooled fair share by 14 points; treat
+the pooled numbers as provisional and re-run after every Game.
 
 ---
 
