@@ -105,8 +105,9 @@ class FraudDetectionTests(unittest.TestCase):
             ),
         )
 
-    def test_flagging_every_item_of_a_larger_case_discards_the_verdict(self) -> None:
-        case = self._case_with(4)
+    def test_flagging_most_of_a_large_case_discards_the_verdict(self) -> None:
+        """Game 10 flagged every Line Item and paid 65,806 in wrongful rejections."""
+        case = self._case_with(17)
         with patch("src.services.fraud_detection._check_item", return_value=True):
             decision = asyncio.run(detect_fraud(case))
 
@@ -120,8 +121,17 @@ class FraudDetectionTests(unittest.TestCase):
 
         self.assertEqual(decision.fraud_indices, frozenset({1, 2}))
 
-    def test_partial_flagging_of_a_four_item_case_survives(self) -> None:
-        """Two genuine exclusions out of four must not be discarded as implausible."""
+    def test_a_plausible_share_of_a_large_case_survives(self) -> None:
+        """Game 8 had 3 of 39 Line Items that the whole field charged 0 on."""
+        case = self._case_with(17)
+        flags = [index in (2, 3, 9) for index in range(1, 18)]
+        with patch("src.services.fraud_detection._check_item", side_effect=flags):
+            decision = asyncio.run(detect_fraud(case))
+
+        self.assertEqual(decision.fraud_indices, frozenset({2, 3, 9}))
+
+    def test_the_allowance_floor_protects_small_cases(self) -> None:
+        """At 35% of 4 items the share alone would discard a second genuine flag."""
         case = self._case_with(4)
         with patch(
             "src.services.fraud_detection._check_item",

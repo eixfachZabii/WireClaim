@@ -108,8 +108,10 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn('"acceptance_limit": 0.0', payloads[0])
 
     def test_blind_floor_covers_every_index_a_case_might_use(self) -> None:
+        """Settled Games run up to 39 Line Items, so the floor must reach past that."""
         floor = main.blind_floor()
 
+        self.assertGreaterEqual(len(floor), 39)
         self.assertEqual([price.index for price in floor], list(range(1, main.BLIND_LINE_ITEMS + 1)))
         for price in floor:
             self.assertGreater(price.charge_price, 0.0)
