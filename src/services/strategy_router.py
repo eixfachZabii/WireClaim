@@ -106,8 +106,24 @@ class StrategyRouter:
                     name, started_at = jobs[task]
                     try:
                         proposal = task.result()
-                    except Exception:
-                        logger.exception("Strategy failed for Game %s.", case.game_id)
+                    except Exception as error:
+                        # One line, not a traceback. A Strategy timing out is an *expected*
+                        # outcome inside a 60-second window, not an incident: every track is
+                        # optional and a higher-priority one has usually already answered.
+                        # `logger.exception` here printed sixty lines of httpx internals twice
+                        # in a row for Games 29 and 30, which buries the timing lines that
+                        # actually say what happened. The full traceback is still available at
+                        # DEBUG for a genuine bug.
+                        logger.warning(
+                            "%s did not finish for Game %s: %s: %s",
+                            name,
+                            case.game_id,
+                            type(error).__name__,
+                            error,
+                        )
+                        logger.debug(
+                            "%s traceback for Game %s", name, case.game_id, exc_info=error
+                        )
                         log_timing(logger, name, started_at, "failed", game=case.game_id)
                         continue
                     log_timing(logger, name, started_at, game=case.game_id, produced=proposal is not None)
