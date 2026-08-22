@@ -3,10 +3,26 @@ import threading
 import unittest
 
 from src.data.models import ItemPrice
-from src.services.submission_coordinator import SubmissionCoordinator
+from src.services.submission_coordinator import SubmissionCoordinator, format_submission_update
 
 
 class SubmissionCoordinatorTests(unittest.IsolatedAsyncioTestCase):
+    def test_formats_a_complete_strategy_batch_update(self) -> None:
+        update = format_submission_update(
+            game_id=19,
+            sequence=4,
+            reason="strategy:strategy3",
+            force=False,
+            prices=(ItemPrice(1, 300.0, 35.0), ItemPrice(2, 400.0, 0.0)),
+        )
+
+        self.assertTrue(update.startswith("\n\n\n-------------"))
+        self.assertIn("source: strategy3", update)
+        self.assertIn("priority: 3", update)
+        self.assertIn("1 |       300.00 |        35.00", update)
+        self.assertIn("2 |       400.00 |         0.00", update)
+        self.assertTrue(update.endswith("-------------"))
+
     async def test_new_snapshot_follows_inflight_submission(self) -> None:
         calls: list[list[dict[str, float | int]]] = []
         first_started = threading.Event()
