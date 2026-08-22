@@ -1,6 +1,8 @@
 # Act now — four changes, measured against Games 1–3
 
-Every number here is inverted from settled Games, not modelled. Ordered by
+**These are black-box findings.** Every number is inverted from what our submissions
+*did* on settled Games — nobody needs to read the runner to act on them, and they hold
+whatever is generating the numbers. Ordered by
 euros-per-minute-of-work. Together they are worth roughly **20,000 per Game** against
 what we are currently doing, and none of them needs a better price model.
 
