@@ -34,7 +34,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.data.case_loader import read_case  # noqa: E402
-from src.pricing import Evidence, price_item, COVERAGE_FLOOR, implied_sigma  # noqa: E402
+from src.domain.pricing.engine import Evidence, price_item, COVERAGE_FLOOR, implied_sigma  # noqa: E402
 from src.services.strategies.strategy2.blend import blend, combine  # noqa: E402
 from src.services.strategies.strategy2.channels import local_evidence  # noqa: E402
 

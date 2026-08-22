@@ -67,8 +67,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.case_loader import read_case  # noqa: E402
-from src.pricing import COVERAGE_FLOOR, Evidence, price_item  # noqa: E402
-from src.services.coverage import (  # noqa: E402
+from src.domain.pricing.engine import COVERAGE_FLOOR, Evidence, price_item  # noqa: E402
+from src.services.policy.coverage import (  # noqa: E402
     DEFAULT_P_COVERED,
     LIMIT_COLLAPSE,
 )

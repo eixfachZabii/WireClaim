@@ -47,7 +47,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.case_loader import read_case  # noqa: E402
-from src.services.coverage import CoverageVerdict, assess_coverage  # noqa: E402
+from src.services.policy.coverage import CoverageVerdict, assess_coverage  # noqa: E402
 
 CACHE = Path("var/coverage")
 CASES = Path("[PUBLIC] EHL Cases/cases")
