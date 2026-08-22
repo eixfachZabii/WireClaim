@@ -59,9 +59,68 @@ class Strategy1Tests(unittest.TestCase):
         prices = {price.index: price for price in proposal.prices}
         self.assertEqual(set(prices), {1, 2})
         self.assertGreater(prices[1].acceptance_limit, 0.0)
-        self.assertEqual(prices[2].acceptance_limit, 0.0)
+        self.assertGreater(prices[2].acceptance_limit, 0.0)
         self.assertGreaterEqual(prices[1].charge_price, 150.0)
         self.assertGreaterEqual(prices[2].charge_price, 150.0)
+
+    def test_unquoted_doubt_defaults_to_covered_with_positive_limit(self) -> None:
+        estimates = estimate_fair_values(
+            self.case,
+            (Evidence(1, 0.1, 0.1, 100.0, 200.0),),
+        )
+        proposal = proposal_from_estimates(estimates)
+
+        self.assertIsNotNone(proposal)
+        self.assertGreater(proposal.prices[0].acceptance_limit, 0.0)
+
+    def test_quoted_exclusion_sets_limit_to_zero_but_keeps_plausible_charge(self) -> None:
+        exclusion = "Losses caused by excluded events are not covered."
+        case = CaseData(
+            game_id=self.case.game_id,
+            case_dir=self.case.case_dir,
+            policy_text=exclusion,
+            description_text=self.case.description_text,
+            line_items=self.case.line_items,
+            image_paths=self.case.image_paths,
+        )
+        estimates = estimate_fair_values(
+            case,
+            (
+                Evidence(
+                    index=1,
+                    coverage_probability=0.1,
+                    relatedness_probability=1.0,
+                    price_low=400.0,
+                    price_high=500.0,
+                    exclusion_quote=exclusion,
+                ),
+            ),
+        )
+        proposal = proposal_from_estimates(estimates)
+
+        self.assertIsNotNone(proposal)
+        self.assertEqual(proposal.prices[0].acceptance_limit, 0.0)
+        self.assertEqual(proposal.prices[0].charge_price, 315.0)
+
+    def test_missing_price_band_uses_quantity_scaled_fallback(self) -> None:
+        estimates = estimate_fair_values(
+            self.case,
+            (
+                Evidence(
+                    index=1,
+                    coverage_probability=0.9,
+                    relatedness_probability=0.9,
+                    price_low=0.0,
+                    price_high=0.0,
+                    quantity=3.0,
+                ),
+            ),
+        )
+        proposal = proposal_from_estimates(estimates)
+
+        self.assertIsNotNone(proposal)
+        self.assertEqual(proposal.prices[0].charge_price, 450.0)
+        self.assertGreater(proposal.prices[0].acceptance_limit, 0.0)
 
     def test_model_evidence_preserves_clauses_and_named_anchors(self) -> None:
         client = MagicMock()

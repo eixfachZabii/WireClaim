@@ -5,13 +5,12 @@ import base64
 import io
 import json
 import logging
-import os
 from pathlib import Path
 from typing import Any
 
 from PIL import Image
 
-from src.api import get_llm_client
+from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, FairValueEstimate, FairValueEstimates, LineItem
 from src.policy_digest import digest_policy_text
 
@@ -45,9 +44,6 @@ RESPONSE_SCHEMA: dict[str, Any] = {
     },
 }
 
-
-def _model_name() -> str:
-    return os.environ.get("AZURE_OPENAI_MODEL") or "gpt-4o"
 
 
 def _number(value: Any) -> float:
@@ -104,7 +100,7 @@ def _estimate_item(
         for image in encoded_images
     )
     response = get_llm_client().chat.completions.create(
-        model=_model_name(),
+        model=get_model_name(),
         temperature=0.0,
         timeout=LLM_TIMEOUT_SECONDS,
         response_format={"type": "json_schema", "json_schema": RESPONSE_SCHEMA},

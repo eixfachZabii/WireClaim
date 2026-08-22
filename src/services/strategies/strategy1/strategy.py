@@ -3,29 +3,36 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import logging
 import mimetypes
-import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from src.api import get_llm_client
+from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, ItemPrice, Proposal
 
+logger = logging.getLogger(__name__)
 STRATEGY_NAME = "strategy1"
-UNCOVERED_CHARGE = 150.0
+FALLBACK_ESTIMATE = 150.0
 CHARGE_FACTOR = 0.7
 LIMIT_QUANTILE = 1 / 3
+DEFAULT_COVERAGE_PROBABILITY = 0.9
+MIN_QUOTE_LENGTH = 12
+LLM_TIMEOUT_SECONDS = 35.0
 
 PROMPT = """Read this insurance Case and return structured evidence for every invoice Line Item.
 
-Do not return a Charge, a Limit, or a Fair Value. The deterministic strategy engine prices from your evidence.
+Do not return a Charge, a Limit, or a Fair Value. Deterministic code prices from your evidence.
+
+Coverage is the default. An invoice is ordinarily honest work. Do not lower coverage or relatedness because the Damage Description seems suspicious. A low coverage or relatedness value is allowed only when `exclusion_quote` contains an exact Policy quote proving an exclusion, missing requirement, scope restriction, or that the item cannot be covered. If no such quote exists, keep coverage and relatedness high.
 
 For every Line Item, return:
 - line_item: the one-based invoice index
 - coverage_probability: probability from 0 to 1 that the Policy economically covers this item
-- coverage_clause: exact Policy clause supporting the coverage or exclusion assessment
+- coverage_clause: exact Policy quote supporting coverage when relevant
+- exclusion_quote: exact Policy quote supporting a non-coverage or unrelated verdict; otherwise an empty string
 - relatedness_probability: probability from 0 to 1 that the item relates to the Damage Description
 - quantity: plausible quantity for the complete Line Item
 - unit: unit of the plausible quantity
@@ -33,8 +40,8 @@ For every Line Item, return:
 - price_low and price_high: a realistic gross-total market-price band for the complete Line Item
 - anchors: named evidence supporting the price band, such as labour rate, material, catalogue price, or replacement cost
 
-Use all attached documents and images. Price bands must be gross totals for whole Line Items, never net or per-unit values. Return JSON only:
-{"items":[{"line_item":1,"coverage_probability":0.0,"coverage_clause":"","relatedness_probability":0.0,"quantity":1,"unit":"","trade":"","price_low":0.0,"price_high":0.0,"anchors":[""]}]}"""
+Check inflated quantities and betterment. Price the plausible quantity and the pre-loss like-for-like standard, never an upgrade. Use all attached documents and images. Price bands must be gross totals for whole Line Items, never net or per-unit values. Return JSON only:
+{"items":[{"line_item":1,"coverage_probability":0.9,"coverage_clause":"","exclusion_quote":"","relatedness_probability":0.9,"quantity":1,"unit":"","trade":"","price_low":0.0,"price_high":0.0,"anchors":[""]}]}"""
 
 
 @dataclass(frozen=True)
@@ -45,6 +52,7 @@ class Evidence:
     price_low: float
     price_high: float
     coverage_clause: str = ""
+    exclusion_quote: str = ""
     quantity: float = 1.0
     unit: str = ""
     trade: str = ""
@@ -57,6 +65,9 @@ class Estimate:
     covered_probability: float
     low: float
     high: float
+    fallback: float
+    confirmed_uncovered: bool
+    fallback_used: bool
 
 
 def _number(value: Any) -> float:
@@ -71,6 +82,15 @@ def _number(value: Any) -> float:
 
 def _probability(value: Any) -> float:
     return min(_number(value), 1.0)
+
+
+def _normalize(text: str) -> str:
+    return " ".join(text.casefold().split())
+
+
+def _is_policy_quote(quote: str, policy_text: str) -> bool:
+    normalized_quote = _normalize(quote)
+    return len(normalized_quote) >= MIN_QUOTE_LENGTH and normalized_quote in _normalize(policy_text)
 
 
 def _extract_json(text: str) -> dict[str, Any]:
@@ -128,9 +148,10 @@ def build_input_content(case: CaseData) -> list[dict[str, Any]]:
 
 def _request_evidence(case: CaseData) -> tuple[Evidence, ...]:
     client = get_llm_client()
-    model = os.environ.get("AZURE_OPENAI_MODEL") or "gpt-4o"
+    model = get_model_name()
     response = client.responses.create(
         model=model,
+        timeout=LLM_TIMEOUT_SECONDS,
         input=[{"role": "user", "content": build_input_content(case)}],
     )
     payload = _extract_json(str(response.output_text or ""))
@@ -144,9 +165,7 @@ def _request_evidence(case: CaseData) -> tuple[Evidence, ...]:
         index = int(_number(item.get("line_item")))
         if index <= 0:
             continue
-        low = _number(item.get("price_low"))
-        high = _number(item.get("price_high"))
-        low, high = sorted((low, high))
+        low, high = sorted((_number(item.get("price_low")), _number(item.get("price_high"))))
         anchors = item.get("anchors", ())
         evidence.append(
             Evidence(
@@ -156,6 +175,7 @@ def _request_evidence(case: CaseData) -> tuple[Evidence, ...]:
                 price_low=low,
                 price_high=high,
                 coverage_clause=str(item.get("coverage_clause", "")),
+                exclusion_quote=str(item.get("exclusion_quote", "")),
                 quantity=_number(item.get("quantity")) or 1.0,
                 unit=str(item.get("unit", "")),
                 trade=str(item.get("trade", "")),
@@ -171,37 +191,59 @@ def estimate_fair_values(case: CaseData, evidence: tuple[Evidence, ...]) -> tupl
     for item in evidence:
         if item.index not in valid_indices:
             continue
+        fallback = FALLBACK_ESTIMATE * max(item.quantity, 1.0)
+        fallback_used = item.price_high <= 0
+        low, high = (fallback * 0.75, fallback * 1.25) if fallback_used else (item.price_low, item.price_high)
+        exclusion_proven = _is_policy_quote(item.exclusion_quote, case.policy_text)
+        confirmed_uncovered = exclusion_proven and (
+            item.coverage_probability < 0.5 or item.relatedness_probability < 0.5
+        )
+        if confirmed_uncovered:
+            covered_probability = 0.0
+        else:
+            coverage = max(item.coverage_probability, DEFAULT_COVERAGE_PROBABILITY)
+            relatedness = max(item.relatedness_probability, DEFAULT_COVERAGE_PROBABILITY)
+            covered_probability = coverage * relatedness
         estimates.append(
             Estimate(
                 index=item.index,
-                covered_probability=item.coverage_probability * item.relatedness_probability,
-                low=item.price_low,
-                high=item.price_high,
+                covered_probability=covered_probability,
+                low=low,
+                high=high,
+                fallback=fallback,
+                confirmed_uncovered=confirmed_uncovered,
+                fallback_used=fallback_used,
             )
         )
     return tuple(estimates)
+
+
+def _limit_from_estimate(estimate: Estimate) -> float:
+    if estimate.confirmed_uncovered:
+        return 0.0
+    zero_mass = 1 - estimate.covered_probability
+    if LIMIT_QUANTILE <= zero_mass:
+        limit = estimate.low * LIMIT_QUANTILE
+    else:
+        conditional_quantile = (LIMIT_QUANTILE - zero_mass) / estimate.covered_probability
+        limit = estimate.low + conditional_quantile * (estimate.high - estimate.low)
+    median = (estimate.low + estimate.high) / 2
+    return min(max(limit, 0.0), median)
 
 
 def proposal_from_estimates(estimates: tuple[Estimate, ...]) -> Proposal | None:
     prices: list[ItemPrice] = []
     for estimate in estimates:
         median = (estimate.low + estimate.high) / 2
-        if estimate.covered_probability <= 0 or median <= 0:
-            charge = UNCOVERED_CHARGE
-            limit = 0.0
-        else:
-            charge = max(UNCOVERED_CHARGE, round(CHARGE_FACTOR * median, 2))
-            zero_mass = 1 - estimate.covered_probability
-            if LIMIT_QUANTILE <= zero_mass:
-                limit = 0.0
-            else:
-                conditional_quantile = (LIMIT_QUANTILE - zero_mass) / estimate.covered_probability
-                limit = round(estimate.low + conditional_quantile * (estimate.high - estimate.low), 2)
+        charge = max(estimate.fallback, round(CHARGE_FACTOR * median, 2))
+        limit = round(_limit_from_estimate(estimate), 2)
+        if estimate.fallback_used:
+            logger.warning("Strategy 1 fallback estimate used for Line Item %s.", estimate.index)
         prices.append(
             ItemPrice(
                 index=estimate.index,
                 charge_price=charge,
-                acceptance_limit=max(limit, 0.0),
+                acceptance_limit=limit,
                 source=STRATEGY_NAME,
             )
         )
