@@ -16,6 +16,14 @@ reads cached `var/evidence/*.json` (frozen whenever `dump_evidence.py` last ran 
 Game — a real staleness caveat, see §1 note) or the Games 26–38 decision logs, never the
 live file.
 
+**Addendum, folded in before completion.** Mid-task, a second measurement arrived
+(`docs/brainstorm/sebi/strats/review/sigma-calibration.md`, written independently the same
+night) proposing a different mechanism: not a Charge multiplier, but a **measured sigma**
+substituted for the model-asserted band width that currently feeds `charge_factor` and the
+Limit's quantile. §7 tests it, on the same replay harness, with its own vintage stated
+(Game 39 settled between §1–6 and §7; §7 uses Games 1–39, §1–6 keep their original 38-Game
+numbers unchanged rather than being silently redone).
+
 ## Headline
 
 1. **The finding reproduces, directionally and at comparable magnitude, on independent
@@ -45,6 +53,18 @@ live file.
    on. The gap belongs to the evidence layer (a better `t_hat`), not to a conditional
    multiplier — the same conclusion `engine.py`'s docstring already reached for the
    downward direction, now confirmed for the upward one too.
+6. **The measured-sigma reframe does not rescue this, and independently confirms
+   `sigma-calibration.md`'s own verdict.** Substituting the true measured error for the
+   model's asserted band width — the fix the reframe proposed, tested here through a
+   line-for-line, sanity-checked reimplementation of `price_item` itself, on the real
+   `LIMIT_CEILING_MEMORY`-aware baseline, over Games 1–39 — loses **−64,727 to −80,738**
+   across three tested configurations, **unanimously negative in all four held-out folds,
+   for every config**, dominated 20:1 by the Charge side over the Limit side. It *does* fix
+   the backwards ordering `engine.py`'s docstring names as the falsifier (narrow-measured-σ
+   items now forfeit 4% of oracle income against wide's 10%, the correct sign) — and loses
+   money anyway, because `CHARGE_SLOPE`/`CHARGE_INTERCEPT` were tuned against the asserted
+   band's scale, not the true one, so a more honest sigma just pushes an already-tuned
+   formula off the point it was tuned at. See §7.
 
 ---
 
@@ -285,6 +305,194 @@ already not being shipped because §3–4 fail on their own. **No regime-depende
 recommendation change is needed, because there is no recommendation to make regime-dependent
 in the first place.**
 
+## 7. The measured-sigma reframe
+
+A second measurement arrived mid-task, proposing a different mechanism entirely: not a
+Charge multiplier, but replacing the sigma that `price_item` feeds into `charge_factor` and
+the Limit's quantile — currently the model-*asserted* band width, `implied_sigma(...)`,
+already measured to carry no signal — with a *measured* error, looked up by channel
+(`B:memory` vs `C:model`) and basis (per-unit vs gross), both readable from the decision log.
+
+**Does §2 already falsify this?** No — the opposite. §2 found channel (72% vs 57%
+underpriced) and metered wording (84% vs 64%, a close proxy for per-unit) are the only two
+decision-time splits that separate under- from over-priced items at all. That is
+*consistent* with this reframe, not a contradiction of it: §2 asked whether a split predicts
+which *side of `t`* a Charge lands on; this section asks whether the same split predicts the
+estimate's *error magnitude*, a related but distinct question. It survives to be tested.
+
+```
+PYTHONPATH=. python scripts/experiments/measured_sigma_core.py       # faithfulness check
+PYTHONPATH=. python scripts/experiments/measured_sigma_replay.py     # everything below
+```
+
+**Vintage for this section only: Games 1–39** (Game 39 settled between §1–6 and this
+section; §1–6's own numbers are left as originally measured at 38 Games rather than
+silently redone). `price_item_measured_sigma` in `scripts/experiments/measured_sigma_core.py`
+is a line-for-line reimplementation of the real `src/domain/pricing/engine.price_item` —
+median, coverage, `LIMIT_CEILING_MEMORY`, `LIMIT_CAP`, the `b<=a` clamp, all untouched — with
+only the `sigma = implied_sigma(...)` line replaced by a supplied value. Fed the *original*
+`implied_sigma(...)` value, it must reproduce `price_item`'s own output to the cent:
+**449/449 rows match exactly** (`measured_sigma_core.py`'s own `sanity_check`). `blend.
+MODEL_SIGMA_PRIOR`/`blend.MEMORY_SIGMA` — the *blend-weighting* constants
+`sigma-calibration.md` already tested and rejected on their own — are never touched here;
+this section only ever changes what reaches `charge_factor`, per the coordinator's caution 2.
+Baseline is the **real** `price_item()` (not `charge_buckets.Rule`, which never applies
+`LIMIT_CEILING_MEMORY` and would double-count against the ceiling that shipped tonight —
+caution 1).
+
+### 7.1 Independent sigma measurement, and why basis is not applied to model-only items
+
+Bounded Line Items only (`t` known exactly, n=185, Games 1–39), RMSLE of `log(t_hat/t)`:
+
+| bucket | n | bias | measured σ |
+| --- | ---: | ---: | ---: |
+| memory, gross | 99 | +0.048 | 0.431 |
+| model, gross | 57 | +0.172 | 0.729 |
+| memory, per_unit | 18 | +0.246 | 0.366 |
+| model, per_unit | 11 | +0.272 | **0.959** |
+| channel alone: memory | 117 | +0.079 | 0.422 |
+| channel alone: model | 68 | +0.188 | 0.771 |
+
+**Channel reproduces `sigma-calibration.md`'s figures closely** (memory 0.42, model 0.77,
+against their leave-one-out 0.39–0.48 / 0.76–0.78) on an independently-built harness. **Basis
+does not generalise to the model channel the way the reframe's table implies**: within
+memory, per-unit is tighter than gross (0.366 vs 0.431), matching `sigma-calibration.md`
+section 2's dedicated finding — but within model, per-unit is *worse* than gross (0.959 vs
+0.729, the opposite sign), on a sample too small to trust either way (n=11). That table's
+own 0.32/0.55 split was measured entirely on Price Memory *hits* (`PriceMemoryHit.match`/
+`.basis`); extending it to model-only items is the reframe's own extrapolation, unsupported
+by either measurement. So the config used here ("mine") splits basis **only within the
+memory channel** and uses a flat channel-level figure for model-only items — a more
+conservative, better-evidenced version of the reframe's proposal, tested alongside the
+literal figures from the coordinator's message ("coordinator") and a channel-only control
+with no basis split at all ("channel_only"):
+
+| bucket | n | asserted σ (current) | mine | coordinator | channel_only |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| model, gross | 191 | 0.407 | 0.77 | 0.78 | 0.77 |
+| memory, gross | 187 | 0.352 | 0.43 | 0.55 | 0.42 |
+| memory, per_unit | 44 | 0.346 | 0.37 | 0.32 | 0.42 |
+| model, per_unit | 27 | 0.322 | 0.77 | 0.78 | 0.77 |
+
+### 7.2 Euro replay — negative, unanimously, in every config tested
+
+Baseline (real `price_item`, current engine, Games 1–39): net **222,964** (income
+1,074,806, cost 851,842); Games 19–39: **83,646**.
+
+| config | all 39 net | Δ net | Δ income (Charge side) | Δ −cost (Limit side) | 19–39 net | Δ |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| mine | 158,237 | **−64,727** | −62,549 | −2,178 | 53,052 | −30,594 |
+| coordinator | 142,226 | **−80,738** | −77,417 | −3,321 | 47,672 | −35,973 |
+| channel_only | 154,271 | **−68,693** | −65,693 | −3,000 | 50,634 | −33,011 |
+
+Noise floor: ±39,187 (all 39), ±28,755 (Games 19–39). Every config clears the floor —
+**these are real losses, not noise.** The Charge side supplies 96–97% of the loss in every
+config; the Limit side is small throughout (−2,178 to −3,321), matching
+`sigma-calibration.md`'s own finding that the Limit-side effect is the "noisier, weaker
+piece." **`channel_only` alone already loses −68,693** — the failure is not an artefact of
+the basis refinement; correcting *only* the channel-level sigma (the piece both
+measurements agree on) is already enough to lose money.
+
+Held-out folds, delta vs baseline, no fitting (the config is fixed, not chosen per fold):
+
+| config | odd→even | even→odd | 1–20→21–39 | 21–39→1–20 |
+| --- | ---: | ---: | ---: | ---: |
+| mine | −41,989 | −22,738 | −16,469 | −48,258 |
+| coordinator | −60,355 | −20,383 | −19,025 | −61,713 |
+| channel_only | −42,929 | −25,763 | −19,095 | −49,597 |
+
+**Negative in all twelve cells.** Noise floors: ±27,352 (odd/even and 21–39, n=19 each),
+±28,062 (1–20, n=20). Several cells clear their floor outright (odd→even for every config;
+21–39→1–20 for every config). This is the same "unanimous sign across every fold" standard
+the repo already trusts when a single cell doesn't individually clear the floor
+(`LIMIT_CEILING_MEMORY`'s "eight fold cells, eight positive" is the positive mirror of this
+result) — here it is unanimous in the losing direction.
+
+**Monotonicity**, interpolating in log-sigma space from the shipped asserted band (`w=0`) to
+the fully measured value (`w=1`):
+
+| config | w=0 | w=0.25 | w=0.5 | w=0.75 | w=1.0 | monotone |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| mine | 0 | −14,692 | −6,262 | −27,350 | −64,727 | No (small wiggle at 0.5) |
+| coordinator | 0 | −21,416 | −13,657 | −37,412 | −80,738 | No (same wiggle) |
+| channel_only | 0 | −15,685 | −7,987 | −30,487 | −68,693 | No (same wiggle) |
+
+Not strictly monotone, but importantly **a different failure shape than §3's candidates**:
+there is no positive peak that later reverses (the artefact CLAUDE.md and `engine.py` warn
+about, a fact about which Limit clusters got crossed). This one is negative from the very
+first step off `w=0` and gets worse the further it moves, with only a small dip-then-recover
+around the midpoint — consistent with a real, gradually-worsening cost rather than a
+cluster-crossing artefact. That makes it a *more* trustworthy measurement, not a less
+trustworthy one — and it is trustworthy in the losing direction.
+
+### 7.3 The cliff, and why it runs backwards from §5
+
+| config | stayed below t | crossed above t | already above t | net |
+| --- | --- | --- | --- | --- |
+| mine | n=246, **−110,826** | n=0, +0 | n=52, +39,172 | −71,654 |
+| coordinator | n=245, **−140,610** | n=1, −1,942 | n=52, +54,809 | −87,743 |
+
+This is the mechanism, and it is the opposite of §5's multiplier candidates. Widening sigma
+*lowers* `charge_factor`, so it pushes Charges **further below `t`**, not closer to it — the
+246 items that were already correctly priced below `t` lose money because the discount gets
+deeper for no reason, not because anything crosses into an Overcharge (0–1 items ever do).
+The only gain (+39,172 / +54,809) is on the 52 items that were *already* Overcharges, where
+a lower Charge by chance lands closer to fair — a windfall from the same mechanism that
+causes the loss, not a targeted fix.
+
+**Limit side** (loosened vs tightened against the baseline Limit, net cost effect where
+positive = cheaper for us):
+
+| config | loosened | tightened | net |
+| --- | --- | --- | --- |
+| mine | n=0, +0 | n=183, −2,178 | −2,178 |
+| coordinator | n=38, +673 | n=146, −3,994 | −3,321 |
+
+`mine`'s buckets are all ≥ the asserted band, so the Limit only ever tightens (never
+loosens) under that config — small losses throughout, matching §7.2.
+
+### 7.4 Caution 3, checked directly: does the ordering finally hold?
+
+`engine.py`'s falsifier, run on the *substituted* sigma instead of the asserted band —
+terciles by measured σ, forgone income as a share of oracle income per bucket (config
+"mine", Games 1–39, `t_lo>0` items):
+
+| tercile | σ range | n | forgone income | share of oracle |
+| --- | --- | ---: | ---: | ---: |
+| narrow | 0.37–0.43 | 99 | 25,298 | 4% |
+| mid | 0.43–0.77 | 99 | 5,505 | 2% |
+| wide | 0.77 | 100 | 66,089 | **10%** |
+
+**The ordering flips to the correct sign** — narrow forfeits 4%, wide forfeits 10%, not the
+asserted band's backwards 3× (0.847 narrow vs 0.733 wide RMSLE, engine.py's docstring). Per
+the falsifier's own stated criterion, this *does* mean the substituted sigma "is measuring
+something and its sign can be trusted." **It is not, however, a reason to ship it.** The
+ordering being right does not make the level right: `CHARGE_SLOPE`/`CHARGE_INTERCEPT` were
+tuned (`tune_pricing.py calibrate`, cited in `engine.py`) against sigma values in the
+asserted band's own range (~0.25–0.75); pushing the model channel's sigma to 0.77–0.96 moves
+it off the point the formula was tuned at, and the euro numbers in §7.2 say that move costs
+money even though the ranking of which items are riskier is now honest. A correct ordering
+and a profitable level are different claims, and only the first one holds.
+
+### 7.5 Verdict on the reframe
+
+**Do not ship.** This independently reproduces `sigma-calibration.md`'s own conclusion
+(section 3, "the fully calibrated correction... is negative in every fold-half tested") on a
+separately-built harness — a faithfulness-checked reimplementation of `price_item` itself
+rather than a `blend.combine()` monkeypatch, over Games 1–39 rather than the 29
+cached-evidence Games that harness was limited to, and with the Limit side (via
+`LIMIT_CEILING_MEMORY`) included rather than tested in isolation — and gets the same
+answer: unanimous loss, dominated by the Charge side, real relative to the noise floor. The
+two independent investigations agree on both the direction and the mechanism (`CHARGE_SLOPE`
+is calibrated against a scale the asserted band supplies and a measured sigma breaks), which
+is stronger evidence than either alone. Land `sigma-calibration.md` section 4's honest-field
+diff (already applied to `scripts/build_price_memory.py` as of this writing — see that file's
+`measured_leave_one_out_sigma_log` line) regardless; do not move `CHARGE_SLOPE`,
+`CHARGE_INTERCEPT`, `MODEL_SIGMA_PRIOR`, or `MEMORY_SIGMA`, and do not substitute a measured
+sigma into `charge_factor` or the Limit's quantile.
+
+---
+
 ## Recommendation
 
 **Ship nothing.** Every signal available in the decision log at submission time —
@@ -308,8 +516,20 @@ after settlement, and nothing available before submission predicts it well enoug
 on.** The gap belongs to the evidence layer — a `t_hat` that is itself proven too low on 73%
 of censored items — not to a conditional Charge multiplier.
 
-No `src/` diff is proposed. For completeness, the shape such a change would take if the
-weakening trend above ever reverses — **not applied, not recommended at this measurement**:
+**The mid-task reframe (§7) does not change this recommendation — it closes the door from
+the other side.** It tested a structurally different fix (a measured sigma in place of the
+asserted one, rather than a Charge multiplier) and got a cleaner, more decisive negative:
+unanimous losses across three configurations and every held-out fold, independently
+agreeing with `sigma-calibration.md`'s separately-built harness on both sign and mechanism.
+Between the two candidates tested tonight, the reframe is the more informative result
+precisely because it *is* clean — no wiggling non-monotone peak to argue about, no fold that
+flips sign, just a consistent, mechanistically-explained loss. Combined with §1–6: neither
+"multiply the Charge on the items a decision-time signal flags" nor "feed pricing a more
+honest sigma keyed on that same signal" survives contact with the real Field.
+
+No `src/` diff is proposed for either candidate. For completeness, the shape the §1–6
+Charge-multiplier change would take if its weakening trend ever reverses — **not applied,
+not recommended at this measurement**:
 
 ```diff
 --- a/src/domain/pricing/engine.py
@@ -339,7 +559,12 @@ weakening trend above ever reverses — **not applied, not recommended at this m
 - `scripts/experiments/upward_charge_dark.py` — §6, the same candidate replayed under
   `dark_regime_replay.regime_snapshot(..., "fully_dark")`.
 - `scripts/experiments/pinned/price_memory_vintage_g38.json` — the pinned Price Memory copy
-  every number above is scoped against (built_from_games 1–38, 181 entries, σ 0.43).
+  §1–6 are scoped against (built_from_games 1–38, 181 entries, σ 0.43).
+- `scripts/experiments/measured_sigma_core.py` — §7, the faithfulness-checked
+  reimplementation of `price_item` (`price_item_measured_sigma`, `sanity_check`,
+  `basis_of`/`channel_of`).
+- `scripts/experiments/measured_sigma_replay.py` — §7, the three-config euro replay, folds,
+  monotonicity sweep, and the two cliff/ordering checks.
 
 Reproduce the headline:
 
@@ -349,6 +574,8 @@ PYTHONPATH=. python scripts/experiments/upward_charge_signals.py
 PYTHONPATH=. python scripts/experiments/upward_charge_sweep.py
 PYTHONPATH=. python scripts/experiments/upward_charge_cliff.py
 PYTHONPATH=. python scripts/experiments/upward_charge_dark.py
+PYTHONPATH=. python scripts/experiments/measured_sigma_core.py
+PYTHONPATH=. python scripts/experiments/measured_sigma_replay.py
 ```
 
 None of these touch `src/`, `main.py`, `pixi.toml`, `.env`, or any running process; all read
