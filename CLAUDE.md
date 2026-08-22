@@ -46,9 +46,14 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 ```bash
 set -a && . .env && set +a          # once per terminal
-pixi run start                      # terminal 1: plays every Game on the schedule
+pixi run play                       # terminal 1: plays every Game on the schedule, restarts itself if it dies
 pixi run watch                      # terminal 2: analyses each Game as it settles
 ```
+
+**Use `play`, not `start`, for terminal 1.** `watch_games()` has no exception boundary, so an
+uncaught error there ends the whole tournament rather than costing one Game; `scripts/supervise.sh`
+(what `play` runs) turns that back into "restart and lose at most one Game." `pixi run start` is
+still there for a foreground debug session, never for an unattended stretch.
 
 **`watch` already does `cases` and `learn`** — every poll it runs `extract_cases`, then
 `learn_from_game` for the newly settled Games, then the Claude review of the digest

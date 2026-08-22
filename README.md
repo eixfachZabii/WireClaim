@@ -481,7 +481,7 @@ That is the whole tournament loop. Leave both running.
 | `pixi run play` | The runner, under a supervisor. **Use this, not `start`.** `watch_games()` has no exception boundary, so an uncaught error ends the tournament rather than costing one Game; the supervisor turns that back into one Game. Logs to `var/runner.log`. | Once. Restart it after any change to `src/`, `.env`, or the constants — **the process caches them at boot and will not pick them up otherwise.** |
 | `pixi run watch` | Polls for settled Games, then per Game: tops up the Case extraction, rebuilds Price Memory from the newly recovered Fair Values, prints the learning digest, and runs a Claude review of it. | Once, alongside `play`. |
 | `pixi run start` | The bare runner, no supervisor. | Only for a foreground debug session. |
-| `pixi run test` | 329 unit tests. | Before any restart, after any edit. Green is the floor. |
+| `pixi run test` | 362 unit tests. | Before any restart, after any edit. Green is the floor. |
 | `pixi run case-0` | The permanent test Game — a dry run that costs nothing. | To sanity-check a change without waiting for a real Game. |
 | `pixi run cases` | Unzips every Case whose key has been released. | Rarely — `watch` already does it every poll. |
 | `pixi run learn` | Re-reads older Games by hand, e.g. `--games 26-33`. | After changing the analysis and wanting the old Games re-scored. |

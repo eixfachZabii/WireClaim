@@ -23,7 +23,7 @@
 2. [One Game, front to back](#2-one-game-front-to-back)
 3. [The economics that dictate the design](#3-the-economics-that-dictate-the-design)
 4. [How a Charge and a Limit are decided](#4-how-a-charge-and-a-limit-are-decided)
-5. [The three estimation channels](#5-the-three-estimation-channels)
+5. [The three estimation channels, and one discount pass over them](#5-the-three-estimation-channels-and-one-discount-pass-over-them)
 6. [The coverage detector contract](#6-the-coverage-detector-contract)
 7. [Invariants](#7-invariants)
 8. [How we measure ourselves](#8-how-we-measure-ourselves)
@@ -56,11 +56,11 @@ it; nothing here is the last word on any of them.
 ```mermaid
 %%{init: {'theme': 'neutral'}}%%
 flowchart TD
-    Sched(["Game start_time reached"]) --> KeyFetch["poll GET /api/games/id/key every 0.5s until released"]
+    Sched(["Game start_time reached"]) --> Coord["coordinator.start() -- launches the PUT worker, sends nothing yet"]
+    Coord --> BlindFloor["publish(blind_floor()): 40 indices at (300.00, 35.00), before the key fetch"]
+    BlindFloor --> KeyFetch["poll GET /api/games/id/key every 0.5s until released"]
     KeyFetch --> Extract["7z extract: policy.txt, description.txt, invoices.pdf"]
     Extract --> Parse["parse invoice into LineItems, indexed by the printed POS number"]
-
-    Sched -.->|T+0 to ~T+3| Gap["nothing is published here today -- the blind floor that used to cover this gap was removed, see Section 9"]
 
     Parse --> Slice["slice_policy: keep PART 3, 4, 5, 7, 11 only, verbatim text"]
     Parse -.->|concurrent from T+3| FraudDet["src/evidence/fraud_detection.py: coverage detector"]
@@ -77,9 +77,10 @@ flowchart TD
         ChanA --> Combine["combine -- inverse-variance blend of Channel C with Channel B"]
         ChanB --> Combine
         Blend --> Combine
+        Combine --> ChanD["Channel D: aggregate_class_discount -- shared sub-limit, only the dearest keeps cover"]
     end
 
-    Combine --> EvidenceOut(["Evidence: coverage probability, price band, quoted clause"])
+    ChanD --> EvidenceOut(["Evidence: coverage probability, price band, quoted clause"])
 
     subgraph PR["src/pricing/engine.py -- the only module that decides a scored number"]
         direction TB
@@ -93,51 +94,59 @@ flowchart TD
 
     classDef evidence fill:#eef2ff,stroke:#4338ca,color:#1e1b4b
     classDef pricing fill:#ecfdf5,stroke:#047857,color:#022c22
-    classDef warning fill:#fef2f2,stroke:#b91c1c,color:#7f1d1d,stroke-dasharray: 4 3
-    class ChanA,ChanB,ChanC1,ChanC2,Blend,Combine evidence
+    classDef floor fill:#fffbeb,stroke:#b45309,color:#78350f
+    class ChanA,ChanB,ChanC1,ChanC2,Blend,Combine,ChanD evidence
     class Price,ChargeLimit pricing
-    class Gap warning
+    class BlindFloor floor
 ```
 
 **Reading the diagram.** Solid arrows are the main line; dotted arrows are things that run
 alongside it rather than on it — the coverage detector, which only ever *removes* by zeroing
-a Limit, and the red dashed box, which is not a step at all but a gap: nothing is published
-between the Game starting and the Case finishing its load. It is drawn in, in red, rather
-than omitted, because a diagram of "the real mechanism" that quietly leaves out the mechanism
-that is currently missing would be worse than no diagram. The two tinted boxes are
+a Limit. The amber box is the blind floor: forty plausible numbers published before the key
+fetch even starts, so a Case that never loads still leaves something standing rather than
+nothing (§9 has the history of why this box was missing from an earlier version of this
+diagram, and what it cost). The two tinted boxes are
 [ADR 0001](brainstorm/sebi/adr/0001-the-model-reads-the-engine-prices.md)'s whole argument
 drawn as a boundary: everything indigo reads the Case and can only produce `Evidence`; the
 one green box is the only place in the repo allowed to turn that evidence into a number we
 are scored on.
 
-### T+0 — nothing is published yet, and that is new
+### T+0 — the blind floor publishes before anything else
 
 `run_game` starts the [`SubmissionCoordinator`](../src/runtime/submission_coordinator.py) at
-T+0, but starting it only launches its background worker — nothing is actually sent until
-something calls `.publish(...)`, and today nothing does until the Case has loaded. **This
-document used to say otherwise, and until this rewrite it still did**, because a `blind_floor()`
-mechanism that closed exactly this gap was deleted from `main.py` without this file being
-told. [§9](#9-legacy-and-known-weaknesses) has the full account; the short version:
+T+0, and starting it only launches its background worker — nothing is actually sent until
+something calls `.publish(...)`. The very next line does: `coordinator.publish(blind_floor())`,
+before the key fetch has even started. [`blind_floor()`](../main.py) returns
+`BLIND_LINE_ITEMS = 40` indices at a flat `(300.00, 35.00)` — the same constants as
+[`standard_values`](../src/strategies/fast_path.py) — so the first `PUT` of every Game goes
+out at T+0, before we know the Line Item count, the Policy, or whether the Case will load at
+all.
 
-Games 11 and 12 submitted nothing at all and scored −36,017 and −43,381 — identical to a team
-that never showed up, because `(0, 0)` is a bleed, not a neutral result: charging nothing
-forfeits all income, and a Limit of zero wrongfully rejects every fair claim in the field at
-`1.5a` each. Together with Game 10 that failure mode cost 139,904
+That number, 40, is not arbitrary: the Line Item count is unknowable before the Case loads,
+and settled Games 1–14 carried at most 39 — one more than the observed maximum, so a real
+index is never left uncovered. If the Case then loads, the real prices overwrite these within
+a second at essentially no cost (submission is an upsert; last write wins). If it does *not*
+load, this is the difference between a bad Game and no Game at all.
+
+**Why this line exists, and why it is worth a whole subsection.** Games 11 and 12 submitted
+nothing at all and scored −36,017 and −43,381 — identical to a team that never showed up,
+because `(0, 0)` is a bleed, not a neutral result: charging nothing forfeits all income, and a
+Limit of zero wrongfully rejects every fair claim in the field at `1.5a` each. Together with
+Game 10 that failure mode cost 139,904
 (`docs/brainstorm/sebi/strats/review/live-changelog.md`). Commit `b5ba5dc` fixed it for Games
-13 onward: publish `BLIND_LINE_ITEMS = 40` indices at `(300.00, 35.00)` immediately, before
-the key fetch even starts, so a Case-load failure still leaves 40 plausible numbers standing.
-Forty was chosen because the Line Item count is unknowable before the Case loads, and settled
-Games 1–14 carried at most 39.
+13 onward with exactly this mechanism. Three hours later the same day, commit `9b5ee55` ("Keep
+submissions observable through strategy deadlines") deleted `blind_floor()`,
+`BLIND_LINE_ITEMS`, and the `coordinator.publish(blind_floor())` call along with them — nothing
+about that commit's message mentioned the removal, and this document still described the
+mechanism as running for twenty Games after it was gone. As shipped in that window, a
+Case-load failure submitted nothing for the whole Game — the exact bleed Games 10–12 had
+already cost 139,904 to teach us to close.
 
-Three hours later the same day, commit `9b5ee55` ("Keep submissions observable through
-strategy deadlines") deleted `blind_floor()`, `BLIND_LINE_ITEMS`, and the
-`coordinator.publish(blind_floor())` call along with them, and changed the failure-path log
-line from `"blind floor stands"` to the now-accurate `"no submission was sent"`. Nothing else
-about that commit's message mentions the removal, and neither this document nor
-`live-changelog.md` — which still records `blind_floor()` "publishes before the Case loads"
-at Games 13–16 — was ever updated to match. **As shipped today, a Case-load failure submits
-nothing for that Game, not 40 plausible numbers**, which is exactly the failure mode Games
-10–12 cost 139,904 to teach us to close.
+Commit `a6fd788` ("Restore the blind floor, deleted by accident twenty Games ago") put it back,
+which is the state this document now describes. [§9](#9-legacy-and-known-weaknesses) keeps the
+full incident record — how a 112-line refactor's commit message can delete a safety net
+without saying so, and how two tests written in the same commit matched the new behaviour
+without anyone noticing a behaviour had changed.
 
 ### T+0 to ~T+3 — key, archive, invoice
 
@@ -159,10 +168,12 @@ deadline-bounded:
    `quantity_missing=True` instead of collapsing into `quantity = 1.0`, because that dash is
    the single strongest free signal in the Case — Channel A, below.
 
-**If this fails:** `run_game` catches it, logs *"no submission was sent"*, waits for the
-coordinator to drain and exits — accurately, because nothing has been published yet (see
-above). If the load succeeds but only *after* the deadline, the run is abandoned without
-submitting — the coordinator refuses to `PUT` past the deadline.
+**If this fails:** `run_game` catches it, logs *"blind floor stands"*, waits for the
+coordinator to drain and exits — accurately, because the T+0 publish above is still the last
+thing sent for this Game: 40 plausible numbers, not nothing (see above). If the load succeeds
+but only *after* the deadline, the run is abandoned without submitting further — the
+coordinator refuses to `PUT` past the deadline, so whatever was last published (still the
+blind floor, if nothing else ever ran) stands.
 
 ### T+3 — the deterministic layer publishes
 
@@ -173,7 +184,7 @@ here on is a refinement of this one, not a replacement of an earlier blind one �
 earlier one.
 
 `RunManager` refuses to be constructed with an empty standard Proposal. That is the
-mechanical guarantee behind [invariant 1](#7-invariants): there is never a moment after the
+mechanical guarantee behind [invariant 3](#7-invariants): there is never a moment after the
 Case loads at which some Line Item has no number.
 
 ### T+3 to ~T+50 — evidence, then price
@@ -418,36 +429,58 @@ The Limit is the one-third quantile of the *whole* posterior — including the s
 Write it out and the special case disappears:
 
 ```python
-if p_covered <= 1/3:
-    b = 0.0                                        # the bottom third IS the spike
+if p_covered <= 2/3:                                # COVERAGE_FLOOR = 1 - LIMIT_QUANTILE
+    b = 0.0                                          # the bottom third IS the spike
 else:
-    q = (1/3 − (1 − p_covered)) / p_covered        # strip the zero mass, re-normalise
-    b = median × exp(σ × z(q))
-    b = min(b, 0.45 × median, 708.0)               # LIMIT_CEILING, LIMIT_CAP
+    q = (1/3 − (1 − p_covered)) / p_covered          # strip the zero mass, re-normalise
+    ceiling = 0.75 if memory_backed else 0.45        # LIMIT_CEILING_MEMORY / LIMIT_CEILING
+    candidates = [median × exp(σ × z(q)), ceiling × median]
+    if not memory_backed:
+        candidates.append(708.0)                     # LIMIT_CAP -- model-only items only
+    b = min(candidates)
 b = min(b, a)
 ```
 
 If an item is only, say, 50 % likely to be covered, then half the posterior's mass already
 sits at zero, so the value with one third of the mass below it *is* zero. `b = 0` falls out
-of the arithmetic. There is no threshold in the code that says "if uncertain, reject" —
-`COVERAGE_FLOOR` is named only so the boundary shows up in logs and tests. This is the
+of the arithmetic once the zero mass reaches two thirds — the bottom-third quantile is
+entirely inside the spike whenever `p_covered <= 2/3`, which is what `COVERAGE_FLOOR` names.
+There is no separate threshold in the code that says "if uncertain, reject". This is the
 correct answer often: about 40 % of settled Line Items (76 of 192 in Games 1–14) have
 `t = 0`, and paying anything on one of those is a pure loss.
 
-Three guards sit on top. `LIMIT_CEILING = 0.45` caps the Limit at 45 % of the median, because
-the quantile rule trusts the band and a model returning `95–105` on an item worth 20 would
-otherwise have us accept nearly the full median. `LIMIT_CAP = 708` (12 × the settled median)
-caps it in **euros**, which is the one thing a multiplier cannot do: when the estimate blows
-up, a multiplicative ceiling blows up with it, and Game 29 bought thirteen opponents' Charges
-of 2,000.00 on an item worth under 57 for 24,157 of pure loss. And `b ≤ a` always holds, since
-the Limit is a lower quantile of the same posterior than the Charge.
+Three guards sit on top, and the first two now come in two tiers rather than one, split on
+whether **Channel B priced this item** — a wording seen in a settled Case, whose Fair Value
+was recovered exactly rather than estimated. `LIMIT_CEILING = 0.45` caps a model-only Limit at
+45 % of the median, because the quantile rule trusts the band and a model returning `95–105`
+on an item worth 20 would otherwise have us accept nearly the full median. On a memory-backed
+item that guardrail loosens to `LIMIT_CEILING_MEMORY = 0.75` — measured positive on all eight
+fold cells (all/odd/even/early/late × two windows) through `replay_payoffs`, +40,791 over 37
+Games — because the guard against a bad estimate is redundant when the estimate has already
+been checked against a settled outcome. `LIMIT_CAP = 708` (12 × the *old* settled median of 59,
+frozen as a literal on purpose — see [§9](#9-legacy-and-known-weaknesses)) caps a model-only
+Limit in **euros**, which is the one thing a multiplier cannot do: when the estimate blows up,
+a multiplicative ceiling blows up with it, and Game 29 bought thirteen opponents' Charges of
+2,000.00 on an item worth under 57 for 24,157 of pure loss. That cap is now **lifted entirely
+on memory-backed items**, because it was doing the wrong job there: Game 41's watch settled at
+`t ≥ 11,131`, all ten of the field's Charges on it were fair, and the flat 708 cap held our
+Limit down regardless — we rejected nine of ten and paid 1.5× on all of them, losing money a
+correct estimate could have kept. Swept through `price_item` over Games 26–41, lifting the cap
+on memory-backed items alone scores **−5,104** (i.e. saves that much) with zero additional
+Overcharges admitted; lifting it everywhere costs **+21,503** in fresh Overcharges, almost all
+from one model-only miss (Game 29's water-damaged boiler, estimated at 7,139 against a true
+`t < 57`). The discriminator is the channel, not the euro amount. And `b ≤ a` always holds,
+since the Limit is a lower quantile of the same posterior than the Charge.
 
-The ceiling has been re-opened twice and stays at 0.45 both times. Loosening to 0.70 is worth
-+17,835 over 32 Games and is positive in **32 of 32** leave-one-Game-out folds — and is still
-wrong, because leave-one-out cannot see a regime change when 31 training Games stay in every
-fold. Split on *time* instead (train on Games 1–25, score on 26+) and it scores **−2,274**;
-+17,218 of the +17,835 is Games 1–19, and every value above 0.45 loses on Games 28–32. The
-full table lives on the constant in [`engine.py`](../src/pricing/engine.py).
+The base ceiling has been re-opened twice and stays at 0.45 both times. Loosening it — for
+every item, not only memory-backed ones — to 0.70 is worth +17,835 over 32 Games and is
+positive in **32 of 32** leave-one-Game-out folds — and is still wrong, because leave-one-out
+cannot see a regime change when 31 training Games stay in every fold. Split on *time* instead
+(train on Games 1–25, score on 26+) and it scores **−2,274**; +17,218 of the +17,835 is Games
+1–19, and every value above 0.45 loses on Games 28–32. The full table lives on the constant in
+[`engine.py`](../src/pricing/engine.py). The memory-backed ceiling above is the one candidate
+in that whole family that cleared every fold, which is why it shipped and the base ceiling did
+not move.
 
 One empirical shading is worth knowing: the 2/3 rule prices an accepted Overcharge at `a`,
 but the Cap allows `min(a, c)` with `c ≥ 4t`, so accepting is in truth slightly worse than
@@ -472,10 +505,13 @@ Charging *above* `t`: our median `a / t` has been 1.06 where the leaders sit at 
 
 ---
 
-## 5. The three estimation channels
+## 5. The three estimation channels, and one discount pass over them
 
 `t̂` comes from three sources of very different quality, and they are ranked by how much we
-trust them rather than by how impressive they are.
+trust them rather than by how impressive they are. A fourth channel, D, does not add price
+information of its own — it discounts what A–C already produced, for one specific and narrow
+failure shape; it is covered at the end of this section rather than promoted to a fourth
+source.
 
 **Channel A — deterministic, free, instant.** A position whose quantity and unit columns
 print only dashes is worth nothing: **20 of 20** such Line Items across the settled Games
@@ -494,7 +530,7 @@ the items with a known non-zero Fair Value at **σ = 0.43**. That is good enough
 band and not good enough to settle a price on its own, so a hit is folded in as one estimate
 among several.
 
-Three measured details explain the shape of that module. Storing an hourly, per-metre,
+Four measured details explain the shape of that module. Storing an hourly, per-metre,
 per-m² or per-kilogram position **per unit** and multiplying by the queried quantity on
 lookup — while `pcs` and `flat rate` stay gross totals — took σ from **0.659 to 0.431**;
 extending per-unit treatment further made it worse. Fuzzy matching is a trap: a Jaccard
@@ -503,6 +539,16 @@ matching is exact wording plus one qualifier-stripped fallback key and nothing l
 the raw spread of one to three past prices contained the true Fair Value only **42 %** of the
 time, so the returned band is widened to at least the measured σ, which gets it to 65 % — two
 observations that happen to agree are a small sample, not a tight posterior.
+
+The fourth is [`infer_unit`](../src/evidence/memory.py): two Line Items across Games 1–36
+print a quantity with a genuinely blank unit column — `Skilled worker hours   14   -` — which
+`normalise_unit` turns into `""` and `is_per_unit` then reads as false, so the position is
+stored and queried as a *gross* total instead of an hourly rate, roughly 14× too large going
+in and scaled by 1 instead of the real quantity coming out. Measured log error on both known
+occurrences: **−2.61 and −2.64 before the fallback, +0.03 and −0.00 after.** `infer_unit`
+fires only when the parsed unit is already blank and the wording itself names an hour — it
+deliberately does not fire on the other dash-unit rows in the record, which are genuinely
+gross-priced and where guessing a unit would be groundless.
 
 Crucially, **Price Memory supplies price only, never coverage.** Six of the fifteen wordings
 that repeat across Cases flip between `t = 0` and `t > 0`; `vehicle costs` is worthless in
@@ -545,14 +591,47 @@ disposal and strip-out around 130; appliances and structural work into the low t
 band they replaced — a single "equipment hire, drying, leak detection and disposal typically
 50–400" — was wrong on its two largest members, and the model anchored on it: our estimates on
 the fourteen settled leak-detection items were 180…561, and sat **below the proven floor of
-`t` on 11 of them**. The prompt also gives the
-settled distribution as a shape check (a quarter under 20 EUR, median around 59, top decile
-past 400), and tells the model that pricing an expensive item like the median is the most
-expensive single mistake available to it. It also encodes the two coverage traps: judge the
+`t` on 11 of them**.
+
+The prompt also gives the settled distribution as a shape check — and that hint itself was
+wrong the same direction for the same reason. `_DISTRIBUTION_HINT` used to tell the model a
+quarter of positions sit under 20 EUR, the median is 59, and the top decile "runs past 400 EUR
+to several thousand." Re-measured over **457** settled Line Items rather than the 148 the old
+figures came from: a quarter sit under **25**, the median is **97**, and `p90` is **616**, with
+`p99` at 2,345 and the largest settled position seen so far at 11,131. Every one of those old
+figures understated the true value, and understating a distribution to a model is not neutral —
+it anchors low, hardest exactly on the expensive tail where the estimator is already worst:
+Game 41's watch, declared on a valuables schedule, settled at `t ≥ 11,131` and was priced at
+5,524. The corrected hint states the true quantiles and tells the model that pricing an
+expensive item like the median is the single most expensive mistake available to it — pointedly,
+because it is the one actually being made. It also encodes the two coverage traps: judge the
 **service being billed, not the object it concerns** (an inspection is frequently indemnified
 even when the inspected property is not), and read cross-references to the end (a clause
 ending *"the head of cost under 5.2.6 remains unaffected"* is a pointer to cover, not an
 exclusion).
+
+### Channel D — a discount pass, not a fourth estimate
+
+[`aggregate_class_discount`](../src/strategies/strategy2/channels.py) runs after `combine`,
+over the whole Case rather than one Line Item at a time, and it only ever *lowers* a Limit —
+never a Charge, never coverage. Some Policies put a whole class of property under **one**
+shared sub-limit rather than one each: Policy 4.2.2, in every Case seen, puts valuables
+(jewellery, watches, precious metals or stones) "in the aggregate per insured event across all
+items," so a claim for three pieces can exhaust one pot even though each item individually
+reads as covered.
+
+Game 44 is the only Case in the corpus to show the collision, and it shows it cleanly: a watch
+settled at `t ≥ 9,361` (paid), while a ring and a necklace on the same schedule settled at
+`t < 884` and `t < 663` (both zero) — the watch alone exhausted the shared pot. The model priced
+all three at an *identical* coverage probability of 0.925; it never noticed there was a pot to
+exhaust, and a prompt fix tried first still failed on the Case it needed to fix. So this is the
+deterministic replacement ADR 0001 asks for: when two or more matched members of a class both
+carry model evidence, the channel keeps the priciest member's evidence unchanged and caps every
+other member's coverage probability at `_AGGREGATE_DISCOUNT_COVERAGE = 0.30` — below
+`COVERAGE_FLOOR`, so the Limit collapses to zero on them without a second special case. Worth
++2,026.89 replayed over Game 44, and deliberately narrow: it fires only where a class has two or
+more model-priced members, so its measured downside across the rest of the corpus is exactly
+zero.
 
 ---
 
@@ -632,15 +711,20 @@ enforced somewhere in code, and each one is the residue of a specific loss.
    Charge a free option. The coverage mask writes `b` only; `price_item` computes the Charge
    before it looks at coverage at all.
 2. **Never `b` above `t̂`, never unbounded.** The Limit is a lower quantile of the same
-   posterior as the Charge, hard-capped at `0.85 × median` and then at `a`. An unbounded
-   Limit produced 99 % of our costs in Game 5.
-3. **Never absent — true from T+3 on, not before.** `RunManager` refuses an empty standard
-   layer, and every failure path in `run_game` after the Case has loaded leaves the last
-   successful submission standing. It does **not** currently hold for T+0 to ~T+3: the blind
-   floor that used to cover that window was removed (see [§2](#2-one-game-front-to-back) and
-   [§9](#9-legacy-and-known-weaknesses)), so a Case-load failure today submits nothing for the
-   whole Game rather than 40 plausible numbers. Uptime outranks accuracy: break-even uptime
-   against a dumb bot that never misses is ~71 %, which is exactly why this gap matters.
+   posterior as the Charge, hard-capped at `0.45 × median` (`0.75 ×` on a Price-Memory-backed
+   item, which has actually been seen settle) and then at `a`; a model-only estimate also
+   faces an absolute euro ceiling, `LIMIT_CAP = 708`. An unbounded Limit produced 99 % of our
+   costs in Game 5.
+3. **Never absent, at any point in the Game.** `coordinator.publish(blind_floor())` is the
+   first thing sent, before the key fetch even starts, so there is no window — not even T+0 to
+   ~T+3 — in which nothing has been published. `RunManager` additionally refuses an empty
+   standard layer once the Case has loaded, and every failure path in `run_game` after that
+   point leaves the last successful submission standing. This held for Games 13–16, was
+   silently broken by commit `9b5ee55` for twenty Games, and was restored by `a6fd788` — see
+   [§2](#2-one-game-front-to-back) and [§9](#9-legacy-and-known-weaknesses) for the incident.
+   Uptime outranks accuracy: break-even uptime against a dumb bot that never misses is ~71 %,
+   which is exactly why this invariant is worth a hard mechanical guarantee rather than a
+   best-effort one.
 4. **Always gross totals, always for the whole Line Item.** Never net (a factor of 1.19),
    never per-unit (a factor of the quantity, often 10–30×). The prompt says it twice; Price
    Memory's per-unit store multiplies back up to a gross total on lookup precisely so that
@@ -686,6 +770,22 @@ re-tuning the deterministic layer costs nothing, and reports three things: **σ*
 deviation of `log(t̂ / t_mid)`, overall and per channel; the **coverage confusion** against
 the true `t = 0` set; and the **simulated net per Game** through `replay_payoffs`.
 
+**[`backtesting/`](../backtesting)** is a second, heavier harness at the repo root, added
+alongside `scripts/backtest.py` rather than replacing it — it scores an estimator *callable*,
+this one runs the actual `strategy1`/`strategy2`/`strategy3`/fast-path stack end to end. Two
+things it does that a callable-level harness cannot: `backtesting/history.py` builds Price
+Memory **past-only** for whichever Game is being scored, so an estimate can never see a Fair
+Value that had not settled yet at that point in the tournament; and `backtesting/scoring.py`
+reconstructs each opponent's Charge and Limit brackets to score both Issuer and Reviewer sides
+of a counterfactual submission, censoring included. `pixi run backtest-sync` rebuilds the
+dataset incrementally from the public leaderboard; `pixi run backtest-run` scores a sweep
+spec (`backtesting/specs/default.json`) against it and writes a report under
+`var/backtesting/runs/`. (The older `var/backtest/` belongs to `scripts/backtest.py`,
+above — the two harnesses keep separate state on purpose.)
+It shares no code path with the live runner beyond importing the same `src/` modules it is
+grading — a bug in the harness cannot reach a submission, and a bug in the runner is not
+hidden by the harness testing something else.
+
 **σ is the gate on everything.** Two warnings come with it, and both are in the code rather
 than in someone's head. Score with total log error, not a bare standard deviation — a stdev
 cannot see a level error, and our actual failure mode is a *bias* (median `a/t` of 1.06 where
@@ -709,6 +809,30 @@ sides, and the accept share. Never tune a knob whose error you have not measured
 carry a field measurement across a phase boundary — the tournament has three regimes (an awake
 and generous field early, a mostly dark middle, a recalibrated field at the end) and a `p`
 estimated in one is worthless in the next.
+
+**Two robustness fixes to the record this all depends on.** [`decisions.py`](../src/runtime/decisions.py)
+now merges a Game's `items` list **by Line Item index** on every write, the same way it already
+merged `proposals` by source — a bare dict update replaces the list wholesale, and a second,
+smaller write (e.g. a stray retry) used to silently destroy the first write's record of every
+item it did not also carry. It happened: a real 17-item write at 23:37:54 was overwritten by a
+1-item stray write 26 seconds later, and the digest reported `no-decision-log` on the other
+sixteen with an invented "most expensive items" list. And
+[`model.py`](../src/strategies/strategy2/model.py) now writes the model's raw reply to
+`var/ai_log/game_NNN_<draw>.json` — model name, service tier, elapsed time, and the reply text
+— right after the call returns and before it is parsed, so a draw that fails to parse is the
+one case most certainly still on disk. Both exist because of the same failure: Game 46
+produced zero model draws on 31 Line Items and the only record was `draw unavailable`, an
+empty reason, and an hour spent inferring what one file would have said outright.
+
+[`scripts/learn_from_game.py`](../scripts/learn_from_game.py) is where the decision log turns
+into a named diagnosis, one stage per Line Item: `charge-above-t`, `charge-far-below-t`,
+`estimate-too-high`, `estimate-too-low`, or `ok`. `estimate-too-low` — median priced under a
+*proven* floor — exists because the largest single failure mode had no name and therefore no
+cost: Game 44's stolen watch carried 85 % of that Game's penalty and was tagged `ok`, because
+`charge-far-below-t` only fires when the Charge sits under half the floor and this one missed
+by 58 EUR. It is the *median* that is wrong there, not the band — Game 44's posterior did
+contain the truth — which is why widening the band does not fix it and why it survives
+straight into the Charge.
 
 ---
 
@@ -740,26 +864,21 @@ redesign — verified by an AST pass confirming every `src.*` import resolves,
 types (only `strategies/strategy2/*` does, which legitimately sits astride the seam), so the
 only effect would have been symbol-level import surgery on ~30 files for no behaviour change.
 
-**Known weaknesses, honestly stated.** The first one is placed ahead of the rest on purpose —
-it is a live regression, not a design trade-off, and it is the most urgent thing in this
-section.
+**Resolved since an earlier write-up of this document.** Kept here rather than deleted, because
+the incident is the reason two things elsewhere in this document exist the way they do — the
+T+0 blind-floor publish in [§2](#2-one-game-front-to-back) and invariant 3 in
+[§7](#7-invariants).
 
-- **The blind floor is gone, and Games 10–12's failure mode is open again.** Commit `b5ba5dc`
-  ("Stop the bleeding: publish a floor before loading") added `blind_floor()`: 40 indices at
-  `(300.00, 35.00)`, published before the key fetch, specifically so a Case-load failure would
-  leave 40 plausible numbers standing instead of nothing. Commit `9b5ee55` ("Keep submissions
-  observable through strategy deadlines"), three hours later the same day, deleted it —
-  `blind_floor()`, `BLIND_LINE_ITEMS`, and the `coordinator.publish(blind_floor())` call — and
-  changed the failure log line to `"no submission was sent"`, which is accurate about the code
-  it left behind but was never surfaced as a change anywhere: not in that commit's message, not
-  in this document (which still described `blind_floor()` as running, until this rewrite), and
-  not in `live-changelog.md`, which still credits it with Games 13–16's recovery and says
-  nothing about its removal. As shipped, a Case-load failure today submits nothing for the
-  whole Game — the exact `(0, 0)` bleed that cost 139,904 across Games 10–12, uncorrected. See
-  [§2](#2-one-game-front-to-back) for where in the walkthrough this gap sits. Restoring it is a
-  small, well-understood change — the deleted code is sitting in commit `b5ba5dc` — but it is a
-  live-behaviour change to the runner during a running tournament, so it is reported here rather
-  than applied by this rewrite.
+- **The blind floor was deleted, then restored.** Commit `b5ba5dc` ("Stop the bleeding: publish
+  a floor before loading") added `blind_floor()`: 40 indices at `(300.00, 35.00)`, published
+  before the key fetch, specifically so a Case-load failure would leave 40 plausible numbers
+  standing instead of nothing. Commit `9b5ee55` ("Keep submissions observable through strategy
+  deadlines"), three hours later the same day, deleted it — `blind_floor()`,
+  `BLIND_LINE_ITEMS`, and the `coordinator.publish(blind_floor())` call — without that commit's
+  message mentioning the removal, and it stayed gone for twenty Games before a documentation
+  audit noticed this file still described a mechanism that no longer ran. Commit `a6fd788`
+  ("Restore the blind floor, deleted by accident twenty Games ago") put it back; this document
+  now describes the restored state as current, not as a gap to close.
 - **The model's σ is unmeasured.** Everything else here is fitted; `MODEL_SIGMA_PRIOR = 0.6`
   is not. If the true value lands above 0.5, the right response is to lean harder on Channels
   A and B and keep `b` near zero.
@@ -780,14 +899,22 @@ section.
 - **Per-item model calls were planned and are not implemented.** The plan's timeline fires
   per-item calls alongside the whole-Case call so one slow item costs one item. The shipped
   strategy makes a single whole-Case call; if it times out, Channels A and B carry the Case.
-- **Two "settled median" constants disagree by one euro.** `SETTLED_MEDIAN = 59.0` in
-  `strategy2/constants.py` and `FALLBACK_MEDIAN = 60.0` in `src/pricing/engine.py` are
-  described in identical terms. Harmless today; the kind of duplication that has already cost
-  us money once.
-- **Channel C's evidence schema is being extended as this is written.** Work in flight adds a
-  per-unit rate (`unit_rate_*`, multiplied by the printed quantity) and a coarse `magnitude`
-  class that can only widen a band upward, both aimed at the underpriced tail. The Evidence →
-  price arithmetic in §4 is unaffected; only what the model is asked for changes.
+- **Two "settled median" constants now disagree by 37 EUR, deliberately.** `SETTLED_MEDIAN` in
+  `strategy2/constants.py` was re-measured at Game 41 over 457 settled Line Items — up from
+  59.0 (148 items) to **97.0**, the old figure having understated the true median by 65 % in
+  every prompt since. `FALLBACK_MEDIAN = 60.0` in `src/pricing/engine.py` — used only when a
+  Line Item has no band at all — was left where it was, and `LIMIT_CAP` is written as the
+  literal `12.0 * 59.0` rather than `12.0 * SETTLED_MEDIAN` on purpose, so a future
+  re-measurement of the prompt's reference median cannot silently move the absolute euro
+  ceiling too. Two constants that once agreed by coincidence now visibly do not; readers of
+  this section should not assume they are supposed to converge.
+- **A richer Channel C schema was tried twice and lost money both times.** Asking the model for
+  a per-unit rate multiplied by the invoice quantity scored **−64,590**; asking for a coarse
+  order-of-magnitude class that could only pull the band upward scored **−127,312** across
+  nineteen Cases. Neither is kept even as dead code — a model that volunteers such a field
+  would silently re-enable a measured loss — but the negative result is worth keeping in mind
+  before someone re-proposes either shape for the same underpriced-tail problem. Full figures
+  in `docs/brainstorm/sebi/strats/review/strategy2-plan.md`.
 - **The Cap `c` has never bound** in 52,224 settled rows, so we only know `c > max observed
   accepted amount`. Any plan leaning on large Charges extrapolates past the data.
 
@@ -812,7 +939,7 @@ plantuml -tpng -SdpiScale=2 docs/diagrams/*.puml
 
 | Source | Rendered | Shows |
 | --- | --- | --- |
-| `00-game-walkthrough.mmd` | embedded in [§2](#2-one-game-front-to-back) | key fetch → evidence channels → blend → combine → price_item → Charge/Limit → submit → decision log, with the ADR 0001 boundary as two subgraphs |
+| `00-game-walkthrough.mmd` | embedded in [§2](#2-one-game-front-to-back) | blind floor → key fetch → evidence channels → blend → combine → Channel D → price_item → Charge/Limit → submit → decision log, with the ADR 0001 boundary as two subgraphs |
 | `01-game-timeline.puml` | [svg](diagrams/01-game-timeline.svg) · [png](diagrams/01-game-timeline.png) | the same Game as a sequence diagram — every actor, every API call, every failure path, over wall-clock time |
 | `02-line-item-decision.puml` | [svg](diagrams/02-line-item-decision.svg) · [png](diagrams/02-line-item-decision.png) | evidence → posterior → `(a, b)` for one Line Item, with the exact arithmetic |
 | `03-components.puml` | [svg](diagrams/03-components.svg) · [png](diagrams/03-components.png) | the static module map: the same `src/` packages the restructure note above describes |
