@@ -3,6 +3,14 @@
 All images below are regenerated automatically every 15 minutes from the settled leaderboard data
 (see `.github/workflows/case-analysis.yml`). Newest / most important first.
 
+## Best teams per game — what to copy
+
+Top 3 by net each game (+ Bin busy's row highlighted): income split (fair accepts /
+swallowed Overcharges / 1.5a penalties), cost leaks, Charge aggressiveness (med a/t),
+and a one-line verdict of why it worked. Full per-team data in `data/teams.csv`.
+
+![Best teams per game](data/teams.png)
+
 ## Total balance per team
 
 Cumulative net per team over all settled games (income as Issuer minus costs as Reviewer,

@@ -23,6 +23,7 @@ STEPS = [
     ["report.py"],
     ["money.py"],
     ["balance.py"],
+    ["teams.py"],
     ["diagnose.py"],
 ]
 
