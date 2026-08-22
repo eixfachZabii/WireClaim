@@ -7,9 +7,9 @@ from dataclasses import dataclass
 from typing import Iterator, Mapping
 
 from backtesting.models import HistoricalDataset, HistoricalGame
-from src.domain.pricing import memory as price_memory
-from src.domain.pricing.memory import PriceMemory, build_entries, is_per_unit, normalise, normalise_unit
-from src.services.strategies.strategy2.channels import unit_of
+from src.evidence import memory as price_memory
+from src.evidence.memory import PriceMemory, build_entries, is_per_unit, normalise, normalise_unit
+from src.strategies.strategy2.channels import unit_of
 
 
 @dataclass(frozen=True)

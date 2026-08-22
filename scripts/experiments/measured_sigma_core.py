@@ -28,7 +28,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from charge_buckets import Row  # noqa: E402
-from src.domain.pricing.engine import (  # noqa: E402
+from src.pricing.engine import (  # noqa: E402
     COVERAGE_FLOOR,
     LIMIT_CAP,
     LIMIT_CEILING,
@@ -41,13 +41,13 @@ from src.domain.pricing.engine import (  # noqa: E402
     implied_sigma,
     price_item,
 )
-from src.domain.pricing.memory import is_per_unit  # noqa: E402
+from src.evidence.memory import is_per_unit  # noqa: E402
 
 
 def basis_of(row: Row) -> str:
     """'per_unit' (labour/area/length/mass, priced as rate x quantity) or 'gross'.
 
-    Reuses `src.domain.pricing.memory.is_per_unit` directly -- the SAME function
+    Reuses `src.evidence.memory.is_per_unit` directly -- the SAME function
     `build_price_memory.py` uses to bucket its own leave-one-out sigma -- rather than
     `Row.metered`'s ad hoc regex proxy from the earlier upward-multiplier section, so this
     candidate's numbers are comparable to `sigma-calibration.md`'s section 2. It disagrees

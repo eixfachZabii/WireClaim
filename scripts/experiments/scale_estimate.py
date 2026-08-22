@@ -92,7 +92,7 @@ from scripts.replay_payoffs import (  # noqa: E402
     snapshot,
 )
 
-from src.domain.pricing.engine import COVERAGE_FLOOR, Evidence, price_item  # noqa: E402
+from src.pricing.engine import COVERAGE_FLOOR, Evidence, price_item  # noqa: E402
 
 INF = math.inf
 DECISIONS = Path("var/decisions")

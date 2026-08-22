@@ -72,10 +72,10 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "experiments"))
 
-from src.domain.pricing.engine import Evidence, implied_sigma, price_item  # noqa: E402
-from src.services.strategies.strategy2.blend import sigma_of  # noqa: E402
-from src.services.strategies.strategy2.channels import local_evidence  # noqa: E402
-from src.services.strategies.strategy2.constants import (  # noqa: E402
+from src.pricing.engine import Evidence, implied_sigma, price_item  # noqa: E402
+from src.strategies.strategy2.blend import sigma_of  # noqa: E402
+from src.strategies.strategy2.channels import local_evidence  # noqa: E402
+from src.strategies.strategy2.constants import (  # noqa: E402
     BAND_Z,
     MEMORY_SIGMA,
     MODEL_SIGMA_PRIOR,

@@ -23,7 +23,7 @@ for extra in (str(ROOT), str(ROOT / "scripts")):
     if extra not in sys.path:
         sys.path.insert(0, extra)
 
-from src.domain.pricing.memory import (  # noqa: E402
+from src.evidence.memory import (  # noqa: E402
     SIGMA_LOG,
     PriceMemory,
     build_entries,

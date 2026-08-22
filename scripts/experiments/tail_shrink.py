@@ -32,7 +32,7 @@ from tail_replay import (  # noqa: E402
     submission_of,
 )
 
-from src.domain.pricing.engine import Evidence  # noqa: E402
+from src.pricing.engine import Evidence  # noqa: E402
 
 BAND_Z = 1.645
 

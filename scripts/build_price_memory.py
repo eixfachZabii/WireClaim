@@ -15,7 +15,7 @@ What gets stored, and why so little of it:
 * Only occurrences with ``t_lo > 0``. A wrongful rejection at ``a`` proves ``t >= a``,
   so ``t_lo > 0`` is *proof* the item was worth something. ``t_lo = 0`` proves nothing
   either way, and the store must not pretend otherwise — see the module docstring of
-  ``src/domain/pricing/memory.py`` for why coverage is deliberately not modelled here.
+  ``src/evidence/memory.py`` for why coverage is deliberately not modelled here.
 * Fair Value point estimate: ``(t_lo + t_hi) / 2`` when the upper bound exists,
   ``t_lo`` when it does not. Measured alternatives (``sqrt(lo*hi)``, ``lo * 1.17`` for
   the unbounded tail) were all worse leave-one-out; see ``--evaluate``.
@@ -48,7 +48,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.domain.pricing.memory import (  # noqa: E402
+from src.evidence.memory import (  # noqa: E402
     PriceMemory,
     build_entries,
     core_key,

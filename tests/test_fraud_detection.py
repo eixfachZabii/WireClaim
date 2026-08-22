@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from src.data.models import CaseData, LineItem
-from src.services.fraud_detection import _check_item, _timed_check, detect_fraud
+from src.evidence.fraud_detection import _check_item, _timed_check, detect_fraud
 
 
 class FraudDetectionTests(unittest.TestCase):
@@ -25,10 +25,10 @@ class FraudDetectionTests(unittest.TestCase):
     def test_locks_only_items_with_confirmed_violations(self) -> None:
         with (
             patch(
-                "src.services.fraud_detection._check_item",
+                "src.evidence.fraud_detection._check_item",
                 side_effect=lambda line_item, case: line_item.index == 2,
             ),
-            self.assertLogs("src.services.fraud_detection", level="WARNING") as logs,
+            self.assertLogs("src.evidence.fraud_detection", level="WARNING") as logs,
         ):
             decision = asyncio.run(detect_fraud(self.case))
 
@@ -38,8 +38,8 @@ class FraudDetectionTests(unittest.TestCase):
         self.assertIn("Later Fast Path and Strategy snapshots retain these locks.", logs.output[0])
 
     def test_logs_only_confirmed_fraud_items(self) -> None:
-        with patch("src.services.fraud_detection._check_item", return_value=True):
-            with self.assertLogs("src.services.fraud_detection", level="INFO") as logs:
+        with patch("src.evidence.fraud_detection._check_item", return_value=True):
+            with self.assertLogs("src.evidence.fraud_detection", level="INFO") as logs:
                 locked = asyncio.run(_timed_check(self.case.line_items[1], self.case))
 
         self.assertTrue(locked)
@@ -48,8 +48,8 @@ class FraudDetectionTests(unittest.TestCase):
         self.assertIn("fraud=True", logs.output[0])
 
     def test_does_not_log_a_clear_fraud_item(self) -> None:
-        with patch("src.services.fraud_detection._check_item", return_value=False):
-            with self.assertNoLogs("src.services.fraud_detection", level="INFO"):
+        with patch("src.evidence.fraud_detection._check_item", return_value=False):
+            with self.assertNoLogs("src.evidence.fraud_detection", level="INFO"):
                 locked = asyncio.run(_timed_check(self.case.line_items[0], self.case))
 
         self.assertFalse(locked)
@@ -60,7 +60,7 @@ class FraudDetectionTests(unittest.TestCase):
             '{"covered":false,"related":true,"confidence":0.99,'
             '"exclusion_quote":"","reasoning":"suspicious description"}'
         )
-        with patch("src.services.fraud_detection.get_llm_client", return_value=client):
+        with patch("src.evidence.fraud_detection.get_llm_client", return_value=client):
             locked = _check_item(self.case.line_items[0], self.case)
 
         self.assertFalse(locked)
@@ -82,7 +82,7 @@ class FraudDetectionTests(unittest.TestCase):
             f'"exclusion_quote":"{exclusion}",'
             '"reasoning":"quoted policy exclusion"}'
         )
-        with patch("src.services.fraud_detection.get_llm_client", return_value=client):
+        with patch("src.evidence.fraud_detection.get_llm_client", return_value=client):
             locked = _check_item(case.line_items[0], case)
 
         self.assertTrue(locked)
@@ -112,7 +112,7 @@ class FraudDetectionTests(unittest.TestCase):
             f'"exclusion_quote":"{boilerplate}",'
             '"reasoning":"cherry-picked boilerplate"}'
         )
-        with patch("src.services.fraud_detection.get_llm_client", return_value=client):
+        with patch("src.evidence.fraud_detection.get_llm_client", return_value=client):
             locked = _check_item(case.line_items[0], case)
 
         self.assertFalse(locked)
@@ -131,7 +131,7 @@ class FraudDetectionTests(unittest.TestCase):
     def test_flagging_most_of_a_large_case_discards_the_verdict(self) -> None:
         """Game 10 flagged every Line Item and paid 65,806 in wrongful rejections."""
         case = self._case_with(17)
-        with patch("src.services.fraud_detection._check_item", return_value=True):
+        with patch("src.evidence.fraud_detection._check_item", return_value=True):
             decision = asyncio.run(detect_fraud(case))
 
         self.assertEqual(decision.fraud_indices, frozenset())
@@ -139,7 +139,7 @@ class FraudDetectionTests(unittest.TestCase):
     def test_flagging_every_item_of_a_two_item_case_is_kept(self) -> None:
         """Game 3 was genuinely uncovered end to end, so 2-of-2 must survive."""
         case = self._case_with(2)
-        with patch("src.services.fraud_detection._check_item", return_value=True):
+        with patch("src.evidence.fraud_detection._check_item", return_value=True):
             decision = asyncio.run(detect_fraud(case))
 
         self.assertEqual(decision.fraud_indices, frozenset({1, 2}))
@@ -158,7 +158,7 @@ class FraudDetectionTests(unittest.TestCase):
         """Game 8 had 3 of 39 Line Items that the whole field charged 0 on."""
         case = self._case_with(17)
         with patch(
-            "src.services.fraud_detection._check_item",
+            "src.evidence.fraud_detection._check_item",
             side_effect=self._flag_only(2, 3, 9),
         ):
             decision = asyncio.run(detect_fraud(case))
@@ -169,7 +169,7 @@ class FraudDetectionTests(unittest.TestCase):
         """At 35% of 4 items the share alone would discard a second genuine flag."""
         case = self._case_with(4)
         with patch(
-            "src.services.fraud_detection._check_item",
+            "src.evidence.fraud_detection._check_item",
             side_effect=self._flag_only(2, 3),
         ):
             decision = asyncio.run(detect_fraud(case))
@@ -178,7 +178,7 @@ class FraudDetectionTests(unittest.TestCase):
 
     def test_failed_check_does_not_lock_a_limit(self) -> None:
         with patch(
-            "src.services.fraud_detection._check_item",
+            "src.evidence.fraud_detection._check_item",
             side_effect=(RuntimeError("model unavailable"), True),
         ):
             decision = asyncio.run(detect_fraud(self.case))

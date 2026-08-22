@@ -29,9 +29,9 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from src.domain.pricing.engine import Evidence, price_item  # noqa: E402
-from src.services.strategies.strategy2.blend import combine  # noqa: E402
-from src.services.strategies.strategy2.channels import local_evidence  # noqa: E402
+from src.pricing.engine import Evidence, price_item  # noqa: E402
+from src.strategies.strategy2.blend import combine  # noqa: E402
+from src.strategies.strategy2.channels import local_evidence  # noqa: E402
 
 from replay_payoffs import snapshot, replay  # noqa: E402
 

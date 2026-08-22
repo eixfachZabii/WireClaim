@@ -46,9 +46,14 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 ```bash
 set -a && . .env && set +a          # once per terminal
-pixi run start                      # terminal 1: plays every Game on the schedule
+pixi run play                       # terminal 1: plays every Game on the schedule, restarts itself if it dies
 pixi run watch                      # terminal 2: analyses each Game as it settles
 ```
+
+**Use `play`, not `start`, for terminal 1.** `watch_games()` has no exception boundary, so an
+uncaught error there ends the whole tournament rather than costing one Game; `scripts/supervise.sh`
+(what `play` runs) turns that back into "restart and lose at most one Game." `pixi run start` is
+still there for a foreground debug session, never for an unattended stretch.
 
 **`watch` already does `cases` and `learn`** — every poll it runs `extract_cases`, then
 `learn_from_game` for the newly settled Games, then the Claude review of the digest
@@ -191,11 +196,11 @@ What runs, in the order a Game touches it:
 | layer | where | what it decides |
 | --- | --- | --- |
 | schedule + Case load | `main.py`, `src/data/` | unzip, parse the invoice, slice the Policy |
-| evidence | `strategy2/{prompts,model,channels}.py`, `src/services/policy/` | coverage probability, a price band, the clause quoted verbatim |
-| blend | `strategy2/blend.py` | two model draws + the Price Memory anchor, inverse-variance in log space |
-| pricing | `src/domain/pricing/engine.py` | the Charge and the Limit — the only place a scored number is decided |
-| submission | `src/api/`, `src/services/submission*` | four sequenced posts per Game, merged per Line Item |
-| learning | `scripts/learn_*.py`, `scripts/replay_payoffs.py`, `src/observability/` | decision log × recovered Fair Value → the stage that was wrong |
+| evidence | `src/strategies/strategy2/{prompts,model,channels}.py`, `src/evidence/policy/` | coverage probability, a price band, the clause quoted verbatim |
+| blend | `src/strategies/strategy2/blend.py` | two model draws + the Price Memory anchor, inverse-variance in log space |
+| pricing | `src/pricing/engine.py` | the Charge and the Limit — the only place a scored number is decided |
+| submission | `src/api/`, `src/runtime/submission_coordinator.py` | four sequenced posts per Game, merged per Line Item |
+| learning | `scripts/learn_*.py`, `scripts/replay_payoffs.py`, `src/runtime/` | decision log × recovered Fair Value → the stage that was wrong |
 
 Three strategies price every Case and a router picks one; `strategy2` wins most Games.
 `scripts/replay_payoffs.py` reproduces every published net to the cent, so any proposed

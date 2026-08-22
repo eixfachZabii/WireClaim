@@ -1,6 +1,6 @@
 """The two evidence-layer knobs that are not the level: the band width and the coverage.
 
-`src/domain/pricing/engine.py` says it in its own docstring -- "the band is not calibrated, and that is
+`src/pricing/engine.py` says it in its own docstring -- "the band is not calibrated, and that is
 the real problem ... it belongs in the evidence layer, not here". The blended ensemble
 claims a median implied sigma near 0.4 while the residual of the euro-weighted fit against
 the recovered Fair Values is **1.29**, so `charge_factor` is reading a number that does not
@@ -55,7 +55,7 @@ from level_fit import load, nets, pairs, residual_sigma  # noqa: E402
 from replay_payoffs import replay  # noqa: E402
 from level_compat import parse_games, submission_of  # noqa: E402
 
-from src.domain.pricing.engine import Evidence, implied_sigma  # noqa: E402
+from src.pricing.engine import Evidence, implied_sigma  # noqa: E402
 
 BAND_Z = 1.645
 

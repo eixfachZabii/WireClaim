@@ -1,6 +1,8 @@
 @startuml
 ' WireClaim — module map and dependency direction.
-' Derived from the import graph of main.py and src/.
+' Derived from the import graph of main.py and src/. Package boundaries here are the
+' real src/ subpackages, not an invented grouping — see docs/ARCHITECTURE.md §9's
+' restructure note for why evidence/pricing/strategies/legacy/runtime is the split.
 !theme plain
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
@@ -17,37 +19,47 @@ title Modules and what depends on what
 
 package "Runner" {
   component "main.py\nrun_game, RunManager,\nblind_floor" as Main
-  component "services/submission_coordinator.py\ndebounced PUT worker" as SC
-  component "services/strategy_router.py\nconcurrent strategies,\nhighest priority wins" as Router
 }
 
-package "Ingestion" {
-  component "data/case_loader.py\nkey -> 7z -> PDF parse" as Loader
+package "runtime/  (runs a Game, logs it)" {
+  component "submission_coordinator.py\ndebounced PUT worker" as SC
+  component "decisions.py\ndecision log" as Decisions
+  component "timing.py\ntiming + error cards" as Timing
 }
 
-package "Estimation" {
-  component "strategies/strategy2/strategy.py\nChannels A + B + C" as S2
-  component "policy_slice.py\nPART 3,4,5,7,11" as Slice
-  component "price_memory.py\nsettled Fair Values,\nsigma 0.43" as Memory
+package "data/  (ingestion)" {
+  component "case_loader.py\nkey -> 7z -> PDF parse" as Loader
+  component "models.py\nLineItem, CaseData,\nItemPrice, Proposal" as Models
 }
 
-package "Decision" {
-  component "pricing.py\nEvidence -> Charge, Limit\nthe only module that\ndecides a scored number" as Pricing
-  component "services/fraud_detection.py\ncoverage mask" as Fraud
-  component "policy_quote.py\nis_policy_quote()" as Quote
+package "strategies/  (orchestration, ADR 0001's seam)" {
+  component "router.py\nconcurrent strategies,\nhighest priority wins" as Router
+  component "fast_path.py\nstandard_values (used)\nllm_values (legacy path)" as FP
+  component "strategy2/\nstrategy.py + channels.py\n+ model.py + blend.py" as S2
 }
 
-package "Edges" {
-  component "api/tournament.py\nlist_games, key,\nsubmit_prices" as Tour
-  component "api/llm.py\nclient, model,\nservice tier" as LLM
+package "evidence/  (the model reads)" {
+  component "memory.py\nChannel B: settled Fair\nValues, sigma 0.43" as Memory
+  component "fraud_detection.py\nshipped coverage detector" as Fraud
+  component "policy/slice.py\nPART 3,4,5,7,11" as Slice
+  component "policy/quotes.py\nis_policy_quote()" as Quote
+  component "policy/coverage.py\nprobability-emitting\nreplacement, not wired in" as Coverage
 }
 
-package "Legacy — being retired" {
-  component "strategies/fast_path.py\nstandard_values (used)\nllm_values (legacy)" as FP
-  component "strategies/strategy1\nstrategies/strategy3\nservices/t_calc.py\npolicy_digest.py" as Legacy
+package "pricing/  (the engine prices)" {
+  component "engine.py\nEvidence -> Charge, Limit\nthe only module that\ndecides a scored number" as Pricing
 }
 
-database "var/price_memory.json" as Store
+package "legacy/  (previous generation)" {
+  component "strategy1/\nstrategy3/" as Legacy
+}
+
+package "api/  (external I/O)" {
+  component "tournament.py\nlist_games, key,\nsubmit_prices" as Tour
+  component "llm.py\nclient, model,\nservice tier" as LLM
+}
+
+database "data/price_memory.json" as Store
 folder "[PUBLIC] EHL Cases/cases/*.zip" as Archives
 
 Main --> SC
@@ -58,15 +70,20 @@ Main --> FP : standard_values
 
 Router --> S2
 Router --> Legacy
+Router --> Decisions : record_proposals
 
 S2 --> Slice
 S2 --> Memory
 S2 --> Pricing
 S2 --> LLM
-S2 ..> FP : build_input_content\n(via strategy1)
+S2 --> Decisions : record
+S2 ..> Legacy : build_input_content\n(strategy1, still entangled)
 
 Fraud --> Quote
 Fraud --> LLM
+
+SC --> Timing
+Router --> Timing
 
 Memory --> Store
 Loader --> Archives
@@ -75,10 +92,13 @@ SC --> Tour
 
 note bottom of Pricing
   Nothing that talks to a model emits a
-  Charge or a Limit (ADR 0001) — they
-  return evidence and this module prices it.
+  Charge or a Limit (ADR 0001) — evidence/
+  returns evidence and this module prices it.
   Every module passes the frozen dataclasses
   of data/models.py; that edge is omitted
   because it would touch every box.
+  policy/coverage.py is drawn inside evidence/
+  because that is its role, not because it is
+  live: nothing imports it from main.py yet.
 end note
 @enduml

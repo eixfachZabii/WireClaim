@@ -36,12 +36,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.domain.pricing.engine import Evidence, price_item  # noqa: E402
-from src.domain.pricing.memory import (  # noqa: E402
+from src.pricing.engine import Evidence, price_item  # noqa: E402
+from src.evidence.memory import (  # noqa: E402
     PriceMemory,
     build_entries,
 )
-from src.services.strategies.strategy2.constants import BAND_Z  # noqa: E402
+from src.strategies.strategy2.constants import BAND_Z  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from build_price_memory import observations  # noqa: E402
@@ -206,7 +206,7 @@ def _ev(blob: dict | None) -> dict[int, Evidence]:
 
 
 def model_evidence(game_id: int, model_tag: str) -> dict[int, Evidence]:
-    from src.services.strategies.strategy2.blend import blend
+    from src.strategies.strategy2.blend import blend
     return blend([_ev(_blob(game_id, model_tag, "anchor")), _ev(_blob(game_id, model_tag, "unanchor"))])
 
 
@@ -250,7 +250,7 @@ def score_variant(
             hit = None if uncovered else mem_store.lookup(name, unit=unit, quantity=qty)
             from_memory = memory_as_evidence(hit)
             if mode == "shipped":
-                from src.services.strategies.strategy2.blend import combine
+                from src.strategies.strategy2.blend import combine
                 evidence = combine(from_model, from_memory)
             else:
                 evidence = combine_variant(from_model, from_memory, mode=mode, threshold=threshold, factor=factor)
@@ -305,7 +305,7 @@ def main() -> None:
         if not (d / "policy.txt").exists():
             continue
         case = asyncio.run(read_case(g, d))
-        from src.services.strategies.strategy2.channels import unit_of
+        from src.strategies.strategy2.channels import unit_of
         meta[g] = {
             li.index: (li.name, unit_of(li.name), max(li.quantity, 1.0), bool(getattr(li, "quantity_missing", False)))
             for li in case.line_items

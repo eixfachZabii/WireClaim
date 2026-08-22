@@ -1,7 +1,7 @@
 import math
 import unittest
 
-from src.domain.pricing.engine import (
+from src.pricing.engine import (
     CHARGE_BOUNDS,
     LIMIT_CAP,
     CHARGE_INTERCEPT,
@@ -266,7 +266,7 @@ class MeasuredConstants(unittest.TestCase):
         per item, so none of it is reachable by moving `LIMIT_CEILING`.
 
         This test pins the identity, not the euros, so that the 2/3 quoted throughout
-        `src/domain/pricing/engine.py` cannot drift if the payoff table is ever restated.
+        `src/pricing/engine.py` cannot drift if the payoff table is ever restated.
         """
         charge = 1_000.0
         cost_of_rejecting_a_fair_charge = 1.5 * charge

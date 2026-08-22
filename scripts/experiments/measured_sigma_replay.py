@@ -48,7 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from charge_buckets import ALL_GAMES, Row, _income, dataset  # noqa: E402
 from measured_sigma_core import basis_of, channel_of, price_item_measured_sigma  # noqa: E402
 from replay_payoffs import US, replay, reviewer_payoff, snapshot  # noqa: E402
-from src.domain.pricing.engine import implied_sigma, price_item  # noqa: E402
+from src.pricing.engine import implied_sigma, price_item  # noqa: E402
 
 NOISE_FLOOR_18 = 26_622.0
 WINDOW_1939 = tuple(g for g in ALL_GAMES if 19 <= g <= 39)

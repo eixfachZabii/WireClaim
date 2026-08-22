@@ -42,9 +42,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.domain.pricing.engine import Evidence, price_item  # noqa: E402
-from src.services.strategies.strategy2.constants import BAND_Z, MODEL_SIGMA_PRIOR  # noqa: E402
-from src.domain.pricing.memory import SIGMA_LOG  # noqa: E402
+from src.pricing.engine import Evidence, price_item  # noqa: E402
+from src.strategies.strategy2.constants import BAND_Z, MODEL_SIGMA_PRIOR  # noqa: E402
+from src.evidence.memory import SIGMA_LOG  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from memory_tail_bias import (  # noqa: E402
@@ -134,7 +134,7 @@ def main() -> None:
 
     # --- 0. how many hits at each observation count, and their raw leave-one-out sigma ---
     from src.data.case_loader import read_case
-    from src.services.strategies.strategy2.channels import unit_of
+    from src.strategies.strategy2.channels import unit_of
     import asyncio
     CASES = Path("[PUBLIC] EHL Cases/cases")
     meta: dict[int, dict] = {}

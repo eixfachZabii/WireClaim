@@ -5,22 +5,22 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.data.models import CaseData, LineItem
-from src.domain.pricing.engine import Evidence, price_item
-from src.services.strategies.strategy2.blend import blend as _blend, combine as _combine
-from src.services.strategies.strategy2.constants import (
+from src.pricing.engine import Evidence, price_item
+from src.strategies.strategy2.blend import blend as _blend, combine as _combine
+from src.strategies.strategy2.channels import aggregate_class_discount
+from src.strategies.strategy2.constants import (
     LLM_TIMEOUT_SECONDS,
+    SETTLED_MEDIAN,
     STRATEGY_NAME,
     SUBMISSION_RESERVE_SECONDS,
 )
-from src.services.strategies.strategy2.model import parse_items
-from src.services.strategies.strategy2.channels import aggregate_class_discount
-from src.services.strategies.strategy2.constants import SETTLED_MEDIAN
-from src.services.strategies.strategy2.prompts import (
+from src.strategies.strategy2.model import parse_items
+from src.strategies.strategy2.prompts import (
     ENSEMBLE_PROMPTS,
     PROMPT,
     PROMPT_UNANCHORED,
 )
-from src.services.strategies.strategy2.strategy import build_proposal, propose
+from src.strategies.strategy2.strategy import build_proposal, propose
 
 
 def case_with(*line_items: LineItem) -> CaseData:
@@ -325,7 +325,7 @@ class ProposeTests(unittest.TestCase):
         case = case_with(LineItem(1, "Vehicle costs", quantity_missing=True))
 
         with patch(
-            "src.services.strategies.strategy2.strategy.request_evidence",
+            "src.strategies.strategy2.strategy.request_evidence",
             side_effect=RuntimeError("model down"),
         ):
             proposal = asyncio.run(propose(case))
@@ -346,8 +346,8 @@ class ProposeTests(unittest.TestCase):
             return {1: Evidence(1, 0.95, 80.0, 100.0, 125.0)}
 
         with patch(
-            "src.services.strategies.strategy2.strategy.request_evidence", side_effect=flaky
-        ), patch("src.domain.pricing.memory.lookup", return_value=None):
+            "src.strategies.strategy2.strategy.request_evidence", side_effect=flaky
+        ), patch("src.evidence.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertEqual(len(calls), 2)
@@ -365,9 +365,9 @@ class ProposeTests(unittest.TestCase):
         case = case_with(LineItem(1, "Something never seen before"), LineItem(2, "Nor this"))
 
         with patch(
-            "src.services.strategies.strategy2.strategy.request_evidence",
+            "src.strategies.strategy2.strategy.request_evidence",
             side_effect=RuntimeError("model down"),
-        ), patch("src.domain.pricing.memory.lookup", return_value=None):
+        ), patch("src.evidence.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertIsNotNone(proposal)
