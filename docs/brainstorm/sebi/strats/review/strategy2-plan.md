@@ -255,6 +255,35 @@ currently outranks 2**, so Strategy 3 would win even once 2 is good. Cutover:
 3. When Strategy 2 wins on σ, raise it to the top priority and delete 1 and 3. Not before:
    Strategy 1 is bad, but a dark runner is worse (139,904 across G10–12).
 
+## 7b. Two corrections from the euro-denominated sweep
+
+`scripts/tune_pricing.py` measured every constant in `src/pricing.py` against the real
+payoff table. All of them stayed, and two of the beliefs behind them did not.
+
+**1. The band is not calibrated, and `implied_sigma` does not measure what it claims.**
+The model's bands imply a median σ of **0.375** while the estimator's actual log error is
+**0.80** — overconfident by 2.1×. Worse, the width carries *no* discriminating power:
+sorting Line Items by band width puts the narrow third at RMSLE **0.847** against the wide
+third's **0.733**, i.e. very slightly *backwards*. So `CHARGE_SLOPE` scales a number that
+is not informative. **Fixing the band is worth more than any constant in that file, and it
+belongs in the evidence layer, not the pricing layer.**
+
+**2. The failure mode is a fat tail, not a bias.** Median `t̂/t` is **0.97**, so the
+"we systematically overprice, median `a/t` 1.06" story is stale — that was measured on our
+*submitted Charges* under the old pipeline, not on Strategy 2's estimates. The real damage
+is rare catastrophic overprices at full confidence: Game 7 item 2 priced at 2,200 against a
+true Fair Value of **40** at coverage 0.98; Game 9 item 1 at 3,200 against **19**. Those are
+5–6σ in log space — a lognormal does not generate them, which is exactly why the unbiased
+simulation and the real evidence disagree about the Limit.
+
+This reframes the tail work: the expensive failure is not only underpricing big items, it
+is **confidently overpricing small ones**, because a loose Limit on such an item accepts
+every opponent's Charge and pays it, and the Cap has never bound.
+
+**3. `b ≤ a` is an assertion, not a payoff-table fact**, and against a well-calibrated
+estimator it costs €14–18k per 14 Games. It stays for now because it is a cheap guard
+while the band is broken, but it should be revisited once (1) is fixed.
+
 ## 8. Risks and what is still unmeasured
 
 1. **The model's σ is unknown.** Everything hinges on it. If it lands above 0.5, the honest

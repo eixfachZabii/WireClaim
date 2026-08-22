@@ -64,10 +64,9 @@ class PriceItemTests(unittest.TestCase):
     def test_the_limit_falls_as_the_band_widens(self) -> None:
         """A wider band is a noisier estimate, so the Limit must retreat.
 
-        Note *how* it retreats now that `LIMIT_CEILING` is 0.45: at both of these widths
-        the ceiling is already below the bottom-third quantile, so the band reaches the
-        Limit through the Charge clamp rather than through the quantile. The behaviour is
-        the one the docstring promises; the mechanism is not. See `TheCeilingIsWhatBinds`.
+        With `LIMIT_CEILING` at 0.85 the retreat comes through two channels at once -- the
+        quantile on the wide side and the ceiling and Charge clamp on the tight side. Which
+        one binds at which width is measured in `TheLimitRetreatsThroughTwoChannels`.
         """
         tight = price_item(Evidence(1, 1.0, 95.0, 100.0, 105.0))
         wide = price_item(Evidence(1, 1.0, 20.0, 100.0, 500.0))
@@ -145,6 +144,14 @@ class MeasuredConstants(unittest.TestCase):
         We are paid on the Games that come next, so this pins the value the *recent*
         window prefers. Re-measure at every regime boundary rather than inheriting it
         (README R9).
+
+        Leave-one-out over all nineteen Games says the same thing more bluntly: tuning this
+        constant per fold scores +26,273 held out, worse than fixing it anywhere in
+        0.30-1.00 (+50,312 to +54,724). Ten folds pick 0.45, five pick 0.75, the rest
+        scatter. There is no stable optimum to find here, so the tie is broken by the two
+        readings that generalise -- the recent Field, and the unbiased-estimator simulation,
+        which prefers 0.85 at every precision (145,169 against 124,229 at sigma 0.45) and
+        puts the best flat Limit at 1.0-1.15 x median.
         """
         self.assertEqual(LIMIT_CEILING, 0.85)
 
@@ -159,17 +166,22 @@ class MeasuredConstants(unittest.TestCase):
         self.assertAlmostEqual(COVERAGE_FLOOR, 1.0 / 3.0)
 
 
-class TheCeilingIsWhatBinds(unittest.TestCase):
-    """The ceiling, not the quantile, sets the Limit at every band width we actually see.
+class TheLimitRetreatsThroughTwoChannels(unittest.TestCase):
+    """Exercise the Limit across the band widths the real model actually produces.
 
-    This deserves its own test because the module docstring claims the opposite -- that
-    the ceiling "only binds below sigma ~0.38, so for the widths we actually see the band
-    still drives the Limit". At 0.45 that is no longer true, and the replay says 0.45 is
-    where the money is. Pinning the contradiction stops it being rediscovered by someone
-    reading the derivation and trusting it.
+    The module docstring says the ceiling "only binds below sigma ~0.38, so for the widths
+    we actually see the band still drives the Limit". Measured over Games 1-19 the model's
+    implied sigma has median 0.375 and spans 0.148 to 0.668 -- so that claim is true for
+    roughly half our Line Items and false for the other half, and the ceiling is doing more
+    work than the derivation suggests. Sweeping the whole observed range here keeps both
+    channels honest, and keeps the invariants asserted where they are least obvious.
+
+    The bigger caveat is that `sigma` is not what it claims to be at all: the bands imply a
+    median 0.375 while the estimator's actual RMSLE is 0.80, and band width does not rank
+    the errors. See `ImpliedSigmaTests`.
     """
 
-    #: The real model's implied sigma over Games 1-14: median 0.375, spanning this range.
+    #: The real model's implied sigma over Games 1-19: median 0.375, spanning this range.
     OBSERVED_SIGMAS = (0.15, 0.25, 0.375, 0.50, 0.67)
 
     def band(self, sigma: float, median: float = 400.0) -> Evidence:

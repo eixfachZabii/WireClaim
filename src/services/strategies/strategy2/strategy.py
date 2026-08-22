@@ -200,7 +200,55 @@ def _combine(model: Evidence | None, memory: Evidence | None) -> Evidence | None
     )
 
 
-def _request_evidence(case: CaseData, timeout: float = LLM_TIMEOUT_SECONDS) -> dict[int, Evidence]:
+#: Lower edge, in EUR, of each magnitude class the model may name. The class is a second,
+#: coarser reading of the same Line Item, and a coarse reading is much harder to get wrong
+#: by an order of magnitude than a number is -- so where the two disagree, the class pulls
+#: the band up. It never pulls one down: the measured failure is the underpriced tail.
+MAGNITUDE_FLOORS = {
+    "trivial": 0.0,
+    "tens": 20.0,
+    "hundreds": 120.0,
+    "low_thousands": 1000.0,
+    "thousands": 1000.0,
+}
+
+
+def _apply_magnitude(
+    low: float, median: float, high: float, magnitude: Any
+) -> tuple[float, float, float]:
+    """Widen a band upward when the model's own magnitude class outranks its number."""
+    floor = MAGNITUDE_FLOORS.get(str(magnitude or "").strip().lower().replace(" ", "_"))
+    if floor is None or median <= 0 or median >= floor:
+        return low, median, high
+    # Split the difference in log space rather than jumping to the class floor: the number
+    # and the class are two readings of one quantity and neither is authoritative.
+    median = math.sqrt(median * floor)
+    return min(low, median), median, max(high, floor * 2.0)
+
+
+def _band_of(item: dict[str, Any], quantity: float) -> tuple[float, float, float]:
+    """The gross-total band for one Line Item, from a per-unit rate or given outright.
+
+    A rate multiplied by a printed quantity is a different question from a gross total, and
+    the invoice asks it that way: "Service technician hours (6.75 hrs)" is a rate the model
+    knows times a number it can read. Both schemas are accepted so a prompt variant can be
+    swapped in without touching the parser.
+    """
+    rates = [
+        _number(item.get(key)) for key in ("unit_rate_low", "unit_rate_median", "unit_rate_high")
+    ]
+    if any(rate > 0 for rate in rates):
+        low, median, high = sorted(rate * max(quantity, 1.0) for rate in rates)
+    else:
+        low, median, high = sorted(
+            _number(item.get(key)) for key in ("price_low", "price_median", "price_high")
+        )
+    return _apply_magnitude(low, median, high, item.get("magnitude"))
+
+
+def _request_evidence(
+    case: CaseData, timeout: float = LLM_TIMEOUT_SECONDS, prompt: str | None = None
+) -> dict[int, Evidence]:
     """Channel C. One call for the whole Case, so the model sees neighbouring items."""
     from src.services.strategies.strategy1.strategy import build_input_content
 
@@ -215,7 +263,7 @@ def _request_evidence(case: CaseData, timeout: float = LLM_TIMEOUT_SECONDS) -> d
     content = build_input_content(sliced)
     content[-1] = {
         "type": "input_text",
-        "text": f"{PROMPT}\n\n=== POLICY (operative parts) ===\n{sliced.policy_text}"
+        "text": f"{prompt or PROMPT}\n\n=== POLICY (operative parts) ===\n{sliced.policy_text}"
         f"\n\n=== DAMAGE DESCRIPTION ===\n{case.description_text}"
         f"\n\n=== LINE ITEMS ===\n{json.dumps([item.to_dict() for item in case.line_items], ensure_ascii=False)}",
     }
@@ -229,6 +277,7 @@ def _request_evidence(case: CaseData, timeout: float = LLM_TIMEOUT_SECONDS) -> d
     items = payload.get("items")
     if not isinstance(items, list):
         raise ValueError("Strategy 2 model response did not contain an items list.")
+    quantities = {line_item.index: line_item.quantity for line_item in case.line_items}
     found: dict[int, Evidence] = {}
     for item in items:
         if not isinstance(item, dict):
@@ -236,9 +285,7 @@ def _request_evidence(case: CaseData, timeout: float = LLM_TIMEOUT_SECONDS) -> d
         index = int(_number(item.get("line_item")))
         if index <= 0:
             continue
-        low, median, high = sorted(
-            (_number(item.get("price_low")), _number(item.get("price_median")), _number(item.get("price_high")))
-        )
+        low, median, high = _band_of(item, quantities.get(index, 1.0))
         found[index] = Evidence(
             index=index,
             coverage_probability=min(_number(item.get("coverage_probability")), 1.0),
