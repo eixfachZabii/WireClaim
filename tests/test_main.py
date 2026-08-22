@@ -17,7 +17,7 @@ class RunManagerTests(unittest.TestCase):
         self.manager = RunManager(base)
 
     def test_fraud_lock_keeps_strategy_charge(self) -> None:
-        self.manager.set_strategy(proposal("strategy_1", [(1, 120.0, 90.0), (2, 250.0, 190.0)]))
+        self.manager.set_strategy(proposal("strategy1", [(1, 120.0, 90.0), (2, 250.0, 190.0)]))
         self.manager.apply_fraud(FraudDecision(frozenset({2})))
 
         prices = {price.index: price for price in self.manager.snapshot()}
@@ -27,7 +27,7 @@ class RunManagerTests(unittest.TestCase):
 
     def test_strategy_has_priority_over_fast_path(self) -> None:
         self.manager.set_fast_path(proposal("fast_path_llm", [(1, 110.0, 80.0)]))
-        self.manager.set_strategy(proposal("strategy_1", [(1, 120.0, 90.0)]))
+        self.manager.set_strategy(proposal("strategy1", [(1, 120.0, 90.0)]))
 
         prices = {price.index: price for price in self.manager.snapshot()}
 

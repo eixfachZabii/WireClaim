@@ -11,6 +11,7 @@ ARCHIVE_DIR = Path("[PUBLIC] EHL Cases/cases")
 OUTPUT_DIR = Path("var/cases")
 _NUMBERED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d*)\s*(?:[.)]|[-–])\s*(?P<name>\S.*)$")
 _SPACED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d*)\s{2,}(?P<name>\S.*)$")
+IMAGE_SUFFIXES = frozenset({".png", ".jpg", ".jpeg", ".webp"})
 
 
 async def load_case(game_id: int, deadline: float) -> CaseData:
@@ -79,6 +80,10 @@ def find_archive(game_id: int) -> Path:
     return archive
 
 
+def find_image_paths(case_dir: Path) -> tuple[Path, ...]:
+    return tuple(sorted(path for path in case_dir.iterdir() if path.suffix.lower() in IMAGE_SUFFIXES))
+
+
 async def read_case(game_id: int, case_dir: Path) -> CaseData:
     policy_path = case_dir / "policy.txt"
     description_path = case_dir / "description.txt"
@@ -94,7 +99,7 @@ async def read_case(game_id: int, case_dir: Path) -> CaseData:
         policy_text=policy_text,
         description_text=description_text,
         line_items=tuple(line_items),
-        image_paths=tuple(sorted(case_dir.glob("images.*"))),
+        image_paths=find_image_paths(case_dir),
     )
 
 
