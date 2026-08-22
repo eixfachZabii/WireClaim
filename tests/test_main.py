@@ -1,6 +1,7 @@
+import argparse
 import unittest
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import main
 from main import RunManager
@@ -126,6 +127,20 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("tournament API was not called", logs.output[0])
         self.assertIn("1 |       150.00 |        75.00", logs.output[0])
         self.assertIn('"charge_price": 150.0', logs.output[0])
+
+
+class MainTests(unittest.TestCase):
+    def test_interrupt_stops_runner_cleanly(self) -> None:
+        args = argparse.Namespace(game_id=None, retry_dry=False)
+        with (
+            patch.object(main.argparse.ArgumentParser, "parse_args", return_value=args),
+            patch.object(main, "watch_games", new=Mock(return_value=object())),
+            patch.object(main.asyncio, "run", side_effect=KeyboardInterrupt),
+            self.assertLogs("main", level="INFO") as logs,
+        ):
+            main.main()
+
+        self.assertIn("INFO:main:Stopping WireClaim runner.", logs.output)
 
 
 if __name__ == "__main__":
