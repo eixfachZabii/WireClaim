@@ -56,3 +56,7 @@ var/cases/*
 
 # case_analysis raw leaderboard pulls (regenerable via case_analysis/fetch_data.py)
 case_analysis/data/raw/
+
+# Learning-loop artefacts: derived from settled Games, regenerable
+var/decisions/
+var/lessons/

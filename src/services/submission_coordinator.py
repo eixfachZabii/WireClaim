@@ -6,7 +6,7 @@ from collections.abc import Callable, Sequence
 
 from src.api import submit_prices
 from src.data.models import ItemPrice
-from src.services.strategy_router import STRATEGY_PRIORITIES
+from src.services.strategies import STRATEGY_PRIORITIES
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)

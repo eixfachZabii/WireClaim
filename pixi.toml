@@ -13,8 +13,25 @@ p7zip = "*"
 
 [tasks]
 test = "python -m unittest discover -s tests -v"
-start = "python main.py"
-case-0 = "python main.py --game-id 0"
+
+# Unzip every Case whose key has been released. Idempotent, and it never fails the caller,
+# so it is safe as a prerequisite: going dark costs far more than a stale Case folder.
+cases = { cmd = "python scripts/extract_cases.py", env = { PYTHONPATH = "." } }
+
+# Reading the Cases is the first step of the workflow (CLAUDE.md rule 2), so it is the first
+# step of the command too. The runner used to extract only into var/cases, which left the
+# readable copy in "[PUBLIC] EHL Cases/cases" lagging several Games behind.
+start = { cmd = "python main.py", depends-on = ["cases"] }
+case-0 = { cmd = "python main.py --game-id 0", depends-on = ["cases"] }
+
+# What a settled Game taught us: joins the decision log against the reconstructed Fair Value
+# and names the stage that was wrong, rather than only the amount that was lost.
+learn = { cmd = "python scripts/learn_from_game.py", env = { PYTHONPATH = "." } }
+
+# The same thing, unattended. `start` plays the Games; this analyses each one as it settles,
+# which cannot happen in the same process because the Transactions that reveal the Fair Value
+# only appear a minute or two after a Game ends. Two terminals: one plays, one learns.
+watch = { cmd = "python scripts/learn_watch.py", env = { PYTHONPATH = "." } }
 
 [pypi-dependencies]
 openai = ">=3.3.1, <4"

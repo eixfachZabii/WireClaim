@@ -6,19 +6,19 @@ from unittest.mock import patch
 
 from src.data.models import CaseData, LineItem
 from src.pricing import Evidence
-from src.services.strategies.strategy2.strategy import (
+from src.services.strategies.strategy2.blend import blend as _blend, combine as _combine
+from src.services.strategies.strategy2.constants import (
+    LLM_TIMEOUT_SECONDS,
+    STRATEGY_NAME,
+    SUBMISSION_RESERVE_SECONDS,
+)
+from src.services.strategies.strategy2.model import parse_items
+from src.services.strategies.strategy2.prompts import (
     ENSEMBLE_PROMPTS,
     PROMPT,
     PROMPT_UNANCHORED,
-    LLM_TIMEOUT_SECONDS,
-    SUBMISSION_RESERVE_SECONDS,
-    STRATEGY_NAME,
-    _band_of,
-    _blend,
-    _combine,
-    build_proposal,
-    propose,
 )
+from src.services.strategies.strategy2.strategy import build_proposal, propose
 
 
 def case_with(*line_items: LineItem) -> CaseData:
@@ -66,22 +66,37 @@ class BuildProposalTests(unittest.TestCase):
         self.assertEqual(proposal.prices[0].acceptance_limit, 0.0)
         self.assertGreater(proposal.prices[0].charge_price, 0.0)
 
-    def test_items_nobody_priced_are_left_to_the_lower_layers(self) -> None:
+    def test_an_item_no_channel_priced_still_gets_a_number(self) -> None:
+        """Strategy 2 owns the whole Case or it hands it to a worse track silently.
+
+        This used to leave the index out, which is how Game 23 ended up submitting
+        Strategy 1's flat Limit of 35 and paying 5,548 in wrongful-rejection penalties.
+        """
         case = case_with(LineItem(1, "Drying fan"), LineItem(2, "Unknown"))
 
         proposal = build_proposal(case, {1: Evidence(1, 0.9, 80.0, 100.0, 125.0)}, {})
 
+        self.assertEqual(set(proposal.by_index()), {1, 2})
+        unpriced = proposal.by_index()[2]
+        self.assertGreater(unpriced.charge_price, 0.0)
+        self.assertGreater(unpriced.acceptance_limit, 0.0)
+
+    def test_no_evidence_at_all_still_prices_the_case(self) -> None:
+        proposal = build_proposal(case_with(LineItem(1, "Drying fan")), {}, {})
+
+        self.assertIsNotNone(proposal)
         self.assertEqual(set(proposal.by_index()), {1})
 
-    def test_no_evidence_at_all_yields_nothing(self) -> None:
-        self.assertIsNone(build_proposal(case_with(LineItem(1, "Drying fan")), {}, {}))
+    def test_a_case_with_no_line_items_yields_nothing(self) -> None:
+        self.assertIsNone(build_proposal(case_with(), {}, {}))
 
     def test_a_model_hallucinated_index_is_ignored(self) -> None:
+        """A model inventing Line Item 99 must not inject one, but item 1 is still priced."""
         case = case_with(LineItem(1, "Drying fan"))
 
         proposal = build_proposal(case, {99: Evidence(99, 0.9, 80.0, 100.0, 125.0)}, {})
 
-        self.assertIsNone(proposal)
+        self.assertEqual(set(proposal.by_index()), {1})
 
 
 class CombineTests(unittest.TestCase):
@@ -171,36 +186,101 @@ class BlendTests(unittest.TestCase):
         self.assertNotIn("the median is around", PROMPT_UNANCHORED)
 
 
-class BandTests(unittest.TestCase):
-    def test_a_gross_total_band_is_taken_as_given(self) -> None:
-        item = {"price_low": 125.0, "price_median": 100.0, "price_high": 80.0}
+class UncorrectedLevelTests(unittest.TestCase):
+    """The blend must not shift the level, in either direction. Both were measured.
 
-        self.assertEqual(_band_of(item, quantity=6.75), (80.0, 100.0, 125.0))
+    The estimator looks shrunk toward the middle -- bucketed by the true Fair Value, median
+    `t_hat / t` is 6.01 under 50 EUR against 1.17 over 1,000 -- and every deterministic
+    repair of that has been scored in euros against the real Field over Games 1-24 and lost:
+    the euro-weighted fit `exp(0.889) * t_hat**0.849` costs 54,713 in-sample and up to
+    183,048 held out, and the whole `exp(c0) * t_hat**c1` family has its argmax at `c1 = 1`,
+    which is this behaviour. See `scripts/experiments/level_fit.py` for the tables.
 
-    def test_a_per_unit_rate_is_multiplied_by_the_printed_quantity(self) -> None:
-        """"Service technician hours (6.75 hrs)" was charged 102 against a true t >= 593."""
-        item = {"unit_rate_low": 60.0, "unit_rate_median": 85.0, "unit_rate_high": 110.0}
+    So the identity is a *decision*, not an omission, and it needs a test -- otherwise the
+    next reader of the by-true-`t` table adds a multiplier, and the multiplier looks obviously
+    right until it is replayed.
+    """
 
-        low, median, high = _band_of(item, quantity=6.75)
+    def test_a_single_draw_is_returned_at_the_level_the_model_stated(self) -> None:
+        stated = Evidence(1, 0.9, 80.0, 100.0, 125.0)
 
-        self.assertAlmostEqual(median, 573.75)
-        self.assertAlmostEqual(low, 405.0)
-        self.assertAlmostEqual(high, 742.5)
+        self.assertEqual(_blend([{1: stated}])[1].price_median, 100.0)
 
-    def test_a_magnitude_class_above_the_number_pulls_the_band_up(self) -> None:
-        item = {"price_low": 60.0, "price_median": 140.0, "price_high": 260.0, "magnitude": "low_thousands"}
+    def test_agreeing_draws_keep_the_level_they_agree_on(self) -> None:
+        """No shrinking toward `SETTLED_MEDIAN`, and no un-shrinking away from it either."""
+        for median in (8.0, 59.0, 400.0, 7000.0):
+            blended = _blend(
+                [
+                    {1: Evidence(1, 0.9, median * 0.8, median, median * 1.25)},
+                    {1: Evidence(1, 0.9, median * 0.8, median, median * 1.25)},
+                ]
+            )
 
-        low, median, high = _band_of(item, quantity=1.0)
+            self.assertAlmostEqual(blended[1].price_median, median, places=6)
 
-        self.assertGreater(median, 140.0)
-        self.assertLess(median, 1000.0)
-        self.assertGreaterEqual(high, 2000.0)
-        self.assertLessEqual(low, median)
+    def test_the_charge_scales_linearly_with_the_stated_median(self) -> None:
+        """A level correction of any shape would break proportionality somewhere."""
+        case = case_with(LineItem(1, "Leak detection call-out"))
+        charges = []
+        for median in (20.0, 200.0, 2000.0):
+            proposal = build_proposal(
+                case, {1: Evidence(1, 0.95, median * 0.8, median, median * 1.25)}, {}
+            )
+            charges.append(proposal.prices[0].charge_price)
 
-    def test_a_magnitude_class_never_pulls_a_band_down(self) -> None:
-        item = {"price_low": 900.0, "price_median": 1500.0, "price_high": 2400.0, "magnitude": "tens"}
+        # `delta` rather than `places`: the Charge is rounded to the cent, so a 15.79 EUR
+        # Charge cannot be exactly a tenth of a 157.90 one.
+        self.assertAlmostEqual(charges[1] / charges[0], 10.0, delta=0.01)
+        self.assertAlmostEqual(charges[2] / charges[1], 10.0, delta=0.01)
 
-        self.assertEqual(_band_of(item, quantity=1.0), (900.0, 1500.0, 2400.0))
+
+class ParseItemsTests(unittest.TestCase):
+    """The parser reads the price fields and nothing else, on purpose.
+
+    Two richer schemas were measured and both lost money badly: a per-unit rate multiplied
+    by the invoice quantity scored -64,590, and an order-of-magnitude class that could pull
+    the band upward scored -127,312 across nineteen Cases. Neither is kept even as dead
+    code, so a model that volunteers such a field cannot silently re-enable a known loss.
+    """
+
+    def test_a_price_band_is_sorted_and_taken_as_given(self) -> None:
+        payload = {"items": [{"line_item": 1, "coverage_probability": 0.9,
+                              "price_low": 125.0, "price_median": 100.0, "price_high": 80.0}]}
+
+        found = parse_items(payload)
+
+        self.assertEqual(
+            (found[1].price_low, found[1].price_median, found[1].price_high),
+            (80.0, 100.0, 125.0),
+        )
+
+    def test_a_volunteered_rate_or_magnitude_is_ignored(self) -> None:
+        payload = {"items": [{"line_item": 1, "coverage_probability": 0.9,
+                              "price_low": 60.0, "price_median": 140.0, "price_high": 260.0,
+                              "unit_rate_median": 85.0, "magnitude": "low_thousands"}]}
+
+        found = parse_items(payload)
+
+        self.assertEqual(found[1].price_median, 140.0)
+        self.assertEqual(found[1].price_high, 260.0)
+
+    def test_the_index_is_the_printed_pos_number(self) -> None:
+        """Case 11's invoice has no POS 12 and the settled Game has no index 12."""
+        payload = {"items": [{"line_item": 13, "coverage_probability": 0.9,
+                              "price_low": 1.0, "price_median": 2.0, "price_high": 3.0}]}
+
+        self.assertEqual(list(parse_items(payload)), [13])
+
+    def test_a_malformed_entry_does_not_cost_the_others(self) -> None:
+        payload = {"items": ["nonsense", {"line_item": 0}, {"line_item": 2,
+                   "coverage_probability": 0.5, "price_low": 1.0,
+                   "price_median": 2.0, "price_high": 3.0}]}
+
+        self.assertEqual(list(parse_items(payload)), [2])
+
+    def test_a_missing_items_list_is_an_error(self) -> None:
+        with self.assertRaises(ValueError):
+            parse_items({"nope": []})
 
 
 class ProposeTests(unittest.TestCase):
@@ -213,7 +293,7 @@ class ProposeTests(unittest.TestCase):
         case = case_with(LineItem(1, "Vehicle costs", quantity_missing=True))
 
         with patch(
-            "src.services.strategies.strategy2.strategy._request_evidence",
+            "src.services.strategies.strategy2.strategy.request_evidence",
             side_effect=RuntimeError("model down"),
         ):
             proposal = asyncio.run(propose(case))
@@ -234,7 +314,7 @@ class ProposeTests(unittest.TestCase):
             return {1: Evidence(1, 0.95, 80.0, 100.0, 125.0)}
 
         with patch(
-            "src.services.strategies.strategy2.strategy._request_evidence", side_effect=flaky
+            "src.services.strategies.strategy2.strategy.request_evidence", side_effect=flaky
         ), patch("src.price_memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
@@ -242,16 +322,28 @@ class ProposeTests(unittest.TestCase):
         self.assertIsNotNone(proposal)
         self.assertGreater(proposal.prices[0].charge_price, 0.0)
 
-    def test_a_model_failure_with_nothing_else_known_returns_none(self) -> None:
-        case = case_with(LineItem(1, "Something never seen before"))
+    def test_a_model_failure_with_nothing_else_known_still_prices_every_item(self) -> None:
+        """Strategy 2 must never go silent.
+
+        Game 23 submitted a Limit of 35 on every Line Item because this path returned None:
+        Channel C produced nothing, the Case had no dash items and no Price Memory hits, so
+        Strategy 1's Proposal stood and we paid 5,548 in wrongful-rejection penalties.
+        Abstaining hands the Submission to a worse track without saying so.
+        """
+        case = case_with(LineItem(1, "Something never seen before"), LineItem(2, "Nor this"))
 
         with patch(
-            "src.services.strategies.strategy2.strategy._request_evidence",
+            "src.services.strategies.strategy2.strategy.request_evidence",
             side_effect=RuntimeError("model down"),
         ), patch("src.price_memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
-        self.assertIsNone(proposal)
+        self.assertIsNotNone(proposal)
+        self.assertEqual(set(proposal.by_index()), {1, 2})
+        for price in proposal.prices:
+            self.assertGreater(price.charge_price, 0.0)
+            self.assertGreater(price.acceptance_limit, 0.0)
+            self.assertEqual(price.source, STRATEGY_NAME)
 
 
 if __name__ == "__main__":
