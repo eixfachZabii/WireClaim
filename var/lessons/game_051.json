@@ -1,0 +1,260 @@
+{
+  "game_id": 51,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 43218.799999999996,
+    "paid_on_accepts": 4655.43,
+    "penalties": 41047.695,
+    "net": -2484.3250000000044,
+    "saved_by_rejecting": 14437.869999999999,
+    "lawyer_waste": 13682.565000000002,
+    "fraud_let_through": 871.66,
+    "strictness_net": -116.35500000000332
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Leak tracing and locating the defect (1 pcs)",
+      "t_lo": 469.04,
+      "t_hi": null,
+      "our_charge": 448.76,
+      "our_limit_bracket": [
+        209.0,
+        271.72
+      ],
+      "estimate_median": 594.4745579080742,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 6345.645,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Technical room drying of the affected basement area (6 pcs)",
+      "t_lo": 2539.45,
+      "t_hi": null,
+      "our_charge": 902.67,
+      "our_limit_bracket": [
+        558.35,
+        680.8
+      ],
+      "estimate_median": 1324.7641299491772,
+      "coverage_probability": 0.965,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 28026.614999999998,
+      "stage": "charge-far-below-t",
+      "why": "Charged 903 against t >= 2539; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 3,
+      "name": "Confirmed pipe repair including copper fittings, (1 flat rate)",
+      "t_lo": 731.2,
+      "t_hi": null,
+      "our_charge": 525.8,
+      "our_limit_bracket": [
+        322.13,
+        334.27
+      ],
+      "estimate_median": 738.9181280764469,
+      "coverage_probability": 0.94,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 5233.725,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Vehicle costs (2 pcs)",
+      "t_lo": 150.65,
+      "t_hi": null,
+      "our_charge": 75.52,
+      "our_limit_bracket": [
+        74.67,
+        78.85
+      ],
+      "estimate_median": 109.02304401037921,
+      "coverage_probability": 0.9299999999999999,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1028.865,
+      "stage": "estimate-too-low",
+      "why": "Estimated 109 against a proven floor of t >= 151; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 5,
+      "name": "Reinstatement of the affected tiled surfaces including (1 flat rate)",
+      "t_lo": 67.5,
+      "t_hi": 341.0,
+      "our_charge": 1369.61,
+      "our_limit_bracket": [
+        530.66,
+        Infinity
+      ],
+      "estimate_median": 2049.3901531919196,
+      "coverage_probability": 0.955,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 1370 against t < 341, so every opponent owed us nothing."
+    },
+    {
+      "index": 6,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 78.85,
+      "t_hi": null,
+      "our_charge": 63.62,
+      "our_limit_bracket": [
+        55.33,
+        65.0
+      ],
+      "estimate_median": 91.83403237289946,
+      "coverage_probability": 0.935,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 412.84499999999997,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -6330.539999999986,
+        "income": 40320.0,
+        "cost": 46650.539999999986,
+        "items_priced": 6,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": -2484.3250000000044,
+        "income": 43218.8,
+        "cost": 45703.12500000001,
+        "items_priced": 6,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": 1509.4600000000137,
+        "income": 48160.0,
+        "cost": 46650.539999999986,
+        "items_priced": 6,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 2,
+        "name": "Technical room drying of the affected basement area (6 pcs)",
+        "delta": 18549.405000000006,
+        "winner_net": -14799.645000000006,
+        "alternative_net": 3749.760000000002,
+        "t_hat": 1324.7641299491772,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 2539.45,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Reinstatement of the affected tiled surfaces including (1 flat rate)",
+        "delta": -10147.620000000003,
+        "winner_net": 9960.420000000002,
+        "alternative_net": -187.2,
+        "t_hat": 2049.3901531919196,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 67.5,
+        "t_hi": 341.0,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Leak tracing and locating the defect (1 pcs)",
+        "delta": -1581.7800000000034,
+        "winner_net": 271.2750000000033,
+        "alternative_net": -1310.505,
+        "t_hat": 594.4745579080742,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 469.04,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Vehicle costs (2 pcs)",
+        "delta": -1403.33,
+        "winner_net": -210.56500000000028,
+        "alternative_net": -1613.8950000000002,
+        "t_hat": 109.02304401037921,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 150.65,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 6,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -1108.155,
+        "winner_net": 278.985,
+        "alternative_net": -829.17,
+        "t_hat": 91.83403237289946,
+        "bucket": "t_hat < 100",
+        "t_lo": 78.85,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Confirmed pipe repair including copper fittings, (1 flat rate)",
+        "delta": -314.7350000000015,
+        "winner_net": 2015.2050000000017,
+        "alternative_net": 1700.4700000000003,
+        "t_hat": 738.9181280764469,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 731.2,
+        "t_hi": null,
+        "rule": "priced"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": -2484.3250000000044,
+    "replayed_actual_net": -2484.3250000000044,
+    "oracle_net": 35626.14000000001,
+    "oracle_exact_net": 43779.83000000001,
+    "line_items": 6,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": 3993.785000000018
+  },
+  "estimate": {
+    "n_scorable": 1,
+    "median_log_error": 2.305952807886686,
+    "rmsle": 2.305952807886686
+  },
+  "cost_by_stage": {
+    "charge-far-below-t": 28026.614999999998,
+    "ok": 11992.215,
+    "estimate-too-low": 1028.865,
+    "charge-above-t": 0.0
+  }
+}

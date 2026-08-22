@@ -1,0 +1,197 @@
+{
+  "game_id": 51,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 448.76,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 267.51,
+      "name": "Leak tracing and locating the defect (1 pcs)",
+      "price_high": 841.6391170016527,
+      "price_low": 419.8949322353161,
+      "price_median": 594.4745579080742,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.21135161142644798
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 902.67,
+      "coverage_probability": 0.965,
+      "index": 2,
+      "limit": 596.14,
+      "name": "Technical room drying of the affected basement area (6 pcs)",
+      "price_high": 2453.76847498011,
+      "price_low": 715.2264029369055,
+      "price_median": 1324.7641299491772,
+      "quantity": 6.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.37470551210034553
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 525.8,
+      "coverage_probability": 0.94,
+      "index": 3,
+      "limit": 332.51,
+      "name": "Confirmed pipe repair including copper fittings, (1 flat rate)",
+      "price_high": 1225.5981552724695,
+      "price_low": 445.49675409605703,
+      "price_median": 738.9181280764469,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3075970616771248
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 75.52,
+      "coverage_probability": 0.9299999999999999,
+      "index": 4,
+      "limit": 75.52,
+      "name": "Vehicle costs (2 pcs)",
+      "price_high": 193.73775534427753,
+      "price_low": 61.351098572228615,
+      "price_median": 109.02304401037921,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 1369.61,
+      "coverage_probability": 0.955,
+      "index": 5,
+      "limit": 708.0,
+      "name": "Reinstatement of the affected tiled surfaces including (1 flat rate)",
+      "price_high": 3981.8472341641436,
+      "price_low": 1054.7868245582379,
+      "price_median": 2049.3901531919196,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.4037711721361824
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 63.62,
+      "coverage_probability": 0.935,
+      "index": 6,
+      "limit": 63.62,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 163.1922815734759,
+      "price_low": 51.67823760138828,
+      "price_median": 91.83403237289946,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    }
+  ],
+  "memory_items": 2,
+  "model_draws": 2,
+  "model_items": 6,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        420.0,
+        35.0
+      ],
+      "2": [
+        2100.0,
+        35.0
+      ],
+      "3": [
+        1085.0,
+        0.0
+      ],
+      "4": [
+        300.0,
+        35.0
+      ],
+      "5": [
+        4500.0,
+        35.0
+      ],
+      "6": [
+        150.0,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        448.76,
+        267.51
+      ],
+      "2": [
+        902.67,
+        596.14
+      ],
+      "3": [
+        525.8,
+        332.51
+      ],
+      "4": [
+        75.52,
+        75.52
+      ],
+      "5": [
+        1369.61,
+        708.0
+      ],
+      "6": [
+        63.62,
+        63.62
+      ]
+    },
+    "strategy3": {
+      "1": [
+        367.5,
+        35.0
+      ],
+      "2": [
+        2100.0,
+        35.0
+      ],
+      "3": [
+        542.5,
+        0.0
+      ],
+      "4": [
+        300.0,
+        35.0
+      ],
+      "5": [
+        2380.0,
+        35.0
+      ],
+      "6": [
+        150.0,
+        35.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787441508.040718,
+  "recorded_at": 1787441492.091007,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}
