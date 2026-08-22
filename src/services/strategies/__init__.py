@@ -10,16 +10,16 @@ above it, so our own submission logs labelled the winning track with the wrong p
 #: Higher wins. A source not listed here scores 0 and therefore loses to every known track,
 #: which is the safe default for a typo in a `Proposal.source`.
 #:
-#: Strategy 2 is top because it is the only track whose constants are fitted to the
-#: reconstructed Fair Values, and the only one that always answers. 1 and 3 keep running as
-#: a free ensemble and a disagreement signal until Strategy 2 has a measured sigma of its
-#: own; see `docs/brainstorm/sebi/strats/review/strategy2-plan.md`.
+#: Strategy 2 is the highest-priority individual track because its constants are fitted to
+#: reconstructed Fair Values. Once both Strategy 2 and Strategy 5 finish, their explicit
+#: max/zero merge supersedes either individual Proposal.
 STRATEGY_PRIORITIES = {
     "strategy1": 1,
     "strategy3": 2,
     "strategy4": 2,
     "strategy5": 2,
     "strategy2": 3,
+    "strategy2+5": 4,
 }
 
 __all__ = ["STRATEGY_PRIORITIES"]

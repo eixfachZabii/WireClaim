@@ -9,7 +9,7 @@ from src.data.models import CaseData, ItemPrice, Proposal
 from src.observability.decisions import load, proposals
 from src.observability.timing import FairValueReference
 from src.services import strategy_router
-from src.services.strategy_router import StrategyRouter
+from src.services.strategy_router import MERGED_STRATEGY_SOURCE, StrategyRouter
 
 
 def proposal(source: str, charge: float, index: int = 1) -> Proposal:
@@ -43,12 +43,62 @@ class StrategyRouterTests(unittest.TestCase):
         self.assertEqual(router.register(proposal("strategy2", 200.0)).source, "strategy2")
         self.assertEqual(router.current.source, "strategy2")
 
-    def test_strategy5_stays_below_the_measured_strategy2_track(self) -> None:
+    def test_strategy2_then_strategy5_produces_the_special_merge(self) -> None:
+        router = StrategyRouter(strategies=())
+        strategy2_result = Proposal(
+            source="strategy2",
+            prices=(
+                ItemPrice(1, 100.0, 0.0, "strategy2"),
+                ItemPrice(2, 300.0, 40.0, "strategy2"),
+                ItemPrice(3, 80.0, 20.0, "strategy2"),
+            ),
+        )
+        strategy5_result = Proposal(
+            source="strategy5",
+            prices=(
+                ItemPrice(1, 120.0, 50.0, "strategy5"),
+                ItemPrice(2, 200.0, 60.0, "strategy5"),
+                ItemPrice(4, 90.0, 30.0, "strategy5"),
+            ),
+        )
+
+        self.assertEqual(router.register(strategy2_result).source, "strategy2")
+        merged = router.register(strategy5_result)
+
+        self.assertEqual(merged.source, MERGED_STRATEGY_SOURCE)
+        self.assertEqual(
+            {
+                price.index: (price.charge_price, price.acceptance_limit)
+                for price in merged.prices
+            },
+            {
+                1: (120.0, 0.0),
+                2: (300.0, 60.0),
+                3: (80.0, 20.0),
+                4: (90.0, 30.0),
+            },
+        )
+        self.assertTrue(all(price.source == MERGED_STRATEGY_SOURCE for price in merged.prices))
+
+    def test_strategy5_then_strategy2_produces_the_same_special_merge(self) -> None:
+        strategy2_result = Proposal(
+            source="strategy2",
+            prices=(ItemPrice(1, 100.0, 0.0, "strategy2"), ItemPrice(2, 300.0, 40.0, "strategy2")),
+        )
+        strategy5_result = Proposal(
+            source="strategy5",
+            prices=(ItemPrice(1, 120.0, 50.0, "strategy5"), ItemPrice(2, 200.0, 60.0, "strategy5")),
+        )
         router = StrategyRouter(strategies=())
 
-        self.assertEqual(router.register(proposal("strategy5", 300.0)).source, "strategy5")
-        self.assertEqual(router.register(proposal("strategy2", 200.0)).source, "strategy2")
-        self.assertEqual(router.current.source, "strategy2")
+        router.register(strategy5_result)
+        merged = router.register(strategy2_result)
+
+        self.assertEqual(merged.source, MERGED_STRATEGY_SOURCE)
+        self.assertEqual(
+            [(price.index, price.charge_price, price.acceptance_limit) for price in merged.prices],
+            [(1, 120.0, 0.0), (2, 300.0, 60.0)],
+        )
 
     def test_an_unknown_source_loses_to_every_known_strategy(self) -> None:
         router = StrategyRouter(strategies=())
@@ -197,6 +247,47 @@ class StrategyRouterConcurrencyTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(StopAsyncIteration):
             await anext(results)
 
+    async def test_strategy2_and_strategy5_merge_when_either_finishes_last(self) -> None:
+        async def run(first_source: str) -> list[Proposal]:
+            release2 = asyncio.Event()
+            release5 = asyncio.Event()
+
+            async def strategy2(case: CaseData, deadline: float | None = None) -> Proposal:
+                await release2.wait()
+                return Proposal(
+                    source="strategy2",
+                    prices=(ItemPrice(1, 100.0, 0.0, "strategy2"),),
+                )
+
+            async def strategy5(case: CaseData, deadline: float | None = None) -> Proposal:
+                await release5.wait()
+                return Proposal(
+                    source="strategy5",
+                    prices=(ItemPrice(1, 120.0, 50.0, "strategy5"),),
+                )
+
+            strategy2.__module__ = "src.services.strategies.strategy2.strategy"
+            strategy5.__module__ = "src.services.strategies.strategy5.strategy"
+            router = StrategyRouter(strategies=(strategy2, strategy5))
+            results = router.results(CaseData(game_id=1, case_dir=Path("case_01")), deadline=1.0)
+            first_result = asyncio.create_task(anext(results))
+            await asyncio.sleep(0)
+            (release2 if first_source == "strategy2" else release5).set()
+            found = [await first_result]
+            second_result = asyncio.create_task(anext(results))
+            (release5 if first_source == "strategy2" else release2).set()
+            found.append(await second_result)
+            with self.assertRaises(StopAsyncIteration):
+                await anext(results)
+            return found
+
+        for first_source in ("strategy2", "strategy5"):
+            with self.subTest(first_source=first_source):
+                found = await run(first_source)
+                self.assertEqual([item.source for item in found], [first_source, MERGED_STRATEGY_SOURCE])
+                self.assertEqual(found[-1].prices[0].charge_price, 120.0)
+                self.assertEqual(found[-1].prices[0].acceptance_limit, 0.0)
+
 
 class ProposalRecordingTests(unittest.IsolatedAsyncioTestCase):
     """Every Proposal is logged, not only the one priority keeps.
@@ -248,6 +339,25 @@ class ProposalRecordingTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(payload["winner"], "strategy2")
         self.assertEqual(payload["game_id"], 26)
+
+    async def test_strategy2_and_strategy5_merge_is_recorded_as_the_winner(self) -> None:
+        router = StrategyRouter(
+            strategies=(self.strategy("strategy2", 200.0), self.strategy("strategy5", 300.0))
+        )
+
+        yielded = await self.drain(router)
+        payload = load(26)
+
+        self.assertEqual(yielded[-1].source, MERGED_STRATEGY_SOURCE)
+        self.assertEqual(
+            proposals(payload),
+            {
+                "strategy2": {1: (200.0, 60.0)},
+                "strategy5": {1: (300.0, 90.0)},
+                MERGED_STRATEGY_SOURCE: {1: (300.0, 90.0)},
+            },
+        )
+        self.assertEqual(payload["winner"], MERGED_STRATEGY_SOURCE)
 
     async def test_an_empty_proposal_is_recorded_as_having_answered_with_nothing(self) -> None:
         async def silent(case: CaseData, deadline: float | None = None) -> Proposal:

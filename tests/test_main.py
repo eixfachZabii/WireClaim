@@ -176,13 +176,14 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
         with (
             patch.object(main, "load_case", new=AsyncMock(return_value=case)),
             patch.object(main, "warm_llm_resources"),
-            patch.object(main, "llm_values", new=AsyncMock(return_value=None)),
+            patch.object(main, "llm_values", new=AsyncMock(return_value=None)) as fast_path,
             patch.object(main, "detect_fraud", new=AsyncMock(return_value=FraudDecision())),
             patch.object(main, "_forward_strategies", new=AsyncMock(return_value=None)),
             patch.object(main, "dry_run_submit", submitter),
         ):
             await main.run_game(99, dry_run=True)
 
+        fast_path.assert_not_awaited()
         self.assertEqual(submitter.call_count, 1)
         first_submissions = submitter.call_args.args[1]
         self.assertEqual([submission["index"] for submission in first_submissions], [1, 2])

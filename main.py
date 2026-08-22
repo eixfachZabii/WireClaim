@@ -210,7 +210,6 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
         fraud_indices=manager.fraud_indices,
     )
     tasks = [
-        asyncio.create_task(_emit_result(events, "fast_path", llm_values(case), game_id)),
         asyncio.create_task(_emit_result(events, "fraud", detect_fraud(case), game_id)),
         asyncio.create_task(_forward_strategies(events, router, case, deadline)),
     ]

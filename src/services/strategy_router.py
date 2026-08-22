@@ -1,13 +1,10 @@
-"""Run every strategy concurrently, keep the highest-priority complete Proposal — and
-record the ones that lose, because otherwise we never learn whether they were right.
+"""Run configured strategies concurrently and record every Proposal for later replay.
 
-Three strategies price every Case at once and `register` throws away everything that does
-not outrank the incumbent. Until now that discard was total: only the winner's numbers ever
-reached disk, so "would Strategy 3 have scored better on Game 26?" was unanswerable even
-though the answer is exactly computable from the settled Transactions. `results()` is the
-one place that sees every Proposal, so it writes all of them to the Game's decision log
-(`src.observability.decisions.record_proposals`) alongside the source that is currently winning;
-`scripts/learn_from_game.py` then replays each one against the real Field.
+Strategy 2 and Strategy 5 have one explicit combination rule: as soon as both complete,
+Charge is the maximum of both values per Line Item, while Limit is zero if either Limit is
+zero and otherwise their maximum. The merged Proposal is recorded separately and outranks
+either individual Proposal. `results()` writes winners and losers to the Game's decision log
+so `scripts/learn_from_game.py` can replay each one against the real Field.
 
 The logging is strictly subordinate to the Submission: it happens after `register`, it
 swallows every error, and it can only ever cost a small local write. A missing log costs one
@@ -24,7 +21,7 @@ import asyncio
 import logging
 from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 
-from src.data.models import CaseData, Proposal
+from src.data.models import CaseData, ItemPrice, Proposal
 from src.observability.decisions import record_proposals
 from src.services.strategies import STRATEGY_PRIORITIES
 from src.services.strategies.strategy1 import propose as strategy1
@@ -42,10 +39,49 @@ from src.observability.timing import (
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[..., Awaitable[Proposal | None]]
+MERGED_STRATEGY_SOURCE = "strategy2+5"
+_MERGED_STRATEGIES = frozenset({"strategy2", "strategy5"})
 # `STRATEGY_PRIORITIES` is re-exported for the callers that already import it from here.
 # It is defined in `src.services.strategies` because it describes the tracks rather than
 # the router, and because two copies of it had already drifted apart.
-__all__ = ["STRATEGY_PRIORITIES", "StrategyRouter"]
+__all__ = ["MERGED_STRATEGY_SOURCE", "STRATEGY_PRIORITIES", "StrategyRouter"]
+
+
+def _merge_strategy2_and_5(strategy2_result: Proposal, strategy5_result: Proposal) -> Proposal:
+    strategy2_prices = strategy2_result.by_index()
+    strategy5_prices = strategy5_result.by_index()
+    prices: list[ItemPrice] = []
+    for index in sorted(strategy2_prices.keys() | strategy5_prices.keys()):
+        from_strategy2 = strategy2_prices.get(index)
+        from_strategy5 = strategy5_prices.get(index)
+        if from_strategy2 is None or from_strategy5 is None:
+            available = from_strategy5 if from_strategy2 is None else from_strategy2
+            if available is None:
+                continue
+            prices.append(
+                ItemPrice(
+                    index=index,
+                    charge_price=available.charge_price,
+                    acceptance_limit=available.acceptance_limit,
+                    source=MERGED_STRATEGY_SOURCE,
+                )
+            )
+            continue
+        limit = (
+            0.0
+            if from_strategy2.acceptance_limit == 0.0
+            or from_strategy5.acceptance_limit == 0.0
+            else max(from_strategy2.acceptance_limit, from_strategy5.acceptance_limit)
+        )
+        prices.append(
+            ItemPrice(
+                index=index,
+                charge_price=max(from_strategy2.charge_price, from_strategy5.charge_price),
+                acceptance_limit=limit,
+                source=MERGED_STRATEGY_SOURCE,
+            )
+        )
+    return Proposal(source=MERGED_STRATEGY_SOURCE, prices=tuple(prices))
 
 
 class StrategyRouter:
@@ -62,6 +98,7 @@ class StrategyRouter:
             strategy5,
         ) if strategies is None else strategies
         self._fair_value_references = dict(fair_value_references or {})
+        self._completed: dict[str, Proposal] = {}
         self._current: Proposal | None = None
         self._current_priority = -1
         #: Every Proposal seen this run, winners and losers alike: source -> {index: (a, b)}.
@@ -98,9 +135,25 @@ class StrategyRouter:
         except Exception as error:  # pragma: no cover - must never break a Game
             logger.warning("Could not record the Proposals for Game %s: %s", game_id, error)
 
+    def _will_merge(self, proposal: Proposal | None) -> bool:
+        if proposal is None or proposal.source not in _MERGED_STRATEGIES:
+            return False
+        partner = next(iter(_MERGED_STRATEGIES - {proposal.source}))
+        return partner in self._completed
+
     def register(self, proposal: Proposal | None) -> Proposal | None:
         if proposal is None or proposal.is_empty:
             return None
+        if proposal.source in _MERGED_STRATEGIES:
+            self._completed[proposal.source] = proposal
+            if _MERGED_STRATEGIES.issubset(self._completed):
+                merged = _merge_strategy2_and_5(
+                    self._completed["strategy2"],
+                    self._completed["strategy5"],
+                )
+                self._current = merged
+                self._current_priority = STRATEGY_PRIORITIES[MERGED_STRATEGY_SOURCE]
+                return merged
         priority = STRATEGY_PRIORITIES.get(proposal.source, 0)
         if priority < self._current_priority:
             return None
@@ -149,6 +202,7 @@ class StrategyRouter:
                         and not proposal.is_empty
                         and current is not None
                         and candidate_priority < self._current_priority
+                        and not self._will_merge(proposal)
                     ):
                         logger.info(
                             "%s",
@@ -171,6 +225,8 @@ class StrategyRouter:
                     # submitted right now, and before the yield, so a consumer that stops
                     # iterating early still leaves the Proposal on disk.
                     self._capture(case.game_id, proposal)
+                    if active is not None and active is not proposal:
+                        self._capture(case.game_id, active)
                     if active is not None:
                         yield active
         finally:
