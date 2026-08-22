@@ -43,6 +43,8 @@ watch = { cmd = "python scripts/learn_watch.py", env = { PYTHONPATH = "." } }
 # and judges the digest against CLAUDE.md's own evidentiary bar. `pixi run review-game 42`
 # runs it by hand for one Game, e.g. to reread it after editing the prompt in review_game.py.
 review-game = { cmd = "python scripts/review_game.py", env = { PYTHONPATH = "." } }
+backtest-sync = { cmd = "python -m backtesting sync", env = { PYTHONPATH = "." } }
+backtest-run = { cmd = "python -m backtesting run --spec backtesting/specs/default.json", env = { PYTHONPATH = "." } }
 
 [pypi-dependencies]
 openai = ">=3.3.1, <4"
