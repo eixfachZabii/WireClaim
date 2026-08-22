@@ -10,12 +10,14 @@ from src.services.strategies.strategy2 import propose as strategy2
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[[CaseData], Awaitable[Proposal | None]]
+STRATEGY_PRIORITIES = {"strategy1": 1, "strategy2": 2}
 
 
 class StrategyRouter:
     def __init__(self, strategies: tuple[Strategy, ...] | None = None) -> None:
         self._strategies = (strategy1, strategy2) if strategies is None else strategies
         self._current: Proposal | None = None
+        self._current_priority = -1
 
     @property
     def current(self) -> Proposal | None:
@@ -24,7 +26,11 @@ class StrategyRouter:
     def register(self, proposal: Proposal | None) -> Proposal | None:
         if proposal is None or proposal.is_empty:
             return None
+        priority = STRATEGY_PRIORITIES.get(proposal.source, 0)
+        if priority < self._current_priority:
+            return None
         self._current = proposal
+        self._current_priority = priority
         return proposal
 
     def start_strategies(self, case: CaseData) -> AsyncIterator[Proposal]:
