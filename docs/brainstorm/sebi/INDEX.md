@@ -6,7 +6,7 @@ follow, ranked against real data) and
 ~20,000 per Game).
 
 The game itself, and the sixteen derived results, live in the root
-[`README.md`](../../../README.md). Vocabulary in [`CONTEXT.md`](../../../CONTEXT.md).
+[`README.md`](../../../README.md). Vocabulary in [`CONTEXT.md`](../../CONTEXT.md).
 
 ## The eight pitches
 
@@ -26,5 +26,4 @@ Ranked by effect on leaderboard net — see `report.md` for the reasoning.
 ## Also here
 
 - [`adr/0001`](adr/0001-the-model-reads-the-engine-prices.md) — the model reads, the engine prices
-- [`strats/review/FIELD-REPORT-01.md`](strats/review/FIELD-REPORT-01.md) — the Games 1–3 inversion the ranking rests on
-- [`evidence/sim.py`](evidence/sim.py) — the simulator that falsified three results in `README.md`
+- [`strats/review/field-findings.md`](strats/review/field-findings.md) — the Games 1–3 inversion the ranking rests on

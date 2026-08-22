@@ -3,7 +3,7 @@
 Agent knowledge file. Rules, conventions, and the mistakes we already paid for.
 
 - [`README.md`](README.md) — the game, the verified schedule, and the fifteen derived results (R1–R10). **The source of truth for anything about how the tournament works.**
-- [`CONTEXT.md`](CONTEXT.md) — the ubiquitous language. Use these words; they were chosen to stop the drift that was already happening on day one.
+- [`CONTEXT.md`](docs/CONTEXT.md) — the ubiquitous language. Use these words; they were chosen to stop the drift that was already happening on day one.
 - [`docs/brainstorm/sebi/INDEX.md`](docs/brainstorm/sebi/INDEX.md) — what was pitched, what was picked, who owns what.
 
 ---
@@ -32,7 +32,7 @@ Every single time someone reasoned about this game from intuition, they got it w
 | "Above the Cap the acceptance bar rises, so never accept."          | The bar _falls_ (`q > c/(c+0.5a)`). Right conclusion, wrong reason — reject because `c ≥ 4t` makes it **provably** fraudulent (R4). | A wrong reason in a shared doc propagates.         |
 | "`a = t = b` is optimal."                                           | Only under certainty. But closer than the "therefore `a > b`" correction that replaced it — both sit low, near each other (R6).     | An over-confident correction is still an error.    |
 
-**So: before you act on a claim about this game, check whether `README.md` already proves it. If it doesn't, write the arithmetic down and run it.** `docs/brainstorm/sebi/evidence/sim.py` exists solely because it caught three errors that had already been written down as fact. A claim without a number behind it is a guess wearing a suit.
+**So: before you act on a claim about this game, check whether `README.md` already proves it. If it doesn't, write the arithmetic down and run it.** Three claims in the table above were written down as fact before a simulation falsified them. A claim without a number behind it is a guess wearing a suit.
 
 ---
 
@@ -72,7 +72,7 @@ Read the leaderboard at the rate a browser would. Do not enumerate endpoints tha
 
 ## Conventions
 
-- **Vocabulary is not optional.** Charge / Limit / Fair Value / Estimate / Line Item / Case / Game / Issuer / Reviewer / Price Memory / Field. See [`CONTEXT.md`](CONTEXT.md). "Track" always means a Strategy Track — the hackathon's QuantCo/Viktor/Cognition tracks are **Challenges**.
+- **Vocabulary is not optional.** Charge / Limit / Fair Value / Estimate / Line Item / Case / Game / Issuer / Reviewer / Price Memory / Field. See [`CONTEXT.md`](docs/CONTEXT.md). "Track" always means a Strategy Track — the hackathon's QuantCo/Viktor/Cognition tracks are **Challenges**.
 - **Say "Overcharge", not "fraud".** A Charge above Fair Value is a priced bet with a known expected value, and the write-up has to describe it that way to a judge who sells insurance software.
 - **Never commit `TEAM_API_KEY`.** It lets anyone trade on our behalf. `.gitignore` covers `.env`, `*.key` and `secrets/`; keep it that way.
 - **Ideas go in `docs/brainstorm/<member>/`,** one folder each. `README.md` changes only when we learn something about the rules or prove a new result — it is shared understanding, not a scratchpad.

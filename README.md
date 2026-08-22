@@ -151,7 +151,7 @@ quantity we re-read every 12.6 minutes.**
 
 ### R5c — A mis-measured `p(a)` is worse than no `p(a)` at all
 
-Discovered the hard way: the first version of `docs/brainstorm/sebi/evidence/sim.py` estimated the
+Discovered the hard way: an early simulation estimated the
 Field's acceptance rate inline from a single stale Line Item. The estimate was
 spuriously high, it pushed the Charge above optimum, and it cost **~60 % of net** —
 dropping us from 1st to 11th in the simulated Field. Forcing `p = 0` restored 1st.
@@ -171,7 +171,7 @@ a* = argmax_a [ a·G(a) + min(a,c)·(1−G(a))·p(a) ]
 The trap: R1 says income below Fair Value is risk-free, which tempts you to charge at
 `t̂`. But risk-free is _conditional on `a ≤ t`_ — charging at the median forfeits the
 whole claim half the time. Solving `argmax a·G(a)` for a log-normal posterior
-(`σ·Φ(−z) = φ(z)`), confirmed by Monte Carlo in `docs/brainstorm/sebi/evidence/sim.py`:
+(`σ·Φ(−z) = φ(z)`), confirmed by Monte Carlo, and later by settled Games:
 
 | posterior log-sd σ | optimal Charge | as a quantile | E[revenue]/t̂ |
 | ------------------ | -------------- | ------------- | ------------ |
@@ -349,7 +349,7 @@ Recorded deliberately, because two of these would have cost us money.
 | "Find `t` so our claims get paid either way."                                                  | ✅ Correct, and it is the core insight.                                                                                                                                                                                                                     |
 | "As insurer always pay up to `t*`, reject above."                                              | ✅ Correct in spirit, but the Limit belongs in the bottom third of the posterior, not at `t̂` (R4, R6).                                                                                                                                                      |
 | _(this document, R9, until Game 1 settled)_ "rejected & `amount > 0` ⟹ `a = amount / 1.5`." | **Wrong, and load-bearing.** `amount` is what the **Issuer receives**, in both branches; the lawyer fee never appears in a Transaction row. Ratio measured at exactly `1.000000` on 18 real cases and reconciled to the cent against `/performance` for all 17 teams. Would have made every recovered Charge, `t` bracket and fitted bias 33 % too low. Caught by running the inverter against real rows instead of reasoning about them (`strat-flywheel` §0). |
-| _(this document, earlier draft)_ "the optimum Charge sits at or above the median, so `a > b`." | **Wrong, twice.** The optimal Charge is ~0.7 · t̂, well _below_ the median (R5b), and `a` ends up near or below `b`, not above it (R6). The original `a = t = b` intuition was closer than the correction. Caught by `docs/brainstorm/sebi/evidence/sim.py`. |
+| _(this document, earlier draft)_ "the optimum Charge sits at or above the median, so `a > b`." | **Wrong, twice.** The optimal Charge is ~0.7 · t̂, well _below_ the median (R5b), and `a` ends up near or below `b`, not above it (R6). The original `a = t = b` intuition was closer than the correction. Caught in simulation before the tournament began. |
 
 ---
 
