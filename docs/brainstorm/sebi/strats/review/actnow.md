@@ -159,3 +159,21 @@ what made an earlier read of Game 5 conclude those items were uncovered — they
 Pulling five teams' rows (2,380 Transactions) gave two-sided brackets and reversed the
 diagnosis. **Any analyser that reads only our own rows will produce confidently wrong
 brackets.**
+
+
+## 9. Check the Price Memory before reasoning — scenarios repeat
+
+Three of seven Cases are storm-surge electronics (2, 4, 6) and two are escape of water
+(1, 5). Case 6 re-runs Case 2 with fewer Line Items. So the first question on a new Case
+is not "what is this worth" but **"have we settled this item before?"** — keyed on Line
+Item wording plus peril. A settled bracket from an earlier Game is a near-direct read,
+and it is free.
+
+## 10. Judge the quantity, not just the coverage
+
+The generator inflates quantities as well as prices: "technician call-out" at **3 pcs**,
+"removal of the water-damaged kitchen table" at **3 pcs** for one table, **14 hrs** for a
+leak detection. A gate that only asks "is this covered?" passes all of them. Ask "is this
+quantity plausible for this job?" too — and remember we submit the **gross total for the
+whole Line Item**, so an inflated quantity and a per-unit submission are the same factor
+pointing opposite ways.
