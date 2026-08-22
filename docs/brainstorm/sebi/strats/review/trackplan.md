@@ -1,34 +1,44 @@
 # Track plan — who does what
 
-**Live as of Game 7, Sat 16:18. We are 12th at −30,369.** Leader `error404 ai` is at
-+85,197. Games 5, 6 and 7 all lost: **−10,604, −3,940, −33,568.**
+**Live as of Game 11, Sat 17:15. We are 17th of 17 at −228,363.** Leader is at +79,705.
+Recent Games: −33,568, −80,074, −21,397, −60,506, −36,017. The bleeding is accelerating.
+
+Markus runs the strategy on `main`. Everything in the block below is worth more than
+everything under it.
 
 ---
 
-## 🔴 STOP THIS FIRST — we are submitting `a = 0, b = ∞`
+## 🔴 QUICK WINS — strategy1 is flagging every Line Item as fraud
 
-Game 7: **income 0, costs 33,568, 100 % from accepting, zero rejections.**
+**Diagnosis (Games 10 and 11).** `b = 0` on **100 % of Line Items** in both Games, so we
+reject everything and pay the `1.5a` penalty on every fair claim: **65,806** and **36,017**
+in wrongful-rejection penalties. Game 10's item 3 had `t ≥ 7,225` and we charged 150.
+Game 11 submitted `a = 0` *and* `b = 0` everywhere — the raw default.
 
-| item | true `t` | our Charge | we paid up to |
-| ---: | --- | ---: | ---: |
-| 1 | `[1232, 1756)` | **0.00** | **3,500** |
-| 2 | `< 683` | **0.00** | **2,000** |
-| 4 | `< 323` | **0.00** | **765** |
+**Root cause.** `fraud_detection._is_policy_quote` only checks that `exclusion_quote` is a
+**≥ 12-character substring of `policy.txt`**. The policies are ~63,000 characters, so
+`"the schedule"`, `"is not covered"`, `"the policyholder"` all pass. **The gate verifies
+the quote exists, not that it proves an exclusion** — so almost every item is flagged.
 
-This is **worse than going dark** — the default (`0, 0`) at least rejects everything.
-"Act as if no fraud" has been implemented as "accept everything". It does not mean that.
-It means *assume the item is covered, price it normally, and set the Limit to the bottom
-third of that price*.
+Four fixes, in order of euros per line of code:
 
-**Two hard clamps, in deterministic code, ignoring whatever any model says:**
+- [ ] **1. Cap fraud flags per Case.** If the detector flags more than ~35 % of Line Items,
+      **discard the whole `FraudDecision`.** The measured base rate is ~12 % (2 of 17 in
+      Game 5); a Case where everything is uncovered is possible (Game 3) but a detector
+      that says so is far more likely to be broken. One `if` in `RunManager.apply_fraud`.
+      *This alone would have prevented both losses above.* Owner: ______
+- [ ] **2. Require the quote to look like an exclusion.** Raise `MIN_QUOTE_LENGTH` from 12
+      to ~60, and require the normalised quote to contain one of `not covered`, `excluded`,
+      `does not`, `no indemnity`, `is not insured`. Owner: ______
+- [ ] **3. Never submit `a = 0`.** Game 11 went out as the pure default, which means the
+      `standard_values` base layer never published — the Case failed to load, or the first
+      `publish()` never ran. Guarantee one Submission per Game before any producer starts.
+      Owner: ______
+- [ ] **4. Log the flag count per Case** (`flagged/total`) so this is visible in one grep
+      rather than needing a leaderboard inversion to find. Owner: ______
 
-```
-b = clamp(b, 0, t̂)          # never above our own estimate. NEVER unbounded.
-a = max(a, FALLBACK)        # never 0. FALLBACK ≈ 150, fitted from settled Games.
-```
-
-Ship these before anything else on this page. They are ~4 lines and they are worth more
-than the rest of the tournament.
+**Verify on the next settled Game:** flagged share < 35 %, wrongful-rejection penalties
+below income, no Line Item at `a = 0`.
 
 ---
 
