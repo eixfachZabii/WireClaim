@@ -2,11 +2,10 @@
 
 Reads data/raw/transactions_game_*.json and data/analysis.json and writes:
 
-- data/table_binbusy.png / .csv — one row per (game, line item):
-  the derived Fair Value t, Bin busy's Limit b interval, how often Bin busy
-  said "fraud" (rejected), and how often that was wrong. "Wrongly rejected"
-  is exact per the rules: a rejected row with amount > 0 means the charge was
-  fair (the reviewer paid the 1.5a lawyer penalty).
+- data/table_binbusy.png / .csv — one row per game: how many line items had
+  a derived t = 0, on how many items Bin busy said "fraud" (rejected every
+  nonzero charge, i.e. acted as if b = 0), how many of those really had t = 0,
+  and the same fraud-call rate averaged over the top-3 and top-5 teams.
 - data/table_averages.png / .csv — one row per game: average Charge a and
   Limit b of all active teams (teams that always submitted 0 are excluded),
   the same averages for the top-3 teams by net, Bin busy's own averages,
@@ -48,48 +47,48 @@ def fmt(value, digits=0) -> str:
     return f"{value:,.{digits}f}"
 
 
+def said_fraud_items(game: dict, game_rows: list[dict], team: str) -> set[int]:
+    """Items where the team, as reviewer, rejected every nonzero charge (acted as if t = 0, i.e. b ~ 0)."""
+    charges = {i["line_item_index"]: i["charges_a"] for i in game["line_items"]}
+    seen: dict[int, bool] = {}
+    for row in game_rows:
+        idx = row["line_item_index"]
+        if row["reviewer"] != team or not charges.get(idx, {}).get(row["issuer"]):
+            continue
+        seen[idx] = seen.get(idx, True) and not row["accepted"]
+    return {idx for idx, all_rejected in seen.items() if all_rejected}
+
+
 def binbusy_table(analysis: dict, transactions: dict[int, list[dict]]) -> list[list[str]]:
-    """Per (game, line item): derived t, Bin busy's b, and its fraud calls vs. reality."""
+    """Per game: items Bin busy called all-fraud (b = 0) vs. top teams vs. the derived t."""
+    top3 = [t["team"] for t in analysis["team_summary"][:3]]
+    top5 = [t["team"] for t in analysis["team_summary"][:5]]
     rows = [[
-        "game", "item", "t_lo", "t_hi", "t = 0?",
-        f"{TEAM} b (lo..hi)", "said fraud (rejected)", "wrongly rejected (was fair)",
-        "accepted", "wrongly accepted (was fraud)",
+        "game", "items", "t = 0 items (derived)",
+        f"{TEAM} said fraud (b = 0)", "of which really t = 0",
+        "top 3 said fraud (avg)", "top 5 said fraud (avg)",
     ]]
     for game in analysis["games"]:
         game_id = game["game_id"]
-        # Bin busy's review decisions, straight from the settled rows
-        decisions: dict[int, dict] = {}
-        for row in transactions.get(game_id, []):
-            if row["reviewer"] != TEAM:
-                continue
-            d = decisions.setdefault(
-                row["line_item_index"],
-                {"rejected": 0, "wrong_reject": 0, "accepted": 0, "wrong_accept": 0},
-            )
-            if row["accepted"]:
-                d["accepted"] += 1
-            else:
-                d["rejected"] += 1
-                if row["amount"] > 0:  # fair charge rejected => 1.5a penalty paid
-                    d["wrong_reject"] += 1
+        game_rows = transactions.get(game_id, [])
+        items = game["line_items"]
+        n = len(items)
+        t_zero = {i["line_item_index"] for i in items if i["t_lo"] == 0 and i["t_hi"] is not None}
+        bb = said_fraud_items(game, game_rows, TEAM)
+        bb_right = bb & t_zero
 
-        for item in game["line_items"]:
-            index = item["line_item_index"]
-            d = decisions.get(index, {"rejected": 0, "wrong_reject": 0, "accepted": 0, "wrong_accept": 0})
-            # accepted fraud: issuer flagged fraudulent whose charge Bin busy accepted
-            for row in transactions.get(game_id, []):
-                if (row["reviewer"] == TEAM and row["line_item_index"] == index
-                        and row["accepted"] and item["fair_flags"].get(row["issuer"]) is False):
-                    d["wrong_accept"] += 1
-            iv = item["limits_b"].get(TEAM)
-            b_str = f"{fmt(iv['b_lo'])}..{fmt(iv['b_hi'])}" if iv else "-"
-            t_zero = item["t_lo"] == 0 and item["t_hi"] is not None
-            rows.append([
-                str(game_id), str(index), fmt(item["t_lo"]), fmt(item["t_hi"]),
-                "yes" if t_zero else "", b_str,
-                str(d["rejected"]), str(d["wrong_reject"]),
-                str(d["accepted"]), str(d["wrong_accept"]),
-            ])
+        def avg_calls(teams: list[str], game=game, game_rows=game_rows, n=n) -> str:
+            # average, over the game's items, of how many of these teams said fraud
+            if not n or not teams:
+                return "-"
+            total = sum(len(said_fraud_items(game, game_rows, t)) for t in teams)
+            return f"{total / n:.1f}/{len(teams)}"
+
+        rows.append([
+            str(game_id), str(n), f"{len(t_zero)}/{n}",
+            f"{len(bb)}/{n}", f"{len(bb_right)}/{len(bb)}" if bb else "-",
+            avg_calls(top3), avg_calls(top5),
+        ])
     return rows
 
 
