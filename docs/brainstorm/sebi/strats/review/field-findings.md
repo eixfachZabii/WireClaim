@@ -215,3 +215,67 @@ overshot badly: item 1 `t < 875` (charged 875), item 2 `t < 199.25` (charged 450
 2. **Limit is unbounded** — 99 % of costs from accepting; we paid 1,121.40 on an item
    whose `t` was under 773.50.
 3. **Charge variance**, not Charge bias. Global multipliers cannot fix this.
+
+## Cases 5–6: the generator reuses scenarios, and quantity is a separate fraud vector
+
+**Scenario templates repeat.** Across the seven Cases readable so far:
+
+| peril | Cases |
+| --- | --- |
+| storm surge, home electronics | **2, 4, 6** |
+| escape of water | **1, 5** |
+| theft (bicycle / from a car abroad) | 0, 3 |
+
+Case 6 is a stripped-down re-run of Case 2 — same peril, same speaker + TV + technician,
+"the claim has been kept simple". Its two Line Items map straight onto Case 2's brackets,
+which we already inverted.
+
+**This makes Price Memory the main channel, not a bonus.** `strat-flywheel` assumed the
+dominant path was item-agnostic calibration, with exact-item memory worth "+4–10 %". With
+templates recurring every few Games that is backwards: a settled `t` for "Speaker system
+(surge damaged)" is close to a *direct read* on the next surge Case. Key the memory on
+Line Item wording and on peril, and check every new Case against it before reasoning.
+
+**Quantity inflation is a distinct fraud vector from price inflation.** The handout's
+third test is "reasonably priced (total = quantity × unit price)", and the generator
+attacks the *quantity* side too:
+
+| Case | Line Item | quantity |
+| --- | --- | --- |
+| 6 | "Diagnostic surge-failure report and technician call-out" | **3 pcs** |
+| 5 | "Removal, transport and disposal of the water-damaged wooden kitchen table" | **3 pcs** (one table) |
+| 5 | "Service technician hours" for one leak detection | **14 hrs** |
+
+A coverage gate that only asks "is this item covered?" passes all three. The gate has to
+ask **"is this quantity plausible for this job?"** as well — one call-out is one call-out.
+This is also where the gross-total rule bites hardest: an inflated quantity and a
+per-unit submission are the same factor in opposite directions.
+
+**Betterment keeps recurring**, now in three Cases: Case 1 (stone for tile, hardwood for
+softwood), Case 5 (item 14, "premium solid-oak designer model, higher specification than
+the original"). It is always self-labelled and it is always a *partial* haircut — covered
+at the pre-loss standard, not zero.
+
+
+## Game 6 — the opposite failure, and the fallback exposed
+
+| Game | net | costs from accepting | mechanism |
+| --- | ---: | ---: | --- |
+| 4 | +3,520 | 60 % | — |
+| 5 | −10,604 | **99 %** | `b` unbounded; paid 1,121.40 on an item worth < 773.50 |
+| 6 | −3,940 | **0 %** | `b` ≈ 0; **4,975 in `1.5a` wrongful-rejection penalties** |
+
+Two losing Games by opposite mechanisms. `b` is not mis-tuned, it is *outside the
+posterior* and swinging across it.
+
+**Worse: Game 6's Charge was the fallback constant.** We submitted `a = 45.00` on both
+Line Items while item 1's true `t` was **`[765.00, 900.00)`**. The pricing pipeline did
+not run. Observed `t` lower bounds across settled Games span 42–900 with a median around
+150–230, so a fallback of 45 forfeits nearly everything — and since a Charge above `t`
+costs nothing, the fallback belongs near the middle of that distribution, not at its floor.
+
+**Uncovered items pay a realistic price, not a big one.** Game 3, all Line Items
+uncovered: `error404 ai` charged 101.32 and `Non Deterministic` 100.00; each was accepted
+by 2 of 16 and collected ~200 per item. Nobody chased the Cap. The buyers of an uncovered
+item are exactly the teams that mis-classified it as covered, so their Limit is set for a
+plausible price.

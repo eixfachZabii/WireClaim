@@ -40,19 +40,56 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 **1. The default submission is an incident, never a fallback.** `a = 0, b = 0` does not score zero — `b = 0` wrongfully rejects every fair claim, so we pay `1.5a` to every opponent on every Line Item (R7). A team that goes dark becomes a **money fountain** for everyone awake: `+t` to them, `−1.5t` to us, per item, per Game (R10). Any plausible number beats the default. If the pipeline has nothing, it still submits something.
 
-**2. The model reads; the engine prices.** [ADR 0001](docs/brainstorm/sebi/adr/0001-the-model-reads-the-engine-prices.md). No agent emits a Charge, a Limit, or a Fair Value — agents emit _structured evidence_ (coverage verdict + the policy clause quoted verbatim, relatedness, quantity/unit/trade, a price **band with named anchors**), and deterministic code turns evidence into a posterior and the posterior into numbers. This is SampleRepo's ADR 0021 applied where it matters more: there an unanchored model verdict was one word on a card; here it is the number we are scored on, 100 times, unattended. _Two regenerates over one invoice must not disagree._
+**2. Before anything else, unzip and read the new Cases.** Decryption keys never expire
+and every Game whose `start_time` has passed is readable, so at the start of any session —
+and before any analysis, any strategy claim, any prompt change — top up the extraction and
+look at what is actually in there:
 
-**3. Spend the effort on the Charge, not the Limit.** The Limit is nearly flat anywhere in the bottom third of the posterior (`Q₀.₀₅`–`Q₀.₃₃` differ by ~2 % of net). The Charge is ~3× more sensitive and its optimum moves with the tournament phase. Get `b` into the bottom third and stop touching it (R6).
+```bash
+cd "[PUBLIC] EHL Cases/cases"          # archives are all committed; only the key is gated
+for g in $(seq 0 100); do d=case_$(printf %02d $g)
+  K=$(curl -s -H "X-API-Key: $TEAM_API_KEY" \
+      "https://c2f.public.quantco.cloud/api/games/$g/key" | jq -r .decryption_key)
+  [ "$K" = null ] && break
+  7z x -y -p"$K" -o"$d" "$d.zip" >/dev/null && echo "$d"
+done
+```
 
-**4. What we need is a distribution, not a number.** The score depends on the _width_ of the posterior, not just its centre — `Q₁ᐟ₃` is only safe if the interval is calibrated (R4b). A model asked for "a fair price" returns a point; a model asked for "a price and an interval" returns a point and a fabricated interval. The width has to come from somewhere real — disagreement between framings, and calibration against settled Games.
+Every claim in this repo that survived contact with reality came from reading a Case or a
+settled Game; every claim that died came from reasoning about the rules in the abstract.
+Case 3 being *entirely uncovered*, the Line Items that name their own disqualifier, and
+betterment being a partial haircut rather than a binary — none of that was guessable.
+Extracted folders are gitignored; they are derivable from the archive plus a key.
 
-**5. On items the policy does not cover, always Charge.** `t = 0`, so the honest branch pays exactly zero and a rejected overcharge costs nothing. Break-even is `p > 0`, not 25 % — charging is weakly dominant in every phase, including overnight (R6c). But drive it from an explicit coverage _probability_, not a binary guess: if the item turns out covered, a high Charge forfeits guaranteed income.
+**Never judge our algorithm, or a Game's result, from the numbers alone. Open the Case.**
+Leaderboard inversion tells you *what* happened; only the Case tells you *why*, and the two
+routinely disagree:
 
-**6. Always gross, always the whole Line Item.** The handout warns twice, in bold. Never net (a factor of 1.19), never per-unit (a factor of the quantity, often 10–30×). This is the most likely way for a working pipeline to silently score nothing.
+- Game 5 read from our own Transaction rows said the Line Items we charged 0 on were
+  uncovered. Pulling five teams' rows and reading the Case showed they were covered and
+  worth hundreds — item 3 sat in `[497.94, 773.50)`. The diagnosis reversed completely.
+- Case 7's brackets alone suggest the kitchen air-conditioning unit was excluded (`t < 683`
+  against `[1232, 1756)` for the identical living-room unit). The Case says the opposite:
+  the description dangles *"a couple of metres from the hob"* as bait, and the policy
+  states in terms that proximity to another appliance **does not** remove cover.
 
-**7. Uptime outranks accuracy.** Break-even uptime is **71 %** — an all-or-nothing smart bot needs that much merely to tie a dumb bot that never misses. Rescuing one Game is worth `93t`; improving one Game is worth `37t`. **Showing up is 2.5× being right.** Two-phase submit (cheap at T+3 s, smart overwrite at T+50 s, merged _per Line Item_ so partial output is never discarded) is worth more than five points of uptime, for about forty lines of code.
+A number without its Case is a symptom without a diagnosis. Read `policy.txt`,
+`description.txt` and the invoice before concluding anything about why a Game went the way
+it did — and quote the clause when you do.
 
-**8. The tournament has three regimes, and the right play differs in each.** Games ~1–43 the Field is awake and probably generous (measure `p`, Limit discipline matters most); ~44–81 it is mostly dark (honest harvest — accuracy is the only lever, and overcharging earns nothing against `b = 0`); ~82–100 it wakes recalibrated. Never carry a `p` estimate across a phase boundary.
+**3. The model reads; the engine prices.** [ADR 0001](docs/brainstorm/sebi/adr/0001-the-model-reads-the-engine-prices.md). No agent emits a Charge, a Limit, or a Fair Value — agents emit _structured evidence_ (coverage verdict + the policy clause quoted verbatim, relatedness, quantity/unit/trade, a price **band with named anchors**), and deterministic code turns evidence into a posterior and the posterior into numbers. This is SampleRepo's ADR 0021 applied where it matters more: there an unanchored model verdict was one word on a card; here it is the number we are scored on, 100 times, unattended. _Two regenerates over one invoice must not disagree._
+
+**4. Get the Limit inside the posterior before you tune anything else.** R6 says the Limit is flat anywhere in the bottom third (`Q₀.₀₅`–`Q₀.₃₃` differ by ~2 % of net) and the Charge is ~3× more sensitive — **but that only holds once `b` is inside the posterior at all.** In Game 5 ours was not: we accepted 246 of 272 Transactions, **99 % of our costs came from accepting**, and we paid 1,121.40 on a Line Item whose Fair Value was under 773.50. Net −10,604. A Limit outside the posterior is not a flat knob, it is an open tap. Close it, *then* apply R6 and spend the effort on the Charge.
+
+**5. What we need is a distribution, not a number.** The score depends on the _width_ of the posterior, not just its centre — `Q₁ᐟ₃` is only safe if the interval is calibrated (R4b). A model asked for "a fair price" returns a point; a model asked for "a price and an interval" returns a point and a fabricated interval. The width has to come from somewhere real — disagreement between framings, and calibration against settled Games.
+
+**6. On items the policy does not cover, always Charge.** `t = 0`, so the honest branch pays exactly zero and a rejected overcharge costs nothing. Break-even is `p > 0`, not 25 % — charging is weakly dominant in every phase, including overnight (R6c). But drive it from an explicit coverage _probability_, not a binary guess: if the item turns out covered, a high Charge forfeits guaranteed income.
+
+**7. Always gross, always the whole Line Item.** The handout warns twice, in bold. Never net (a factor of 1.19), never per-unit (a factor of the quantity, often 10–30×). This is the most likely way for a working pipeline to silently score nothing.
+
+**8. Uptime outranks accuracy.** Break-even uptime is **71 %** — an all-or-nothing smart bot needs that much merely to tie a dumb bot that never misses. Rescuing one Game is worth `93t`; improving one Game is worth `37t`. **Showing up is 2.5× being right.** Two-phase submit (cheap at T+3 s, smart overwrite at T+50 s, merged _per Line Item_ so partial output is never discarded) is worth more than five points of uptime, for about forty lines of code.
+
+**9. The tournament has three regimes, and the right play differs in each.** Games ~1–43 the Field is awake and probably generous (measure `p`, Limit discipline matters most); ~44–81 it is mostly dark (honest harvest — accuracy is the only lever, and overcharging earns nothing against `b = 0`); ~82–100 it wakes recalibrated. Never carry a `p` estimate across a phase boundary.
 
 ---
 
