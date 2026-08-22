@@ -47,24 +47,24 @@ class RunManagerTests(unittest.TestCase):
 
         self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (120.0, 90.0))
 
-    def test_a_partial_strategy_result_keeps_the_items_it_did_not_price(self) -> None:
-        """A 39-item Case cannot be priced in one call, so Proposals arrive per item."""
-        self.manager.set_strategy(proposal("strategy2", [(1, 120.0, 90.0), (2, 250.0, 190.0)]))
-        self.manager.set_strategy(proposal("strategy2", [(2, 260.0, 200.0)]))
+    def test_complete_strategy_result_replaces_the_entire_fast_path_batch(self) -> None:
+        self.manager.set_fast_path(proposal("fast_path_llm", [(1, 110.0, 80.0), (2, 210.0, 160.0)]))
+        self.manager.set_strategy(proposal("strategy3", [(1, 300.0, 250.0), (2, 400.0, 350.0)]))
 
         prices = {price.index: price for price in self.manager.snapshot()}
 
-        self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (120.0, 90.0))
-        self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (260.0, 200.0))
+        self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (300.0, 250.0))
+        self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (400.0, 350.0))
 
-    def test_a_lower_priority_strategy_cannot_overwrite_a_priced_item(self) -> None:
-        self.manager.set_strategy(proposal("strategy2", [(1, 120.0, 90.0)]))
-        self.manager.set_strategy(proposal("strategy1", [(1, 999.0, 999.0), (2, 210.0, 160.0)]))
+    def test_fraud_locks_survive_a_complete_high_priority_strategy_batch(self) -> None:
+        self.manager.set_fast_path(proposal("fast_path_llm", [(1, 110.0, 80.0), (2, 210.0, 160.0)]))
+        self.manager.apply_fraud(FraudDecision(frozenset({2})))
+        self.manager.set_strategy(proposal("strategy3", [(1, 300.0, 250.0), (2, 400.0, 350.0)]))
 
         prices = {price.index: price for price in self.manager.snapshot()}
 
-        self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (120.0, 90.0))
-        self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (210.0, 160.0))
+        self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (300.0, 250.0))
+        self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (400.0, 0.0))
 
     def test_republishing_the_same_prices_reports_no_change(self) -> None:
         """The coordinator dedupes by signature, but do not wake it needlessly."""

@@ -11,6 +11,7 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name, get_service_tier
 from src.data.models import CaseData, ItemPrice, Proposal
+from src.policy_quote import has_explicit_line_item_exclusion
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ Do not return Charge, Limit, or Fair Value values. Deterministic code will deriv
 - price_low and price_high: realistic gross-total price band for the whole Line Item
 - anchors: named price anchors
 
-Use the game rule that all values are gross totals for whole Line Items. Read all attached documents and images. Return JSON only:
+Use the game rule that all values are gross totals for whole Line Items. Read all attached documents and images. First test the Policy's insured peril, property scope and location against the Damage Description and every Line Item; an insured event does not cover movable contents, vehicles, theft or ancillary costs when the Policy expressly excludes them. Return JSON only:
 {"items":[{"line_item":1,"coverage_probability":0.9,"relatedness_probability":0.9,"quantity":1,"price_low":0.0,"price_high":0.0,"anchors":[""]}]}"""
 
 
@@ -170,15 +171,32 @@ def _proposal_from_evidence(case: CaseData, payload: dict[str, Any]) -> Proposal
         else:
             conditional_quantile = (LIMIT_QUANTILE - zero_mass) / probability
             limit = low + conditional_quantile * (high - low)
+        if has_explicit_line_item_exclusion(line_item.name, case.policy_text):
+            limit = 0.0
+        else:
+            limit = min(max(limit, 0.0), median, STANDARD_LIMIT)
         prices.append(
             ItemPrice(
                 index=index,
                 charge_price=charge,
-                acceptance_limit=round(min(max(limit, 0.0), median), 2),
+                acceptance_limit=round(limit, 2),
                 source="fast_path_llm",
             )
         )
-    return Proposal(source="fast_path_llm", prices=tuple(prices)) if prices else None
+    prices_by_index = {price.index: price for price in prices}
+    for line_item in case.line_items:
+        if line_item.index in prices_by_index:
+            continue
+        prices_by_index[line_item.index] = ItemPrice(
+            index=line_item.index,
+            charge_price=FALLBACK_ESTIMATE * max(line_item.quantity, 1.0),
+            acceptance_limit=0.0 if has_explicit_line_item_exclusion(line_item.name, case.policy_text) else STANDARD_LIMIT,
+            source="fast_path_llm",
+        )
+    return Proposal(
+        source="fast_path_llm",
+        prices=tuple(price for _, price in sorted(prices_by_index.items())),
+    ) if prices_by_index else None
 
 
 def _request_proposal(case: CaseData) -> Proposal | None:

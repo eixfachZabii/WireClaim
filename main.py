@@ -39,7 +39,7 @@ class RunManager:
             raise ValueError("Standard values must cover at least one Line Item.")
         self._standard = standard
         self._fast_path: Proposal | None = None
-        self._strategy: dict[int, tuple[int, ItemPrice]] = {}
+        self._strategy: Proposal | None = None
         self._fraud_indices: set[int] = set()
 
     def set_fast_path(self, proposal: Proposal) -> bool:
@@ -49,31 +49,12 @@ class RunManager:
         return True
 
     def set_strategy(self, proposal: Proposal) -> bool:
-        """Merge a Strategy's prices **per Line Item**, keeping the best source per index.
-
-        A Proposal is not required to cover the whole Case. A 39-item Case cannot be
-        priced by one model call inside 60 seconds, so a Strategy is free to publish each
-        Line Item as its estimate lands; one slow item then costs one item instead of the
-        whole Submission. Replacing a whole layer, as this used to, threw away every
-        earlier item the moment a partial arrived.
-
-        Ties go to the newer price so a Strategy can revise its own earlier answer, but a
-        lower-priority Strategy can never overwrite a higher-priority one on an index it
-        has already priced.
-        """
         if proposal.is_empty:
             return False
-        priority = STRATEGY_PRIORITIES.get(proposal.source, 0)
-        changed = False
-        for index, price in proposal.by_index().items():
-            current = self._strategy.get(index)
-            if current is not None and current[0] > priority:
-                continue
-            if current is not None and current[1] == price:
-                continue
-            self._strategy[index] = (priority, price)
-            changed = True
-        return changed
+        if self._strategy == proposal:
+            return False
+        self._strategy = proposal
+        return True
 
     def apply_fraud(self, decision: FraudDecision) -> bool:
         current = self._fraud_indices.copy()
@@ -83,17 +64,13 @@ class RunManager:
     def snapshot(self) -> tuple[ItemPrice, ...]:
         prices = self._standard.by_index()
         valid_indices = set(prices)
-        if self._fast_path is not None:
-            prices.update(
-                (index, price)
-                for index, price in self._fast_path.by_index().items()
-                if index in valid_indices
-            )
-        prices.update(
-            (index, price)
-            for index, (_, price) in self._strategy.items()
-            if index in valid_indices
-        )
+        for proposal in (self._fast_path, self._strategy):
+            if proposal is not None:
+                prices.update(
+                    (index, price)
+                    for index, price in proposal.by_index().items()
+                    if index in valid_indices
+                )
         return tuple(
             price.with_limit(0.0) if index in self._fraud_indices else price
             for index, price in sorted(prices.items())
