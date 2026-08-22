@@ -20,6 +20,13 @@ The reconstruction is checkable, and the check is the point: replaying
 
 reproduces the published leaderboard net for every team in every Game to the cent. Run
 with --verify to assert it.
+
+That identity is **authoritative**: it needs nothing but the rows, so it cannot be thrown
+off by how the leaderboard chooses to lay out its `cells` array. The leaderboard cell is
+merely a cross-check, and a fallible one -- `/matrix` publishes only a trailing window of
+the twenty most recently completed Games (see `pull_transactions.matrix`), so for older
+Games there is no cell to compare against at all. `verify()` reports that state explicitly
+rather than comparing against whatever number happens to sit at index `game_id - 1`.
 """
 
 from __future__ import annotations
@@ -30,7 +37,14 @@ import json
 import math
 import statistics as st
 
-from pull_transactions import matrix, teams, transactions
+from pull_transactions import (
+    AmbiguousMatrix,
+    completed_games,
+    identity_net,
+    matrix,
+    teams,
+    transactions,
+)
 
 INF = math.inf
 
@@ -71,39 +85,94 @@ def brackets(game_id: int, team_names: list[str]) -> dict[int, tuple[float, floa
     return {index: (lo[index], hi[index]) for index in sorted(lo)}
 
 
-def verify(game_id: int, team_names: list[str]) -> list[str]:
-    """Reproduce every published net from the rows alone. Returns the failures."""
-    published = matrix()
+def verify(
+    game_id: int,
+    team_names: list[str],
+    table: dict[str, dict[int, float]] | None = None,
+) -> list[str]:
+    """Reproduce every published net from the rows alone. Returns the failures.
+
+    The comparison is against the `/matrix` cell **for this Game id**, resolved by
+    `pull_transactions.matrix()`. Two states are not failures and are reported as such by
+    `verify_status()` instead: the Game has no published cell (it fell out of the trailing
+    twenty-Game window), or the mapping could not be established at all. In both cases the
+    identity above is taken as the truth, because it is derived from the rows and has
+    nothing to be misindexed by.
+    """
+    published = table
+    if published is None:
+        try:
+            published = matrix()
+        except (AmbiguousMatrix, RuntimeError):
+            published = None
     failures = []
     for team in team_names:
-        rows = transactions(team, game_id)
-        income = sum(r["amount"] for r in rows if r["issuer"] == team)
-        paid = sum(
-            r["amount"] if r["accepted"] else 1.5 * r["amount"]
-            for r in rows
-            if r["reviewer"] == team
-        )
-        want = published[team][game_id - 1]
-        if abs(income - paid - want) > 0.01:
-            failures.append(f"{team} g{game_id}: got {income - paid:.2f}, published {want:.2f}")
+        got = identity_net(transactions(team, game_id), team)
+        want = None if published is None else published.get(team, {}).get(game_id)
+        if want is not None and abs(got - want) > 0.01:
+            failures.append(f"{team} g{game_id}: got {got:.2f}, published {want:.2f}")
     return failures
+
+
+def verify_status(
+    game_id: int,
+    team_names: list[str],
+    table: dict[str, dict[int, float]] | None = None,
+) -> tuple[str, list[str]]:
+    """`(status, failures)` where status is one of `ok`, `mismatch`, `no-cell`, `no-matrix`.
+
+    `ok` means every team's identity net equals its published cell for this Game -- the only
+    state in which a per-Game number is safe to score against. `mismatch` is loud on
+    purpose: it means the rows and the leaderboard disagree, so something upstream (a short
+    read, a voided Game, a settlement we do not model) is wrong and the Game is unusable.
+    """
+    published = table
+    if published is None:
+        try:
+            published = matrix()
+        except (AmbiguousMatrix, RuntimeError):
+            return "no-matrix", []
+    if not any(game_id in cells for cells in published.values()):
+        return "no-cell", []
+    failures = verify(game_id, team_names, published)
+    return ("ok" if not failures else "mismatch"), failures
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--games", default="1-14")
+    parser.add_argument(
+        "--games", default="all", help="e.g. 1-14, 16, or 'all' for every completed Game"
+    )
     parser.add_argument("--verify", action="store_true")
     parser.add_argument("--json", help="write the brackets here")
     args = parser.parse_args()
-    start, _, end = args.games.partition("-")
     team_names = teams()
+    if args.games == "all":
+        game_ids = completed_games()
+    else:
+        start, _, end = args.games.partition("-")
+        game_ids = list(range(int(start), int(end or start) + 1))
+
+    cells = None
+    if args.verify:
+        try:
+            cells = matrix()
+        except (AmbiguousMatrix, RuntimeError) as exc:
+            print(f"WARNING: /matrix unusable ({exc}); the identity is the only truth available")
 
     out: dict[str, dict[int, list[float]]] = {}
     mids: list[float] = []
-    for game_id in range(int(start), int(end or start) + 1):
+    statuses: dict[int, str] = {}
+    for game_id in game_ids:
         if args.verify:
-            failures = verify(game_id, team_names)
-            print(f"G{game_id:3d} verify: {'OK' if not failures else failures}")
+            status, failures = verify_status(game_id, team_names, cells)
+            statuses[game_id] = status
+            note = {
+                "ok": "OK (all 17 nets reproduced to the cent)",
+                "no-cell": "no published cell -- outside the 20-Game /matrix window",
+                "no-matrix": "/matrix unusable -- identity taken as truth",
+            }.get(status, f"MISMATCH {failures}")
+            print(f"G{game_id:3d} verify: {note}")
         table = brackets(game_id, team_names)
         out[str(game_id)] = {k: [v[0], v[1] if v[1] != INF else None] for k, v in table.items()}
         bounded = [(lo + hi) / 2 for lo, hi in table.values() if hi != INF]
@@ -122,6 +191,16 @@ def main() -> None:
             f"p10={q(0.1):.0f} p25={q(0.25):.0f} median={st.median(mids):.0f} "
             f"p75={q(0.75):.0f} p90={q(0.9):.0f} max={max(mids):.0f}"
         )
+    if statuses:
+        by_status: dict[str, list[int]] = collections.defaultdict(list)
+        for game_id, status in statuses.items():
+            by_status[status].append(game_id)
+        print("\nverify summary")
+        for status in ("ok", "no-cell", "no-matrix", "mismatch"):
+            if by_status[status]:
+                print(f"  {status:9s} {by_status[status]}")
+        if by_status["mismatch"]:
+            print("  ^ these Games are UNUSABLE: do not score against them")
     if args.json:
         with open(args.json, "w") as handle:
             json.dump(out, handle, indent=2)
