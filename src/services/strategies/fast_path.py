@@ -11,8 +11,8 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name, get_service_tier
 from src.data.models import CaseData, ItemPrice, Proposal
-from src.policy_quote import has_explicit_line_item_exclusion
-from src.timing import log_timing, start_timer
+from src.services.policy.quotes import has_explicit_line_item_exclusion
+from src.observability.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 # Fitted against the reconstructed Fair Values of all 192 settled Line Items in Games
@@ -43,7 +43,7 @@ FALLBACK_ESTIMATE = 150.0
 CHARGE_FACTOR = 0.7
 LIMIT_QUANTILE = 1 / 3
 DEFAULT_COVERAGE_PROBABILITY = 0.9
-LLM_TIMEOUT_SECONDS = 20.0
+LLM_TIMEOUT_SECONDS = 55.0
 GAME_DESCRIPTION_PATH = Path(__file__).resolve().parents[3] / "docs" / "GAME_DESCRIPTION.md"
 
 PROMPT = """Read the game rules and this complete insurance Case. Return structured pricing evidence for every invoice Line Item.

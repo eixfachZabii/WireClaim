@@ -5,9 +5,13 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.data.models import CaseData, LineItem
-from src.pricing import Evidence
+from src.domain.pricing.engine import Evidence
 from src.services.strategies.strategy2.blend import blend as _blend, combine as _combine
-from src.services.strategies.strategy2.constants import STRATEGY_NAME
+from src.services.strategies.strategy2.constants import (
+    LLM_TIMEOUT_SECONDS,
+    STRATEGY_NAME,
+    SUBMISSION_RESERVE_SECONDS,
+)
 from src.services.strategies.strategy2.model import parse_items
 from src.services.strategies.strategy2.prompts import (
     ENSEMBLE_PROMPTS,
@@ -298,6 +302,10 @@ class ParseItemsTests(unittest.TestCase):
 
 
 class ProposeTests(unittest.TestCase):
+    def test_strategy2_allows_a_55_second_request_window(self) -> None:
+        self.assertEqual(LLM_TIMEOUT_SECONDS, 55.0)
+        self.assertEqual(SUBMISSION_RESERVE_SECONDS, 3.0)
+
     def test_a_model_failure_still_produces_a_submission(self) -> None:
         """Submitting nothing is the most expensive thing we do: 139,904 over three Games."""
         case = case_with(LineItem(1, "Vehicle costs", quantity_missing=True))
@@ -325,7 +333,7 @@ class ProposeTests(unittest.TestCase):
 
         with patch(
             "src.services.strategies.strategy2.strategy.request_evidence", side_effect=flaky
-        ), patch("src.price_memory.lookup", return_value=None):
+        ), patch("src.domain.pricing.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertEqual(len(calls), 2)
@@ -345,7 +353,7 @@ class ProposeTests(unittest.TestCase):
         with patch(
             "src.services.strategies.strategy2.strategy.request_evidence",
             side_effect=RuntimeError("model down"),
-        ), patch("src.price_memory.lookup", return_value=None):
+        ), patch("src.domain.pricing.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertIsNotNone(proposal)

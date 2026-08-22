@@ -127,7 +127,7 @@ Games, mostly not — which is why the channels are ranked.
 ### Channel B — Price Memory, exact where it hits
 
 Settled brackets from `scripts/invert_fair_values.py`, built and measured in
-`src/price_memory.py`. **Leave-one-out** over Cases 1–14 (store built from the other
+`src/domain/pricing/memory.py`. **Leave-one-out** over Cases 1–14 (store built from the other
 thirteen each time), which is the only honest way to score it:
 
 - **Recall 22 %** of Line Items with a proven non-zero Fair Value (29 % on wording alone).
@@ -238,7 +238,7 @@ Four workstreams, disjoint files, so nothing collides on a live `main`.
 | --- | --- | --- |
 | 1 | **Deterministic layer + latency** | `src/policy_slice.py`, `src/data/case_loader.py` (dash + POS), `main.py` item-wise merge |
 | 2 | **Backtest harness** | `scripts/backtest.py`, `scripts/replay_payoffs.py` |
-| 3 | **Price Memory** | `src/price_memory.py`, `var/price_memory.json` |
+| 3 | **Price Memory** | `src/domain/pricing/memory.py`, `var/price_memory.json` |
 | 4 | **Strategy 2 engine** | `src/services/strategies/strategy2/` |
 
 Integration order: 1 lands first (it is free and stops bleeding), then 3 and 4 behind 2's
@@ -257,7 +257,7 @@ currently outranks 2**, so Strategy 3 would win even once 2 is good. Cutover:
 
 ## 7b. Two corrections from the euro-denominated sweep
 
-`scripts/tune_pricing.py` measured every constant in `src/pricing.py` against the real
+`scripts/tune_pricing.py` measured every constant in `src/domain/pricing/engine.py` against the real
 payoff table. All of them stayed, and two of the beliefs behind them did not.
 
 **1. The band is not calibrated, and `implied_sigma` does not measure what it claims.**

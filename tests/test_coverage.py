@@ -6,8 +6,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from src.data.models import CaseData, LineItem
-from src.policy_quote import is_policy_quote
-from src.services.coverage import (
+from src.services.policy.quotes import is_policy_quote
+from src.services.policy.coverage import (
     DEFAULT_P_COVERED,
     LIMIT_COLLAPSE,
     QUANTITY_MISSING_CEILING,
@@ -181,7 +181,7 @@ class PromptTests(unittest.TestCase):
         client.chat.completions.create.side_effect = lambda **kwargs: sent.append(
             kwargs["messages"][1]["content"]
         ) or MagicMock(choices=[MagicMock(message=MagicMock(content=json.dumps(_payload(_entry(1, 0.9)))))])
-        with patch("src.services.coverage.get_llm_client", return_value=client):
+        with patch("src.services.policy.coverage.get_llm_client", return_value=client):
             asyncio.run(assess_coverage(case))
         self.assertTrue(sent)
         self.assertIn("PART 3 - EXCLUSIONS", sent[0])
@@ -198,7 +198,7 @@ class AssessCoverageTests(unittest.TestCase):
 
     def test_it_returns_one_verdict_per_line_item_keeping_the_printed_numbers(self) -> None:
         client = _client([_payload(_entry(1, 0.95), _entry(3, 0.2, "clause"))])
-        with patch("src.services.coverage.get_llm_client", return_value=client):
+        with patch("src.services.policy.coverage.get_llm_client", return_value=client):
             verdicts = asyncio.run(assess_coverage(self.case))
         self.assertEqual([verdict.index for verdict in verdicts], [1, 3])
         self.assertEqual(coverage_probabilities(verdicts)[1], 0.95)
@@ -213,8 +213,8 @@ class AssessCoverageTests(unittest.TestCase):
             MagicMock(choices=[MagicMock(message=MagicMock(content=content))])
             for content in contents
         ]
-        with patch("src.services.coverage.SAMPLES", 2), patch(
-            "src.services.coverage.get_llm_client", return_value=client
+        with patch("src.services.policy.coverage.SAMPLES", 2), patch(
+            "src.services.policy.coverage.get_llm_client", return_value=client
         ):
             verdicts = asyncio.run(assess_coverage(self.case))
         self.assertEqual(client.chat.completions.create.call_count, 2)
@@ -224,14 +224,14 @@ class AssessCoverageTests(unittest.TestCase):
 
     def test_an_item_the_model_skipped_defaults_to_covered(self) -> None:
         client = _client([_payload(_entry(1, 0.1, "clause"))])
-        with patch("src.services.coverage.get_llm_client", return_value=client):
+        with patch("src.services.policy.coverage.get_llm_client", return_value=client):
             verdicts = asyncio.run(assess_coverage(self.case))
         self.assertEqual(coverage_probabilities(verdicts)[3], DEFAULT_P_COVERED)
 
     def test_a_failing_model_never_breaks_the_submission(self) -> None:
         client = MagicMock()
         client.chat.completions.create.side_effect = RuntimeError("gateway down")
-        with patch("src.services.coverage.get_llm_client", return_value=client):
+        with patch("src.services.policy.coverage.get_llm_client", return_value=client):
             verdicts = asyncio.run(assess_coverage(self.case))
         self.assertEqual(len(verdicts), 2)
         self.assertTrue(all(verdict.p_covered == DEFAULT_P_COVERED for verdict in verdicts))
@@ -242,7 +242,7 @@ class AssessCoverageTests(unittest.TestCase):
         client.chat.completions.create.return_value = MagicMock(
             choices=[MagicMock(message=MagicMock(content="not json at all"))]
         )
-        with patch("src.services.coverage.get_llm_client", return_value=client):
+        with patch("src.services.policy.coverage.get_llm_client", return_value=client):
             verdicts = asyncio.run(assess_coverage(self.case))
         self.assertTrue(all(verdict.p_covered == DEFAULT_P_COVERED for verdict in verdicts))
 
@@ -251,15 +251,15 @@ class AssessCoverageTests(unittest.TestCase):
 
     def test_an_expired_deadline_does_not_raise(self) -> None:
         client = _client([_payload(_entry(1, 0.9), _entry(3, 0.9))])
-        with patch("src.services.coverage.get_llm_client", return_value=client):
+        with patch("src.services.policy.coverage.get_llm_client", return_value=client):
             verdicts = asyncio.run(assess_coverage(self.case, deadline=0.0))
         self.assertEqual(len(verdicts), 2)
 
     def test_a_long_invoice_is_split_into_several_calls(self) -> None:
         items = tuple(LineItem(index=index, name=f"Item {index}") for index in range(1, 18))
         client = _client([_payload(*(_entry(index, 0.9) for index in range(1, 18)))])
-        with patch("src.services.coverage.SAMPLES", 1), patch(
-            "src.services.coverage.get_llm_client", return_value=client
+        with patch("src.services.policy.coverage.SAMPLES", 1), patch(
+            "src.services.policy.coverage.get_llm_client", return_value=client
         ):
             verdicts = asyncio.run(assess_coverage(_case(*items)))
         self.assertEqual(len(verdicts), 17)
