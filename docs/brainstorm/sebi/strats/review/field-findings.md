@@ -96,3 +96,44 @@ teams that charged anyway took ~400 each.
 - This is a **reading** task before it is a pricing task, which is the empirical case for
   [ADR 0001](../../adr/0001-the-model-reads-the-engine-prices.md): agents read and quote
   the clause, deterministic code prices.
+
+## Past Cases are a permanent, growing, labelled corpus
+
+A Game's decryption key never expires. Every Case we have played stays readable, so:
+
+```bash
+# in "[PUBLIC] EHL Cases/cases" -- extracts every Case whose Game has started
+for g in $(seq 0 100); do d=case_$(printf %02d $g)
+  K=$(curl -s -H "X-API-Key: $TEAM_API_KEY" \
+      "https://c2f.public.quantco.cloud/api/games/$g/key" | jq -r .decryption_key)
+  [ "$K" = null ] && break
+  7z x -y -p"$K" -o"$d" "$d.zip" >/dev/null
+done
+```
+
+Pair that with the Settlement brackets above and every Game hands us a **labelled
+training example we can keep forever**:
+
+| from decryption | from the leaderboard |
+| --- | --- |
+| policy text, damage description, Line Item wording, photo | `t` lower bound per Line Item |
+| | whether the whole Field charged 0 (⇒ almost certainly uncovered) |
+| | which Charges were Fair and which were Overcharges |
+
+**The coverage gate can therefore be trained, not just prompted.** Concretely:
+
+- **Few-shot the coverage agent from decided Line Items.** "Preventive replacement …
+  (no confirmed water contact)" with a known verdict is worth more than any amount of
+  prompt wording, and the examples cost nothing to collect.
+- **Retrieve on Line Item wording.** "Vehicle costs" has now appeared in all four Cases;
+  once its verdict is settled under a given policy type, it never has to be reasoned
+  about again. Same for "Shipping", "Installation", "Final site cleaning".
+- **Keep a held-out validation set.** Prompt and threshold changes can be scored against
+  past Cases *offline*, before they touch a live Game — the one place in this tournament
+  where we get to test a change without paying for it.
+- **The corpus compounds fastest exactly when we need it.** By the small hours we will
+  have 40+ Cases and several hundred decided Line Items, which is the phase where
+  accuracy is the only lever (README R10).
+
+Extracted Case folders are gitignored — they are derivable from the committed archive
+plus a key, so there is no reason to carry them in git.
