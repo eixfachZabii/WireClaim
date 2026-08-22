@@ -1,8 +1,11 @@
 @startuml
 ' WireClaim — how one Line Item becomes a Charge and a Limit.
 ' Source of truth: src/pricing/engine.py (price_item, charge_factor, implied_sigma),
-' src/strategies/strategy2/{channels,blend}.py (local_evidence, combine),
-' main.py (RunManager.snapshot).
+' src/strategies/strategy2/{channels,blend}.py (local_evidence, combine,
+' aggregate_class_discount), main.py (RunManager.snapshot).
+' NOT shown: Channel D (aggregate_class_discount) runs after combine, across every
+' Line Item of a Case at once, not on one item in isolation -- out of scope for a
+' single-item flow. See docs/ARCHITECTURE.md Section 5.
 !theme plain
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
@@ -19,7 +22,7 @@ start
 :LineItem(index = printed POS number,\nname, quantity, quantity_missing);
 
 if (quantity_missing?\n(invoice printed "- -")) then (yes)
-  :Channel A shortcut\np_covered := 0.0\nband := 0.5 x 59 / 59 / 2 x 59; <<#FDE68A>>
+  :Channel A shortcut\np_covered := 0.0\nband := 0.5 x 97 / 97 / 2 x 97; <<#FDE68A>>
   note right
     20 of 20 such positions in the
     settled Games had t = 0, against
@@ -64,11 +67,15 @@ fork
   end note
 fork again
   :LIMIT\nposterior(t) = (1 - p_covered) x delta(0)\n+ p_covered x Lognormal(median, sigma); <<#DCFCE7>>
-  if (p_covered <= 1/3?) then (yes)
+  if (p_covered <= 2/3?\n(COVERAGE_FLOOR = 1 - LIMIT_QUANTILE)) then (yes)
     :b = 0\nthe bottom third of the posterior\nIS the spike at zero — no special case; <<#FECACA>>
   else (no)
     :q = (1/3 - (1 - p_covered)) / p_covered\nb = median x exp(sigma x z(q));
-    :b = min(b, 0.85 x median)\nguard against a model claiming\nprecision it does not have;
+    if (memory_backed?\n(Channel B priced this item)) then (yes)
+      :b = min(b, 0.75 x median)\nLIMIT_CEILING_MEMORY — no absolute cap,\nthe estimate has been seen settle;
+    else (no)
+      :b = min(b, 0.45 x median, 708.0)\nLIMIT_CEILING + LIMIT_CAP —\nabsolute euro wall on an unchecked estimate;
+    endif
   endif
 endfork
 

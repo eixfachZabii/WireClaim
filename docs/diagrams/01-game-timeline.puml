@@ -1,11 +1,8 @@
 @startuml
 ' WireClaim — one Game on the 60-second clock.
-' Source of truth: main.py (run_game, RUN_SECONDS),
+' Source of truth: main.py (run_game, RUN_SECONDS, blind_floor),
 ' src/data/case_loader.py, src/runtime/submission_coordinator.py,
 ' src/strategies/strategy2/strategy.py, src/evidence/fraud_detection.py
-' NOTE: the T+0 blind floor this diagram once showed (blind_floor(),
-' BLIND_LINE_ITEMS) was deleted by commit 9b5ee55 and never restored --
-' see docs/ARCHITECTURE.md Section 9. Nothing is published until T+3.
 !theme plain
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
@@ -29,23 +26,27 @@ database "QuantCo API" as API
 
 Sched -> Run : start_time reached\ndeadline = loop.time() + RUN_SECONDS (60 s)
 
-== T+0 to ~T+3  load (the only blocking phase) -- nothing is published here ==
+== T+0  the blind floor publishes before anything else ==
 Run -> SC : start()  -- starts the worker only; it sends nothing until publish() is called
+Run -> SC : publish(blind_floor())  -- 40 indices at a=300.00, b=35.00, before the key fetch
+SC -> API : PUT  -- the first numbers of the Game, standing until the real Case data arrives
+
+== T+0 to ~T+3  load (the only blocking phase) ==
 Run -> Loader : load_case(game_id, deadline)
 Loader -> API : GET /api/games/{id}/key
 API --> Loader : decryption_key  (403 until start_time -> poll every 0.5 s)
 Loader -> Loader : 7z x -p<key>  ->  var/cases/case_NN/
 Loader -> Loader : pypdf parse invoices.pdf\nPOS number, quantity, quantity_missing
 Loader --> Run : CaseData
-note right of Loader #FEE2E2
-  A blind floor used to cover this window --
-  publish(blind_floor()), 40 indices at
-  a=300.00, b=35.00, before the key fetch --
-  added by b5ba5dc, deleted three hours
-  later by 9b5ee55, never restored.
+note right of Loader #FEF3C7
+  Restored by a6fd788 after Games 10-12 cost
+  139,904 submitting nothing at all -- deleted
+  by accident three hours after it first shipped
+  (9b5ee55), unnoticed for twenty Games.
   Failure here today: run_game logs
-  "no submission was sent" and exits.
-  Nothing has been sent for this Game.
+  "blind floor stands" and exits.
+  The 40 indices above are still submitted
+  for the whole Game, not (0, 0).
   See docs/ARCHITECTURE.md Section 9.
 end note
 

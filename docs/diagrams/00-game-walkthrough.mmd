@@ -1,10 +1,10 @@
 %%{init: {'theme': 'neutral'}}%%
 flowchart TD
-    Sched(["Game start_time reached"]) --> KeyFetch["poll GET /api/games/id/key every 0.5s until released"]
+    Sched(["Game start_time reached"]) --> Coord["coordinator.start() -- launches the PUT worker, sends nothing yet"]
+    Coord --> BlindFloor["publish(blind_floor()): 40 indices at (300.00, 35.00), before the key fetch"]
+    BlindFloor --> KeyFetch["poll GET /api/games/id/key every 0.5s until released"]
     KeyFetch --> Extract["7z extract: policy.txt, description.txt, invoices.pdf"]
     Extract --> Parse["parse invoice into LineItems, indexed by the printed POS number"]
-
-    Sched -.->|T+0 to ~T+3| Gap["nothing is published here today -- the blind floor that used to cover this gap was removed, see Section 9"]
 
     Parse --> Slice["slice_policy: keep PART 3, 4, 5, 7, 11 only, verbatim text"]
     Parse -.->|concurrent from T+3| FraudDet["src/evidence/fraud_detection.py: coverage detector"]
@@ -21,9 +21,10 @@ flowchart TD
         ChanA --> Combine["combine -- inverse-variance blend of Channel C with Channel B"]
         ChanB --> Combine
         Blend --> Combine
+        Combine --> ChanD["Channel D: aggregate_class_discount -- shared sub-limit, only the dearest keeps cover"]
     end
 
-    Combine --> EvidenceOut(["Evidence: coverage probability, price band, quoted clause"])
+    ChanD --> EvidenceOut(["Evidence: coverage probability, price band, quoted clause"])
 
     subgraph PR["src/pricing/engine.py -- the only module that decides a scored number"]
         direction TB
@@ -37,7 +38,7 @@ flowchart TD
 
     classDef evidence fill:#eef2ff,stroke:#4338ca,color:#1e1b4b
     classDef pricing fill:#ecfdf5,stroke:#047857,color:#022c22
-    classDef warning fill:#fef2f2,stroke:#b91c1c,color:#7f1d1d,stroke-dasharray: 4 3
-    class ChanA,ChanB,ChanC1,ChanC2,Blend,Combine evidence
+    classDef floor fill:#fffbeb,stroke:#b45309,color:#78350f
+    class ChanA,ChanB,ChanC1,ChanC2,Blend,Combine,ChanD evidence
     class Price,ChargeLimit pricing
-    class Gap warning
+    class BlindFloor floor
