@@ -1,4 +1,4 @@
-# Act now — current through Game 6
+# Act now — current through Game 7
 
 **Black-box findings.** Every number is inverted from settled Games — nobody needs to read
 the runner to act on these, and they hold whatever generates the numbers. Ordered by
@@ -7,12 +7,38 @@ recommendation, that is marked ⚠️ rather than deleted.
 
 ## Where we are
 
-| Game | 1 | 2 | 3 | 4 | 5 | 6 | total |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| net | 13,502 | 722 | 0 | 3,520 | **−10,604** | **−3,940** | **3,199** |
-| costs from *accepting* | — | — | — | 60 % | **99 %** | **0 %** | |
+| Game | 1 | 2 | 3 | 4 | 5 | 6 | 7 | total |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| net | 13,502 | 722 | 0 | 3,520 | **−10,604** | **−3,940** | **−33,568** | **−30,369** |
+| costs from *accepting* | — | — | — | 60 % | **99 %** | **0 %** | **100 %** | |
 
-5th of 17. Two losing Games in a row, by **opposite** failures.
+**12th of 17.** Three losing Games in a row. Leader `error404 ai` is at **+85,197**.
+
+---
+
+## 0. 🔴 We are submitting `a = 0, b = ∞`. Fix this before reading further.
+
+Game 7: **income 0, costs 33,568, every cent from accepting, zero rejections.**
+
+| item | true `t` | our Charge | we paid up to |
+| ---: | --- | ---: | ---: |
+| 1 | `[1232, 1756)` | **0.00** | **3,500** |
+| 2 | `< 683` | **0.00** | **2,000** |
+| 4 | `< 323` | **0.00** | **765** |
+
+This is **worse than going dark** — the default `(0, 0)` at least rejects fraud. "Act as
+if no fraud" has been implemented as "accept everything". It does not mean that: it means
+*assume the item is covered, price it normally, and set the Limit to the bottom third of
+that price.*
+
+**Two clamps, in deterministic code, ignoring whatever any model returns:**
+
+```
+b = clamp(b, 0, t_hat)      # never above our own estimate. NEVER unbounded.
+a = max(a, FALLBACK)        # never 0. FALLBACK ~150, fitted from settled Games.
+```
+
+Roughly four lines. Worth more than everything below.
 
 ---
 
@@ -152,3 +178,22 @@ analyser reading only our own rows will produce confidently wrong brackets.
 - **Submit late, and twice.** `PUT` is last-write-wins: cheap early, considered at ~T+50 s.
 - **After each Settlement, re-run the analyser** and watch two numbers: accept-share of
   costs (target < 40 %) and `t/a` on covered items (target 0.8–1.0).
+
+
+## 11. A suspicious detail in the description is not an exclusion — only a quoted clause is
+
+Case 7 plants a red herring. The description says the kitchen air-conditioning unit is
+*"a couple of metres from the hob"* and pointedly adds that the living-room unit is
+*"well clear of any cooking appliances"*. It reads like an exclusion. The policy says the
+opposite, in terms:
+
+> "Conversely, an affected item does **not** fall outside the cover because of the room it
+> serves, its position in that room, **its proximity to another appliance or fitting**, or
+> the fact that it forms one of several installations of the same kind in the building."
+
+Both units are fully covered, and both were "replaced like-for-like" — which is the
+pre-loss standard, so not even a betterment haircut applies.
+
+**Rule:** the fraud gate may only downgrade an item on a clause it can **quote from
+`policy.txt`**. Suspicion sourced from the damage description is not evidence — in this
+Case it is bait, planted to make us under-price a fully covered item.
