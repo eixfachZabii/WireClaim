@@ -438,6 +438,27 @@ Minimal Python setup for the QuantCo Claim to Fame challenge.
 
 Submission is intentionally not implemented yet.
 
+## For anyone benchmarking this (the learning-loop record)
+
+Four directories under `var/` are committed. Together they say, per settled Game, what we
+estimated and why, what actually happened, and what the model literally replied:
+
+| path | one row per | what it carries |
+| --- | --- | --- |
+| `var/decisions/game_NNN.json` | Line Item | our `t̂`, the price band, coverage probability, which channels spoke, the pricing rule, the submitted Charge and Limit |
+| `var/lessons/game_NNN.json` | Game | the four-bucket money decomposition, the recovered Fair Value bracket per item, stage attribution, and what every strategy would have scored |
+| `var/reviews/game_NNN.md` | Game | the automated review of that Game's digest, with the Policy clause quoted |
+| `var/ai_log/game_NNN_<draw>.json` | model call | the raw reply, the model, the service tier and the wall clock |
+
+The ground truth to score against is **exact, not estimated**: `scripts/invert_fair_values.py`
+recovers a `[t_lo, t_hi)` bracket for every settled Line Item from public Transactions, and
+`--verify` asserts it reproduces every published net to the cent.
+
+Two things deliberately **not** committed. `var/transactions/` is 35 MB of cached *public*
+leaderboard rows — regenerate with `scripts/pull_transactions.py`. `var/cases/` is decrypted
+Case material; it is derivable from the archives plus a released key and is not ours to
+publish.
+
 ## Setup
 
 ```bash
