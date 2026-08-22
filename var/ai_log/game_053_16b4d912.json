@@ -1,0 +1,10 @@
+{
+ "game_id": 53,
+ "draw": "16b4d912",
+ "model": "gpt-5.6-terra",
+ "service_tier": "priority",
+ "elapsed_seconds": 9.9,
+ "recorded_at": 1787443004.935005,
+ "reply_characters": 1073,
+ "reply": "{\"items\":[{\"line_item\":1,\"coverage_probability\":0.82,\"price_low\":3500.0,\"price_median\":7000.0,\"price_high\":14000.0,\"clause\":\"The insurer reimburses: (a) for taken, destroyed or lost items - the insurable value under Part 6 at the time of the insured event;\"},{\"line_item\":2,\"coverage_probability\":0.0,\"price_low\":120.0,\"price_median\":280.0,\"price_high\":550.0,\"clause\":\"Outlay directed at the cause, the extent or the substantiation of the loss, or at rendering the supporting documents usable for the purposes of the claim, is not an indemnifiable head of loss under this contract. This applies in particular to the obtaining, copying, certifying, notarising, authenticating, legalising, transcribing, summarising, translating into or out of any language, interpreting, formatting, forwarding or filing of reports, statements, records, receipts, valuations and comparable documents, however necessary those steps may be for the claim to be assessed, whoever performs them, and whether they are charged as a service, as a working material, as a disbursement or as a fee.\"}]}"
+}

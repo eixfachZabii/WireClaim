@@ -1,0 +1,10 @@
+{
+ "game_id": 53,
+ "draw": "a7172e93",
+ "model": "gpt-5.6-terra",
+ "service_tier": "priority",
+ "elapsed_seconds": 8.88,
+ "recorded_at": 1787443003.914138,
+ "reply_characters": 1190,
+ "reply": "{\"items\":[{\"line_item\":1,\"coverage_probability\":0.02,\"price_low\":2000.0,\"price_median\":5000.0,\"price_high\":12000.0,\"clause\":\"Where that itemisation is not provided for an item, or where it does not demonstrate that the item was affected by the insured event itself, the item is not indemnified, however plausible its inclusion in the claim may appear from the other items.\"},{\"line_item\":2,\"coverage_probability\":0.01,\"price_low\":120.0,\"price_median\":240.0,\"price_high\":450.0,\"clause\":\"Outlay directed at the cause, the extent or the substantiation of the loss, or at rendering the supporting documents usable for the purposes of the claim, is not an indemnifiable head of loss under this contract. This applies in particular to the obtaining, copying, certifying, notarising, authenticating, legalising, transcribing, summarising, translating into or out of any language, interpreting, formatting, forwarding or filing of reports, statements, records, receipts, valuations and comparable documents, however necessary those steps may be for the claim to be assessed, whoever performs them, and whether they are charged as a service, as a working material, as a disbursement or as a fee.\"}]}"
+}
