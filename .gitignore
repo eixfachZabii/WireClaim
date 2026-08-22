@@ -1,0 +1,17 @@
+.DS_Store
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Runtime state and decrypted case material must stay local.
+var/*
+!var/cases/
+var/cases/*
+!var/cases/.gitkeep
+
