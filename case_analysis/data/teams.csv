@@ -679,3 +679,20 @@ game,rank,team,net,med_a_over_t,med_b_over_t,inc_fair,inc_over,inc_penalty,paid_
 40,15,OPUSMOPUS,-29174.62,1.631,1.869,1365.54,14337.72,5917.34,16964.31,15313.53,lost money (biggest leak: accepted Overcharges)
 40,16,Oasis,-43772.37,,0.227,0.0,0.0,0.0,0.0,43772.37,lost money (biggest leak: lawyer fees)
 40,17,makalu,-43772.37,,0.227,0.0,0.0,0.0,0.0,43772.37,lost money (biggest leak: lawyer fees)
+41,1,OPUSMOPUS,107294.18,5.92,1.0,11130.9,23.68,166963.5,0.0,70823.9,won via 1.5a penalties from strict reviewers
+41,2,eyay,99167.64,9.435,1.0,9585.22,131.18,143778.3,0.0,16696.35,won via 1.5a penalties from strict reviewers
+41,3,Nullpointer Naan,87364.25,0.77,1.0,8571.24,0.0,128568.6,0.0,0.0,won via 1.5a penalties from strict reviewers + tight Limit (no lawyer fees)
+41,4,error404 ai,69730.46,11.835,1.0,17819.92,43.4,124739.44,0.0,70306.27,won via 1.5a penalties from strict reviewers
+41,5,TakeTheMoneyAndRun,29814.26,2.0,2.406,13406.0,32.0,93842.0,0.0,77465.74,won via 1.5a penalties from strict reviewers
+41,6,AsianSuperNerds,-1561.75,8.1,1.0,9541.26,47.7,66788.82,0.0,73090.01,lost money (biggest leak: lawyer fees)
+41,7,Bin busy,-20423.49,3.862,1.0,7652.7,99.63,53568.9,0.0,81672.72,lost money (biggest leak: lawyer fees)
+41,8,Teamers,-46240.81,35.103,1.0,9134.04,35.0,27402.12,0.0,80245.95,lost money (biggest leak: lawyer fees)
+41,9,harissa eagles,-63590.15,1.912,1.0,7975.44,50.0,13292.4,0.0,83671.21,lost money (biggest leak: lawyer fees)
+41,10,Oasis,-67808.47,0.105,9.863,8153.46,0.0,10483.02,707.87,85665.07,lost money (biggest leak: lawyer fees)
+41,11,Codacabana,-84948.92,10.135,1.0,0.0,146.56,0.0,0.0,80245.95,lost money (biggest leak: lawyer fees)
+41,12,Trust Nobody,-86188.24,2.67,1.0,648.0,72.0,504.0,0.0,87412.24,lost money (biggest leak: lawyer fees)
+41,13,TBD,-87493.52,16.25,1.0,0.0,26.72,0.0,0.0,87520.24,lost money (biggest leak: lawyer fees)
+41,14,Alpha,-87520.24,,1.0,0.0,0.0,0.0,0.0,87520.24,lost money (biggest leak: lawyer fees)
+41,15,Claims Renaissance,-87520.24,,1.0,0.0,0.0,0.0,0.0,87520.24,lost money (biggest leak: lawyer fees)
+41,16,Non Deterministic,-87520.24,,1.0,0.0,0.0,0.0,0.0,87520.24,lost money (biggest leak: lawyer fees)
+41,17,makalu,-87520.24,,1.0,0.0,0.0,0.0,0.0,87520.24,lost money (biggest leak: lawyer fees)
