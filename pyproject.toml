@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Scheduled ingestion and processing scaffold for EHL Claim to Fame cases"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["requests>=2.31,<3"]
+dependencies = []
 
 [project.scripts]
 wireclaim = "wireclaim.cli:main"
@@ -24,4 +24,3 @@ pythonpath = ["src"]
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-

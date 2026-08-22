@@ -1,17 +1,34 @@
-.DS_Store
-.env
-.venv/
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-.pytest_cache/
-.ruff_cache/
-*.egg-info/
+*$py.class
+
+# Distribution / packaging
 build/
 dist/
+*.egg-info/
+
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.ruff_cache/
+
+# Other
+.DS_Store
 
 # Runtime state and decrypted case material must stay local.
 var/*
 !var/cases/
 var/cases/*
 !var/cases/.gitkeep
-

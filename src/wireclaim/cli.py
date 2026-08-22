@@ -73,7 +73,11 @@ def _doctor(settings: Settings) -> int:
     archives = sorted(settings.archive_dir.glob("case_*.zip"))
     seven_zip = shutil.which(settings.seven_zip_executable)
     checks = [
-        ("TEAM_API_KEY", bool(settings.team_api_key), "configured"),
+        (
+            "TEAM_API_KEY",
+            bool(settings.team_api_key),
+            "configured" if settings.team_api_key else "not set",
+        ),
         (
             "archive directory",
             settings.archive_dir.is_dir(),
@@ -178,4 +182,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

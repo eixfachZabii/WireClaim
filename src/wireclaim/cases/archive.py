@@ -169,6 +169,8 @@ class ArchiveExtractor:
                 raise ExtractionError(
                     f"archive member is not AES encrypted: {info.filename!r}"
                 )
+            if path.as_posix() in names:
+                raise ExtractionError(f"duplicate archive member: {info.filename!r}")
             names.add(path.as_posix())
 
         missing = REQUIRED_FILES - names
@@ -213,12 +215,16 @@ class ArchiveExtractor:
             files = manifest.get("files")
             if not isinstance(files, list) or not files:
                 return None
+            declared_paths: set[str] = set()
             for item in files:
                 if not isinstance(item, dict) or not isinstance(item.get("path"), str):
                     return None
                 relative = PurePosixPath(item["path"])
                 if relative.is_absolute() or ".." in relative.parts:
                     return None
+                if relative.as_posix() in declared_paths:
+                    return None
+                declared_paths.add(relative.as_posix())
                 path = case_dir.joinpath(*relative.parts)
                 if not path.is_file() or path.is_symlink():
                     return None
@@ -226,6 +232,13 @@ class ArchiveExtractor:
                     return None
                 if sha256_file(path) != item.get("sha256"):
                     return None
+            actual_paths = {
+                path.relative_to(case_dir).as_posix()
+                for path in input_dir.rglob("*")
+                if path.is_file()
+            }
+            if actual_paths != declared_paths:
+                return None
             return self._case_from_directory(game_id, case_dir)
         except (OSError, ValueError, TypeError):
             return None
@@ -256,4 +269,3 @@ class ArchiveExtractor:
             invoices_path=required["invoices.pdf"],
             image_paths=images,
         )
-
