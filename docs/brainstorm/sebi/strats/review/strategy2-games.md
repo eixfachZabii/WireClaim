@@ -12,18 +12,24 @@ PYTHONPATH=. pixi run python scripts/analyse_game.py --games 8-8  --names       
 
 **Self-check.** The three realised mechanisms (income collected, cash paid on accepted
 claims, cash paid as `1.5a` penalties) reproduce the published net **to the cent in every
-Game analysed** — `max |residual| = 0.00` over Games 8–15, 17–24. Nothing below is netted
-or smoothed. ~~**Game 16 is excluded**: its rows do not reconstruct.~~ **Corrected — Game 16 was never
-broken.** −4,721 *is* Game 16's true net and −63,789 is **Game 17's**; the mismatch came from
-reading `matrix()[us][game_id - 1]` against the sliding window described below, and the wrong
-figure was then frozen into a cached snapshot. Case 16 genuinely has 2 Line Items. All 24
-completed Games reconstruct to the cent, so nothing needs excluding.
+Game the leaderboard still publishes** — `max |residual| = 0.00` across all 19 of them
+(Games 6–25; the window has already dropped 1–5). Nothing below is netted or smoothed.
+
+~~**Game 16 is excluded**: its rows do not reconstruct.~~ **Corrected — Game 16 was never
+broken.** −4,721.32 *is* Game 16's true net and −63,789.25 is **Game 17's**; the mismatch came
+from reading `matrix()[us][game_id - 1]` against the sliding window described below, and the
+wrong figure was then frozen into a cached snapshot. Case 16 genuinely has 2 Line Items.
+Verified independently here: `--games 16-16` closes at −0.00. `BROKEN_GAMES` in
+`analyse_game.py` is therefore **empty**, with the reasoning recorded next to it — a Game is
+only excluded when there is a residual to show for it.
 
 **Two traps handled, not avoided.** The `/matrix` `cells` array is a **sliding window over
-the last twenty Games**, aligned with the `game_ids` array in the same payload (currently
-`[4 … 24]`), *not* indexed by game id. `published_nets()` zips the two, which is why the
-cross-check against the leaderboard lands at 0.00 rather than being off by three. And
-`transactions()` pages to the end — a 352-row Game reads as a 100-row Game otherwise.
+the last twenty Games**, aligned with the `game_ids` array in the same payload (it moved from
+`[4 … 23]` to `[6 … 25]` while this was being written), *not* indexed by game id.
+`published_nets()` zips the two, which is why the cross-check lands at 0.00 instead of being
+off by three — and why every net here is derived from Transactions with the matrix only as a
+cross-check. And `transactions()` pages to the end: a 480-row Game reads as a 100-row Game
+otherwise.
 
 ---
 
