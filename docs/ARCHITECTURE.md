@@ -235,4 +235,20 @@ Recorded rather than fixed; each is a real decision, not an oversight.
    evidence field records that it did, so neither is verifiable or measurable after the
    fact.
 5. **`strategy2` remains the open slot.** Priority 2, currently returns `None`. Strategy 3
-   is a Strategy-1-equivalent Gemini comparison track at priority 3.
+   is a Strategy-1-equivalent Luna comparison track at priority 3.
+
+---
+
+## Service tier smoke test
+
+`fast_path`, `strategy1`, and `strategy3` pass the resolved OpenAI service tier to their
+Responses requests. The default is `fast`; set `AZURE_OPENAI_SERVICE_TIER=priority` to use
+the tested priority tier instead. Verify a deployment without touching the tournament API:
+
+```bash
+pixi run python scripts/test_service_tier.py --tier fast
+pixi run python scripts/test_service_tier.py --tier priority --model gpt-5.6-terra
+```
+
+The script tests both Chat Completions and Responses. It prints only model, route, tier,
+latency, and API errors; it never prints credentials or sends a Game submission.
