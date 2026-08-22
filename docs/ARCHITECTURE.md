@@ -20,8 +20,8 @@
 ## Contents
 
 1. [What this system does](#1-what-this-system-does)
-2. [The economics that dictate the design](#2-the-economics-that-dictate-the-design)
-3. [One Game, second by second](#3-one-game-second-by-second)
+2. [One Game, front to back](#2-one-game-front-to-back)
+3. [The economics that dictate the design](#3-the-economics-that-dictate-the-design)
 4. [How a Charge and a Limit are decided](#4-how-a-charge-and-a-limit-are-decided)
 5. [The three estimation channels](#5-the-three-estimation-channels)
 6. [The coverage detector contract](#6-the-coverage-detector-contract)
@@ -46,14 +46,275 @@ sixteen times from each side, unattended, a hundred times over a weekend.
 
 ---
 
-## 2. The economics that dictate the design
+## 2. One Game, front to back
+
+This section is the whole pipeline, once, in order: key fetch, Case load, Policy slice, the
+three evidence channels, blend, combine, `price_item`, a Charge and a Limit, the two-phase
+Submission, and the decision log. Everything after this section goes deeper on one piece of
+it; nothing here is the last word on any of them.
+
+```mermaid
+%%{init: {'theme': 'neutral'}}%%
+flowchart TD
+    Sched(["Game start_time reached"]) --> KeyFetch["poll GET /api/games/id/key every 0.5s until released"]
+    KeyFetch --> Extract["7z extract: policy.txt, description.txt, invoices.pdf"]
+    Extract --> Parse["parse invoice into LineItems, indexed by the printed POS number"]
+
+    Sched -.->|T+0 to ~T+3| Gap["nothing is published here today -- the blind floor that used to cover this gap was removed, see Section 9"]
+
+    Parse --> Slice["slice_policy: keep PART 3, 4, 5, 7, 11 only, verbatim text"]
+    Parse -.->|concurrent from T+3| FraudDet["src/evidence/fraud_detection.py: coverage detector"]
+    FraudDet -.->|zeroes b only| Snapshot
+
+    subgraph EV["src/evidence -- agents read a Case, emit Evidence, never a number"]
+        direction TB
+        Parse --> ChanA["Channel A: quantity_missing means worthless -- free, exact"]
+        Parse --> ChanB["Channel B: Price Memory lookup, settled Fair Values"]
+        Slice --> ChanC1["Channel C: model call, framing 1"]
+        Slice --> ChanC2["Channel C: model call, framing 2, concurrent"]
+        ChanC1 --> Blend["blend -- average the two draws in log space, widen on disagreement"]
+        ChanC2 --> Blend
+        ChanA --> Combine["combine -- inverse-variance blend of Channel C with Channel B"]
+        ChanB --> Combine
+        Blend --> Combine
+    end
+
+    Combine --> EvidenceOut(["Evidence: coverage probability, price band, quoted clause"])
+
+    subgraph PR["src/pricing/engine.py -- the only module that decides a scored number"]
+        direction TB
+        EvidenceOut --> Price["price_item -- lognormal posterior, coverage as mass at zero"]
+        Price --> ChargeLimit(["Charge a and Limit b, per Line Item"])
+    end
+
+    ChargeLimit --> Snapshot["RunManager.snapshot -- overlay by index over the standard layer and fast path"]
+    Snapshot --> Submit["PUT submissions -- upsert, republished on every changed snapshot"]
+    Submit --> Log["record GameDecisions -> var/decisions/game_NNN.json"]
+
+    classDef evidence fill:#eef2ff,stroke:#4338ca,color:#1e1b4b
+    classDef pricing fill:#ecfdf5,stroke:#047857,color:#022c22
+    classDef warning fill:#fef2f2,stroke:#b91c1c,color:#7f1d1d,stroke-dasharray: 4 3
+    class ChanA,ChanB,ChanC1,ChanC2,Blend,Combine evidence
+    class Price,ChargeLimit pricing
+    class Gap warning
+```
+
+**Reading the diagram.** Solid arrows are the main line; dotted arrows are things that run
+alongside it rather than on it — the coverage detector, which only ever *removes* by zeroing
+a Limit, and the red dashed box, which is not a step at all but a gap: nothing is published
+between the Game starting and the Case finishing its load. It is drawn in, in red, rather
+than omitted, because a diagram of "the real mechanism" that quietly leaves out the mechanism
+that is currently missing would be worse than no diagram. The two tinted boxes are
+[ADR 0001](brainstorm/sebi/adr/0001-the-model-reads-the-engine-prices.md)'s whole argument
+drawn as a boundary: everything indigo reads the Case and can only produce `Evidence`; the
+one green box is the only place in the repo allowed to turn that evidence into a number we
+are scored on.
+
+### T+0 — nothing is published yet, and that is new
+
+`run_game` starts the [`SubmissionCoordinator`](../src/runtime/submission_coordinator.py) at
+T+0, but starting it only launches its background worker — nothing is actually sent until
+something calls `.publish(...)`, and today nothing does until the Case has loaded. **This
+document used to say otherwise, and until this rewrite it still did**, because a `blind_floor()`
+mechanism that closed exactly this gap was deleted from `main.py` without this file being
+told. [§9](#9-legacy-and-known-weaknesses) has the full account; the short version:
+
+Games 11 and 12 submitted nothing at all and scored −36,017 and −43,381 — identical to a team
+that never showed up, because `(0, 0)` is a bleed, not a neutral result: charging nothing
+forfeits all income, and a Limit of zero wrongfully rejects every fair claim in the field at
+`1.5a` each. Together with Game 10 that failure mode cost 139,904
+(`docs/brainstorm/sebi/strats/review/live-changelog.md`). Commit `b5ba5dc` fixed it for Games
+13 onward: publish `BLIND_LINE_ITEMS = 40` indices at `(300.00, 35.00)` immediately, before
+the key fetch even starts, so a Case-load failure still leaves 40 plausible numbers standing.
+Forty was chosen because the Line Item count is unknowable before the Case loads, and settled
+Games 1–14 carried at most 39.
+
+Three hours later the same day, commit `9b5ee55` ("Keep submissions observable through
+strategy deadlines") deleted `blind_floor()`, `BLIND_LINE_ITEMS`, and the
+`coordinator.publish(blind_floor())` call along with them, and changed the failure-path log
+line from `"blind floor stands"` to the now-accurate `"no submission was sent"`. Nothing else
+about that commit's message mentions the removal, and neither this document nor
+`live-changelog.md` — which still records `blind_floor()` "publishes before the Case loads"
+at Games 13–16 — was ever updated to match. **As shipped today, a Case-load failure submits
+nothing for that Game, not 40 plausible numbers**, which is exactly the failure mode Games
+10–12 cost 139,904 to teach us to close.
+
+### T+0 to ~T+3 — key, archive, invoice
+
+[`case_loader.load_case`](../src/data/case_loader.py) does three things in sequence, all
+deadline-bounded:
+
+1. `GET /api/games/{id}/key`. Before `start_time` the endpoint returns `403`, so
+   `get_released_key` polls every 0.5 s until it succeeds or the deadline passes. This is
+   the only network round-trip we cannot remove — all 100 archives are already committed to
+   the repo, so nothing else has to be downloaded at T+0.
+2. `7z x -p<key>` into `var/cases/case_NN/`, giving `policy.txt`, `description.txt`,
+   `invoices.pdf` and any images.
+3. `read_invoice_line_items` extracts the PDF text with `pypdf` and `parse_invoice_text`
+   turns it into `LineItem`s. Two details there are load-bearing rather than cosmetic. The
+   **index is the printed POS number**, taken verbatim from the invoice, including gaps —
+   Case 11's invoice has no POS 12 and the settled Game correspondingly has indices 1–11 and
+   13–23, so renumbering by row ordinal would misalign every Transaction. And a position
+   whose quantity and unit columns contain only dashes is recorded as
+   `quantity_missing=True` instead of collapsing into `quantity = 1.0`, because that dash is
+   the single strongest free signal in the Case — Channel A, below.
+
+**If this fails:** `run_game` catches it, logs *"no submission was sent"*, waits for the
+coordinator to drain and exits — accurately, because nothing has been published yet (see
+above). If the load succeeds but only *after* the deadline, the run is abandoned without
+submitting — the coordinator refuses to `PUT` past the deadline.
+
+### T+3 — the deterministic layer publishes
+
+The moment `CaseData` exists, `RunManager` is constructed around `standard_values(case)` —
+the same flat `(300.00, 35.00)` per Line Item, now on the *real* index set — and the first
+`PUT` of the Game goes out, with `reason="case_loaded"`. Every subsequent submission from
+here on is a refinement of this one, not a replacement of an earlier blind one — there is no
+earlier one.
+
+`RunManager` refuses to be constructed with an empty standard Proposal. That is the
+mechanical guarantee behind [invariant 1](#7-invariants): there is never a moment after the
+Case loads at which some Line Item has no number.
+
+### T+3 to ~T+50 — evidence, then price
+
+[`strategy2.propose`](../src/strategies/strategy2/strategy.py) runs, dispatched through
+[`StrategyRouter`](../src/strategies/router.py), and does exactly what
+[ADR 0001](brainstorm/sebi/adr/0001-the-model-reads-the-engine-prices.md) asks, in one
+function: gather evidence, then price it. Nothing before `price_item` is allowed to compute
+a Charge or a Limit.
+
+**Channels A and B, free and instant.**
+[`channels.local_evidence`](../src/strategies/strategy2/channels.py) walks every Line Item
+before any network call: a position whose quantity and unit print as a dash is Channel A's —
+`worthless_evidence`, priced as `t = 0` — and everything else gets a Channel B lookup against
+[Price Memory](../src/evidence/memory.py), the Fair Values reconstructed from settled Games.
+Both cost nothing and both finish before the model is even asked.
+
+**Channel C, the model, in two framings at once.**
+[`model.request_evidence`](../src/strategies/strategy2/model.py) makes **one whole-Case call
+per framing** — not one call per Line Item, so the model sees neighbouring positions and can
+notice duplicates, an inflated quantity, or a sub-limit that applies across several lines —
+against a **sliced** Policy.
+[`policy_slice.slice_policy`](../src/evidence/policy/slice.py) keeps only `PART 3`
+(exclusions), `4` (insured property), `5` (insured costs), `7` (calculation of the indemnity)
+and `11` (the claim-specific loss description), about 41 % of a 35k–65k-character document,
+**verbatim** — never reflowed, never whitespace-normalised — because downstream code checks
+that a quoted clause is a character-exact substring of the Policy. It fails *open*: no
+recognisable `PART` headers, or a slice under `MIN_SLICE_CHARS = 2000`, returns the full text
+rather than blinding the estimator. It replaced a ~20-second blocking LLM "policy digest"
+with zero latency, which is where most of the room for two model calls came from. Both
+framings run concurrently, so the wall clock is one call, not two; each is capped at
+`min(LLM_TIMEOUT_SECONDS = 55 s, deadline − now − SUBMISSION_RESERVE_SECONDS = 3 s)`, so a
+draw can never eat the three seconds the final `PUT` needs.
+
+**Blend, then combine — two different merges that answer two different questions.**
+[`blend.blend`](../src/strategies/strategy2/blend.py) merges the **ensemble**: the same Case
+read twice, in two framings, averaged in log space and widened wherever the two draws
+disagree, rather than trusting whichever band the model happened to assert. Then
+[`blend.combine`](../src/strategies/strategy2/blend.py) merges the **channels**: that blended
+Channel C reading against Channel B's memory anchor, two genuinely independent estimates of
+the same quantity, inverse-variance-weighted in log space — narrowing the band, which pushes
+both the Charge and the Limit up toward the estimate. Channel A never enters this blend: an
+item Channel A already priced at zero is confirmed uncovered and passed straight through.
+
+**Then, and only then, price it.** The merged `Evidence` — one coverage probability, one
+price band, one quoted clause — goes to [`price_item`](../src/pricing/engine.py), the one
+function in the repo allowed to compute a Charge and a Limit; [§4](#4-how-a-charge-and-a-limit-are-decided)
+has the exact arithmetic. `build_proposal` records one `ItemDecision` per Line Item as it
+goes — which channels spoke, what evidence was priced, what came out — and once every Line
+Item has a price, [`decisions.record`](../src/runtime/decisions.py) writes the whole Game to
+`var/decisions/game_NNN.json`. That file is what `pixi run learn` reads once the Game
+settles, to name *which stage* was wrong rather than only how much was lost.
+
+**If this fails** — timeout, malformed JSON, no `items` list, an API error, on either
+framing — the exception is caught and logged at warning level, and `build_proposal` runs
+anyway on Channels A and B alone. A model failure downgrades the numbers; it does not
+forfeit the Game.
+
+### The outer merge — per Line Item, on every event
+
+A different merge from blend/combine above: this one runs once per *Proposal*, across the
+whole layer stack, not once per `Evidence`. Each producer result is pushed onto an
+`asyncio.Queue` as a `RunEvent`; the main loop pops events until the deadline and recomputes
+`RunManager.snapshot()` after each one. `snapshot()` is a pure function of four pieces of
+state, recomputed from scratch every time:
+
+| # | Layer      | Source                | Contributes                                      |
+| - | ---------- | --------------------- | ------------------------------------------------ |
+| 1 | standard   | `standard_values`     | `(300.00, 35.00)` on every real Line Item        |
+| 2 | fast path  | `fast_path_llm`       | overlays layer 1 **by index** (legacy — see §9)  |
+| 3 | strategy   | router winner         | overlays layers 1–2 **by index**                 |
+| 4 | coverage   | `FraudDecision`       | a *mask*: writes `b := 0` on flagged indices     |
+
+The overlay is per Line Item, not per Case: a Proposal that only prices indices 3 and 7
+improves exactly those two and leaves the rest of the snapshot alone. Higher layers may only
+write indices that layer 1 already knows (`snapshot()` filters on `valid_indices`), so a
+model that hallucinates a Line Item 99 cannot inject one.
+
+Priorities live in [`router.py`](../src/strategies/router.py):
+`STRATEGY_PRIORITIES = {"strategy1": 1, "strategy3": 2, "strategy2": 3}`. `register()`
+rejects any proposal whose priority is below the incumbent's, so completion order does not
+matter — Strategy 2 wins whenever it produces anything, because it is the only estimator
+whose constants are fitted to reconstructed Fair Values and the only one that cannot return
+nothing.
+
+### T+50 to T+60 — the coverage mask and the final PUT
+
+[`fraud_detection.detect_fraud`](../src/evidence/fraud_detection.py) has been running
+concurrently since T+3, one 15-second model call per Line Item, all fired at once. Its
+verdicts arrive as a `FraudDecision`, and applying it zeroes the Limit on the flagged
+indices — and only the Limit. `a` is never touched, for the reason in
+[§4](#4-how-a-charge-and-a-limit-are-decided).
+
+Every changed snapshot is republished. `SubmissionCoordinator` computes a **signature** —
+the sorted `(index, charge, limit)` tuple — and skips both a publish identical to the
+pending one and a submit identical to the last one actually sent, so an unchanged snapshot
+costs no request. A failed submit is logged and the signature is *not* recorded as
+submitted, so the next event naturally retries it. At the deadline `close()` cancels the
+worker; nothing is sent afterwards.
+
+**If the coverage detector fails:** individual item failures are logged and skipped; the
+whole gather is wrapped so one exception cannot take the rest down. If the gate flags more
+than `max(2, 0.35 × line_items)` positions, the entire verdict is discarded — see
+[§6](#6-the-coverage-detector-contract).
+
+### After T+60
+
+The Game settles a minute or two later, its Transactions become public, and
+`scripts/learn_from_game.py` joins them against the decision log this Game just wrote to say
+which stage was wrong — see [§8](#8-how-we-measure-ourselves). Nothing above this line knows
+that will happen; the decision log is written unconditionally, whether or not anyone ever
+reads it.
+
+### The same walkthrough, two other ways
+
+The diagram at the top of this section is deliberately the simple version. Two more diagrams
+go deeper on pieces of it:
+
+![One Game on the 60-second timeline](diagrams/01-game-timeline.svg)
+
+This is the same walkthrough as a sequence diagram — every actor, every API call, every
+failure path, laid out over the actual wall clock rather than as a pipeline shape.
+
+![Modules and what depends on what](diagrams/03-components.svg)
+
+And this is the static shape behind all of it: which `src/` package imports which, with the
+same evidence/pricing boundary as the flowchart above, now as a dependency graph rather than
+a run of one Game. `src/evidence/`, `src/pricing/`, `src/strategies/`, `src/legacy/` and
+`src/runtime/` are current as of this document; see [§9](#9-legacy-and-known-weaknesses) for
+what changed and why.
+
+---
+
+## 3. The economics that dictate the design
 
 Everything in this repo is downstream of one table. From
 [`GAME_DESCRIPTION.md`](GAME_DESCRIPTION.md) (`H` is the issuing handyman, `I` the
 reviewing insurer, accept means `a ≤ b`):
 
 |                            | `a ≤ t` — the price is fair       | `a > t` — the price is fraudulent          |
-| -------------------------- | --------------------------------- | ------------------------------------------ |
+| -------------------------- | ---------------------------------- | ------------------------------------------ |
 | **`a ≤ b`, price accepted** | `I` pays `a`, `H` gets `a`        | `I` pays `min(a, c)`, `H` gets `min(a, c)` |
 | **`a > b`, price rejected** | `I` pays `1.5a`, `H` gets `a`     | `I` pays `0`, `H` gets `0`                 |
 
@@ -99,150 +360,6 @@ The two facts pull in opposite directions and that is the whole game: the Charge
 be low enough to always be paid, the Limit wants to be low enough never to fund an
 Overcharge, and both are quantiles of the same distribution — which is why the pipeline's
 real output is not two numbers but **one posterior per Line Item**.
-
----
-
-## 3. One Game, second by second
-
-![One Game on the 60-second timeline](diagrams/01-game-timeline.svg)
-
-**Reading the diagram.** Time runs down. Only one band is blocking — the load — and every
-band below it is an overwrite of something already submitted. `PUT /api/games/{id}/submissions`
-is an upsert with last-write-wins semantics, so republishing is free and the design leans on
-that hard: we submit early and often rather than once and correctly.
-
-### T+0 — the blind floor, published before the Case exists
-
-`run_game` starts the [`SubmissionCoordinator`](../src/runtime/submission_coordinator.py)
-and immediately publishes `blind_floor()`: `BLIND_LINE_ITEMS = 40` indices, each carrying
-`STANDARD_CHARGE = 300.00` and `STANDARD_LIMIT = 35.00`
-([`main.py`](../main.py), [`fast_path.py`](../src/strategies/fast_path.py)). This
-happens *before* the key fetch, because the alternative is not a zero.
-
-A Line Item we never submit defaults to `(0, 0)`, and `(0, 0)` is a bleed, not a neutral
-result: charging nothing forfeits all income, and a Limit of zero wrongfully rejects every
-fair claim in the field at `1.5a` each. Games 11 and 12 went out that way and cost 36,017
-and 43,381 — identical to the teams that never showed up at all (comment in
-[`main.py`](../main.py)). Together with Game 10 that failure mode has cost 139,904.
-
-Forty is chosen because the Line Item count is unknowable before the Case loads. Settled
-Games 1–14 carry 2, 2, 6, 6, 7, 12, 13, 15, 16, 17, 17, 18, 23 and 39 Line Items, so 40
-covers every Case seen so far with a slot of headroom; indices past the real count create no
-Transactions and are accepted by the API. *(This constant was 8 for one commit, on a reading
-of `/transactions` that stopped at the first page of 100 rows. Page to the end of every API
-list.)*
-
-**If this fails:** the `PUT` throws, the coordinator logs it and does *not* mark the
-signature submitted, so the next event retries. Until a retry lands we are exposed to the
-`(0, 0)` default — this is the only window in the whole minute where that is true.
-
-### T+0 to ~T+3 — key, archive, invoice
-
-[`case_loader.load_case`](../src/data/case_loader.py) does three things in sequence, all
-deadline-bounded:
-
-1. `GET /api/games/{id}/key`. Before `start_time` the endpoint returns `403`, so
-   `get_released_key` polls every 0.5 s until it succeeds or the deadline passes. This is
-   the only network round-trip we cannot remove — all 100 archives are already committed to
-   the repo, so nothing else has to be downloaded at T+0.
-2. `7z x -p<key>` into `var/cases/case_NN/`, giving `policy.txt`, `description.txt`,
-   `invoices.pdf` and any images.
-3. `read_invoice_line_items` extracts the PDF text with `pypdf` and `parse_invoice_text`
-   turns it into `LineItem`s. Two details there are load-bearing rather than cosmetic. The
-   **index is the printed POS number**, taken verbatim from the invoice, including gaps —
-   Case 11's invoice has no POS 12 and the settled Game correspondingly has indices 1–11 and
-   13–23, so renumbering by row ordinal would misalign every Transaction. And a position
-   whose quantity and unit columns contain only dashes is recorded as
-   `quantity_missing=True` instead of collapsing into `quantity = 1.0`, because that dash is
-   the single strongest free signal in the Case (see [§5](#5-the-three-estimation-channels)).
-
-**If this fails:** `run_game` catches it, logs *"blind floor stands"*, waits for the
-coordinator to drain and exits. We finish the Game on 40 plausible numbers rather than on
-nothing. If the load succeeds but only *after* the deadline, the run is abandoned without
-submitting — the coordinator refuses to `PUT` past the deadline.
-
-### T+3 — the deterministic layer publishes
-
-The moment `CaseData` exists, `RunManager` is constructed around `standard_values(case)` —
-the same flat `(300.00, 35.00)` per Line Item, now on the *real* index set — and a second
-`PUT` goes out with `reason="case_loaded"`. From here on the surplus blind indices are gone
-and every subsequent submission is a refinement.
-
-`RunManager` refuses to be constructed with an empty standard Proposal. That is the
-mechanical guarantee behind [invariant 1](#7-invariants): there is never a moment after the
-Case loads at which some Line Item has no number.
-
-### T+3 to ~T+50 — the model call on the sliced Policy
-
-[`strategy2.propose`](../src/strategies/strategy2/strategy.py) runs, dispatched
-through [`StrategyRouter`](../src/strategies/router.py). It first collects everything
-knowable for free (Channels A and B, [§5](#5-the-three-estimation-channels)), then makes
-**one model call for the whole Case** — one call, not one per item, so the model sees
-neighbouring positions and can notice duplicates, an inflated quantity, or a sub-limit that
-applies across several lines.
-
-The prompt is handed a **sliced** Policy. [`policy_slice.slice_policy`](../src/evidence/policy/slice.py)
-keeps only `PART 3` (exclusions), `4` (insured property), `5` (insured costs), `7`
-(calculation of the indemnity) and `11` (the claim-specific loss description), which is
-about 41 % of a 35k–65k-character document. The slice is **verbatim** — never reflowed,
-never whitespace-normalised — because downstream code checks that a quoted clause is a
-character-exact substring of the Policy. It fails *open*: a document with no recognisable
-`PART` headers, or a slice that comes out under `MIN_SLICE_CHARS = 2000`, returns the full
-text rather than blinding the estimator. This slicer replaced a ~20-second blocking LLM
-"policy digest" with zero latency, which is where most of the room for the model call came
-from.
-
-The model's timeout is `min(40 s, deadline − now − 2 s)`, so it can never eat the two
-seconds the final `PUT` needs.
-
-**If this fails** — timeout, malformed JSON, no `items` list, an API error — the exception
-is caught and logged at warning level, and `build_proposal` runs anyway on Channels A and B
-alone. A model failure downgrades the numbers; it does not forfeit the Game.
-
-### The merge — per Line Item, on every event
-
-Each producer result is pushed onto an `asyncio.Queue` as a `RunEvent`; the main loop pops
-events until the deadline and recomputes `RunManager.snapshot()` after each one.
-`snapshot()` is a pure function of four pieces of state, recomputed from scratch every time:
-
-| # | Layer      | Source                | Contributes                                      |
-| - | ---------- | --------------------- | ------------------------------------------------ |
-| 1 | standard   | `standard_values`     | `(300.00, 35.00)` on every real Line Item        |
-| 2 | fast path  | `fast_path_llm`       | overlays layer 1 **by index** (legacy — see §9)  |
-| 3 | strategy   | router winner         | overlays layers 1–2 **by index**                 |
-| 4 | coverage   | `FraudDecision`       | a *mask*: writes `b := 0` on flagged indices     |
-
-The overlay is per Line Item, not per Case: a Proposal that only prices indices 3 and 7
-improves exactly those two and leaves the rest of the snapshot alone. Higher layers may only
-write indices that layer 1 already knows (`snapshot()` filters on `valid_indices`), so a
-model that hallucinates a Line Item 99 cannot inject one.
-
-Priorities live in [`strategy_router.py`](../src/strategies/router.py):
-`STRATEGY_PRIORITIES = {"strategy1": 1, "strategy3": 2, "strategy2": 3}`. `register()`
-rejects any proposal whose priority is below the incumbent's, so completion order does not
-matter — Strategy 2 wins whenever it produces anything, because it is the only estimator
-whose constants are fitted to reconstructed Fair Values and the only one that cannot return
-nothing.
-
-### T+50 to T+60 — the coverage mask and the final PUT
-
-[`fraud_detection.detect_fraud`](../src/evidence/fraud_detection.py) has been running
-concurrently since T+3, one 15-second model call per Line Item, all fired at once. Its
-verdicts arrive as a `FraudDecision`, and applying it zeroes the Limit on the flagged
-indices — and only the Limit. `a` is never touched, for the reason in
-[§4](#4-how-a-charge-and-a-limit-are-decided).
-
-Every changed snapshot is republished. `SubmissionCoordinator` computes a **signature** —
-the sorted `(index, charge, limit)` tuple — and skips both a publish identical to the
-pending one and a submit identical to the last one actually sent, so an unchanged snapshot
-costs no request. A failed submit is logged and the signature is *not* recorded as
-submitted, so the next event naturally retries it. At the deadline `close()` cancels the
-worker; nothing is sent afterwards.
-
-**If the coverage detector fails:** individual item failures are logged and skipped; the
-whole gather is wrapped so one exception cannot take the rest down. If the gate flags more
-than `max(2, 0.35 × line_items)` positions, the entire verdict is discarded — see
-[§6](#6-the-coverage-detector-contract).
 
 ---
 
@@ -517,10 +634,13 @@ enforced somewhere in code, and each one is the residue of a specific loss.
 2. **Never `b` above `t̂`, never unbounded.** The Limit is a lower quantile of the same
    posterior as the Charge, hard-capped at `0.85 × median` and then at `a`. An unbounded
    Limit produced 99 % of our costs in Game 5.
-3. **Never absent.** `RunManager` refuses an empty standard layer, the blind floor covers the
-   window before the Case loads, and every failure path in `run_game` leaves the last
-   successful submission standing. Uptime outranks accuracy: break-even uptime against a dumb
-   bot that never misses is ~71 %.
+3. **Never absent — true from T+3 on, not before.** `RunManager` refuses an empty standard
+   layer, and every failure path in `run_game` after the Case has loaded leaves the last
+   successful submission standing. It does **not** currently hold for T+0 to ~T+3: the blind
+   floor that used to cover that window was removed (see [§2](#2-one-game-front-to-back) and
+   [§9](#9-legacy-and-known-weaknesses)), so a Case-load failure today submits nothing for the
+   whole Game rather than 40 plausible numbers. Uptime outranks accuracy: break-even uptime
+   against a dumb bot that never misses is ~71 %, which is exactly why this gap matters.
 4. **Always gross totals, always for the whole Line Item.** Never net (a factor of 1.19),
    never per-unit (a factor of the quantity, often 10–30×). The prompt says it twice; Price
    Memory's per-unit store multiplies back up to a gross total on lookup precisely so that
@@ -594,17 +714,52 @@ estimated in one is worthless in the next.
 
 ## 9. Legacy and known weaknesses
 
-**Legacy, being retired.** `strategies/strategy1`, `strategies/strategy3` and
-`fast_path.llm_values` are the previous generation: two more whole-Case estimators and an
-early LLM fast path. They still run — `strategy1` and `strategy3` as a free ensemble and
-disagreement signal, `llm_values` as merge layer 2 — but Strategy 2 outranks all of them and
-none of their constants are fitted to reconstructed Fair Values. They are documented nowhere
-else in this file on purpose. Two things must be untangled before they can be deleted:
-`strategy2` still imports `build_input_content` from `strategy1`, and `main.run_game` still
-imports and launches `llm_values` directly.
+**Legacy, being retired.** `strategy1` and `strategy3` are the previous generation: two
+more whole-Case estimators, now living in `src/legacy/` — a directory, not just a section
+heading here, since the restructure below. `fast_path.llm_values` is an early LLM fast path
+that stays in `src/strategies/fast_path.py` alongside the still-live `standard_values` rather
+than moving to `legacy/`, because the two are one file and splitting a file's content was
+ruled out of scope for that move (see the restructure note below). All three still run —
+`strategy1` and `strategy3` as a free ensemble and disagreement signal, `llm_values` as merge
+layer 2 — but Strategy 2 outranks all of them and none of their constants are fitted to
+reconstructed Fair Values. They are documented nowhere else in this file on purpose. Two
+things must be untangled before they can be deleted: `strategy2` still imports
+`build_input_content` from `src.legacy.strategy1.strategy`, and `main.run_game` still imports
+and launches `llm_values` directly.
 
-**Known weaknesses, honestly stated.**
+**This session's restructure.** `src/domain/` and `src/services/` are gone;
+`src/evidence/`, `src/pricing/`, `src/strategies/`, `src/legacy/` and `src/runtime/` replace
+them — one package per role (agents read, the engine prices, orchestration, the previous
+generation, the machinery that runs and logs a Game) instead of one generic bucket per layer.
+The module map at the end of [§2](#2-one-game-front-to-back) is the current tree. Every file
+moved whole, nothing was split, so the change is a mechanical path rewrite rather than a
+redesign — verified by an AST pass confirming every `src.*` import resolves,
+`python -m compileall`, and the full test suite. Extracting `Evidence`/`Price` out of
+`src/pricing/engine.py` into a module that `src/evidence/` could import without reaching into
+`src/pricing/` was considered and set aside: nothing in `src/evidence/` actually needs those
+types (only `strategies/strategy2/*` does, which legitimately sits astride the seam), so the
+only effect would have been symbol-level import surgery on ~30 files for no behaviour change.
 
+**Known weaknesses, honestly stated.** The first one is placed ahead of the rest on purpose —
+it is a live regression, not a design trade-off, and it is the most urgent thing in this
+section.
+
+- **The blind floor is gone, and Games 10–12's failure mode is open again.** Commit `b5ba5dc`
+  ("Stop the bleeding: publish a floor before loading") added `blind_floor()`: 40 indices at
+  `(300.00, 35.00)`, published before the key fetch, specifically so a Case-load failure would
+  leave 40 plausible numbers standing instead of nothing. Commit `9b5ee55` ("Keep submissions
+  observable through strategy deadlines"), three hours later the same day, deleted it —
+  `blind_floor()`, `BLIND_LINE_ITEMS`, and the `coordinator.publish(blind_floor())` call — and
+  changed the failure log line to `"no submission was sent"`, which is accurate about the code
+  it left behind but was never surfaced as a change anywhere: not in that commit's message, not
+  in this document (which still described `blind_floor()` as running, until this rewrite), and
+  not in `live-changelog.md`, which still credits it with Games 13–16's recovery and says
+  nothing about its removal. As shipped, a Case-load failure today submits nothing for the
+  whole Game — the exact `(0, 0)` bleed that cost 139,904 across Games 10–12, uncorrected. See
+  [§2](#2-one-game-front-to-back) for where in the walkthrough this gap sits. Restoring it is a
+  small, well-understood change — the deleted code is sitting in commit `b5ba5dc` — but it is a
+  live-behaviour change to the runner during a running tournament, so it is reported here rather
+  than applied by this rewrite.
 - **The model's σ is unmeasured.** Everything else here is fitted; `MODEL_SIGMA_PRIOR = 0.6`
   is not. If the true value lands above 0.5, the right response is to lean harder on Channels
   A and B and keep `b` near zero.
@@ -626,8 +781,9 @@ imports and launches `llm_values` directly.
   per-item calls alongside the whole-Case call so one slow item costs one item. The shipped
   strategy makes a single whole-Case call; if it times out, Channels A and B carry the Case.
 - **Two "settled median" constants disagree by one euro.** `SETTLED_MEDIAN = 59.0` in
-  `strategy2/strategy.py` and `FALLBACK_MEDIAN = 60.0` in `pricing.py` are described in
-  identical terms. Harmless today; the kind of duplication that has already cost us money once.
+  `strategy2/constants.py` and `FALLBACK_MEDIAN = 60.0` in `src/pricing/engine.py` are
+  described in identical terms. Harmless today; the kind of duplication that has already cost
+  us money once.
 - **Channel C's evidence schema is being extended as this is written.** Work in flight adds a
   per-unit rate (`unit_rate_*`, multiplied by the printed quantity) and a coarse `magnitude`
   class that can only widen a band upward, both aimed at the underpriced tail. The Evidence →
@@ -639,8 +795,15 @@ imports and launches `llm_values` directly.
 
 ## Appendix — regenerating the diagrams
 
-Sources live in [`diagrams/`](diagrams/) and are rendered to both `.svg` (used in this
-document) and `.png`:
+Two diagram tools live side by side here on purpose, and this is the only place that
+explains why. [§2](#2-one-game-front-to-back)'s lead diagram is **Mermaid**, embedded
+directly as a ` ```mermaid ` fence — GitHub, and most other places this file is read,
+render that natively, so there is no build step and no rendered file to fall out of sync.
+Everything else is **PlantUML**, the house style before this document existed, checked in
+as source plus a rendered `.svg` (used in this document) and `.png`. PlantUML was kept for
+those three rather than converted, because they were correct already and converting them
+buys nothing; Mermaid was chosen for the new one because a diagram meant to be the first
+thing a reader sees should render without anyone having run a command first.
 
 ```bash
 plantuml -tsvg docs/diagrams/*.puml
@@ -649,6 +812,13 @@ plantuml -tpng -SdpiScale=2 docs/diagrams/*.puml
 
 | Source | Rendered | Shows |
 | --- | --- | --- |
-| `01-game-timeline.puml` | [svg](diagrams/01-game-timeline.svg) · [png](diagrams/01-game-timeline.png) | one Game on the 60-second clock, with the deadline and every fallback |
-| `02-line-item-decision.puml` | [svg](diagrams/02-line-item-decision.svg) · [png](diagrams/02-line-item-decision.png) | evidence → posterior → `(a, b)` for one Line Item |
-| `03-components.puml` | [svg](diagrams/03-components.svg) · [png](diagrams/03-components.png) | modules and dependency direction |
+| `00-game-walkthrough.mmd` | embedded in [§2](#2-one-game-front-to-back) | key fetch → evidence channels → blend → combine → price_item → Charge/Limit → submit → decision log, with the ADR 0001 boundary as two subgraphs |
+| `01-game-timeline.puml` | [svg](diagrams/01-game-timeline.svg) · [png](diagrams/01-game-timeline.png) | the same Game as a sequence diagram — every actor, every API call, every failure path, over wall-clock time |
+| `02-line-item-decision.puml` | [svg](diagrams/02-line-item-decision.svg) · [png](diagrams/02-line-item-decision.png) | evidence → posterior → `(a, b)` for one Line Item, with the exact arithmetic |
+| `03-components.puml` | [svg](diagrams/03-components.svg) · [png](diagrams/03-components.png) | the static module map: the same `src/` packages the restructure note above describes |
+
+`00-game-walkthrough.mmd`'s source lives in `diagrams/` like the others, for editing, but
+nothing regenerates from it automatically — copy its content into the fence in §2 by hand
+after editing, and check it with the `mermaid-diagrams` skill (or `mmdc -i … -o /dev/null`)
+before committing, since a Mermaid syntax error in a fence renders as an ugly error box
+rather than failing a build.
