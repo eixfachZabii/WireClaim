@@ -5,7 +5,11 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from src.ab_calculation import calculate_ab
 from src.api import APIError, get_decryption_key, list_games
+from src.api_post import post_result
+from src.lineitem_checks import check_line_items
+from src.parse_invoice import parse_invoice
 
 ARCHIVE_DIR = Path("[PUBLIC] EHL Cases/cases")
 OUTPUT_DIR = Path("var/cases")
@@ -52,9 +56,14 @@ def extract_case(game_id: int, key: str) -> Path:
 def process_case(game_id: int, case_dir: Path) -> None:
     """Entry point for the rest of the system."""
     print(f"Game {game_id} is ready: {case_dir}")
-    # TODO: Parse invoices.pdf.
-    # TODO: Check policy.txt and description.txt per line item.
-    # TODO: Estimate prices and hand the result to the future API interface.
+    line_items = parse_invoice(case_dir / "invoices.pdf")
+    checked_line_items = check_line_items(
+        line_items,
+        policy_path=case_dir / "policy.txt",
+        description_path=case_dir / "description.txt",
+    )
+    ab_result = calculate_ab(checked_line_items)
+    post_result(game_id, ab_result)
 
 
 def handle_game(game_id: int) -> None:
