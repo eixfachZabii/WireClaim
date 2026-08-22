@@ -1,0 +1,633 @@
+{
+  "game_id": 49,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 24037.2,
+    "paid_on_accepts": 7281.86,
+    "penalties": 9905.985,
+    "net": 6849.355,
+    "saved_by_rejecting": 16087.829999999998,
+    "lawyer_waste": 3301.9950000000003,
+    "fraud_let_through": 5375.25,
+    "strictness_net": 7410.584999999997
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Filling valve (internal frost-burst fitting) (1 pcs)",
+      "t_lo": 48.56,
+      "t_hi": 66.47,
+      "our_charge": 66.47,
+      "our_limit_bracket": [
+        38.7,
+        44.33
+      ],
+      "estimate_median": 95.0,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 139.335,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Connection hose (1 pcs)",
+      "t_lo": 24.8,
+      "t_hi": 26.72,
+      "our_charge": 20.78,
+      "our_limit_bracket": [
+        0.0,
+        14.41
+      ],
+      "estimate_median": 32.0,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 170.79,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Senior installer hours (3 hrs)",
+      "t_lo": 279.18,
+      "t_hi": null,
+      "our_charge": 218.12,
+      "our_limit_bracket": [
+        0.0,
+        191.25
+      ],
+      "estimate_median": 285.0,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 4625.7300000000005,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Auxiliary and cleaning material (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 11.76,
+      "our_charge": 26.78,
+      "our_limit_bracket": [
+        17.75,
+        Infinity
+      ],
+      "estimate_median": 42.0,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.96 but the item is worth about nothing (t < 12)."
+    },
+    {
+      "index": 5,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 36.0,
+      "t_hi": 40.76,
+      "our_charge": 58.15,
+      "our_limit_bracket": [
+        53.38,
+        Infinity
+      ],
+      "estimate_median": 83.94828555855516,
+      "coverage_probability": 0.94,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 58 against t < 41, so every opponent owed us nothing."
+    },
+    {
+      "index": 6,
+      "name": "Thermal imaging camera (leak detection) (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 102.0,
+      "our_charge": 423.8,
+      "our_limit_bracket": [
+        180.5,
+        Infinity
+      ],
+      "estimate_median": 560.0,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.98 but the item is worth about nothing (t < 102)."
+    },
+    {
+      "index": 7,
+      "name": "Vehicle costs \u2013 return visit",
+      "t_lo": 0.0,
+      "t_hi": 12.75,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.01,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Facade frost damage - remove loose and spalled (2 pcs)",
+      "t_lo": 299.69,
+      "t_hi": null,
+      "our_charge": 284.29,
+      "our_limit_bracket": [
+        169.3,
+        221.74
+      ],
+      "estimate_median": 420.0,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2751.12,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Base plaster (1 pcs)",
+      "t_lo": 28.8,
+      "t_hi": 45.0,
+      "our_charge": 184.91,
+      "our_limit_bracket": [
+        119.0,
+        Infinity
+      ],
+      "estimate_median": 280.0,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 185 against t < 45, so every opponent owed us nothing."
+    },
+    {
+      "index": 10,
+      "name": "Newly plastered substrate (1 pcs)",
+      "t_lo": 8.0,
+      "t_hi": 45.0,
+      "our_charge": 209.06,
+      "our_limit_bracket": [
+        144.0,
+        Infinity
+      ],
+      "estimate_median": 325.0,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 209 against t < 45, so every opponent owed us nothing."
+    },
+    {
+      "index": 11,
+      "name": "Priming (1 pcs)",
+      "t_lo": 128.25,
+      "t_hi": null,
+      "our_charge": 104.25,
+      "our_limit_bracket": [
+        64.03,
+        72.25
+      ],
+      "estimate_median": 160.0,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 858.615,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 12,
+      "name": "Drying (1 pcs)",
+      "t_lo": 255.37,
+      "t_hi": null,
+      "our_charge": 255.37,
+      "our_limit_bracket": [
+        158.91,
+        204.25
+      ],
+      "estimate_median": 390.0,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 669.66,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 13,
+      "name": "Facade paint (4 coats) (1 pcs)",
+      "t_lo": 8.0,
+      "t_hi": 68.61,
+      "our_charge": 537.12,
+      "our_limit_bracket": [
+        357.0,
+        Infinity
+      ],
+      "estimate_median": 800.0,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 537 against t < 69, so every opponent owed us nothing."
+    },
+    {
+      "index": 14,
+      "name": "Painter hours (5 hrs)",
+      "t_lo": 233.75,
+      "t_hi": 276.25,
+      "our_charge": 366.08,
+      "our_limit_bracket": [
+        0.0,
+        226.74
+      ],
+      "estimate_median": 475.0,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 690.735,
+      "stage": "charge-above-t",
+      "why": "Charged 366 against t < 276, so every opponent owed us nothing."
+    },
+    {
+      "index": 15,
+      "name": "Scaffolding hire (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 111.91,
+      "our_charge": 598.72,
+      "our_limit_bracket": [
+        382.5,
+        Infinity
+      ],
+      "estimate_median": 850.0,
+      "coverage_probability": 0.95,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.95 but the item is worth about nothing (t < 112)."
+    },
+    {
+      "index": 16,
+      "name": "Repaint of undamaged rear elevation (no frost loss (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 750.0,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 17,
+      "name": "Waste disposal of removed plaster (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 51.0,
+      "our_charge": 105.01,
+      "our_limit_bracket": [
+        59.5,
+        Infinity
+      ],
+      "estimate_median": 155.0,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.96 but the item is worth about nothing (t < 51)."
+    },
+    {
+      "index": 18,
+      "name": "Administrative flat rate (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 75.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 19,
+      "name": "Catering for work crew",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy2": {
+        "net": 6849.355000000003,
+        "income": 24037.2,
+        "cost": 17187.844999999998,
+        "items_priced": 19,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": -7607.02,
+        "income": 5360.0,
+        "cost": 12967.02,
+        "items_priced": 19,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 8,
+        "name": "Facade frost damage - remove loose and spalled (2 pcs)",
+        "delta": -4819.145,
+        "winner_net": 1248.5100000000002,
+        "alternative_net": -3570.635,
+        "t_hat": 420.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 299.69,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Senior installer hours (3 hrs)",
+        "delta": -3489.9199999999987,
+        "winner_net": -1135.8100000000009,
+        "alternative_net": -4625.73,
+        "t_hat": 285.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 279.18,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 15,
+        "name": "Scaffolding hire (1 pcs)",
+        "delta": -2274.1900000000005,
+        "winner_net": 2274.1900000000005,
+        "alternative_net": 0.0,
+        "t_hat": 850.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 111.91,
+        "rule": "priced"
+      },
+      {
+        "index": 12,
+        "name": "Drying (1 pcs)",
+        "delta": -2104.0849999999987,
+        "winner_net": 2548.929999999999,
+        "alternative_net": 444.84500000000025,
+        "t_hat": 390.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 255.37,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 13,
+        "name": "Facade paint (4 coats) (1 pcs)",
+        "delta": 2073.9300000000003,
+        "winner_net": -1101.93,
+        "alternative_net": 972.0,
+        "t_hat": 800.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 8.0,
+        "t_hi": 68.61,
+        "rule": "priced"
+      },
+      {
+        "index": 14,
+        "name": "Painter hours (5 hrs)",
+        "delta": -1830.4,
+        "winner_net": 1139.665,
+        "alternative_net": -690.735,
+        "t_hat": 475.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 233.75,
+        "t_hi": 276.25,
+        "rule": "priced"
+      },
+      {
+        "index": 11,
+        "name": "Priming (1 pcs)",
+        "delta": -1774.44,
+        "winner_net": 554.5050000000001,
+        "alternative_net": -1219.935,
+        "t_hat": 160.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 128.25,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 6,
+        "name": "Thermal imaging camera (leak detection) (1 pcs)",
+        "delta": 1237.46,
+        "winner_net": 112.53999999999996,
+        "alternative_net": 1350.0,
+        "t_hat": 560.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 102.0,
+        "rule": "priced"
+      },
+      {
+        "index": 17,
+        "name": "Waste disposal of removed plaster (1 pcs)",
+        "delta": -519.5600000000001,
+        "winner_net": 519.5600000000001,
+        "alternative_net": 0.0,
+        "t_hat": 155.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 51.0,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Filling valve (internal frost-burst fitting) (1 pcs)",
+        "delta": -449.4650000000001,
+        "winner_net": 158.19500000000005,
+        "alternative_net": -291.27000000000004,
+        "t_hat": 95.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 48.56,
+        "t_hi": 66.47,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Connection hose (1 pcs)",
+        "delta": -425.24999999999994,
+        "winner_net": 161.68999999999994,
+        "alternative_net": -263.56,
+        "t_hat": 32.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 24.8,
+        "t_hi": 26.72,
+        "rule": "priced"
+      },
+      {
+        "index": 10,
+        "name": "Newly plastered substrate (1 pcs)",
+        "delta": 411.69999999999993,
+        "winner_net": 210.30000000000007,
+        "alternative_net": 622.0,
+        "t_hat": 325.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 8.0,
+        "t_hi": 45.0,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Auxiliary and cleaning material (1 pcs)",
+        "delta": -333.20000000000005,
+        "winner_net": 157.95000000000002,
+        "alternative_net": -175.25,
+        "t_hat": 42.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 11.76,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -316.93999999999994,
+        "winner_net": 194.98999999999995,
+        "alternative_net": -121.95,
+        "t_hat": 83.94828555855516,
+        "bucket": "t_hat < 100",
+        "t_lo": 36.0,
+        "t_hi": 40.76,
+        "rule": "priced"
+      },
+      {
+        "index": 9,
+        "name": "Base plaster (1 pcs)",
+        "delta": 221.19000000000005,
+        "winner_net": -257.99000000000007,
+        "alternative_net": -36.8,
+        "t_hat": 280.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 28.8,
+        "t_hi": 45.0,
+        "rule": "priced"
+      },
+      {
+        "index": 7,
+        "name": "Vehicle costs \u2013 return visit",
+        "delta": -64.06,
+        "winner_net": 64.06,
+        "alternative_net": 0.0,
+        "t_hat": 97.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 12.75,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 6849.355,
+    "replayed_actual_net": 6849.355000000003,
+    "oracle_net": 16858.359999999993,
+    "oracle_exact_net": 21688.979999999996,
+    "line_items": 19,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": -14456.375000000004
+  },
+  "estimate": {
+    "n_scorable": 7,
+    "median_log_error": 0.7826644705622046,
+    "rmsle": 1.7289374863511096
+  },
+  "cost_by_stage": {
+    "ok": 9215.25,
+    "charge-above-t": 690.735,
+    "coverage-too-high": 0.0
+  }
+}
