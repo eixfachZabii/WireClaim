@@ -3,7 +3,12 @@ import unittest
 from pathlib import Path
 
 from src.data.models import CaseData, LineItem
-from src.services.strategies.fast_path import STANDARD_LIMIT, _proposal_from_evidence, build_input_content
+from src.services.strategies.fast_path import (
+    LLM_TIMEOUT_SECONDS,
+    STANDARD_LIMIT,
+    _proposal_from_evidence,
+    build_input_content,
+)
 
 
 class FastPathTests(unittest.TestCase):
@@ -24,6 +29,9 @@ class FastPathTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
+
+    def test_fast_path_allows_a_55_second_request_window(self) -> None:
+        self.assertEqual(LLM_TIMEOUT_SECONDS, 55.0)
 
     def test_input_contains_game_description_and_complete_case_material(self) -> None:
         content = build_input_content(self.case)

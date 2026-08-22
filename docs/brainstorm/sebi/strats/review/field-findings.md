@@ -29,7 +29,7 @@ of 54,618**, and is the first Game where the Charge side carried us.
 
 ## Strategy 2, replayed against the real field
 
-Feeding the cached model evidence (`scripts/dump_evidence.py`) through `src/pricing.py`
+Feeding the cached model evidence (`scripts/dump_evidence.py`) through `src/domain/pricing/engine.py`
 and scoring with `scripts/replay_payoffs.py`, which reproduces every published net to the
 cent. **Price Memory is excluded**, so this is the honest number and not a leak:
 

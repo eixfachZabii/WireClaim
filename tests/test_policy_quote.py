@@ -1,6 +1,6 @@
 import unittest
 
-from src.policy_quote import MIN_QUOTE_LENGTH, has_explicit_line_item_exclusion, is_policy_quote, normalize
+from src.services.policy.quotes import MIN_QUOTE_LENGTH, has_explicit_line_item_exclusion, is_policy_quote, normalize
 
 POLICY = (
     "3.1 general exclusions\n"

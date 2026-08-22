@@ -58,7 +58,7 @@ from level_compat import (  # noqa: E402
 )
 from replay_payoffs import replay, snapshot  # noqa: E402
 
-from src.pricing import Evidence  # noqa: E402
+from src.domain.pricing.engine import Evidence  # noqa: E402
 
 BAND_Z = 1.645
 

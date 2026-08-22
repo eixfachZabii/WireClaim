@@ -30,6 +30,7 @@ Every single time someone reasoned about this game from intuition, they got it w
 | "Put `b` in the upper half of the confidence interval as a buffer." | Backwards. Generosity is ~8× more expensive than strictness (`4t` vs `0.5t`). The buffer goes **down** (R4, R6).                    | Would have handed the Cap to every exploiter.      |
 | "Estimate how many opponents accept an overcharge, then exploit."   | A **mis-measured** `p(a)` is worse than assuming `p = 0` (R5c).                                                                     | **60 % of net** in simulation; dropped 1st → 11th. |
 | "Above the Cap the acceptance bar rises, so never accept."          | The bar _falls_ (`q > c/(c+0.5a)`). Right conclusion, wrong reason — reject because `c ≥ 4t` makes it **provably** fraudulent (R4). | A wrong reason in a shared doc propagates.         |
+| "The Limit should sit **above** `t̂`, so we never pay the lawyer."                | Right about the target, wrong about the action, and it flips on one substitution. Sweeping `b = m · t` against the **true** `t` gives a V with its minimum at exactly `m = 1.00` — `b = t`, costing more in both directions. Sweeping `b = m · t̂` against **our estimate** turns that V into a monotone increase whose cheapest point is as low as you can push it. **The flip between those two curves is the cost of our estimation error.** Also: rejecting a *fraudulent* claim is free — the `1.5×` only ever fires on a claim that was fair — so a high `b` buys no protection from the lawyer at all, it only converts zeros into payments. Measured: the field charges a median of **0.73 × `t`**, and 26 % of its Charges on real-money items are still above `t`. |
 | "`a = t = b` is optimal."                                           | Only under certainty. But closer than the "therefore `a > b`" correction that replaced it — both sit low, near each other (R6).     | An over-confident correction is still an error.    |
 
 **So: before you act on a claim about this game, check whether `README.md` already proves it. If it doesn't, write the arithmetic down and run it.** Three claims in the table above were written down as fact before a simulation falsified them. A claim without a number behind it is a guess wearing a suit.
@@ -40,11 +41,28 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 **1. The default submission is an incident, never a fallback.** `a = 0, b = 0` does not score zero — `b = 0` wrongfully rejects every fair claim, so we pay `1.5a` to every opponent on every Line Item (R7). A team that goes dark becomes a **money fountain** for everyone awake: `+t` to them, `−1.5t` to us, per item, per Game (R10). Any plausible number beats the default. If the pipeline has nothing, it still submits something.
 
-**1b. After every settled Game, run the learning loop. It is one command.**
+**1b. The learning loop runs itself. Two terminals, two commands, for the whole tournament.**
 
 ```bash
-set -a && . .env && set +a && pixi run cases && pixi run learn
+set -a && . .env && set +a          # once per terminal
+pixi run start                      # terminal 1: plays every Game on the schedule
+pixi run watch                      # terminal 2: analyses each Game as it settles
 ```
+
+**`watch` already does `cases` and `learn`** — every poll it runs `extract_cases`, then
+`learn_from_game` for the newly settled Games, then the Claude review of the digest
+(`scripts/learn_watch.py`). So the digest `watch` prints *is* the learn digest. Do not run
+them by hand expecting something extra; there isn't any.
+
+The other tasks are for doing something off the loop, not for the loop:
+
+| task | when you actually need it |
+| --- | --- |
+| `pixi run learn` | re-read older Games by hand, e.g. `--games 26-33` after changing the analysis |
+| `pixi run cases` | top up the extraction without waiting for a poll |
+| `pixi run review-game 33` | re-run the Claude review of one Game after editing its prompt |
+| `pixi run case-0` | the permanent test Game, for a dry run |
+| `pixi run test` | the unit tests |
 
 `pixi run learn` joins the **decision log** Strategy 2 writes at submission time
 (`var/decisions/game_NNN.json`) against the reconstructed Fair Value, and names *the stage
@@ -163,14 +181,32 @@ Read the leaderboard at the rate a browser would. Do not enumerate endpoints tha
 
 ## Status
 
-The repository now contains a tested Python case-ingestion runner in `main.py`
-with a small read-only API client in `src/api.py`. `pixi run start` watches the
-published schedule; `pixi run case-0` processes the permanent test game. The
-game analysis, glossary, five strategy pitches (~4,150 lines) under
-`docs/brainstorm/sebi/`, and one ADR remain the source of strategy and domain
-decisions.
+**The pipeline is live and has played 33 Games.** Everything the old version of this section
+called unimplemented — invoice parsing, policy analysis, pricing, submission — shipped long
+ago; there is no `TODO(api-submission)` boundary any more.
 
-**Still unimplemented:** invoice parsing, policy analysis, pricing, and submission;
-the boundary is marked with `TODO(api-submission)` in `src/api.py`. Running the
-runner requires `TEAM_API_KEY`, the case archives, and the Pixi environment
+What runs, in the order a Game touches it:
+
+| layer | where | what it decides |
+| --- | --- | --- |
+| schedule + Case load | `main.py`, `src/data/` | unzip, parse the invoice, slice the Policy |
+| evidence | `strategy2/{prompts,model,channels}.py`, `src/services/policy/` | coverage probability, a price band, the clause quoted verbatim |
+| blend | `strategy2/blend.py` | two model draws + the Price Memory anchor, inverse-variance in log space |
+| pricing | `src/domain/pricing/engine.py` | the Charge and the Limit — the only place a scored number is decided |
+| submission | `src/api/`, `src/services/submission*` | four sequenced posts per Game, merged per Line Item |
+| learning | `scripts/learn_*.py`, `scripts/replay_payoffs.py`, `src/observability/` | decision log × recovered Fair Value → the stage that was wrong |
+
+Three strategies price every Case and a router picks one; `strategy2` wins most Games.
+`scripts/replay_payoffs.py` reproduces every published net to the cent, so any proposed
+change is a **measurement** rather than an argument — use it before touching a constant.
+
+Running it needs `TEAM_API_KEY`, the Azure keys, the Case archives and the Pixi environment
 described in `README.md`.
+
+**Where the money still is.** Today's pricing replayed over all 33 settled Games nets about
+**+198k** against an oracle **+966k**. The decision rules are at their measured optimum — the
+Charge factor sits at the empirical argmax (0.70 measured, 0.69 shipped), and the best
+constant available anywhere in a full sweep moves the total by ~18k. **The rest is estimate
+quality, and only the evidence layer reaches it.** See H3 and H8 in the
+[hypothesis ledger](docs/brainstorm/sebi/strats/review/hypothesis-ledger.md) before proposing
+another constant; four of the obvious ones are already falsified there with numbers attached.

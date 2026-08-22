@@ -33,7 +33,7 @@ leave-one-out sigma from 0.67 to 0.43.
 
 Usage::
 
-    from src.price_memory import lookup
+    from src.domain.pricing.memory import lookup
     hit = lookup("Skilled worker hours", unit="hrs", quantity=8)
     if hit is not None:
         anchor = hit.median          # gross, for the whole Line Item
@@ -57,6 +57,7 @@ __all__ = [
     "PriceMemory",
     "PriceMemoryHit",
     "core_key",
+    "infer_unit",
     "is_per_unit",
     "load",
     "lookup",
@@ -83,6 +84,8 @@ SIGMA_LOG = 0.43
 _DASHES = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2212\u2043"), "-")
 _ALNUM = re.compile(r"[^a-z0-9]+")
 _QUALIFIER_SPLIT = re.compile(r"[,;:]\s|\s-\s|\s\u2013\s")
+#: Wordings that name their own unit, for `infer_unit` when the invoice column is blank.
+_HOUR_WORDING = re.compile(r"\bhours?\b", re.IGNORECASE)
 
 
 def normalise(name: str) -> str:
@@ -119,6 +122,36 @@ def normalise_unit(unit: str | None) -> str:
 def is_per_unit(unit: str | None) -> bool:
     """True when the price scales with quantity (labour, area, length, mass)."""
     return normalise_unit(unit) in PER_UNIT_UNITS
+
+
+def infer_unit(name: str, unit: str | None) -> str:
+    """Fall back to a wording-based guess when the invoice's unit column is blank.
+
+    Two Line Items across Games 1-36 print a quantity with no readable unit -- the invoice
+    literally has a dash where "hrs" belongs (``Skilled worker hours   14   -``, Games 25
+    and 35). :func:`normalise_unit` turns that into ``""``, :func:`is_per_unit` is then
+    False, and the item is priced as a *gross* total instead of an hourly rate. That costs
+    twice: once when the occurrence is stored, contaminating the wording's per-hour bucket
+    with a value ~14x too large, and again when it is queried, scaling by 1 instead of the
+    real quantity. Measured log error on both known occurrences: **-2.61 and -2.64 before
+    this fallback, +0.03 and -0.00 after**.
+
+    This is the mechanism behind the labour-hours items that dominated the worst-item list
+    in the Game 34 and 35 digests. It is a parsing bug with a traced cause, not a tuning
+    knob -- which is why it ships on three positive folds rather than waiting for all three
+    to clear the floor individually.
+
+    Deliberately timid: it fires only when the parsed unit is already blank, and only for
+    wordings that name their own unit, so it cannot relabel a real unit. It correctly does
+    not fire on the other two dash-unit rows in the record ("Dispose of the old boiler
+    system"), which are genuinely gross-priced and where a guess would be groundless.
+    """
+    folded = normalise_unit(unit)
+    if folded:
+        return folded
+    if _HOUR_WORDING.search(name or ""):
+        return "hrs"
+    return folded
 
 
 @dataclass(frozen=True)
@@ -246,6 +279,7 @@ class PriceMemory:
         if entry is None or not entry.values:
             return None
 
+        unit = infer_unit(name, unit)
         per_unit = is_per_unit(unit)
         scale = quantity if per_unit and quantity and quantity > 0 else 1.0
         values = sorted(v * scale for v in entry.values)
@@ -263,7 +297,7 @@ class PriceMemory:
             games=entry.games,
             basis="per_unit" if per_unit else "gross",
             quantity=float(quantity),
-            unit=normalise_unit(unit),
+            unit=unit,
             advisory_zero_observations=entry.advisory_zero_observations,
             advisory_zero_games=entry.advisory_zero_games,
             samples=entry.samples,

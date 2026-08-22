@@ -62,7 +62,7 @@ try:  # `tune_pricing` moved under scripts/experiments/ mid-session
 except ModuleNotFoundError:  # pragma: no cover - depends on the layout of the day
     from experiments.tune_pricing import Params, price  # type: ignore[no-redef]
 
-from src.pricing import LIMIT_QUANTILE, Evidence  # noqa: E402
+from src.domain.pricing.engine import LIMIT_QUANTILE, Evidence  # noqa: E402
 
 
 # ------------------------------------------------------------------------ reconstruction
@@ -430,7 +430,7 @@ def mimic(snaps, teams_to_show: Sequence[str] | None = None) -> None:
     print(_row("(our constants)", ours))
 
 
-#: What this script recommended shipping, and what `src.pricing` now carries: the plateau of
+#: What this script recommended shipping, and what `src.domain.pricing.engine` now carries: the plateau of
 #: every window, with the coverage collapse made exact instead of arriving via the -8 sigma
 #: clamp inside the quantile. `Params()` reads the live constants, so once this is shipped
 #: the two rows agree -- which is the point: re-running `recommend` re-derives the decision.
