@@ -33,8 +33,16 @@ class APITests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True), self.assertRaises(RuntimeError):
             api.list_games()
 
-    def test_submission_is_not_implemented(self) -> None:
-        self.assertFalse(hasattr(api, "submit_price"))
+    def test_submit_price(self) -> None:
+        response = Response(
+            b'[{"game_id": 1, "team_id": 3, "line_item_index": 1, "charge_price": 50.0, "acceptance_limit": 80.0, "submitted_at": "2026-08-22T12:00:00Z"}]'
+        )
+        with patch.dict(os.environ, {"TEAM_API_KEY": "test-key"}), patch.object(
+            api, "urlopen", return_value=response
+        ):
+            result = api.submit_price(1, 50.0, 80.0)
+            self.assertEqual(result["charge_price"], 50.0)
+            self.assertEqual(result["acceptance_limit"], 80.0)
 
 
 if __name__ == "__main__":
