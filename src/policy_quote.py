@@ -38,12 +38,51 @@ EXCLUSION_MARKERS = (
     "does not extend",
     "not apply",
     "shall not",
+    "not a repair cost",
+    "do not constitute repair costs",
+    "not reimbursed",
+    "not indemnifiable",
+    "not the subject of this contract",
+    "fall outside this cover",
+    "not an insurance of",
+    "not an insured peril",
+)
+EXPLICIT_LINE_ITEM_EXCLUSIONS = (
+    (
+        ("shipping", "delivery", "freight", "carriage", "dispatch", "postage", "transport", "logistics"),
+        ("carriage", "freight", "delivery", "dispatch", "packaging", "postage", "transport", "logistics"),
+    ),
+    (
+        ("installation", "install", "fitting", "mounting", "commissioning", "configuration", "connecting"),
+        ("fitting", "mounting", "installing", "connecting", "commissioning", "setting up", "configuring", "programming", "pairing"),
+    ),
+    (("liability",), ("liability risk", "claims of third parties")),
+    (("service", "maintenance", "inspection", "support", "warranty"), ("service", "maintenance", "inspection", "support", "warranty")),
+    (("vehicle", "car", "transport costs", "travel costs"), ("any form of transport", "conveyance", "means of transport")),
+    (("clothing", "clothes", "jewellery", "jewelry", "suitcase", "personal belongings"), ("movable belongings", "movable property")),
+    (("stolen", "theft", "burglary"), ("taking away of property", "not an insured peril")),
 )
 
 
 def normalize(text: str) -> str:
     """Casefold and collapse whitespace, so line wrapping cannot defeat a match."""
     return " ".join(text.casefold().split())
+
+
+def has_explicit_line_item_exclusion(line_item_name: str, policy_text: str) -> bool:
+    item_name = normalize(line_item_name)
+    policy = normalize(policy_text)
+    for item_terms, policy_terms in EXPLICIT_LINE_ITEM_EXCLUSIONS:
+        if not any(term in item_name for term in item_terms):
+            continue
+        for policy_term in policy_terms:
+            start = 0
+            while (position := policy.find(policy_term, start)) >= 0:
+                window = policy[max(position - 600, 0) : position + len(policy_term) + 600]
+                if any(marker in window for marker in EXCLUSION_MARKERS):
+                    return True
+                start = position + len(policy_term)
+    return False
 
 
 def is_policy_quote(quote: str, policy_text: str) -> bool:
