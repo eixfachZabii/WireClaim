@@ -223,6 +223,25 @@ def main() -> None:
                 print(_paint(f"  ▸ {len(pending)} newly settled: {games}", "bold", "cyan"))
                 # Unzip first: a Case nobody can read cannot be diagnosed.
                 _run([python, "scripts/extract_cases.py", "--quiet"])
+                # Then fold the Game we just learned into Price Memory. A settled Game is
+                # ground truth -- `invert_fair_values` recovers `t` exactly -- so every Game
+                # that settles is a labelled example the memory can price the next one from,
+                # and Channel B is the only channel measured more accurate than the model
+                # (leave-one-out sigma 0.58 against 0.85 model-only).
+                #
+                # This is here because it was nowhere. The committed store was built from
+                # Games 1-14 and never rebuilt: `--games` still defaults to "1-14", nothing
+                # invoked the script, and by Game 36 the channel was answering from 40% of
+                # the ground truth already sitting on disk. Rebuilding over 1-36 took recall
+                # from 22% to 53% and *lowered* leave-one-out sigma from 0.659 to 0.581.
+                # With ~60 Games still to play, doing it once would go stale again by
+                # morning; doing it here compounds.
+                #
+                # Safe to run while the runner is mid-Game: the write is atomic
+                # (`_write_atomically`), so a reader sees the old store or the new one and
+                # never a truncated file -- which matters because `PriceMemory.load` turns
+                # an unreadable store into an *empty* one without raising.
+                _run([python, "scripts/build_price_memory.py", "--games", f"1-{pending[-1]}"])
                 _run(
                     [python, "scripts/learn_from_game.py", "--games", f"{pending[0]}-{pending[-1]}"],
                     pretty=True,
