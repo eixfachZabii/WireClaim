@@ -10,8 +10,32 @@ This scores the aggregators against the real Field, and separately asks the prio
 does the between-draw spread predict the actual log error at all? If it does not, the
 quadrature term in `_blend` is decoration.
 
-    pixi run python scripts/level_blend.py --games 1-15,17-19 --tags model,nohint,nohint2
-    pixi run python scripts/level_blend.py --games 1-24 --tags model,nohint --spread
+    pixi run python scripts/experiments/level_blend.py --games 1-24 --tags model,nohint --spread
+
+## The shipped aggregator wins, and the width term inside it is decoration
+
+Games 1-24, blended two-draw ensemble:
+
+    rule                                   net      delta
+    ------------------------------- ---------- ----------
+    shipped (log mean, quadrature)     127,292          0
+    asserted sigma only                118,816     -8,476
+    between-draw spread only            91,633    -35,659
+    min of the draws                    70,857    -56,435
+    max of the draws                    76,348    -50,944
+    log mean - 0.25 * spread           108,970    -18,322
+    log mean + 0.50 * spread           127,532       +240
+
+The payoff table is asymmetric, so leaning below the centre looks free; it is not. Both
+`min` and `shade +1.00` (the same thing on two draws) cost 56,435, because a Charge dragged
+below `t` forfeits the difference from all sixteen opponents while gaining nothing.
+
+**The disagreement between framings does not predict the error.** Correlation of the
+between-draw spread with the realised `|log(t_hat/t)|` is **+0.036** over 213 items, and the
+ordering by thirds runs backwards (median error 0.57 in the narrow third against 0.46 in the
+wide third). So the quadrature term in `blend` is not the width signal it was sold as.
+Removing it still costs 8,476, though, which is inside the noise floor and in the direction
+of a higher Charge -- so it stays, as a guard rather than as a measurement.
 """
 
 from __future__ import annotations

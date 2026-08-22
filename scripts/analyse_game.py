@@ -576,28 +576,43 @@ def sweep_report(games: list[GameView], factors: tuple[float, ...], anchor: str)
     )
     print("cost = what we would have paid as Reviewer; rate = resulting accept rate")
     print("=" * 118)
-    print(f"{'factor':>7} " + " ".join(f"{f'G{g.game_id}':>18}" for g in games) + f" {'TOTAL':>13} {'strict':>10} {'lenient':>10}")
+    print(
+        f"{'factor':>7} " + " ".join(f"{f'G{g.game_id}':>18}" for g in games)
+        + f" {'TOTAL':>13} {'strict':>10} {'lenient':>10} {'rate':>6}"
+    )
     curves = {g.game_id: {p.factor: p for p in sweep(g, factors, anchor)} for g in games}
+    reviews = sum(sum(i.reviewers for i in g.items.values()) for g in games)
+    accepts = sum(sum(i.accepts for i in g.items.values()) for g in games)
     best: tuple[float, float] | None = None
     for factor in factors:
         cells = []
-        total = strict = lenient = 0.0
+        total = strict = lenient = pooled = 0.0
         for game in games:
             point = curves[game.game_id][factor]
             total += point.cost
             strict += point.strict
             lenient += point.lenient
+            pooled += point.rate * sum(i.reviewers for i in game.items.values())
             cells.append(f"{point.cost:11,.0f} {point.rate:5.0%}")
         if best is None or total < best[1]:
             best = (factor, total)
         print(
             f"{factor:7.2f} " + " ".join(f"{c:>18}" for c in cells)
-            + f" {total:13,.0f} {strict:10,.0f} {lenient:10,.0f}"
+            + f" {total:13,.0f} {strict:10,.0f} {lenient:10,.0f} {pooled / max(reviews, 1):6.0%}"
         )
     actual = sum(g.paid_accepts + g.penalties for g in games)
-    reviews = sum(sum(i.reviewers for i in g.items.values()) for g in games)
-    accepts = sum(sum(i.accepts for i in g.items.values()) for g in games)
-    print(f"{'ACTUAL':>7} " + " " * (19 * len(games) - 1) + f" {actual:13,.0f}")
+    print(
+        f"{'ACTUAL':>7} "
+        + " ".join(
+            f"{g.paid_accepts + g.penalties:11,.0f} "
+            f"{sum(i.accepts for i in g.items.values()) / max(sum(i.reviewers for i in g.items.values()), 1):5.0%}"
+            for g in games
+        )
+        + f" {actual:13,.0f} "
+        + f"{sum(reviewer_costs(i)[0] for g in games for i in g.items.values()):10,.0f} "
+        + f"{sum(reviewer_costs(i)[1] for g in games for i in g.items.values()):10,.0f} "
+        + f"{accepts / max(reviews, 1):6.0%}"
+    )
     print("\nper-Game optimum (each Game scored on its own best factor):")
     per_game_best = 0.0
     for game in games:

@@ -31,6 +31,41 @@ item worth at least 150) and paid 5,548 in penalties.
 So the invariant now is: **Strategy 2 prices every Line Item of every Case, always.** When
 no channel has anything to say, it falls back to the fitted no-information constants rather
 than abstaining, because abstaining hands the Submission to a worse track without saying so.
+
+## The price level is deliberately uncorrected, and that is a measurement
+
+The estimator looks badly miscalibrated: bucketed by the *true* Fair Value, median
+`t_hat / t` is 6.01 under 50 EUR and 1.17 over 1,000. Every attempt to correct it has been
+scored in euros against the real Field over Games 1-24 and every one lost
+(`scripts/experiments/level_fit.py` and its six siblings hold the tables):
+
+| candidate correction, all in the evidence layer          | euros over Games 1-24    |
+| -------------------------------------------------------- | ------------------------ |
+| `t_hat' = exp(0.889) * t_hat**0.849`, the euro-weighted fit | **-54,713** in-sample |
+| the best cell of that whole family, held out three ways   | -14,104 / 0 / -183,048   |
+| per-trade multipliers fitted on one half of the Games     | -43,184 held out         |
+| price anchors rewritten from the recovered Fair Values    | **-104,515** (48 calls)  |
+| a sigma floor at the estimator's measured error of 1.29   | -247,443                 |
+| `min` of the ensemble draws instead of the log mean       | -56,435                  |
+| `MODEL_SIGMA_PRIOR` at the measured 1.30 instead of 0.6   | -8,106                   |
+
+Two things to take from that before touching the level again.
+
+**The diagnosis inverts with what you condition on.** Bucketed by `t_hat` instead of by `t`,
+the same items read median `t_hat / t` of 0.46 under 50 EUR and 1.95 over 1,000 -- we are too
+*low* on cheap calls, not too high. Both tables are regression artefacts of their own
+conditioning variable, they contradict each other, and only the `t_hat` one can be applied at
+submission time. A correction fitted against the first table is fitted backwards.
+
+**The Charge and the Limit want opposite corrections and share one median.** That same fit
+applied to the Limit alone is worth +2,776 and applied to the Charge alone -57,489. Nothing
+in the evidence layer can separate them, because both numbers come from one median, so what
+little there is to win belongs on the Limit side of `src/pricing.py` -- and it is worth
+thousands, not the six figures the by-true-`t` table appears to promise.
+
+What would pay is not a level shift at all: moving each median to *its own* true `t`, holding
+the band and the coverage fixed, is worth six figures. That is item accuracy, and it comes
+from better evidence -- not from any monotone function of the number we already have.
 """
 
 from __future__ import annotations

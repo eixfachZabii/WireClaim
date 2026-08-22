@@ -35,12 +35,15 @@ which makes the Limit the **one-third quantile of the posterior over `t`** -- RE
 Coverage uncertainty needs no separate branch: it is probability mass at zero. If an item
 is only 50% likely to be covered, the bottom third of its posterior *is* zero, so the
 Limit falls out at 0 on its own. That is the correct answer -- 40% of settled Line Items
-have `t = 0`, and paying on one is a pure loss.
+have `t = 0`, and paying on one is a pure loss. The threshold where that happens is
+`P(covered) <= 1 - LIMIT_QUANTILE`, i.e. **2/3**, not 1/3; see `COVERAGE_FLOOR`, which was
+half of what the derivation asks for until Game 24.
 
 One empirical shading on top: the 2/3 rule prices an accepted Overcharge at `a`, but the
 Cap allows `min(a, c)` with `c >= 4t`, so accepting is worse than the rule assumes. The
-best multiplier measured against the real field is 0.5-0.7 of the median, so the Limit is
-capped at `LIMIT_CEILING * median` as well.
+best multiplier measured against the real Field is 0.20-0.35 of the median -- it was read as
+0.5-0.7 against a simulation and has fallen every time it has been re-measured in euros --
+so the Limit is capped at `LIMIT_CEILING * median` as well.
 
 ## What the payoff table said when we finally asked it
 
@@ -60,7 +63,15 @@ argument is confirmed rather than merely asserted.
 
 **The ceiling was nearly twice too generous.** See `LIMIT_CEILING`; the fix is worth about
 +1,280 a Game, and it settles the standing argument about whether the Limit belongs at the
-1/3 quantile or at `1.0 x t_hat`.
+1/3 quantile or at `1.0 x t_hat`. Re-measured over all 24 settled Games at Game 24, with
+the reviewer side decomposed into what we pay on accepts versus what we save in penalties,
+the same sweep prefers a *stricter* ceiling still (0.30, worth +35,726 over 23 Games and
++41,956 over Strategy 2's own Games 21-24) and the Games 15-19 reversal that had argued for
+a generous one is reversed again by Games 20-24. The question "is our Limit too strict"
+therefore answers **no, it is still slightly too loose** -- and the accept rate it produces,
+24% on the recent Games, is a consequence of that measurement rather than a target to be
+matched against the leaders' 63-65%. Copying their Limits outright is measured, in
+`LIMIT_CEILING`, at 60-75k of loss over four Games.
 
 **The band is not calibrated, and that is the real problem.** `implied_sigma` on the
 current model's evidence has median 0.375, but the estimator's actual RMSLE against the
@@ -114,6 +125,15 @@ CHARGE_BOUNDS = (0.30, 0.80)
 # below the quantile at every band width we actually see. Kept at the derived value -- a
 # constant that does not bind should be the one the theory chose, not the one a flat sweep
 # happened to land on.
+#
+# Re-swept over all 23 settled Games it is still nearly flat *upwards* -- 0.20 to 0.90 spans
+# 2,600 euros on 72,700 and every value above 0.30 is worse -- and what movement there is
+# points the same way as the ceiling: 0.15 scores +86,400 against +72,588 at the derived
+# 1/3, i.e. the euro-optimal quantile is *lower*, not higher. Leave-one-out picks 0.05-0.20
+# in every fold of every window. Left at 1/3 anyway, because the 2/3 rule that produces it
+# is exact arithmetic on the payoff table and `LIMIT_CEILING` is the honest place to express
+# a Field measurement. Two knobs pulling in one direction only need one of them moved; this
+# note exists so that nobody reads the flat sweep as evidence for loosening it.
 LIMIT_QUANTILE = 1.0 / 3.0
 
 # A guard against the model claiming precision it does not have. The quantile above is
@@ -172,14 +192,84 @@ LIMIT_QUANTILE = 1.0 / 3.0
 # Games 17 and 18 alone account for the reversal (-8,285 and -5,681 at 0.45). Over the full
 # set the two values differ by 2,802 on ~53,000, which is a coin flip, so this constant is
 # not really a pricing fact at all -- it is a fact about how generous the Field currently
-# is, and README R9 says a Field measurement does not survive a phase boundary.
+# is, and README R9 says a Field measurement does not survive a phase boundary. 0.85 was
+# shipped on the strength of that four-Game window, "because we are paid on the Games that
+# come next".
 #
-# **Shipping 0.85, because we are paid on the Games that come next, not the ones already
-# settled**, and the last five Games prefer it by about 3,000 each. Re-run
-# `tune_pricing.py calibrate` on a recent window after any regime change -- the field is
-# expected to go dark overnight and wake up recalibrated, and this number should be
-# re-measured at both boundaries rather than inherited.
-LIMIT_CEILING = 0.85
+# ## Re-measured at Game 24, and the inversion did not survive its own next five Games
+#
+# `scripts/accept_limit_sweep.py` scores every settled Game (1-24) and **decomposes the
+# reviewer side** instead of netting it, because the netted number hides the entire trade.
+# Game 16 is held out of the totals below for comparability with the older measurements,
+# not because it is broken: "Game 16's Transactions do not reconstruct" turned out to be the
+# `/matrix` window bug in disguise -- the endpoint publishes a trailing twenty-Game window,
+# so the harness was comparing Game 16's rows against Game 17's cell. It replays to the cent
+# and including it changes the gain below by nothing (+634 of income at every ceiling).
+#
+#     accept_fair   accepted a <= t   we owed this anyway; rejecting it costs 1.5x
+#     accept_over   accepted a >  t   pure loss -- the price of generosity
+#     penalty       rejected a <= t   1.5a -- the price of strictness
+#
+#     ceiling   all 23 Games   Games 15-24   Games 21-24   accept rate (all / 21+)
+#       0.20        +106,490       +74,560       +42,842        38.1% / 20.2%
+#       0.25        +109,047       +76,212       +42,265        39.4% / 22.1%
+#       0.30        +108,399       +76,278       +41,303        40.9% / 24.3%   <- shipped
+#       0.35        +107,206       +75,309       +40,136        42.6% / 26.1%
+#       0.45         +92,602       +61,067       +21,606        47.9% / 37.9%
+#       0.60         +72,446       +54,125        +1,735        54.9% / 51.8%
+#       0.85         +72,694       +59,074          -653        59.5% / 56.6%   <- was
+#
+# That is also the answer to "what accept rate should we run": the leaders' 63-65% is off
+# the right-hand end of this table. Every point on it that pays sits between 38% and 43%
+# over the whole record and between 20% and 26% on the recent Games, where the Field's
+# Charges are further above `t`.
+#
+# Every sub-window now points the same way, including the one that produced the inversion:
+#
+#     Games 1-14   0.85 +13,599   0.30 +32,100   (reproduces the sweep above to 20 euros)
+#     Games 15-19  0.85 +37,688   0.30 +19,639   (the four Games that bought 0.85)
+#     Games 20-24  0.85 +21,386   0.30 +56,639   (the next five reverse them)
+#     Games 21-24  0.85    -653   0.30 +41,303   (Strategy 2's own era, on policy)
+#
+# So the "regime boundary" reading of Games 15-19 was a four-Game fluctuation dominated by
+# 17 and 18, not a phase change. **Shipping 0.30: +35,726 over 23 Games, +17,204 over
+# Games 15+, +41,956 over Games 21-24 (+10,489 a Game).**
+#
+# The decomposition is the actual argument, and it is one-sided. Going from 0.30 to 0.85
+# over all 23 Games buys back 222,098 of penalties -- and pays 148,065 more on fair claims
+# plus **109,738 more on accepted Overcharges**. Two thirds of a penalty avoided is money
+# we owed anyway, so the arithmetic is `+74,033 saved` against `-109,738 paid`: strictness
+# is not forfeiting income, it is declining to buy other teams' Overcharges at face value.
+#
+# Reasons to trust it further than the number 0.85 it replaces:
+#
+#   * **It is a plateau, not a peak.** 0.20-0.35 spans 2,557 euros on 108,000 in the full
+#     sample and 2,706 on 42,000 in the on-policy one. Leave-one-out picks inside 0.20-0.40
+#     in every one of the 23 folds, and 0.20 or 0.25 in every 21+ fold. Its held-out total
+#     is +86,774, which beats the old 0.85 (+72,673) but *loses* to fixing this constant at
+#     0.30 (+108,399) -- the usual verdict on 23 samples: take the plateau, do not tune the
+#     knob per Game.
+#   * **It is not an artefact of censored Fair Values.** 77 of 287 Line Items have no upper
+#     bracket, so `t` defaults to a *lower* bound and an accepted Charge above it is scored
+#     as an Overcharge that may have been fair. Pushing every open bracket to `t = +inf`
+#     (maximally generous) still prefers 0.30 by +17,668 over all Games and +38,684 over
+#     Games 21-24.
+#   * **The leaders' accept rate is not what makes them profitable.** Replaying our Charge
+#     with each opponent's *reconstructed Limit* over Games 21-24: `error404 ai` -34,514,
+#     `OPUSMOPUS` -28,250, `Teamers` -36,478 (86.8% accept), against +44,540 for the
+#     strictest reviewer in the Field (`makalu`, 15.8%) and +41,303 for this constant.
+#     A 63-65% accept rate costs 60-75k over four Games in *this* Field; the leaders earn
+#     on the Charge side, and copying their reviewing would import the loss without the
+#     income. (That comparison holds our Charge fixed, which is the point: it isolates the
+#     reviewing decision from everything else that separates us from them.)
+#
+# Caveats worth re-reading before moving it again. The full-sample gain is 1,553 a Game,
+# which is inside the 30,000-per-18-Games noise floor; only the recent windows clear it.
+# 14 of 23 Games improve, 8 worsen, and G22 and G24 supply 39,000 of the 35,700 -- the sign
+# test is weak even though the direction is unanimous across windows. And the unbiased
+# lognormal estimator still prefers a Limit near 1.0 x median: if somebody fixes the
+# estimator's tail, re-run `accept_limit_sweep.py recommend` and this constant should rise.
+LIMIT_CEILING = 0.30
 
 # Below this, the bottom third of the posterior is zero anyway; naming it makes the
 # threshold visible in logs and tests rather than implicit in the arithmetic.
@@ -188,9 +278,27 @@ LIMIT_CEILING = 0.85
 # within 150 euros of every other over fourteen Games (0.00 costs 133, 0.75 and above cost
 # 63). That is not indifference, it is the coverage signal being good enough that the
 # threshold hardly matters -- at 1/3 the model calls only 7 of 116 covered items doubtful,
-# against 23 of 76 uncovered ones called covered. Kept at the derived value, which sits in
-# the middle of the measured plateau; there is no euro case for moving it.
-COVERAGE_FLOOR = LIMIT_QUANTILE
+# against 23 of 76 uncovered ones called covered. Re-swept over all 23 settled Games it is
+# just as flat: 0.00 to 0.70 spans 137 euros on 72,700.
+#
+# It was `LIMIT_QUANTILE`, and that was the wrong threshold -- off by a factor of two, in a
+# way the flatness of the sweep hid. The posterior carries mass `1 - covered` at zero, so
+# its `q` quantile is zero exactly when `1 - covered >= q`, i.e. when
+#
+#     covered <= 1 - q          = 2/3 at the derived quantile, not 1/3
+#
+# At 1/3 the branch below never fired for `covered` in (1/3, 2/3], where the correct answer
+# is zero. It got there anyway, by accident: `conditional` goes negative, `_normal_quantile`
+# clamps at -8, and the Limit comes out as `median * exp(-8 * sigma)` -- 5% of the median at
+# sigma 0.375, 0.8% at 0.60. Small, but a clamp is not a derivation, and "the Limit collapses
+# when coverage is doubtful" should be exact rather than approximately true by way of a
+# saturating rational approximation.
+#
+# Measured, so the fix is not free-standing taste: making it exact is worth +21 euros over
+# 23 Games and leaves the accept rate unchanged at 59.5% (`accept_limit_sweep.py recommend`,
+# row `floor=2/3 only`). It is a clarity change with a measurement that says it costs
+# nothing, which is the only kind worth making to a constant we are scored on.
+COVERAGE_FLOOR = 1.0 - LIMIT_QUANTILE
 
 # Median Fair Value over the 148 settled Line Items with a bounded bracket. Used only when
 # there is no band at all -- it is a prior, not an estimate, and it is deliberately low
@@ -318,7 +426,8 @@ def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Pric
     charge = charge_factor(sigma) * filled.price_median
 
     # The Limit reads the bottom third of the *whole* posterior, which carries mass
-    # (1 - covered) at zero. Below P(covered) = 1/3 that quantile is zero outright.
+    # (1 - covered) at zero. At P(covered) <= 1 - LIMIT_QUANTILE = 2/3 the zero mass alone
+    # fills the bottom third, so the quantile is zero outright -- see `COVERAGE_FLOOR`.
     if covered <= COVERAGE_FLOOR:
         limit = 0.0
     else:
@@ -337,9 +446,15 @@ def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Pric
     # worth +16,421 over Games 1-14 against an unbiased estimator at sigma 0.45 (149,496
     # against 133,075), and +14,000 to +18,000 at every sigma from 0.25 to 0.75, because
     # such an estimator wants `b ~ 1.0 x median` while `a ~ 0.6 x median`. Kept anyway:
-    # with today's fat-tailed estimator the Limit is held at 0.45 x median and this clamp
+    # with today's fat-tailed estimator the Limit is held at 0.30 x median and this clamp
     # almost never binds, so releasing it buys nothing now while removing a guard rail that
     # catches genuinely incoherent bands. Revisit together with `LIMIT_CEILING`, not before.
+    #
+    # At the ceiling measured at Game 24 it binds *never*: the Charge factor bottoms out at
+    # 0.30 (`CHARGE_BOUNDS`) and the ceiling is 0.30, so `b <= a` holds by construction on
+    # every band. Worth knowing, because it also means the clamp was quietly doing the work
+    # of the ceiling at the old 0.85 -- above a ceiling of about 0.80 the sweep is exactly
+    # flat, because the Charge, not the ceiling, was setting the Limit.
     limit = min(limit, charge)
     return Price(
         charge=round(max(charge, 0.0), 2),

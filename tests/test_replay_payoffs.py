@@ -3,12 +3,24 @@
 `scripts/replay_payoffs.py` claims it can tell us what our net *would* have been in a
 settled Game under a different submission. The only evidence that such a claim is not
 fiction is that feeding it our **real** submission reproduces our **published** net -- for
-every Game, to the cent. That is what `test_self_check_reproduces_published_net` asserts,
-for all fourteen settled Games.
+every Game, to the cent. That is what `test_self_check_reproduces_published_net` asserts for
+Games 1-14, and `AllCompletedGamesTests` for every Game that has settled since.
 
 Everything else here guards the pieces that self-check leans on: the payoff table (checked
 against the worked example in docs/GAME_DESCRIPTION.md), the Cap never binding, and the
 `backtest` metrics that are computed on top.
+
+Two of these tests exist because of specific, expensive mistakes:
+
+* `MatrixIndexingTests` pins that `/matrix` `cells` is **not** positional. It is a trailing
+  window of the twenty most recently completed Games, published as `game_ids` in the same
+  payload. `matrix()` therefore returns `{team: {game_id: net}}`, and these tests assert that
+  it cannot be indexed by position and refuses to guess when the mapping is unresolvable.
+* `GameSixteenTests` pins Game 16, which was reported as "does not reconstruct: -4,721
+  against a published -63,789, and only 2 Line Items". Game 16 reconstructs perfectly;
+  -63,789 is **Game 17's** net, handed over by the stale positional index, and Case 16's
+  invoice really does have exactly 2 Line Items. The Game is pinned here so nobody scores
+  against it under a wrong published number again -- in either direction.
 
 These tests read the settled leaderboard. They are offline once `var/replay` and
 `var/transactions` are warm; if neither the cache nor the network is available the module
@@ -27,6 +39,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import backtest  # noqa: E402
+import pull_transactions as pt  # noqa: E402
 import replay_payoffs as rp  # noqa: E402
 
 GAMES = tuple(range(1, 15))
@@ -34,6 +47,15 @@ GAMES = tuple(range(1, 15))
 TOTAL_LINE_ITEMS = 192
 BOUNDED_LINE_ITEMS = 148
 WORTHLESS_LINE_ITEMS = 76
+
+#: Game 16, pinned. `line_items` and `net` come from the rows (`total = 64` for us, fetched
+#: in full), and the Case 16 invoice lists exactly these two: "Clothing and jewellery stolen
+#: from the car" and "Vehicle costs". `not_net` is Game 17's, which the old positional
+#: `/matrix` index misattributed to Game 16.
+GAME_16 = {"game_id": 16, "line_items": 2, "net": -4721.32, "not_net": -63789.245}
+
+#: How wide `/matrix` `cells` is. Not a Game count -- a window length.
+MATRIX_WINDOW = 20
 
 
 def _load() -> list[rp.GameSnapshot] | None:
@@ -43,10 +65,33 @@ def _load() -> list[rp.GameSnapshot] | None:
         return None
 
 
+def _load_all() -> list[rp.Reconstruction] | None:
+    """Every completed Game, labelled usable or not. Needs `/games`, so network-gated."""
+    try:
+        return rp.reconstruction_report()
+    except Exception:  # pragma: no cover - leaderboard unreachable
+        return None
+
+
+def _load_matrix() -> tuple[dict, list[int]] | None:
+    try:
+        return pt.matrix(), pt.completed_games()
+    except Exception:  # pragma: no cover - leaderboard unreachable
+        return None
+
+
 SNAPSHOTS = _load()
 requires_data = unittest.skipIf(
     SNAPSHOTS is None, "settled leaderboard data is neither cached nor reachable"
 )
+
+ALL_GAMES = _load_all() if SNAPSHOTS is not None else None
+requires_all_games = unittest.skipIf(
+    not ALL_GAMES, "the completed-Game list needs a reachable leaderboard"
+)
+
+MATRIX = _load_matrix() if SNAPSHOTS is not None else None
+requires_matrix = unittest.skipIf(MATRIX is None, "/matrix is not reachable")
 
 
 class PayoffTableTests(unittest.TestCase):
@@ -126,9 +171,218 @@ class SelfCheckTests(unittest.TestCase):
                 self.assertNotIn(rp.US, snap.opponents)
 
     def test_the_cap_never_bound(self) -> None:
-        """Justifies treating `c` as infinite: no (Line Item, issuer) reports two amounts."""
-        conflicts = [c for snap in SNAPSHOTS or [] for c in rp.cap_conflicts(snap.game_id)]
+        """Justifies treating `c` as infinite: no (Line Item, issuer) reports two amounts.
+
+        The team list comes from the snapshot rather than `teams()` so the test stays offline
+        once `var/replay` is warm -- a red suite for a missing network tells us nothing.
+        """
+        conflicts = [
+            c
+            for snap in SNAPSHOTS or []
+            for c in rp.cap_conflicts(snap.game_id, [snap.us, *snap.opponents])
+        ]
         self.assertEqual(conflicts, [])
+
+
+@requires_matrix
+class MatrixIndexingTests(unittest.TestCase):
+    """`/matrix` `cells` is a trailing window, not a list indexed by Game id.
+
+    We assumed `cells[k]` was Game `k+1` and it silently gave Game 16 Game 17's money. These
+    tests make the wrong reading impossible to write: `matrix()` hands back a mapping, and
+    the mapping is cross-checked against `/games`.
+    """
+
+    def test_matrix_is_keyed_by_game_id_not_by_position(self) -> None:
+        table, _ = MATRIX or ({}, [])
+        cells = table[rp.US]
+        self.assertIsInstance(cells, dict)
+        for key in cells:
+            self.assertIsInstance(key, int)
+
+    def test_cells_are_narrower_than_the_completed_games_once_the_window_slides(self) -> None:
+        """The bug's precondition: as soon as this holds, `cells[g - 1]` is the wrong Game."""
+        _, completed = MATRIX or ({}, [])
+        ids = pt.matrix_game_ids()
+        self.assertLessEqual(len(ids), len(completed))
+        if len(completed) > MATRIX_WINDOW:
+            self.assertEqual(len(ids), MATRIX_WINDOW)
+            self.assertNotEqual(ids[0], 1)  # the window has moved off Game 1
+
+    def test_every_published_game_id_is_a_completed_game(self) -> None:
+        _, completed = MATRIX or ({}, [])
+        self.assertTrue(set(pt.matrix_game_ids()).issubset(set(completed)))
+
+    def test_the_window_is_the_most_recent_completed_games(self) -> None:
+        _, completed = MATRIX or ({}, [])
+        ids = pt.matrix_game_ids()
+        self.assertEqual(ids, completed[-len(ids) :])
+
+    def test_a_game_outside_the_window_is_absent_not_someone_elses_number(self) -> None:
+        """The whole point of a dict: a missing Game is missing, not silently substituted."""
+        table, _ = MATRIX or ({}, [])
+        ids = pt.matrix_game_ids()
+        if min(ids) == 1:
+            self.skipTest("the window still starts at Game 1; nothing has fallen out of it yet")
+        self.assertIsNone(pt.published_net(rp.US, min(ids) - 1, table))
+
+    def test_matrix_refuses_to_guess_when_the_mapping_is_unresolvable(self) -> None:
+        payload = {"items": [{"team_name": "a", "cells": [1.0, 2.0]}]}  # no game_ids at all
+        with self.assertRaises(pt.AmbiguousMatrix):
+            pt.matrix_game_ids(payload)
+
+    def test_matrix_uses_published_game_ids_when_they_fit(self) -> None:
+        payload = {"items": [{"team_name": "a", "cells": [1.0, 2.0]}], "game_ids": [7, 8]}
+        self.assertEqual(pt.matrix_game_ids(payload), [7, 8])
+
+    def test_matrix_rejects_rows_that_disagree_on_width(self) -> None:
+        payload = {
+            "items": [{"team_name": "a", "cells": [1.0]}, {"team_name": "b", "cells": [1.0, 2.0]}],
+            "game_ids": [1],
+        }
+        with self.assertRaises(pt.AmbiguousMatrix):
+            pt.matrix_game_ids(payload)
+
+    def test_every_published_cell_equals_the_identity_over_the_rows(self) -> None:
+        """The identity is authoritative; agreeing with it is what makes a cell trustworthy."""
+        table, _ = MATRIX or ({}, [])
+        for game_id in pt.matrix_game_ids():
+            with self.subTest(game=game_id):
+                rows = pt.transactions(rp.US, game_id)
+                self.assertAlmostEqual(
+                    pt.identity_net(rows, rp.US), table[rp.US][game_id], places=1
+                )
+
+
+@requires_data
+class GameSixteenTests(unittest.TestCase):
+    """Game 16, pinned. It reconstructs; the -63,789 it was scored against was Game 17's."""
+
+    def setUp(self) -> None:
+        self.snap = rp.snapshot(GAME_16["game_id"])
+
+    def test_game_sixteen_has_exactly_two_line_items(self) -> None:
+        """Case 16's invoice lists two, and 64 rows were fetched against `total = 64`."""
+        self.assertEqual(len(self.snap.line_items), GAME_16["line_items"])
+
+    def test_game_sixteen_reconstructs(self) -> None:
+        replayed, published = rp.self_check(GAME_16["game_id"], strict=True)
+        self.assertAlmostEqual(replayed, GAME_16["net"], places=1)
+        self.assertAlmostEqual(published, GAME_16["net"], places=1)
+
+    def test_game_sixteen_is_reported_usable(self) -> None:
+        status = rp.reconstruction_status(GAME_16["game_id"])
+        self.assertEqual(status.status, "ok")
+        self.assertTrue(status.usable)
+
+    def test_game_sixteen_is_not_game_seventeens_net(self) -> None:
+        """The exact misattribution that started this. Never again, in either direction."""
+        self.assertNotAlmostEqual(self.snap.published_net, GAME_16["not_net"], places=1)
+        seventeen = rp.snapshot(17)
+        self.assertAlmostEqual(seventeen.published_net, GAME_16["not_net"], places=1)
+
+    def test_game_sixteen_was_never_a_short_read(self) -> None:
+        rows = pt.transactions(rp.US, GAME_16["game_id"])
+        self.assertEqual(sorted({r["line_item_index"] for r in rows}), [1, 2])
+        self.assertEqual(pt.cache_status(rp.US, GAME_16["game_id"]), "ok")
+
+
+@requires_all_games
+class AllCompletedGamesTests(unittest.TestCase):
+    """Every Game that has settled must either reconstruct or be named as unusable."""
+
+    def test_every_completed_game_reconstructs(self) -> None:
+        broken = [(r.game_id, r.status, r.detail) for r in ALL_GAMES or [] if not r.usable]
+        self.assertEqual(broken, [], f"these Games do not reconstruct: {broken}")
+
+    def test_the_report_covers_every_completed_game(self) -> None:
+        self.assertEqual([r.game_id for r in ALL_GAMES or []], pt.completed_games())
+
+    def test_usable_games_excludes_nothing_it_should_not(self) -> None:
+        self.assertEqual(rp.usable_games(), [r.game_id for r in ALL_GAMES or [] if r.usable])
+
+    def test_a_game_whose_rows_disagree_with_its_cell_is_fatal(self) -> None:
+        """The guard itself: a mismatch must raise, never return a wrong number."""
+        with self.assertRaises(rp.UnreconstructableGame):
+            raise rp.UnreconstructableGame("sentinel")
+        status = rp.Reconstruction(99, "mismatch", 0, None, None, None, "sentinel")
+        self.assertFalse(status.usable)
+
+
+@requires_data
+class TransactionCacheTests(unittest.TestCase):
+    """A cached file must carry the `total` it was validated against, or be refused."""
+
+    def test_every_cached_game_is_trusted(self) -> None:
+        for game_id in GAMES:
+            with self.subTest(game=game_id):
+                self.assertEqual(pt.cache_status(rp.US, game_id), "ok")
+
+    def test_a_short_read_on_disk_is_refused(self) -> None:
+        import json
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "short.json"
+            path.write_text(
+                json.dumps({"version": pt.CACHE_VERSION, "total": 576, "rows": [{"a": 1}]})
+            )
+            rows, reason = pt._read_cache(path)
+            self.assertIsNone(rows)
+            self.assertIn("short read", reason)
+
+    def test_an_unstamped_legacy_cache_is_refused(self) -> None:
+        import json
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "legacy.json"
+            path.write_text(json.dumps([{"a": 1}]))
+            rows, reason = pt._read_cache(path)
+            self.assertIsNone(rows)
+            self.assertIn("legacy", reason)
+
+    def test_a_stamped_cache_that_agrees_with_its_total_is_trusted(self) -> None:
+        import json
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "good.json"
+            path.write_text(
+                json.dumps({"version": pt.CACHE_VERSION, "total": 1, "rows": [{"a": 1}]})
+            )
+            rows, reason = pt._read_cache(path)
+            self.assertEqual(rows, [{"a": 1}])
+            self.assertEqual(reason, "ok")
+
+
+@requires_data
+class LimitRuleSensitivityTests(unittest.TestCase):
+    """The `limit_rule="mid"` choice must not be load-bearing for any conclusion."""
+
+    def test_the_rule_cannot_matter_while_we_do_not_overcharge(self) -> None:
+        """For `a <= t` the issuer is paid `a` regardless of the reviewer's Limit."""
+        report = rp.limit_sensitivity(
+            SNAPSHOTS or [], rp.oracle_estimates, alphas=(0.5, 1.0, 2.0), betas=(0.5, 0.7, 1.0)
+        )
+        totals = {round(row["best"][2], 6) for row in report["rules"].values()}
+        self.assertEqual(len(totals), 1, f"the rule moved the sweep total: {totals}")
+        self.assertEqual(report["insensitive_betas"], [0.5, 0.7, 1.0])
+
+    def test_our_actual_total_is_identical_under_every_rule(self) -> None:
+        report = rp.limit_sensitivity(
+            SNAPSHOTS or [], rp.oracle_estimates, alphas=(1.0,), betas=(0.7,)
+        )
+        actuals = {round(row["actual"], 6) for row in report["rules"].values()}
+        self.assertEqual(len(actuals), 1, f"the rule moved our real net: {actuals}")
+
+    def test_the_rule_does_matter_above_the_fair_value(self) -> None:
+        """Stated so nobody generalises the invariance into the Overcharge region."""
+        report = rp.limit_sensitivity(
+            SNAPSHOTS or [], rp.oracle_estimates, alphas=(0.2,), betas=(1.5,)
+        )
+        self.assertGreater(report["worst_gap"], 0.0)
+        self.assertEqual(report["insensitive_betas"], [])
 
 
 @requires_data

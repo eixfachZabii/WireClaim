@@ -14,8 +14,32 @@ at t >= 620 priced 290. This bins every settled Line Item by keyword and prints 
 distribution of the *true* Fair Value per bin, so an anchor can be rewritten from the data
 rather than from a guess.
 
-    pixi run python scripts/level_anchors.py --games 1-14          # the fitting window
-    pixi run python scripts/level_anchors.py --games 15-24         # held out
+    pixi run python scripts/experiments/level_anchors.py --games 1-14    # the fitting window
+    pixi run python scripts/experiments/level_anchors.py --games 15-24   # held out
+    pixi run python scripts/experiments/level_anchors.py --fit 1-14 --games 15-24
+
+## What it found: real bins, and a correction that still does not travel
+
+The per-bin errors are sign-consistent across the two disjoint windows, which is more than
+any `t_hat` bucket manages -- median `t_hat / t` on leak detection is 0.56 and 0.72, on
+disposal and hire 3.35 and 2.46, on small parts 0.54 and 0.25, on surface work 1.77 and
+1.73. That is a genuine conditional signal on something observable at submission time.
+
+It still does not pay. Per-bin multipliers `(1 / median ratio) ** shrink`, fitted on one
+window and scored on the other:
+
+    fitted on   tested on   shrink   in-sample delta   held-out delta
+    ----------  ---------- -------  ----------------  ---------------
+    Games 1-14  Games 15-24   0.50           +17,548          -43,184
+    Games 1-14  Games 15-24   0.75           +22,241          -80,471
+    Games 15-24 Games 1-14    0.50           -24,784          +39,329
+
+One direction gains what the other loses, the in-sample gain does not survive either
+transfer, and the two folds disagree about `restoration` and `assessment` entirely. Ten bins
+fitted on 100-odd items is a fit to the Games, not to the trades.
+
+The bins themselves are still worth keeping: they are how `level_prompt_anchors.py` was
+written, and they are the cheapest way to see which trade a bad Game leaked through.
 
 Deliberately split: any anchor written from a window has to be checked on Games it did not
 see, and 1-19 is where every other constant in the Strategy was already fitted.

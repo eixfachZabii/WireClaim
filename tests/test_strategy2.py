@@ -182,6 +182,54 @@ class BlendTests(unittest.TestCase):
         self.assertNotIn("the median is around", PROMPT_UNANCHORED)
 
 
+class UncorrectedLevelTests(unittest.TestCase):
+    """The blend must not shift the level, in either direction. Both were measured.
+
+    The estimator looks shrunk toward the middle -- bucketed by the true Fair Value, median
+    `t_hat / t` is 6.01 under 50 EUR against 1.17 over 1,000 -- and every deterministic
+    repair of that has been scored in euros against the real Field over Games 1-24 and lost:
+    the euro-weighted fit `exp(0.889) * t_hat**0.849` costs 54,713 in-sample and up to
+    183,048 held out, and the whole `exp(c0) * t_hat**c1` family has its argmax at `c1 = 1`,
+    which is this behaviour. See `scripts/experiments/level_fit.py` for the tables.
+
+    So the identity is a *decision*, not an omission, and it needs a test -- otherwise the
+    next reader of the by-true-`t` table adds a multiplier, and the multiplier looks obviously
+    right until it is replayed.
+    """
+
+    def test_a_single_draw_is_returned_at_the_level_the_model_stated(self) -> None:
+        stated = Evidence(1, 0.9, 80.0, 100.0, 125.0)
+
+        self.assertEqual(_blend([{1: stated}])[1].price_median, 100.0)
+
+    def test_agreeing_draws_keep_the_level_they_agree_on(self) -> None:
+        """No shrinking toward `SETTLED_MEDIAN`, and no un-shrinking away from it either."""
+        for median in (8.0, 59.0, 400.0, 7000.0):
+            blended = _blend(
+                [
+                    {1: Evidence(1, 0.9, median * 0.8, median, median * 1.25)},
+                    {1: Evidence(1, 0.9, median * 0.8, median, median * 1.25)},
+                ]
+            )
+
+            self.assertAlmostEqual(blended[1].price_median, median, places=6)
+
+    def test_the_charge_scales_linearly_with_the_stated_median(self) -> None:
+        """A level correction of any shape would break proportionality somewhere."""
+        case = case_with(LineItem(1, "Leak detection call-out"))
+        charges = []
+        for median in (20.0, 200.0, 2000.0):
+            proposal = build_proposal(
+                case, {1: Evidence(1, 0.95, median * 0.8, median, median * 1.25)}, {}
+            )
+            charges.append(proposal.prices[0].charge_price)
+
+        # `delta` rather than `places`: the Charge is rounded to the cent, so a 15.79 EUR
+        # Charge cannot be exactly a tenth of a 157.90 one.
+        self.assertAlmostEqual(charges[1] / charges[0], 10.0, delta=0.01)
+        self.assertAlmostEqual(charges[2] / charges[1], 10.0, delta=0.01)
+
+
 class ParseItemsTests(unittest.TestCase):
     """The parser reads the price fields and nothing else, on purpose.
 

@@ -8,13 +8,12 @@ it is worth, in euros, on the real Field.
 
 What it does
 ------------
-* Rebuilds every settled Game from the cached Transactions (`replay_payoffs` internals),
-  **computing the published net from the rows themselves** rather than from the
-  leaderboard matrix. That matters: the matrix endpoint now returns a sliding window of
-  the last twenty Games, so `matrix()[game_id - 1]` is off by three and the cached
-  snapshots for Games 15-20 carry the wrong `published_net`. `income - paid` over a team's
-  own rows is the definition the organisers publish (`invert_fair_values.verify`), so it
-  is used directly and the self-check still lands to the cent.
+* Scores every Game `replay_payoffs.usable_games` certifies -- i.e. every Game whose replay
+  of our real submission reproduces the identity net computed from its own rows. Game 16
+  fails that test and drops out on its own. Nothing here trusts a `/matrix` cell index; that
+  bug (the endpoint publishes a trailing twenty-Game window, so positional indexing was off
+  by three once Game 21 settled) was found independently while this was being written and is
+  fixed in `pull_transactions.matrix`.
 * Scores a parameterised `price_item` (`tune_pricing.price`, constants lifted out) through
   `replay_payoffs`, but with the reviewer side **decomposed** into the three things a
   Limit trades off:
@@ -29,9 +28,7 @@ What it does
   against the leaders' 63-65%.
 * Sweeps `limit_ceiling`, `limit_quantile` and `coverage_floor` one at a time over three
   windows -- all Games, Games 15+, Games 21+ (Strategy 2's own era) -- with leave-one-out
-  held-out totals, because the 21+ sample is three Games.
-
-Game 16 is excluded throughout: its Transactions do not reconstruct.
+  held-out totals, because the 21+ sample is four Games.
 
     PYTHONPATH=. pixi run python scripts/accept_limit_sweep.py all
 """
@@ -39,7 +36,6 @@ Game 16 is excluded throughout: its Transactions do not reconstruct.
 from __future__ import annotations
 
 import argparse
-import json
 import math
 import statistics
 import sys
@@ -50,114 +46,60 @@ from typing import Iterable, Mapping, Sequence
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import invert_fair_values  # noqa: E402
-import pull_transactions  # noqa: E402
-import replay_payoffs  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+
 from dump_evidence import load as load_evidence  # noqa: E402
-from invert_fair_values import brackets  # noqa: E402
-from pull_transactions import teams  # noqa: E402
-from replay_payoffs import GameSnapshot, _charges_and_limits  # noqa: E402
-from tune_pricing import Params, price  # noqa: E402
+from replay_payoffs import (  # noqa: E402
+    INF,
+    US,
+    GameSnapshot,
+    snapshot,
+    usable_games,
+)
+
+try:  # `tune_pricing` moved under scripts/experiments/ mid-session
+    from tune_pricing import Params, price  # noqa: E402
+except ModuleNotFoundError:  # pragma: no cover - depends on the layout of the day
+    from experiments.tune_pricing import Params, price  # type: ignore[no-redef]
 
 from src.pricing import LIMIT_QUANTILE, Evidence  # noqa: E402
-
-_raw_transactions = pull_transactions.transactions
-
-
-def transactions(team: str, game_id: int) -> list[dict]:
-    """`pull_transactions.transactions`, tolerating both on-disk cache formats.
-
-    Games up to 23 are cached as a bare list of rows; something later wrote Game 24 as
-    ``{"version": 2, "team": ..., "rows": [...]}``. Iterating that dict yields its *keys*,
-    so every consumer silently sees five "rows" of strings instead of 352 Transactions --
-    a wrong answer rather than an error. Normalise once, here, and patch the two modules
-    that imported the old name so the reconstruction below cannot see the difference.
-    """
-    payload = _raw_transactions(team, game_id)
-    if isinstance(payload, dict):
-        return list(payload.get("rows", payload.get("items", [])))
-    return payload
-
-
-pull_transactions.transactions = transactions
-invert_fair_values.transactions = transactions
-replay_payoffs.transactions = transactions
-
-INF = math.inf
-US = "Bin busy"
-#: Game 16's Transactions do not reconstruct; every window skips it.
-BROKEN = (16,)
-CACHE = Path("var/accept")
 
 
 # ------------------------------------------------------------------------ reconstruction
 
 
-def team_names() -> list[str]:
-    path = CACHE / "teams.json"
-    if path.exists():
-        return json.loads(path.read_text())
-    names = teams()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(names))
-    return names
+def scoreable(us: str = US, exclude: Sequence[int] = ()) -> tuple[int, ...]:
+    """Every Game it is legitimate to score against. Three filters, all loud.
 
+    `replay_payoffs.usable_games` does the hard half: it rejects any Game whose replayed
+    net does not reproduce the identity net computed from its own rows. Second, a Game with
+    no cached model evidence has nothing to price, so it cannot enter a sweep -- run
+    `scripts/dump_evidence.py --games N` to add one. Third, `exclude` is available for a
+    Game we distrust for a reason outside the harness.
 
-def published_net(game_id: int, us: str = US) -> float:
-    """`income - paid` over our own rows -- the organisers' own definition of the cell."""
-    rows = transactions(us, game_id)
-    income = sum(row["amount"] for row in rows if row["issuer"] == us)
-    paid = sum(
-        row["amount"] if row["accepted"] else 1.5 * row["amount"]
-        for row in rows
-        if row["reviewer"] == us
-    )
-    return income - paid
-
-
-def snapshot(game_id: int, us: str = US) -> GameSnapshot:
-    """Same reconstruction as `replay_payoffs.snapshot`, honest `published_net`."""
-    names = team_names()
-    charges, limits, unrecoverable = _charges_and_limits(game_id, names)
-    fair = brackets(game_id, names)
-    our_rows = transactions(us, game_id)
-    opponents = tuple(
-        sorted(({row["issuer"] for row in our_rows} | {row["reviewer"] for row in our_rows}) - {us})
-    )
-    return GameSnapshot(
-        game_id=game_id,
-        us=us,
-        line_items=tuple(sorted(fair)),
-        fair_brackets=dict(fair),
-        charges=charges,
-        limit_brackets=limits,
-        opponents=opponents,
-        published_net=published_net(game_id, us),
-        unrecoverable=tuple(unrecoverable),
-    )
-
-
-def latest_game(us: str = US) -> int:
-    """Highest Game with cached Transactions for us."""
-    found = [
-        int(path.name[1:4])
-        for path in Path("var/transactions").glob(f"g*_{us.replace(' ', '_')}.json")
-    ]
-    return max(found)
-
-
-def windows(us: str = US) -> dict[str, tuple[int, ...]]:
-    """The three samples the answer is measured on, up to the latest *scoreable* Game.
-
-    A Game is scoreable when its Transactions are cached and its Case has cached model
-    evidence -- without the evidence there is nothing to price, so it cannot enter a sweep.
+    Game 16 was the standing example of the third kind ("its Transactions do not
+    reconstruct") and it is no longer one: it reproduces its -4,721.32 to the cent. The
+    original failure was the `/matrix` window bug, which compared Game 16's rows against
+    Game 17's published cell. It is kept out of the headline numbers only so they stay
+    comparable with the earlier measurements; `--exclude ''` scores it, and it changes
+    nothing that matters -- +634 of income at every ceiling, and a gain over the previous
+    constants of +35,726 either way, because its two Line Items are ones we reject at any
+    Limit in the sweep.
     """
-    last = latest_game(us)
-    everything = tuple(
+    return tuple(
         g
-        for g in range(1, last + 1)
-        if g not in BROKEN and load_evidence(g) is not None and transactions(us, g)
+        for g in usable_games(us=us)
+        if load_evidence(g) is not None and g not in set(exclude)
     )
+
+
+def windows(us: str = US, exclude: Sequence[int] = ()) -> dict[str, tuple[int, ...]]:
+    """The three samples the answer is measured on.
+
+    All Games, Games 15+ (the "recent Field" window that chose the shipped ceiling), and
+    Games 21+ -- Strategy 2's own era, the only on-policy sample and much the smallest.
+    """
+    everything = scoreable(us, exclude)
     return {
         "all": everything,
         "15+": tuple(g for g in everything if g >= 15),
@@ -455,8 +397,8 @@ def censoring(snaps) -> None:
     print("-" * 118)
     for label, t_rule in (("t = t_lo (pessimistic)", "lo"), ("t = mid", "mid"), ("t = t_hi", "hi")):
         for ceiling in (0.30, 0.85):
-            d = score(snaps, replace(Params(), limit_ceiling=ceiling), t_rule=t_rule)
-            print(_row(f"{label} ceil={ceiling:.2f}", d))
+            params = replace(Params(), limit_ceiling=ceiling, coverage_floor=LIMIT_QUANTILE)
+            print(_row(f"{label} ceil={ceiling:.2f}", score(snaps, params, t_rule=t_rule)))
 
 
 def mimic(snaps, teams_to_show: Sequence[str] | None = None) -> None:
@@ -488,9 +430,15 @@ def mimic(snaps, teams_to_show: Sequence[str] | None = None) -> None:
     print(_row("(our constants)", ours))
 
 
-#: What this script recommends shipping: the plateau of every window, with the coverage
-#: collapse made exact instead of arriving via the -8 sigma clamp inside the quantile.
+#: What this script recommended shipping, and what `src.pricing` now carries: the plateau of
+#: every window, with the coverage collapse made exact instead of arriving via the -8 sigma
+#: clamp inside the quantile. `Params()` reads the live constants, so once this is shipped
+#: the two rows agree -- which is the point: re-running `recommend` re-derives the decision.
 RECOMMENDED = replace(Params(), limit_ceiling=0.30, coverage_floor=1.0 - LIMIT_QUANTILE)
+
+#: What was shipped before this measurement: a ceiling from the four Games 15-19, and a
+#: coverage floor at the quantile rather than at `1 - quantile`.
+PREVIOUS = replace(Params(), limit_ceiling=0.85, coverage_floor=LIMIT_QUANTILE)
 
 
 def recommend(snaps_by_window) -> None:
@@ -499,28 +447,29 @@ def recommend(snaps_by_window) -> None:
     for name, snaps in snaps_by_window.items():
         print(f"\n[{name}] {len(snaps)} Games")
         for label, params in (
-            ("shipped", Params()),
+            ("PREVIOUS 0.85", PREVIOUS),
             ("ceil=0.25", replace(Params(), limit_ceiling=0.25)),
             ("ceil=0.30", replace(Params(), limit_ceiling=0.30)),
             ("ceil=0.35", replace(Params(), limit_ceiling=0.35)),
-            ("floor=2/3 only", replace(Params(), coverage_floor=1.0 - LIMIT_QUANTILE)),
+            ("floor=2/3 only", replace(PREVIOUS, coverage_floor=1.0 - LIMIT_QUANTILE)),
             ("RECOMMENDED", RECOMMENDED),
+            ("live constants", Params()),
         ):
             print(_row(label, score(snaps, params)))
-        gain = score(snaps, RECOMMENDED).net - score(snaps, Params()).net
-        print(f"    gain over shipped: {gain:+,.0f} over {len(snaps)} Games "
+        gain = score(snaps, RECOMMENDED).net - score(snaps, PREVIOUS).net
+        print(f"    gain over the previous constants: {gain:+,.0f} over {len(snaps)} Games "
               f"({gain / len(snaps):+,.0f} a Game)")
         for rule in ("lo", "mid", "hi"):
-            d0 = score(snaps, Params(), t_rule=rule)
+            d0 = score(snaps, PREVIOUS, t_rule=rule)
             d1 = score(snaps, RECOMMENDED, t_rule=rule)
-            print(f"    t={rule:<3} shipped {d0.net:12,.0f}  recommended {d1.net:12,.0f}  "
+            print(f"    t={rule:<3} previous {d0.net:12,.0f}  recommended {d1.net:12,.0f}  "
                   f"gain {d1.net - d0.net:+12,.0f}")
-    print("\nper-Game, recommended vs shipped")
+    print("\nper-Game, recommended vs previous")
     for snap in snaps_by_window["all"]:
-        a = score([snap], Params())
+        a = score([snap], PREVIOUS)
         b = score([snap], RECOMMENDED)
         print(
-            f"  G{snap.game_id:3d} shipped {a.net:11,.0f} ({a.accept_rate:5.1%})  "
+            f"  G{snap.game_id:3d} previous {a.net:11,.0f} ({a.accept_rate:5.1%})  "
             f"recommended {b.net:11,.0f} ({b.accept_rate:5.1%})  diff {b.net - a.net:+11,.0f}"
         )
 
@@ -545,9 +494,14 @@ def main() -> None:  # pragma: no cover - CLI
         default="all",
     )
     parser.add_argument("--window", default=None, choices=("all", "15+", "21+"))
+    parser.add_argument(
+        "--exclude",
+        default="16",
+        help="comma-separated Games to leave out; '' scores every reconstructable Game",
+    )
     args = parser.parse_args()
 
-    win = windows()
+    win = windows(exclude=[int(g) for g in args.exclude.split(",") if g.strip()])
     snaps = {name: snapshots(games) for name, games in win.items()}
     chosen = [args.window] if args.window else list(win)
 

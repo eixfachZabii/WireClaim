@@ -12,8 +12,32 @@ measure what it claims. Both of the knobs that follow live in the file this agen
 Everything is scored in euros with `replay_payoffs.replay` against the real Field, over the
 blended ensemble evidence, Price Memory off.
 
-    pixi run python scripts/level_width.py --games 1-15,17-20 --sigma
-    pixi run python scripts/level_width.py --games 1-15,17-20 --coverage
+    pixi run python scripts/experiments/level_width.py --games 1-24 --sigma
+    pixi run python scripts/experiments/level_width.py --games 1-24 --coverage
+
+## Both are negative, and the first one is instructive
+
+**Telling the truth about the width costs money.** Games 1-24, the shipped two-draw blend:
+
+    sigma floor    net        delta
+    ---------- ---------- ----------
+        none      127,292          0
+        0.30      124,699     -2,594
+        0.50      100,431    -26,861
+        0.60       75,347    -51,945
+        0.80       48,711    -78,581
+        1.29     -120,151   -247,443   <- the estimator's *measured* log error
+
+The honest width is the worst cell in the sweep. That is not a paradox: `charge_factor`
+reads sigma as `0.85 - 0.45 * sigma`, so an honest 1.29 drops the Charge to the 0.30 floor,
+and forfeiting 60% of the Charge on every Line Item we *were* pricing correctly costs far
+more than the tail it protects. The band and the Charge line are calibrated **as a pair**;
+fixing one alone unpicks the pair. Anybody re-deriving `CHARGE_INTERCEPT`/`CHARGE_SLOPE`
+from a measured sigma has to move both constants in the same commit, and score it in euros.
+
+**Coverage is already sharp enough to be uninteresting.** Pushing `p -> p**(1+g)` moves the
+total by at most 595 euros over the whole grid (g = 0.25 to 2.0), because `LIMIT_CEILING`
+binds below the coverage quantile at every band width we actually see.
 """
 
 from __future__ import annotations

@@ -21,8 +21,34 @@ Every number below is taken from **Games 1-14 only**, so Games 15-24 are a held-
 the rewrite. The variants are dumped in both framings, hinted and unanchored, because the
 shipped ensemble is both and an A/B that changes only one member measures the wrong thing.
 
-    pixi run python scripts/level_prompt_anchors.py --games 1-24
-    pixi run python scripts/level_fit.py --games 15-24 --tag anchor,anchornohint --apply 0 1
+    pixi run python scripts/experiments/level_prompt_anchors.py --games 1-24
+    pixi run python scripts/experiments/level_fit.py --games 15-24 --tag anchor,anchornohint --apply 0 1
+
+## The result: the most expensive prompt change measured so far. Do not revive it.
+
+Dumped for all 24 Cases in both framings (48 calls) and scored as an ensemble against the
+shipped one:
+
+    ensemble                      Games 1-14   Games 15-24   Games 1-24
+    ---------------------------- ------------ ------------- ------------
+    model, nohint      (shipped)       19,664       107,628      127,292
+    anchor, anchornohint               *4,032*      *18,745*     *22,777*
+    anchor, nohint                          -             -       73,061
+    model, anchornohint                     -             -       30,062
+
+**-104,515 over 24 Games**, four times the noise floor, losing in the fitting window and in
+the held-out window and in both half-swapped ensembles. The mechanism is the one the
+`PROMPT_UNANCHORED` ablation already showed: anchors that raise the level push Charges across
+`t`, and above `t` income is not reduced, it is *zero*. Raising the anchors on the categories
+we under-price also raises them on the items in those categories that we already priced
+correctly, and there are many more of the second kind.
+
+There is a second, subtler reason the "measured" anchors were not measurements at all. The
+recovered Fair Value is `t_lo` whenever nobody rightfully rejected the item, i.e. the
+censored half of the sample is biased *upward*, and the expensive categories are exactly the
+censored ones. So the medians these anchors were written from are themselves inflated. A
+number recovered from settled Games is not automatically ground truth about prices; it is
+ground truth about what the Field paid, which is not the same quantity.
 """
 
 from __future__ import annotations
