@@ -1,10 +1,11 @@
 ### Aufgaben:
-- .zip holen + extraction
-- policy violation detection per line item--> b=0 und a=t
-- t value guess (condifenz interval)
-- given t value guess, error margin and PV (policy violation boolean) calculate a and b per lineitem
-- post to api
-- strategie optimization
+- .zip holen + extraction (jonas)
+- devin api (mathi)
+- policy violation detection per line item--> b=0 und a=t (markus)
+- t value guess (condifenz interval) (lukas)
+- given t value guess, error margin and PV (policy violation boolean) calculate a and b per lineitem 
+- post to api (markus)
+- strategie optimization (sebi)
 
 
 
