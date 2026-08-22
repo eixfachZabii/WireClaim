@@ -120,3 +120,7 @@ The following paths remain intentional skeletons:
 - `strategy2/strategy.py` returns no Proposal after its local estimator call.
 
 The runner always posts complete Standard values after Case loading. A successful Strategy 1 Proposal overwrites its covered Line Items, while all other Line Items retain their current valid values. No strategy may add direct API calls outside `SubmissionCoordinator`.
+
+## Dry Retry
+
+`pixi run start --retry_dry` processes expired Games in chronological order. It stops before the first currently active or future Game. Each Game runs through the normal Case, Fraud Detection, Fast Path, and Strategy flow, but its `PUT /api/games/{id}/submissions` payload is logged instead of being sent to the tournament API. `--retry-dry` and `--game-id` are mutually exclusive.
