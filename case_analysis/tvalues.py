@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 TEAM = "Bin busy"
-TOP_N = 3
+COMPARE = ["eyay", "error404 ai"]
 
 
 def b_mid(interval: dict | None) -> float | None:
@@ -50,8 +50,7 @@ def main() -> None:
     args = parser.parse_args()
 
     analysis = json.loads((DATA_DIR / "analysis.json").read_text())
-    ranked = sorted(analysis["team_summary"], key=lambda s: s["net"], reverse=True)
-    top = [s["team"] for s in ranked if s["team"] != TEAM][:TOP_N]
+    top = COMPARE
     games = analysis["games"][-args.games:]
 
     header = ["game", "item", "t bracket", "t point",
@@ -118,7 +117,7 @@ def main() -> None:
             cell.set_facecolor("#f2f2f2")
     ax.set_title(
         f"Derived t per line item — last {len(games)} settled games: "
-        f"{TEAM} vs. top {TOP_N} ({', '.join(top)}) — a/t side by side, then b/t; "
+        f"{TEAM} vs. {', '.join(top)} — a/t side by side, then b/t; "
         f"last row: avg % our implied t-hat is off the derived t",
         fontsize=11, fontweight="bold", pad=12,
     )
