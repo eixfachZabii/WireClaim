@@ -170,6 +170,12 @@ def main() -> None:
     parser.add_argument("--tail-factor", type=float, default=1.0)
     parser.add_argument("--frozen-pricing", action="store_true", help="see use_frozen_pricing")
     parser.add_argument(
+        "--limit-multiplier",
+        type=float,
+        default=1.0,
+        help="scale every Limit, to separate the income side from the cost side",
+    )
+    parser.add_argument(
         "--limit-ceiling",
         type=float,
         default=None,
@@ -198,6 +204,8 @@ def main() -> None:
             print(f"{game_id:5d} no snapshot: {error}")
             continue
         submission = submission_of(case, model, memory=args.memory)
+        if args.limit_multiplier != 1.0:
+            submission = {i: (a, b * args.limit_multiplier) for i, (a, b) in submission.items()}
         new = replay(snap, submission).net
         actual = replay(snap, our_actual_submission(snap)).net
         total_new += new
