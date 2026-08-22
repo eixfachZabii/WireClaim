@@ -1,0 +1,228 @@
+{
+  "game_id": 32,
+  "items": [
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 318.01,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 206.58,
+      "name": "Speaker system (1 pcs)",
+      "price_high": 815.7816439351698,
+      "price_low": 258.33426201074036,
+      "price_median": 459.06900238188666,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 19.8,
+      "coverage_probability": 0.02,
+      "index": 2,
+      "limit": 0.0,
+      "name": "Shipping (1 pcs)",
+      "price_high": 80.0,
+      "price_low": 10.0,
+      "price_median": 35.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.6320491008145397
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 228.65,
+      "coverage_probability": 0.02,
+      "index": 3,
+      "limit": 0.0,
+      "name": "Installation (1 pcs)",
+      "price_high": 586.5622618852763,
+      "price_low": 185.7471667498386,
+      "price_median": 330.07919999231535,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 448.17,
+      "coverage_probability": 0.98,
+      "index": 4,
+      "limit": 291.13,
+      "name": "TV set (1 pcs)",
+      "price_high": 1149.6791172232608,
+      "price_low": 364.0698568116265,
+      "price_median": 646.96484571172,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.05,
+      "index": 5,
+      "limit": 0.0,
+      "name": "Property and liability damage to electronics (1 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.0,
+      "index": 6,
+      "limit": 0.0,
+      "name": "Property and liability damage to electronics - service (1 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.05,
+      "index": 7,
+      "limit": 0.0,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    }
+  ],
+  "memory_items": 4,
+  "model_draws": 1,
+  "model_items": 7,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        542.5,
+        35.0
+      ],
+      "2": [
+        150.0,
+        0.0
+      ],
+      "3": [
+        150.0,
+        0.0
+      ],
+      "4": [
+        735.0,
+        35.0
+      ],
+      "5": [
+        150.0,
+        0.0
+      ],
+      "6": [
+        150.0,
+        0.0
+      ],
+      "7": [
+        150.0,
+        0.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        318.01,
+        206.58
+      ],
+      "2": [
+        19.8,
+        0.0
+      ],
+      "3": [
+        228.65,
+        0.0
+      ],
+      "4": [
+        448.17,
+        291.13
+      ],
+      "5": [
+        39.62,
+        0.0
+      ],
+      "6": [
+        39.62,
+        0.0
+      ],
+      "7": [
+        39.62,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        735.0,
+        35.0
+      ],
+      "2": [
+        150.0,
+        0.0
+      ],
+      "3": [
+        150.0,
+        0.0
+      ],
+      "4": [
+        595.0,
+        35.0
+      ],
+      "5": [
+        402.5,
+        0.0
+      ],
+      "6": [
+        150.0,
+        0.0
+      ],
+      "7": [
+        150.0,
+        13.33
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787427126.5557718,
+  "recorded_at": 1787427126.554658,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

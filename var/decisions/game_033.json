@@ -1,0 +1,195 @@
+{
+  "game_id": 33,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 237.65,
+      "coverage_probability": 0.975,
+      "index": 1,
+      "limit": 159.73,
+      "name": "Damage assessment and inspection (1 flat rate)",
+      "price_high": 686.6656685409004,
+      "price_low": 183.4954123565518,
+      "price_median": 354.96478698597673,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.40111180946288183
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 369.54,
+      "coverage_probability": 0.98,
+      "index": 2,
+      "limit": 252.56,
+      "name": "Indoor leak detection incl. measurement technician (1 flat rate)",
+      "price_high": 1130.5519184992017,
+      "price_low": 278.624974975196,
+      "price_median": 561.2486080160911,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.42571261824511464
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 1041.32,
+      "coverage_probability": 0.935,
+      "index": 3,
+      "limit": 708.0,
+      "name": "Floor covering removal incl. linoleum and skirting, (1 flat rate)",
+      "price_high": 3489.651502326971,
+      "price_low": 756.5225347687558,
+      "price_median": 1624.807680927191,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.46468839913830057
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.08,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Catering for work crew (3 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 3.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 2509.89,
+      "coverage_probability": 0.975,
+      "index": 5,
+      "limit": 708.0,
+      "name": "Technical drying (large-area, cavity and borehole) incl. (1 flat rate)",
+      "price_high": 6710.277716745085,
+      "price_low": 2002.897729025629,
+      "price_median": 3666.0605559646738,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3674909854505825
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.02,
+      "index": 6,
+      "limit": 0.0,
+      "name": "Electricity for drying equipment (separately metered)2,412.1kWh",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    }
+  ],
+  "memory_items": 0,
+  "model_draws": 2,
+  "model_items": 6,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        315.0,
+        0.0
+      ],
+      "2": [
+        490.0,
+        35.0
+      ],
+      "3": [
+        2450.0,
+        35.0
+      ],
+      "4": [
+        150.0,
+        4.89
+      ],
+      "5": [
+        8225.0,
+        35.0
+      ],
+      "6": [
+        361815.0,
+        0.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        237.65,
+        159.73
+      ],
+      "2": [
+        369.54,
+        252.56
+      ],
+      "3": [
+        1041.32,
+        708.0
+      ],
+      "4": [
+        39.62,
+        0.0
+      ],
+      "5": [
+        2509.89,
+        708.0
+      ],
+      "6": [
+        39.62,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        332.5,
+        0.0
+      ],
+      "2": [
+        455.0,
+        35.0
+      ],
+      "3": [
+        2695.0,
+        35.0
+      ],
+      "4": [
+        450.0,
+        15.0
+      ],
+      "5": [
+        2205.0,
+        35.0
+      ],
+      "6": [
+        361815.0,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787427878.812991,
+  "recorded_at": 1787427851.95392,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

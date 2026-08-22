@@ -1,0 +1,719 @@
+{
+  "game_id": 48,
+  "items": [
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 140.46,
+      "coverage_probability": 0.425,
+      "index": 1,
+      "limit": 0.0,
+      "name": "Clean / dry conservatory rug (1 pcs)",
+      "price_high": 360.3279739132192,
+      "price_low": 114.10536375110476,
+      "price_median": 202.76921495401234,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 204.55,
+      "coverage_probability": 0.96,
+      "index": 2,
+      "limit": 204.55,
+      "name": "Inspect plant-room electrical systems (1 pcs)",
+      "price_high": 524.7449412002672,
+      "price_low": 166.1714236115042,
+      "price_median": 295.2924210205597,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 643.06,
+      "coverage_probability": 0.985,
+      "index": 3,
+      "limit": 460.01,
+      "name": "Replace plant-room electrical components confirmed (1 flat rate)",
+      "price_high": 2292.5293355586796,
+      "price_low": 455.8284091685731,
+      "price_median": 1022.2524150130431,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.490970990076643
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Preventive replacement of adjacent electrical",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 283.51,
+      "coverage_probability": 0.5,
+      "index": 5,
+      "limit": 0.0,
+      "name": "Inspect pool technology (1 pcs)",
+      "price_high": 727.2977778187872,
+      "price_low": 230.31400141408318,
+      "price_median": 409.27602107748226,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 226.33,
+      "coverage_probability": 0.475,
+      "index": 6,
+      "limit": 0.0,
+      "name": "Pool filter system maintenance (1 pcs)",
+      "price_high": 580.5940109298684,
+      "price_low": 183.8571956803465,
+      "price_median": 326.7206554204525,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 567.38,
+      "coverage_probability": 0.35000000000000003,
+      "index": 7,
+      "limit": 0.0,
+      "name": "Upgrade to high-quality natural stone floor (12 m\u00b2)",
+      "price_high": 1455.4980156058177,
+      "price_low": 460.91378558832486,
+      "price_median": 819.0598880968181,
+      "quantity": 12.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 513.2,
+      "coverage_probability": 0.975,
+      "index": 8,
+      "limit": 513.2,
+      "name": "Restore wall surfaces (10 m\u00b2)",
+      "price_high": 1316.5132773008288,
+      "price_low": 416.90137115401757,
+      "price_median": 740.848291115789,
+      "quantity": 10.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 106.76,
+      "coverage_probability": 0.98,
+      "index": 9,
+      "limit": 106.76,
+      "name": "Final site cleaning (1 pcs)",
+      "price_high": 273.87709196034433,
+      "price_low": 86.728889966107,
+      "price_median": 154.12026528937093,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 62.19,
+      "coverage_probability": 0.935,
+      "index": 10,
+      "limit": 62.19,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 159.53211648442192,
+      "price_low": 50.51917003208492,
+      "price_median": 89.77432883767435,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 11,
+      "limit": 0.0,
+      "name": "Catering for work crew",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 342.56,
+      "coverage_probability": 0.99,
+      "index": 12,
+      "limit": 342.56,
+      "name": "Leak detection pool pipeline (1 pcs)",
+      "price_high": 878.7719201765293,
+      "price_low": 278.28144597551886,
+      "price_median": 494.5158446697212,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 309.75,
+      "coverage_probability": 0.5,
+      "index": 13,
+      "limit": 0.0,
+      "name": "Repair pool supply pipe connection (1 pcs)",
+      "price_high": 794.61299845413,
+      "price_low": 251.63076917198018,
+      "price_median": 447.1566615796596,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 273.99,
+      "coverage_probability": 0.5,
+      "index": 14,
+      "limit": 0.0,
+      "name": "Skilled worker hours (5 hrs)",
+      "price_high": 702.8554105588415,
+      "price_low": 222.5738163353474,
+      "price_median": 395.5214419725292,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 84.26,
+      "coverage_probability": 0.5,
+      "index": 15,
+      "limit": 0.0,
+      "name": "Material for pool pipe repair (1 pcs)",
+      "price_high": 216.14315474322348,
+      "price_low": 68.44623531845646,
+      "price_median": 121.63134970898014,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 195.69,
+      "coverage_probability": 0.99,
+      "index": 16,
+      "limit": 195.69,
+      "name": "Moisture measurement (1 pcs)",
+      "price_high": 501.99451411426685,
+      "price_low": 158.967026656284,
+      "price_median": 282.48995611616175,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 17,
+      "limit": 0.0,
+      "name": "Vehicle costs \u2013 return visit",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 61.42,
+      "coverage_probability": 0.955,
+      "index": 18,
+      "limit": 61.42,
+      "name": "Construction waste disposal (1 pcs)",
+      "price_high": 157.56903565456486,
+      "price_low": 49.89751956811732,
+      "price_median": 88.66963426056874,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 170.18,
+      "coverage_probability": 0.99,
+      "index": 19,
+      "limit": 170.18,
+      "name": "Vacuum water (1 pcs)",
+      "price_high": 436.5645015618435,
+      "price_low": 138.24724933382805,
+      "price_median": 245.6701884594843,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 448.7,
+      "coverage_probability": 0.99,
+      "index": 20,
+      "limit": 448.7,
+      "name": "Room drying (pool/conservatory) (1 pcs)",
+      "price_high": 1151.0439370872923,
+      "price_low": 364.5020554703894,
+      "price_median": 647.7328778169652,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 108.57,
+      "coverage_probability": 0.99,
+      "index": 21,
+      "limit": 108.57,
+      "name": "Condensation dryer (2 pcs)",
+      "price_high": 278.5236654315056,
+      "price_low": 88.20032431067106,
+      "price_median": 156.7350554893692,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 78.23,
+      "coverage_probability": 0.99,
+      "index": 22,
+      "limit": 78.23,
+      "name": "Drying fan (3 pcs)",
+      "price_high": 200.69169862062716,
+      "price_low": 63.55320966128751,
+      "price_median": 112.9362722942308,
+      "quantity": 3.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 936.46,
+      "coverage_probability": 0.975,
+      "index": 23,
+      "limit": 936.46,
+      "name": "Replace skirting boards (15 m)",
+      "price_high": 2402.31079798215,
+      "price_low": 760.741788848672,
+      "price_median": 1351.864717280328,
+      "quantity": 15.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 24,
+      "limit": 0.0,
+      "name": "Replace inflatable pool float (drifted and damaged)",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 25,
+      "limit": 0.0,
+      "name": "Replace and refill knocked-over plant pots",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 872.88,
+      "coverage_probability": 0.0,
+      "index": 26,
+      "limit": 0.0,
+      "name": "Repaint garage (adjacent, not water-affected) (1 flat rate)",
+      "price_high": 2471.5100132253974,
+      "price_low": 679.7463862214121,
+      "price_median": 1296.1481396815714,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3923601267635764
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 27,
+      "limit": 0.0,
+      "name": "Construction waste disposal",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    }
+  ],
+  "memory_items": 25,
+  "model_draws": 2,
+  "model_items": 27,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        220.5,
+        35.0
+      ],
+      "10": [
+        150.0,
+        35.0
+      ],
+      "11": [
+        150.0,
+        35.0
+      ],
+      "12": [
+        420.0,
+        35.0
+      ],
+      "13": [
+        455.0,
+        35.0
+      ],
+      "14": [
+        750.0,
+        35.0
+      ],
+      "15": [
+        150.0,
+        26.67
+      ],
+      "16": [
+        154.0,
+        35.0
+      ],
+      "17": [
+        150.0,
+        35.0
+      ],
+      "18": [
+        238.0,
+        35.0
+      ],
+      "19": [
+        360.5,
+        35.0
+      ],
+      "2": [
+        210.0,
+        35.0
+      ],
+      "20": [
+        665.0,
+        35.0
+      ],
+      "21": [
+        630.0,
+        35.0
+      ],
+      "22": [
+        450.0,
+        35.0
+      ],
+      "23": [
+        2250.0,
+        35.0
+      ],
+      "24": [
+        150.0,
+        35.0
+      ],
+      "25": [
+        150.0,
+        35.0
+      ],
+      "26": [
+        612.5,
+        35.0
+      ],
+      "27": [
+        150.0,
+        35.0
+      ],
+      "3": [
+        997.5,
+        35.0
+      ],
+      "4": [
+        150.0,
+        35.0
+      ],
+      "5": [
+        185.5,
+        35.0
+      ],
+      "6": [
+        238.0,
+        0.0
+      ],
+      "7": [
+        1800.0,
+        35.0
+      ],
+      "8": [
+        1500.0,
+        35.0
+      ],
+      "9": [
+        231.0,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        140.46,
+        0.0
+      ],
+      "10": [
+        62.19,
+        62.19
+      ],
+      "11": [
+        64.06,
+        0.0
+      ],
+      "12": [
+        342.56,
+        342.56
+      ],
+      "13": [
+        309.75,
+        0.0
+      ],
+      "14": [
+        273.99,
+        0.0
+      ],
+      "15": [
+        84.26,
+        0.0
+      ],
+      "16": [
+        195.69,
+        195.69
+      ],
+      "17": [
+        64.06,
+        0.0
+      ],
+      "18": [
+        61.42,
+        61.42
+      ],
+      "19": [
+        170.18,
+        170.18
+      ],
+      "2": [
+        204.55,
+        204.55
+      ],
+      "20": [
+        448.7,
+        448.7
+      ],
+      "21": [
+        108.57,
+        108.57
+      ],
+      "22": [
+        78.23,
+        78.23
+      ],
+      "23": [
+        936.46,
+        936.46
+      ],
+      "24": [
+        64.06,
+        0.0
+      ],
+      "25": [
+        64.06,
+        0.0
+      ],
+      "26": [
+        872.88,
+        0.0
+      ],
+      "27": [
+        64.06,
+        0.0
+      ],
+      "3": [
+        643.06,
+        460.01
+      ],
+      "4": [
+        64.06,
+        0.0
+      ],
+      "5": [
+        283.51,
+        0.0
+      ],
+      "6": [
+        226.33,
+        0.0
+      ],
+      "7": [
+        567.38,
+        0.0
+      ],
+      "8": [
+        513.2,
+        513.2
+      ],
+      "9": [
+        106.76,
+        106.76
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787439252.443221,
+  "recorded_at": 1787439245.067599,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

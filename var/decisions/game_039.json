@@ -1,0 +1,108 @@
+{
+  "game_id": 39,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 275.74,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 174.98,
+      "name": "Floor cleaning, washing machine connection check, (4 pcs)",
+      "price_high": 650.7784875139055,
+      "price_low": 232.3371206961864,
+      "price_median": 388.84444190447147,
+      "quantity": 4.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.31306379816773927
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 392.7,
+      "coverage_probability": 0.98,
+      "index": 2,
+      "limit": 234.0,
+      "name": "Moisture measurement and drying of the utility room (1 flat rate)",
+      "price_high": 735.3910524340093,
+      "price_low": 367.6955262170047,
+      "price_median": 520.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.21068303360484655
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 203.51,
+      "coverage_probability": 0.495,
+      "index": 3,
+      "limit": 0.0,
+      "name": "Assessment and drying of a small framed decorative (2 pcs)",
+      "price_high": 838.3829596076753,
+      "price_low": 136.45315507549674,
+      "price_median": 338.2306905057553,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.5518217686935449
+    }
+  ],
+  "memory_items": 0,
+  "model_draws": 2,
+  "model_items": 3,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        735.0,
+        35.0
+      ],
+      "2": [
+        420.0,
+        35.0
+      ],
+      "3": [
+        150.0,
+        20.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        275.74,
+        174.98
+      ],
+      "2": [
+        392.7,
+        234.0
+      ],
+      "3": [
+        203.51,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        787.5,
+        35.0
+      ],
+      "2": [
+        577.5,
+        35.0
+      ],
+      "3": [
+        182.0,
+        35.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787432415.829962,
+  "recorded_at": 1787432415.82953,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

@@ -1,0 +1,43 @@
+{
+  "game_id": 42,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 78.9,
+      "coverage_probability": 0.95,
+      "index": 1,
+      "limit": 45.0,
+      "name": "Drying fan",
+      "price_high": 125.0,
+      "price_low": 80.0,
+      "price_median": 100.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.1356495752669968
+    },
+    {
+      "channels": [],
+      "charge": 300.0,
+      "coverage_probability": null,
+      "index": 2,
+      "limit": 35.0,
+      "name": "Nor this",
+      "price_high": null,
+      "price_low": null,
+      "price_median": null,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uninformed-constants",
+      "sigma": null
+    }
+  ],
+  "memory_items": 0,
+  "model_draws": 1,
+  "model_items": 1,
+  "recorded_at": 1787439652.2197409,
+  "schema": 2,
+  "strategy": "strategy2"
+}

@@ -1,0 +1,138 @@
+{
+  "game_id": 27,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.01,
+      "index": 1,
+      "limit": 0.0,
+      "name": "Translation from Spanish to English 68 lines",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.0,
+      "index": 2,
+      "limit": 0.0,
+      "name": "Material costs (1 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 1149.78,
+      "coverage_probability": 0.975,
+      "index": 3,
+      "limit": 1138.42,
+      "name": "Compensation for robbery damage (1 pcs)",
+      "price_high": 28028.744987167192,
+      "price_low": 513.7582865944561,
+      "price_median": 3794.7331922020508,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 1.21557233250365
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.0,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Shipping (1 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    }
+  ],
+  "memory_items": 1,
+  "model_draws": 2,
+  "model_items": 4,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        10200.0,
+        1.0
+      ],
+      "2": [
+        150.0,
+        0.33
+      ],
+      "3": [
+        2030.0,
+        35.0
+      ],
+      "4": [
+        150.0,
+        0.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        39.62,
+        0.0
+      ],
+      "2": [
+        39.62,
+        0.0
+      ],
+      "3": [
+        1149.78,
+        1138.42
+      ],
+      "4": [
+        39.62,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        10200.0,
+        35.0
+      ],
+      "2": [
+        150.0,
+        1.67
+      ],
+      "3": [
+        21000.0,
+        35.0
+      ],
+      "4": [
+        150.0,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787423758.150362,
+  "recorded_at": 1787423741.9743428,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

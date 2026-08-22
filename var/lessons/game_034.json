@@ -1,0 +1,870 @@
+{
+  "game_id": 34,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 41383.88,
+    "paid_on_accepts": 3006.31,
+    "penalties": 42326.13,
+    "net": -3948.5599999999977
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Profipress elbow 90\u00b0 copper 15mm (4 pcs)",
+      "t_lo": 38.82,
+      "t_hi": 43.48,
+      "our_charge": 37.28,
+      "our_limit_bracket": [
+        24.0,
+        26.96
+      ],
+      "estimate_median": 53.81728404199493,
+      "coverage_probability": 0.9199999999999999,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 239.20499999999998,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Profipress elbow 90\u00b0 copper 28mm (5 pcs)",
+      "t_lo": 92.04,
+      "t_hi": 138.84,
+      "our_charge": 80.86,
+      "our_limit_bracket": [
+        50.68,
+        53.0
+      ],
+      "estimate_median": 116.72224788006876,
+      "coverage_probability": 0.75,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 754.6800000000001,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Profipress elbow 45\u00b0 copper 28mm (1 pcs)",
+      "t_lo": 21.04,
+      "t_hi": 27.77,
+      "our_charge": 16.76,
+      "our_limit_bracket": [
+        10.72,
+        11.5
+      ],
+      "estimate_median": 24.19379321865353,
+      "coverage_probability": 0.75,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 138.465,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Grub screw (8 pcs)",
+      "t_lo": 9.0,
+      "t_hi": 18.35,
+      "our_charge": 6.88,
+      "our_limit_bracket": [
+        3.94,
+        5.5
+      ],
+      "estimate_median": 9.930979003124948,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 62.565,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Two-screw pipe clamp 10 mm (4 pcs)",
+      "t_lo": 16.93,
+      "t_hi": 49.5,
+      "our_charge": 11.22,
+      "our_limit_bracket": [
+        7.2,
+        7.6
+      ],
+      "estimate_median": 16.733200530681508,
+      "coverage_probability": 0.89,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 173.865,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Two-screw pipe clamp 25 mm (4 pcs)",
+      "t_lo": 18.86,
+      "t_hi": 49.5,
+      "our_charge": 88.11,
+      "our_limit_bracket": [
+        49.5,
+        Infinity
+      ],
+      "estimate_median": 127.19725116440642,
+      "coverage_probability": 0.825,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 88 against t < 50, so every opponent owed us nothing."
+    },
+    {
+      "index": 7,
+      "name": "Copper pipe 15x1 (6.4 m)",
+      "t_lo": 115.16,
+      "t_hi": null,
+      "our_charge": 66.93,
+      "our_limit_bracket": [
+        38.4,
+        43.9
+      ],
+      "estimate_median": 96.61864686560388,
+      "coverage_probability": 0.9450000000000001,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1411.845,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Service technician hours (6.75 hrs)",
+      "t_lo": 629.0,
+      "t_hi": null,
+      "our_charge": 357.4,
+      "our_limit_bracket": [
+        0.0,
+        267.3
+      ],
+      "estimate_median": 515.9341357876395,
+      "coverage_probability": 0.955,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 8138.37,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Helper hours (5.75 hrs)",
+      "t_lo": 350.69,
+      "t_hi": null,
+      "our_charge": 233.45,
+      "our_limit_bracket": [
+        144.21,
+        212.35
+      ],
+      "estimate_median": 337.0003199562508,
+      "coverage_probability": 0.915,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 5441.025,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 10,
+      "name": "Rock wool pipe insulation (6 pcs)",
+      "t_lo": 68.44,
+      "t_hi": 222.36,
+      "our_charge": 39.26,
+      "our_limit_bracket": [
+        0.0,
+        29.99
+      ],
+      "estimate_median": 56.6795479272028,
+      "coverage_probability": 0.915,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 825.63,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Rock wool mat (6 pcs)",
+      "t_lo": 73.33,
+      "t_hi": 218.42,
+      "our_charge": 57.09,
+      "our_limit_bracket": [
+        36.0,
+        40.9
+      ],
+      "estimate_median": 88.31760866327845,
+      "coverage_probability": 0.8,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 803.01,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 12,
+      "name": "Binding wire (2 kg)",
+      "t_lo": 21.26,
+      "t_hi": null,
+      "our_charge": 13.96,
+      "our_limit_bracket": [
+        7.85,
+        9.67
+      ],
+      "estimate_median": 20.149800808477146,
+      "coverage_probability": 0.815,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 245.775,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 13,
+      "name": "Small parts and consumables (1 pcs)",
+      "t_lo": 43.67,
+      "t_hi": 49.5,
+      "our_charge": 49.85,
+      "our_limit_bracket": [
+        28.56,
+        32.59
+      ],
+      "estimate_median": 71.96218446691041,
+      "coverage_probability": 0.8999999999999999,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 227.37,
+      "stage": "charge-above-t",
+      "why": "Charged 50 against t < 50, so every opponent owed us nothing."
+    },
+    {
+      "index": 14,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 82.0,
+      "t_hi": 85.5,
+      "our_charge": 56.11,
+      "our_limit_bracket": [
+        33.73,
+        45.0
+      ],
+      "estimate_median": 80.99486892937021,
+      "coverage_probability": 0.95,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 916.56,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 15,
+      "name": "Vehicle costs \u2013 return visit (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 21.44,
+      "our_charge": 56.11,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 80.99486892937021,
+      "coverage_probability": 0.015,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 16,
+      "name": "Construction waste disposal (1 pcs)",
+      "t_lo": 54.0,
+      "t_hi": 59.08,
+      "our_charge": 59.92,
+      "our_limit_bracket": [
+        0.0,
+        40.43
+      ],
+      "estimate_median": 86.49293662335886,
+      "coverage_probability": 0.91,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 566.7,
+      "stage": "charge-above-t",
+      "why": "Charged 60 against t < 59, so every opponent owed us nothing."
+    },
+    {
+      "index": 17,
+      "name": "Catering for work crew (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 9.77,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 77.13624310270762,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 18,
+      "name": "Processing flat fee (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 7.94,
+      "our_charge": 31.22,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 47.434164902525694,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 19,
+      "name": "Removal of water-damaged floor tiles around leak (8 m\u00b2)",
+      "t_lo": 319.12,
+      "t_hi": 476.59,
+      "our_charge": 289.99,
+      "our_limit_bracket": [
+        104.29,
+        193.48
+      ],
+      "estimate_median": 395.22145690739006,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 3961.5,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 20,
+      "name": "Supply and lay replacement floor tiles (water-damaged (8 m\u00b2)",
+      "t_lo": 876.72,
+      "t_hi": null,
+      "our_charge": 733.7,
+      "our_limit_bracket": [
+        360.0,
+        473.04
+      ],
+      "estimate_median": 954.9869109050654,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 10008.81,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 21,
+      "name": "Tile adhesive and grout (1 flat rate)",
+      "t_lo": 92.0,
+      "t_hi": 104.14,
+      "our_charge": 108.09,
+      "our_limit_bracket": [
+        67.47,
+        76.86
+      ],
+      "estimate_median": 153.70426148939396,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 736.71,
+      "stage": "charge-above-t",
+      "why": "Charged 108 against t < 104, so every opponent owed us nothing."
+    },
+    {
+      "index": 22,
+      "name": "Installation hours \u2013 tiler (6 hrs)",
+      "t_lo": 482.95,
+      "t_hi": null,
+      "our_charge": 423.97,
+      "our_limit_bracket": [
+        237.6,
+        243.59
+      ],
+      "estimate_median": 540.0000000000002,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 6761.58,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 23,
+      "name": "Cleaning, disinfection and re-coating of surrounding (5 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 50.0,
+      "our_charge": 343.48,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 449.5553358597802,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 24,
+      "name": "Construction waste disposal (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 34.0,
+      "our_charge": 61.24,
+      "our_limit_bracket": [
+        34.49,
+        Infinity
+      ],
+      "estimate_median": 88.41002363644591,
+      "coverage_probability": 0.89,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.89 but the item is worth about nothing (t < 34)."
+    },
+    {
+      "index": 25,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 72.17,
+      "t_hi": null,
+      "our_charge": 56.11,
+      "our_limit_bracket": [
+        33.73,
+        45.0
+      ],
+      "estimate_median": 80.99486892937021,
+      "coverage_probability": 0.95,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 912.465,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -46700.189999999995,
+        "income": 0.0,
+        "cost": 46700.189999999995,
+        "items_priced": 25,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": -3948.5599999999977,
+        "income": 41383.880000000005,
+        "cost": 45332.44,
+        "items_priced": 25,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 20,
+        "name": "Supply and lay replacement floor tiles (water-damaged (8 m\u00b2)",
+        "delta": -12183.855000000003,
+        "winner_net": 841.0800000000017,
+        "alternative_net": -11342.775000000001,
+        "t_hat": 954.9869109050654,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 876.72,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 22,
+        "name": "Installation hours \u2013 tiler (6 hrs)",
+        "delta": -6902.320000000002,
+        "winner_net": -215.65999999999713,
+        "alternative_net": -7117.98,
+        "t_hat": 540.0000000000002,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 482.95,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 8,
+        "name": "Service technician hours (6.75 hrs)",
+        "delta": -5718.399999999999,
+        "winner_net": -2419.970000000002,
+        "alternative_net": -8138.370000000001,
+        "t_hat": 515.9341357876395,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 629.0,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 19,
+        "name": "Removal of water-damaged floor tiles around leak (8 m\u00b2)",
+        "delta": -4739.984999999998,
+        "winner_net": 478.04999999999836,
+        "alternative_net": -4261.9349999999995,
+        "t_hat": 395.22145690739006,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 319.12,
+        "t_hi": 476.59,
+        "rule": "priced"
+      },
+      {
+        "index": 9,
+        "name": "Helper hours (5.75 hrs)",
+        "delta": -3807.3049999999994,
+        "winner_net": -1850.0350000000008,
+        "alternative_net": -5657.34,
+        "t_hat": 337.0003199562508,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 350.69,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Profipress elbow 90\u00b0 copper 28mm (5 pcs)",
+        "delta": -1384.79,
+        "winner_net": 323.01999999999975,
+        "alternative_net": -1061.7700000000002,
+        "t_hat": 116.72224788006876,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 92.04,
+        "t_hi": 138.84,
+        "rule": "priced"
+      },
+      {
+        "index": 7,
+        "name": "Copper pipe 15x1 (6.4 m)",
+        "delta": -1108.9800000000007,
+        "winner_net": -417.1649999999993,
+        "alternative_net": -1526.145,
+        "t_hat": 96.61864686560388,
+        "bucket": "t_hat < 100",
+        "t_lo": 115.16,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 11,
+        "name": "Rock wool mat (6 pcs)",
+        "delta": -944.9400000000004,
+        "winner_net": 47.430000000000405,
+        "alternative_net": -897.51,
+        "t_hat": 88.31760866327845,
+        "bucket": "t_hat < 100",
+        "t_lo": 73.33,
+        "t_hi": 218.42,
+        "rule": "priced"
+      },
+      {
+        "index": 14,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -897.7600000000001,
+        "winner_net": -109.68999999999983,
+        "alternative_net": -1007.4499999999999,
+        "t_hat": 80.99486892937021,
+        "bucket": "t_hat < 100",
+        "t_lo": 82.0,
+        "t_hi": 85.5,
+        "rule": "priced"
+      },
+      {
+        "index": 25,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -897.7600000000001,
+        "winner_net": -130.17499999999984,
+        "alternative_net": -1027.935,
+        "t_hat": 80.99486892937021,
+        "bucket": "t_hat < 100",
+        "t_lo": 72.17,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Profipress elbow 90\u00b0 copper 15mm (4 pcs)",
+        "delta": -631.7749999999999,
+        "winner_net": 265.68499999999983,
+        "alternative_net": -366.09,
+        "t_hat": 53.81728404199493,
+        "bucket": "t_hat < 100",
+        "t_lo": 38.82,
+        "t_hi": 43.48,
+        "rule": "priced"
+      },
+      {
+        "index": 10,
+        "name": "Rock wool pipe insulation (6 pcs)",
+        "delta": -597.165,
+        "winner_net": -197.47000000000003,
+        "alternative_net": -794.635,
+        "t_hat": 56.6795479272028,
+        "bucket": "t_hat < 100",
+        "t_lo": 68.44,
+        "t_hi": 222.36,
+        "rule": "priced"
+      },
+      {
+        "index": 21,
+        "name": "Tile adhesive and grout (1 flat rate)",
+        "delta": -494.8599999999999,
+        "winner_net": -785.6200000000001,
+        "alternative_net": -1280.48,
+        "t_hat": 153.70426148939396,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 92.0,
+        "t_hi": 104.14,
+        "rule": "priced"
+      },
+      {
+        "index": 16,
+        "name": "Construction waste disposal (1 pcs)",
+        "delta": -419.44000000000005,
+        "winner_net": -147.26,
+        "alternative_net": -566.7,
+        "t_hat": 86.49293662335886,
+        "bucket": "t_hat < 100",
+        "t_lo": 54.0,
+        "t_hi": 59.08,
+        "rule": "priced"
+      },
+      {
+        "index": 23,
+        "name": "Cleaning, disinfection and re-coating of surrounding (5 hrs)",
+        "delta": -343.48,
+        "winner_net": 343.48,
+        "alternative_net": 0.0,
+        "t_hat": 449.5553358597802,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 50.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 3,
+        "name": "Profipress elbow 45\u00b0 copper 28mm (1 pcs)",
+        "delta": -256.28499999999997,
+        "winner_net": 83.09499999999997,
+        "alternative_net": -173.19,
+        "t_hat": 24.19379321865353,
+        "bucket": "t_hat < 100",
+        "t_lo": 21.04,
+        "t_hi": 27.77,
+        "rule": "priced"
+      },
+      {
+        "index": 24,
+        "name": "Construction waste disposal (1 pcs)",
+        "delta": -244.96,
+        "winner_net": 176.47,
+        "alternative_net": -68.49000000000001,
+        "t_hat": 88.41002363644591,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 34.0,
+        "rule": "priced"
+      },
+      {
+        "index": 12,
+        "name": "Binding wire (2 kg)",
+        "delta": -230.28500000000005,
+        "winner_net": -36.2649999999999,
+        "alternative_net": -266.54999999999995,
+        "t_hat": 20.149800808477146,
+        "bucket": "t_hat < 100",
+        "t_lo": 21.26,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 13,
+        "name": "Small parts and consumables (1 pcs)",
+        "delta": -201.20499999999998,
+        "winner_net": -240.32999999999998,
+        "alternative_net": -441.53499999999997,
+        "t_hat": 71.96218446691041,
+        "bucket": "t_hat < 100",
+        "t_lo": 43.67,
+        "t_hi": 49.5,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Two-screw pipe clamp 10 mm (4 pcs)",
+        "delta": -171.72,
+        "winner_net": -1.5449999999999875,
+        "alternative_net": -173.265,
+        "t_hat": 16.733200530681508,
+        "bucket": "t_hat < 100",
+        "t_lo": 16.93,
+        "t_hi": 49.5,
+        "rule": "priced"
+      },
+      {
+        "index": 18,
+        "name": "Processing flat fee (1 pcs)",
+        "delta": -135.6,
+        "winner_net": 62.44,
+        "alternative_net": -73.16,
+        "t_hat": 47.434164902525694,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 7.94,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 15,
+        "name": "Vehicle costs \u2013 return visit (1 pcs)",
+        "delta": -134.70999999999998,
+        "winner_net": 56.11,
+        "alternative_net": -78.6,
+        "t_hat": 80.99486892937021,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 21.44,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 4,
+        "name": "Grub screw (8 pcs)",
+        "delta": -116.74999999999997,
+        "winner_net": 34.17499999999998,
+        "alternative_net": -82.57499999999999,
+        "t_hat": 9.930979003124948,
+        "bucket": "t_hat < 100",
+        "t_lo": 9.0,
+        "t_hi": 18.35,
+        "rule": "priced"
+      },
+      {
+        "index": 6,
+        "name": "Two-screw pipe clamp 25 mm (4 pcs)",
+        "delta": -98.99,
+        "winner_net": -108.41000000000001,
+        "alternative_net": -207.4,
+        "t_hat": 127.19725116440642,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 18.86,
+        "t_hi": 49.5,
+        "rule": "priced"
+      },
+      {
+        "index": 17,
+        "name": "Catering for work crew (1 pcs)",
+        "delta": -88.30999999999999,
+        "winner_net": 0.0,
+        "alternative_net": -88.30999999999999,
+        "t_hat": 77.13624310270762,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 9.77,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": -3948.560000000005,
+    "replayed_actual_net": -3948.5599999999977,
+    "oracle_net": 30424.9,
+    "oracle_exact_net": 30539.79,
+    "line_items": 25,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": -42751.63
+  },
+  "estimate": {
+    "n_scorable": 13,
+    "median_log_error": -0.006641359101295985,
+    "rmsle": 0.5604735898102579
+  },
+  "cost_by_stage": {
+    "ok": 40795.35,
+    "charge-above-t": 1530.7800000000002,
+    "coverage-too-high": 0.0
+  }
+}

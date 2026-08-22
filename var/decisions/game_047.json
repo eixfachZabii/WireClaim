@@ -1,0 +1,520 @@
+{
+  "game_id": 47,
+  "items": [
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 61.5,
+      "coverage_probability": 0.96,
+      "index": 1,
+      "limit": 61.5,
+      "name": "Vehicle costs (1 flat rate)",
+      "price_high": 157.76634153330986,
+      "price_low": 49.960000587339685,
+      "price_median": 88.78066521302144,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 15.26,
+      "coverage_probability": 0.935,
+      "index": 2,
+      "limit": 11.02,
+      "name": "Sealing material (1 pcs)",
+      "price_high": 56.13117542791545,
+      "price_low": 10.689247025844479,
+      "price_median": 24.49489742783178,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.5040890834635525
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 25.62,
+      "coverage_probability": 0.575,
+      "index": 3,
+      "limit": 0.0,
+      "name": "Stainless steel pipe (1 m)",
+      "price_high": 78.87384201046422,
+      "price_low": 19.271281343164954,
+      "price_median": 38.987177379235845,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42833850000493
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 27.58,
+      "coverage_probability": 0.925,
+      "index": 4,
+      "limit": 27.58,
+      "name": "Rock wool pipe insulation (1 m)",
+      "price_high": 70.7491338193383,
+      "price_low": 22.404187945384,
+      "price_median": 39.81302413861045,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 206.66,
+      "coverage_probability": 0.945,
+      "index": 5,
+      "limit": 206.66,
+      "name": "Installation (1 m)",
+      "price_high": 530.1460585453179,
+      "price_low": 167.88180000173094,
+      "price_median": 298.33181957748155,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 60.95,
+      "coverage_probability": 0.01,
+      "index": 6,
+      "limit": 0.0,
+      "name": "Measuring device (1 pcs)",
+      "price_high": 272.329147068363,
+      "price_low": 39.65789235659323,
+      "price_median": 103.92304845413258,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.5856296216872912
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 641.61,
+      "coverage_probability": 0.935,
+      "index": 7,
+      "limit": 367.49,
+      "name": "Service technician hours 9 labor units",
+      "price_high": 1033.1176852267886,
+      "price_low": 645.5218118288265,
+      "price_median": 816.6394553289718,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.14294145531901026
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 61.5,
+      "coverage_probability": 0.01,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 157.76634153330986,
+      "price_low": 49.960000587339685,
+      "price_median": 88.78066521302144,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 304.69,
+      "coverage_probability": 0.945,
+      "index": 9,
+      "limit": 191.25,
+      "name": "Construction dryer flat-rate charge (1 flat rate)",
+      "price_high": 691.2950387215592,
+      "price_low": 261.28496500428747,
+      "price_median": 425.00000000000017,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.2957310256922968
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 11.01,
+      "coverage_probability": 0.01,
+      "index": 10,
+      "limit": 0.0,
+      "name": "Short saw blade (1 pcs)",
+      "price_high": 48.66500013943126,
+      "price_low": 7.192027103610531,
+      "price_median": 18.708286933869704,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.5811510708217942
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 31.74,
+      "coverage_probability": 0.94,
+      "index": 11,
+      "limit": 22.39,
+      "name": "Gunmetal (2 pcs)",
+      "price_high": 108.01861166928995,
+      "price_low": 22.912718111740467,
+      "price_median": 49.749371855331,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.471310458995059
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 641.61,
+      "coverage_probability": 0.855,
+      "index": 12,
+      "limit": 367.49,
+      "name": "Service technician hours 9 labor units",
+      "price_high": 1033.1176852267886,
+      "price_low": 645.5218118288265,
+      "price_median": 816.6394553289718,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.14294145531901026
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 450.5,
+      "coverage_probability": 0.955,
+      "index": 13,
+      "limit": 284.25,
+      "name": "Painting the disturbed wall area and closing the wall (1 pcs)",
+      "price_high": 1041.5383695622077,
+      "price_low": 383.08718301728334,
+      "price_median": 631.6644678941506,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3040095761462932
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 364.08,
+      "coverage_probability": 0.935,
+      "index": 14,
+      "limit": 236.41,
+      "name": "Re-tiling of the disturbed wall section around the (1 flat rate)",
+      "price_high": 932.5616696935276,
+      "price_low": 295.9589794106631,
+      "price_median": 525.3570214625482,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34884936820740975
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 15,
+      "limit": 0.0,
+      "name": "Re-tiling of the entire bathroom to match",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 304.69,
+      "coverage_probability": 0.01,
+      "index": 16,
+      "limit": 0.0,
+      "name": "Construction dryer flat-rate charge (1 flat rate)",
+      "price_high": 691.2950387215592,
+      "price_low": 261.28496500428747,
+      "price_median": 425.00000000000017,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.2957310256922968
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 61.5,
+      "coverage_probability": 0.94,
+      "index": 17,
+      "limit": 61.5,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 157.76634153330986,
+      "price_low": 49.960000587339685,
+      "price_median": 88.78066521302144,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    }
+  ],
+  "memory_items": 6,
+  "model_draws": 2,
+  "model_items": 17,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        150.0,
+        35.0
+      ],
+      "10": [
+        150.0,
+        35.0
+      ],
+      "11": [
+        300.0,
+        35.0
+      ],
+      "12": [
+        150.0,
+        0.0
+      ],
+      "13": [
+        367.5,
+        35.0
+      ],
+      "14": [
+        490.0,
+        35.0
+      ],
+      "15": [
+        150.0,
+        35.0
+      ],
+      "16": [
+        150.0,
+        35.0
+      ],
+      "17": [
+        150.0,
+        35.0
+      ],
+      "2": [
+        150.0,
+        22.12
+      ],
+      "3": [
+        150.0,
+        35.0
+      ],
+      "4": [
+        150.0,
+        21.62
+      ],
+      "5": [
+        150.0,
+        0.0
+      ],
+      "6": [
+        150.0,
+        35.0
+      ],
+      "7": [
+        900.0,
+        0.0
+      ],
+      "8": [
+        150.0,
+        35.0
+      ],
+      "9": [
+        150.0,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        61.5,
+        61.5
+      ],
+      "10": [
+        11.01,
+        0.0
+      ],
+      "11": [
+        31.74,
+        22.39
+      ],
+      "12": [
+        641.61,
+        367.49
+      ],
+      "13": [
+        450.5,
+        284.25
+      ],
+      "14": [
+        364.08,
+        236.41
+      ],
+      "15": [
+        64.06,
+        0.0
+      ],
+      "16": [
+        304.69,
+        0.0
+      ],
+      "17": [
+        61.5,
+        61.5
+      ],
+      "2": [
+        15.26,
+        11.02
+      ],
+      "3": [
+        25.62,
+        0.0
+      ],
+      "4": [
+        27.58,
+        27.58
+      ],
+      "5": [
+        206.66,
+        206.66
+      ],
+      "6": [
+        60.95,
+        0.0
+      ],
+      "7": [
+        641.61,
+        367.49
+      ],
+      "8": [
+        61.5,
+        0.0
+      ],
+      "9": [
+        304.69,
+        191.25
+      ]
+    },
+    "strategy3": {
+      "1": [
+        150.0,
+        35.0
+      ],
+      "10": [
+        150.0,
+        35.0
+      ],
+      "11": [
+        300.0,
+        35.0
+      ],
+      "12": [
+        1350.0,
+        0.0
+      ],
+      "13": [
+        220.5,
+        35.0
+      ],
+      "14": [
+        315.0,
+        35.0
+      ],
+      "15": [
+        150.0,
+        35.0
+      ],
+      "16": [
+        150.0,
+        35.0
+      ],
+      "17": [
+        150.0,
+        35.0
+      ],
+      "2": [
+        150.0,
+        16.72
+      ],
+      "3": [
+        150.0,
+        32.23
+      ],
+      "4": [
+        150.0,
+        16.73
+      ],
+      "5": [
+        150.0,
+        0.0
+      ],
+      "6": [
+        150.0,
+        35.0
+      ],
+      "7": [
+        1350.0,
+        0.0
+      ],
+      "8": [
+        150.0,
+        35.0
+      ],
+      "9": [
+        220.5,
+        35.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787438489.250176,
+  "recorded_at": 1787438472.9511611,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

@@ -1,0 +1,405 @@
+{
+  "game_id": 40,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 114.64,
+      "coverage_probability": 0.97,
+      "index": 1,
+      "limit": 76.37,
+      "name": "Cleaning of affected floor areas in the utility room and (1 pcs)",
+      "price_high": 321.1104527552463,
+      "price_low": 89.68876519865782,
+      "price_median": 169.70562748477138,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.38767162338173894
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 152.31,
+      "coverage_probability": 0.955,
+      "index": 2,
+      "limit": 99.0,
+      "name": "Inspection of the washing machine and supply/drain (1 pcs)",
+      "price_high": 391.4928692411482,
+      "price_low": 123.62932712878366,
+      "price_median": 220.00000000000009,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.35035851365908366
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 113.82,
+      "coverage_probability": 0.935,
+      "index": 3,
+      "limit": 74.22,
+      "name": "Removal and disposal of water-damaged skirting (1 pcs)",
+      "price_high": 295.88263063375507,
+      "price_low": 91.92834314653736,
+      "price_median": 164.92422502470643,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.355305003901951
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 169.69,
+      "coverage_probability": 0.94,
+      "index": 4,
+      "limit": 169.69,
+      "name": "Replace skirting boards (1 pcs)",
+      "price_high": 435.2965005267863,
+      "price_low": 137.84571037538785,
+      "price_median": 244.95663971208302,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 385.93,
+      "coverage_probability": 0.965,
+      "index": 5,
+      "limit": 234.0,
+      "name": "Moisture measurement of the utility room and hallway (1 pcs)",
+      "price_high": 771.2521189005696,
+      "price_low": 350.5987126303898,
+      "price_median": 520.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.23962705835822115
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 233.13,
+      "coverage_probability": 0.975,
+      "index": 6,
+      "limit": 233.13,
+      "name": "Drying of the affected floor area (1 pcs)",
+      "price_high": 598.0611442284257,
+      "price_low": 189.38852753081486,
+      "price_median": 336.55002522480345,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 69.49,
+      "coverage_probability": 0.895,
+      "index": 7,
+      "limit": 69.49,
+      "name": "Drying unit rental (1 pcs)",
+      "price_high": 178.25854105410863,
+      "price_low": 56.44928271269614,
+      "price_median": 100.31234609915236,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 226.76,
+      "coverage_probability": 0.9450000000000001,
+      "index": 8,
+      "limit": 226.76,
+      "name": "Skilled worker hours (4 hrs)",
+      "price_high": 581.6959340101234,
+      "price_low": 184.2061425926074,
+      "price_median": 327.3407462657357,
+      "quantity": 4.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 120.32,
+      "coverage_probability": 0.95,
+      "index": 9,
+      "limit": 81.0,
+      "name": "Transport of the high-value painting to the specialist (1 pcs)",
+      "price_high": 349.55407562927286,
+      "price_low": 92.68952147582031,
+      "price_median": 180.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.403465909815106
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 302.81,
+      "coverage_probability": 0.985,
+      "index": 10,
+      "limit": 302.81,
+      "name": "Professional assessment of the high-value painting (1 pcs)",
+      "price_high": 776.8033257604486,
+      "price_low": 245.99096508202612,
+      "price_median": 437.13453281883403,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 538.28,
+      "coverage_probability": 0.975,
+      "index": 11,
+      "limit": 538.28,
+      "name": "Conservatory drying and stabilisation of the painting (1 pcs)",
+      "price_high": 1380.8396112075443,
+      "price_low": 437.27164562781826,
+      "price_median": 777.046980008802,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 1846.22,
+      "coverage_probability": 0.98,
+      "index": 12,
+      "limit": 708.0,
+      "name": "Full restoration of the painting (1 pcs)",
+      "price_high": 4736.09979382998,
+      "price_low": 1499.7847207573584,
+      "price_median": 2665.1698082426715,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 170.28,
+      "coverage_probability": 0.965,
+      "index": 13,
+      "limit": 117.0,
+      "name": "Return transport and rehanging of the restored (1 flat rate)",
+      "price_high": 530.5103609995011,
+      "price_low": 127.42446702198065,
+      "price_median": 259.99999999999994,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.4335306124488324
+    }
+  ],
+  "memory_items": 7,
+  "model_draws": 2,
+  "model_items": 13,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        210.0,
+        35.0
+      ],
+      "10": [
+        255.5,
+        35.0
+      ],
+      "11": [
+        402.5,
+        35.0
+      ],
+      "12": [
+        1890.0,
+        35.0
+      ],
+      "13": [
+        280.0,
+        35.0
+      ],
+      "2": [
+        150.0,
+        0.0
+      ],
+      "3": [
+        154.0,
+        35.0
+      ],
+      "4": [
+        304.5,
+        35.0
+      ],
+      "5": [
+        150.0,
+        35.0
+      ],
+      "6": [
+        364.0,
+        35.0
+      ],
+      "7": [
+        150.0,
+        35.0
+      ],
+      "8": [
+        600.0,
+        35.0
+      ],
+      "9": [
+        164.5,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        114.64,
+        76.37
+      ],
+      "10": [
+        302.81,
+        302.81
+      ],
+      "11": [
+        538.28,
+        538.28
+      ],
+      "12": [
+        1846.22,
+        708.0
+      ],
+      "13": [
+        170.28,
+        117.0
+      ],
+      "2": [
+        152.31,
+        99.0
+      ],
+      "3": [
+        113.82,
+        74.22
+      ],
+      "4": [
+        169.69,
+        169.69
+      ],
+      "5": [
+        385.93,
+        234.0
+      ],
+      "6": [
+        233.13,
+        233.13
+      ],
+      "7": [
+        69.49,
+        69.49
+      ],
+      "8": [
+        226.76,
+        226.76
+      ],
+      "9": [
+        120.32,
+        81.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        175.0,
+        35.0
+      ],
+      "10": [
+        420.0,
+        35.0
+      ],
+      "11": [
+        840.0,
+        35.0
+      ],
+      "12": [
+        1995.0,
+        35.0
+      ],
+      "13": [
+        420.0,
+        35.0
+      ],
+      "2": [
+        150.0,
+        0.0
+      ],
+      "3": [
+        203.0,
+        35.0
+      ],
+      "4": [
+        367.5,
+        35.0
+      ],
+      "5": [
+        150.0,
+        35.0
+      ],
+      "6": [
+        315.0,
+        35.0
+      ],
+      "7": [
+        150.0,
+        35.0
+      ],
+      "8": [
+        600.0,
+        35.0
+      ],
+      "9": [
+        420.0,
+        35.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787433176.717799,
+  "recorded_at": 1787433167.043956,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

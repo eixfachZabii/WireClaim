@@ -1,0 +1,146 @@
+{
+  "game_id": 2,
+  "had_decision_log": false,
+  "mechanisms": {
+    "income": 5088.0,
+    "paid_on_accepts": 600.94,
+    "penalties": 3765.48,
+    "net": 721.5799999999995
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "",
+      "t_lo": 310.0,
+      "t_hi": 425.0,
+      "our_charge": 108.0,
+      "our_limit_bracket": [
+        180.0,
+        286.99
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": null,
+      "rule": null,
+      "penalties_here": 1345.4850000000001,
+      "stage": "no-decision-log",
+      "why": "Strategy 2 did not record this item; it may not have landed."
+    },
+    {
+      "index": 2,
+      "name": "",
+      "t_lo": 0.0,
+      "t_hi": 12.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": null,
+      "rule": null,
+      "penalties_here": 0.0,
+      "stage": "no-decision-log",
+      "why": "Strategy 2 did not record this item; it may not have landed."
+    },
+    {
+      "index": 3,
+      "name": "",
+      "t_lo": 0.0,
+      "t_hi": 43.97,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": null,
+      "rule": null,
+      "penalties_here": 0.0,
+      "stage": "no-decision-log",
+      "why": "Strategy 2 did not record this item; it may not have landed."
+    },
+    {
+      "index": 4,
+      "name": "",
+      "t_lo": 555.0,
+      "t_hi": 600.0,
+      "our_charge": 210.0,
+      "our_limit_bracket": [
+        180.0,
+        525.35
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": null,
+      "rule": null,
+      "penalties_here": 2419.995,
+      "stage": "no-decision-log",
+      "why": "Strategy 2 did not record this item; it may not have landed."
+    },
+    {
+      "index": 5,
+      "name": "",
+      "t_lo": 0.0,
+      "t_hi": 43.97,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": null,
+      "rule": null,
+      "penalties_here": 0.0,
+      "stage": "no-decision-log",
+      "why": "Strategy 2 did not record this item; it may not have landed."
+    },
+    {
+      "index": 6,
+      "name": "",
+      "t_lo": 0.0,
+      "t_hi": 18.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": null,
+      "rule": null,
+      "penalties_here": 0.0,
+      "stage": "no-decision-log",
+      "why": "Strategy 2 did not record this item; it may not have landed."
+    },
+    {
+      "index": 7,
+      "name": "",
+      "t_lo": 0.0,
+      "t_hi": 21.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": null,
+      "rule": null,
+      "penalties_here": 0.0,
+      "stage": "no-decision-log",
+      "why": "Strategy 2 did not record this item; it may not have landed."
+    }
+  ],
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "no-decision-log": 3765.48
+  }
+}

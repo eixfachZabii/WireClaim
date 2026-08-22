@@ -54,9 +54,20 @@ var/*
 var/cases/*
 !var/cases/.gitkeep
 
+# ...except the learning-loop record, which is the benchmarking corpus and is small.
+# Together these say, per settled Game: what we estimated and why (`decisions`), what
+# actually happened and which stage was wrong (`lessons`), what the reviewer made of it
+# (`reviews`), and what the model literally replied (`ai_log`). About 800 KB in total.
+#
+# Everything else under `var/` stays out on purpose and is regenerable: `transactions/` is
+# 35 MB of cached *public* leaderboard rows (`scripts/pull_transactions.py` refetches them),
+# and `cases/` is 106 MB of decrypted Case material, which must never be committed -- it is
+# derivable from the archives plus a released key and is not ours to publish.
+!var/decisions/
+!var/lessons/
+!var/reviews/
+!var/ai_log/
+
 # case_analysis raw leaderboard pulls (regenerable via case_analysis/fetch_data.py)
 case_analysis/data/raw/
 
-# Learning-loop artefacts: derived from settled Games, regenerable
-var/decisions/
-var/lessons/

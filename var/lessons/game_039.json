@@ -1,0 +1,156 @@
+{
+  "game_id": 39,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 13951.2,
+    "paid_on_accepts": 140.51,
+    "penalties": 10133.505,
+    "net": 3677.1850000000013
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Floor cleaning, washing machine connection check, (4 pcs)",
+      "t_lo": 423.0,
+      "t_hi": 454.24,
+      "our_charge": 275.74,
+      "our_limit_bracket": [
+        140.51,
+        230.4
+      ],
+      "estimate_median": 388.84444190447147,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2825.865,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Moisture measurement and drying of the utility room (1 flat rate)",
+      "t_lo": 554.82,
+      "t_hi": 709.72,
+      "our_charge": 392.7,
+      "our_limit_bracket": [
+        0.0,
+        296.72
+      ],
+      "estimate_median": 520.0,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 4736.5199999999995,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Assessment and drying of a small framed decorative (2 pcs)",
+      "t_lo": 300.0,
+      "t_hi": null,
+      "our_charge": 203.51,
+      "our_limit_bracket": [
+        0.0,
+        67.68
+      ],
+      "estimate_median": 338.2306905057553,
+      "coverage_probability": 0.495,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 2571.12,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.49 so the Limit collapsed, but the item is worth at least 300."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -489.27000000000044,
+        "income": 9855.0,
+        "cost": 10344.27,
+        "items_priced": 3,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 3677.1849999999977,
+        "income": 13951.199999999997,
+        "cost": 10274.015,
+        "items_priced": 3,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": 1807.7299999999996,
+        "income": 12152.0,
+        "cost": 10344.27,
+        "items_priced": 3,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 1,
+        "name": "Floor cleaning, washing machine connection check, (4 pcs)",
+        "delta": -4482.0949999999975,
+        "winner_net": 1445.4649999999983,
+        "alternative_net": -3036.6299999999997,
+        "t_hat": 388.84444190447147,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 423.0,
+        "t_hi": 454.24,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Moisture measurement and drying of the utility room (1 flat rate)",
+        "delta": 2956.800000000002,
+        "winner_net": 1546.6799999999985,
+        "alternative_net": 4503.4800000000005,
+        "t_hat": 520.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 554.82,
+        "t_hi": 709.72,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Assessment and drying of a small framed decorative (2 pcs)",
+        "delta": -344.16000000000076,
+        "winner_net": 685.0400000000009,
+        "alternative_net": 340.8800000000001,
+        "t_hat": 338.2306905057553,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 300.0,
+        "t_hi": null,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 3677.1850000000013,
+    "replayed_actual_net": 3677.1849999999977,
+    "oracle_net": 15038.060000000001,
+    "oracle_exact_net": 15038.060000000001,
+    "line_items": 3,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": -1869.454999999998
+  },
+  "estimate": {
+    "n_scorable": 2,
+    "median_log_error": -0.15797088487320274,
+    "rmsle": 0.16236475102346862
+  },
+  "cost_by_stage": {
+    "ok": 7562.384999999999,
+    "coverage-too-low": 2571.12
+  }
+}

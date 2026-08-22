@@ -1,0 +1,189 @@
+{
+  "game_id": 27,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 21861.059999999998,
+    "paid_on_accepts": 1876.8600000000001,
+    "penalties": 8633.07,
+    "net": 11351.129999999997
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Translation from Spanish to English 68 lines",
+      "t_lo": 0.0,
+      "t_hi": 39.62,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Material costs (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 0.01,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Compensation for robbery damage (1 pcs)",
+      "t_lo": 3000.0,
+      "t_hi": 3022.15,
+      "our_charge": 4348.44,
+      "our_limit_bracket": [
+        720.0,
+        2755.38
+      ],
+      "estimate_median": 3794.7331922020508,
+      "coverage_probability": 0.975,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 8633.07,
+      "stage": "charge-above-t",
+      "why": "Charged 4348 against t < 3022, so every opponent owed us nothing."
+    },
+    {
+      "index": 4,
+      "name": "Shipping (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 7.0,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": 21181.629999999997,
+        "income": 32630.0,
+        "cost": 11448.37,
+        "items_priced": 4,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 8005.4100000000035,
+        "income": 18515.340000000004,
+        "cost": 10509.93,
+        "items_priced": 4,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": -11298.37,
+        "income": 150.0,
+        "cost": 11448.37,
+        "items_priced": 4,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 3,
+        "name": "Compensation for robbery damage (1 pcs)",
+        "delta": 13145.089999999997,
+        "winner_net": 7886.550000000003,
+        "alternative_net": 21031.64,
+        "t_hat": 3794.7331922020508,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 3000.0,
+        "t_hi": 3022.15,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Material costs (1 pcs)",
+        "delta": 110.37,
+        "winner_net": 39.62,
+        "alternative_net": 149.99,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 0.01,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 1,
+        "name": "Translation from Spanish to English 68 lines",
+        "delta": -39.62,
+        "winner_net": 39.62,
+        "alternative_net": 0.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 39.62,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 4,
+        "name": "Shipping (1 pcs)",
+        "delta": -39.62,
+        "winner_net": 39.62,
+        "alternative_net": 0.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 7.0,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 11351.129999999997,
+    "replayed_actual_net": 11351.129999999997,
+    "oracle_net": 37338.6,
+    "oracle_exact_net": 40367.76,
+    "line_items": 4,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": 13176.219999999994
+  },
+  "estimate": {
+    "n_scorable": 1,
+    "median_log_error": 0.23131694543337877,
+    "rmsle": 0.23131694543337877
+  },
+  "cost_by_stage": {
+    "charge-above-t": 8633.07,
+    "ok": 0.0
+  }
+}

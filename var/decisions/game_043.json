@@ -1,0 +1,138 @@
+{
+  "game_id": 43,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 434.94,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 286.59,
+      "name": "Laptop screen crack repair (1 pcs)",
+      "price_high": 1172.9430808066152,
+      "price_low": 345.7968307559097,
+      "price_median": 636.8673331236266,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3712522537295023
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 229.29,
+      "coverage_probability": 0.97,
+      "index": 2,
+      "limit": 152.74,
+      "name": "Lower-right corner and housing repair (1 pcs)",
+      "price_high": 642.2209055104926,
+      "price_low": 179.37753039731564,
+      "price_median": 339.41125496954277,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.38767162338173894
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 3,
+      "limit": 0.0,
+      "name": "Polish of pre-existing lid scuff (surface only, does not",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 98.8,
+      "coverage_probability": 0.975,
+      "index": 4,
+      "limit": 63.0,
+      "name": "Diagnostic inspection (1 pcs)",
+      "price_high": 237.26928569891348,
+      "price_low": 82.60656216949928,
+      "price_median": 139.99999999999994,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3207010942775972
+    }
+  ],
+  "memory_items": 1,
+  "model_draws": 2,
+  "model_items": 4,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        220.5,
+        35.0
+      ],
+      "2": [
+        150.0,
+        35.0
+      ],
+      "3": [
+        150.0,
+        0.0
+      ],
+      "4": [
+        150.0,
+        0.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        434.94,
+        286.59
+      ],
+      "2": [
+        229.29,
+        152.74
+      ],
+      "3": [
+        64.06,
+        0.0
+      ],
+      "4": [
+        98.8,
+        63.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        220.5,
+        35.0
+      ],
+      "2": [
+        150.0,
+        35.0
+      ],
+      "3": [
+        150.0,
+        6.67
+      ],
+      "4": [
+        150.0,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787435435.418391,
+  "recorded_at": 1787435425.801737,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

@@ -1,0 +1,615 @@
+{
+  "game_id": 35,
+  "items": [
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 288.32,
+      "coverage_probability": 0.96,
+      "index": 1,
+      "limit": 187.3,
+      "name": "Indoor leak detection (1 pcs)",
+      "price_high": 739.63053706774,
+      "price_low": 234.21942669892513,
+      "price_median": 416.2160981521788,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 446.23,
+      "coverage_probability": 0.88,
+      "index": 2,
+      "limit": 289.87,
+      "name": "Skilled worker hours (8 hrs)",
+      "price_high": 1144.7049999938138,
+      "price_low": 362.49469890855624,
+      "price_median": 644.1657351271305,
+      "quantity": 8.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 38.96,
+      "coverage_probability": 0.05,
+      "index": 3,
+      "limit": 0.0,
+      "name": "Leak tracing and locating the defect",
+      "price_high": 118.0,
+      "price_low": 29.5,
+      "price_median": 59.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 48.32,
+      "coverage_probability": 0.82,
+      "index": 4,
+      "limit": 31.39,
+      "name": "Material for the work (1 pcs)",
+      "price_high": 123.954454530838,
+      "price_low": 39.25276178034802,
+      "price_median": 69.75352804921027,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 54.16,
+      "coverage_probability": 0.87,
+      "index": 5,
+      "limit": 35.19,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 138.94845585815054,
+      "price_low": 44.000924841230976,
+      "price_median": 78.19117957301566,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 241.7,
+      "coverage_probability": 0.92,
+      "index": 6,
+      "limit": 157.01,
+      "name": "Room drying 30 m\u00b2 (1 pcs)",
+      "price_high": 620.0245647985125,
+      "price_low": 196.34370246811193,
+      "price_median": 348.9096139026836,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 174.13,
+      "coverage_probability": 0.88,
+      "index": 7,
+      "limit": 112.5,
+      "name": "Room dryer unit (1 pcs)",
+      "price_high": 430.0,
+      "price_low": 140.0,
+      "price_median": 250.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34107683467425653
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 290.29,
+      "coverage_probability": 0.18,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Room drying 50 m\u00b2 (1 pcs)",
+      "price_high": 744.6702094507866,
+      "price_low": 235.81534400783892,
+      "price_median": 419.05209892569053,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 174.13,
+      "coverage_probability": 0.18,
+      "index": 9,
+      "limit": 0.0,
+      "name": "Room dryer unit (1 pcs)",
+      "price_high": 430.0,
+      "price_low": 140.0,
+      "price_median": 250.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34107683467425653
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 69.93,
+      "coverage_probability": 0.78,
+      "index": 10,
+      "limit": 45.42,
+      "name": "Drying fan (1 pcs)",
+      "price_high": 179.3798531551931,
+      "price_low": 56.80436956255469,
+      "price_median": 100.94334782789988,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 73.91,
+      "coverage_probability": 0.18,
+      "index": 11,
+      "limit": 0.0,
+      "name": "Wet insulation wool from basement (1 pcs)",
+      "price_high": 189.60941328474684,
+      "price_low": 60.04377300636737,
+      "price_median": 106.69988083938911,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 11.67,
+      "coverage_probability": 0.72,
+      "index": 12,
+      "limit": 8.1,
+      "name": "Profipress elbow 90\u00b0 copper 28mm model 01 (5 pcs)",
+      "price_high": 35.0,
+      "price_low": 8.0,
+      "price_median": 18.0,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.4486038054132455
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 11.34,
+      "coverage_probability": 0.55,
+      "index": 13,
+      "limit": 0.0,
+      "name": "Profipress elbow 45\u00b0 copper 28mm model 02 (5 pcs)",
+      "price_high": 40.0,
+      "price_low": 8.0,
+      "price_median": 18.0,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4891908548431916
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 7.37,
+      "coverage_probability": 0.7,
+      "index": 14,
+      "limit": 5.01,
+      "name": "Transition piece 15x19mm (3 pcs)",
+      "price_high": 28.0,
+      "price_low": 5.0,
+      "price_median": 12.0,
+      "quantity": 3.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.5236372637510953
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 565.58,
+      "coverage_probability": 0.88,
+      "index": 15,
+      "limit": 367.41,
+      "name": "Skilled worker hours (10.5 hrs)",
+      "price_high": 1450.8915852734656,
+      "price_low": 459.4550634054233,
+      "price_median": 816.4676878518924,
+      "quantity": 10.5,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 67.62,
+      "coverage_probability": 0.85,
+      "index": 16,
+      "limit": 43.93,
+      "name": "Vehicle costs (2 pcs)",
+      "price_high": 173.46898297070112,
+      "price_low": 54.93256931023941,
+      "price_median": 97.61709343252737,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 67.62,
+      "coverage_probability": 0.05,
+      "index": 17,
+      "limit": 0.0,
+      "name": "Vehicle costs (2 pcs)",
+      "price_high": 173.46898297070112,
+      "price_low": 54.93256931023941,
+      "price_median": 97.61709343252737,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 859.15,
+      "coverage_probability": 0.9,
+      "index": 18,
+      "limit": 504.0,
+      "name": "Skilled worker hours 14 \u2013",
+      "price_high": 1540.0,
+      "price_low": 840.0,
+      "price_median": 1120.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.1842358065563269
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 120.6,
+      "coverage_probability": 0.83,
+      "index": 19,
+      "limit": 78.34,
+      "name": "Material costs (1 pcs)",
+      "price_high": 309.37850463921956,
+      "price_low": 97.97115229563892,
+      "price_median": 174.09815793111085,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 54.16,
+      "coverage_probability": 0.83,
+      "index": 20,
+      "limit": 35.19,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 138.94845585815054,
+      "price_low": 44.000924841230976,
+      "price_median": 78.19117957301566,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    }
+  ],
+  "memory_items": 14,
+  "model_draws": 1,
+  "model_items": 20,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        245.0,
+        35.0
+      ],
+      "10": [
+        150.0,
+        35.0
+      ],
+      "11": [
+        150.0,
+        35.0
+      ],
+      "12": [
+        150.0,
+        4.67
+      ],
+      "13": [
+        150.0,
+        4.67
+      ],
+      "14": [
+        150.0,
+        2.0
+      ],
+      "15": [
+        750.0,
+        35.0
+      ],
+      "16": [
+        300.0,
+        35.0
+      ],
+      "17": [
+        150.0,
+        35.0
+      ],
+      "18": [
+        2100.0,
+        35.0
+      ],
+      "19": [
+        350.0,
+        35.0
+      ],
+      "2": [
+        1200.0,
+        35.0
+      ],
+      "20": [
+        150.0,
+        35.0
+      ],
+      "3": [
+        150.0,
+        35.0
+      ],
+      "4": [
+        150.0,
+        26.67
+      ],
+      "5": [
+        150.0,
+        35.0
+      ],
+      "6": [
+        4500.0,
+        35.0
+      ],
+      "7": [
+        280.0,
+        35.0
+      ],
+      "8": [
+        7500.0,
+        35.0
+      ],
+      "9": [
+        280.0,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        288.32,
+        187.3
+      ],
+      "10": [
+        69.93,
+        45.42
+      ],
+      "11": [
+        73.91,
+        0.0
+      ],
+      "12": [
+        11.67,
+        8.1
+      ],
+      "13": [
+        11.34,
+        0.0
+      ],
+      "14": [
+        7.37,
+        5.01
+      ],
+      "15": [
+        565.58,
+        367.41
+      ],
+      "16": [
+        67.62,
+        43.93
+      ],
+      "17": [
+        67.62,
+        0.0
+      ],
+      "18": [
+        859.15,
+        504.0
+      ],
+      "19": [
+        120.6,
+        78.34
+      ],
+      "2": [
+        446.23,
+        289.87
+      ],
+      "20": [
+        54.16,
+        35.19
+      ],
+      "3": [
+        38.96,
+        0.0
+      ],
+      "4": [
+        48.32,
+        31.39
+      ],
+      "5": [
+        54.16,
+        35.19
+      ],
+      "6": [
+        241.7,
+        157.01
+      ],
+      "7": [
+        174.13,
+        112.5
+      ],
+      "8": [
+        290.29,
+        0.0
+      ],
+      "9": [
+        174.13,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        297.5,
+        35.0
+      ],
+      "10": [
+        150.0,
+        0.0
+      ],
+      "11": [
+        227.5,
+        35.0
+      ],
+      "12": [
+        150.0,
+        6.67
+      ],
+      "13": [
+        150.0,
+        6.67
+      ],
+      "14": [
+        150.0,
+        18.48
+      ],
+      "15": [
+        1200.0,
+        35.0
+      ],
+      "16": [
+        150.0,
+        35.0
+      ],
+      "17": [
+        150.0,
+        0.0
+      ],
+      "18": [
+        1800.0,
+        35.0
+      ],
+      "19": [
+        290.5,
+        35.0
+      ],
+      "2": [
+        1200.0,
+        35.0
+      ],
+      "20": [
+        150.0,
+        35.0
+      ],
+      "3": [
+        150.0,
+        0.0
+      ],
+      "4": [
+        210.0,
+        35.0
+      ],
+      "5": [
+        150.0,
+        35.0
+      ],
+      "6": [
+        4500.0,
+        35.0
+      ],
+      "7": [
+        315.0,
+        35.0
+      ],
+      "8": [
+        7500.0,
+        35.0
+      ],
+      "9": [
+        157.5,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787429416.6042728,
+  "recorded_at": 1787429416.5747268,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}
