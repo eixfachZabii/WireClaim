@@ -1,29 +1,38 @@
 import unittest
-from pathlib import Path
-from unittest.mock import patch
 
-import main
-from src.api import APIError
+from main import RunManager
+from src.data.models import FraudDecision, ItemPrice, Proposal
 
 
-class MainTests(unittest.TestCase):
-    @patch.object(main, "process_case")
-    @patch.object(main, "extract_case", return_value=Path("var/cases/case_01"))
-    @patch.object(main.time, "sleep")
-    @patch.object(
-        main,
-        "get_decryption_key",
-        side_effect=[APIError(403, "not ready"), "released-key"],
+def proposal(source: str, prices: list[tuple[int, float, float]]) -> Proposal:
+    return Proposal(
+        source=source,
+        prices=tuple(ItemPrice(index, charge, limit_, source) for index, charge, limit_ in prices),
     )
-    def test_handle_game_retries_then_triggers_processing(
-        self, get_key, sleep, extract_case, process_case
-    ) -> None:
-        main.handle_game(1)
 
-        self.assertEqual(get_key.call_count, 2)
-        sleep.assert_called_once_with(0.5)
-        extract_case.assert_called_once_with(1, "released-key")
-        process_case.assert_called_once_with(1, Path("var/cases/case_01"))
+
+class RunManagerTests(unittest.TestCase):
+    def setUp(self) -> None:
+        base = proposal("standard", [(1, 100.0, 75.0), (2, 200.0, 150.0)])
+        self.manager = RunManager(base)
+
+    def test_fraud_lock_keeps_strategy_charge(self) -> None:
+        self.manager.set_strategy(proposal("strategy_1", [(1, 120.0, 90.0), (2, 250.0, 190.0)]))
+        self.manager.apply_fraud(FraudDecision(frozenset({2})))
+
+        prices = {price.index: price for price in self.manager.snapshot()}
+
+        self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (120.0, 90.0))
+        self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (250.0, 0.0))
+
+    def test_strategy_has_priority_over_fast_path(self) -> None:
+        self.manager.set_fast_path(proposal("fast_path_llm", [(1, 110.0, 80.0)]))
+        self.manager.set_strategy(proposal("strategy_1", [(1, 120.0, 90.0)]))
+
+        prices = {price.index: price for price in self.manager.snapshot()}
+
+        self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (120.0, 90.0))
+        self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (200.0, 150.0))
 
 
 if __name__ == "__main__":
