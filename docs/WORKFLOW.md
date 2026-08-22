@@ -93,7 +93,7 @@ base Standard values
       <- FraudDecision Limit lock: Limit = 0
 ```
 
-The active Strategy Proposal is the latest valid Strategy Track result received by the `StrategyRouter`. This makes later completed Strategies replace earlier completed Strategies without allowing any Strategy to post on its own.
+The active Strategy Proposal uses fixed priority, not completion order: `strategy2` overrides `strategy1` as soon as it finishes, and a later `strategy1` result cannot take the slot back. The Fast-Path LLM sits below both Strategy Tracks; no Strategy can post on its own.
 
 A `FraudDecision` is an irreversible per-Game Limit lock. If a Strategy already supplied `Charge=250, Limit=190` and the Line Item is subsequently identified by `FraudDecision`, the next complete Submission contains `Charge=250, Limit=0`. A later Strategy may change the Charge, but cannot lift the Limit lock.
 

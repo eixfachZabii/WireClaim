@@ -9,11 +9,12 @@ def proposal(source: str, charge: float) -> Proposal:
 
 
 class StrategyRouterTests(unittest.TestCase):
-    def test_last_valid_strategy_wins(self) -> None:
+    def test_strategy2_has_higher_priority_than_strategy1(self) -> None:
         router = StrategyRouter(strategies=())
 
         self.assertEqual(router.register(proposal("strategy1", 100.0)).source, "strategy1")
         self.assertEqual(router.register(proposal("strategy2", 200.0)).source, "strategy2")
+        self.assertIsNone(router.register(proposal("strategy1", 300.0)))
         self.assertEqual(router.current.source, "strategy2")
 
     def test_empty_proposal_does_not_replace_active_strategy(self) -> None:
