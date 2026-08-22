@@ -208,6 +208,36 @@ class Strategy5ModelTests(unittest.TestCase):
         self.assertFalse(unverified[1].quote_verified)
         self.assertEqual(unverified[1].policy_violation_probability, 0.1)
 
+    def test_repairable_exclusion_preserves_probability_and_locks_the_limit(self) -> None:
+        policy = (
+            "7.1.8 The following costs are not indemnified under this Policy:\n"
+            "(a) ordinary administrative expenses;\n"
+            "(b) carriage, freight, delivery, dispatch, packaging, postage, courier, "
+            "transport, logistics and comparable charges."
+        )
+        assembled = (
+            "7.1.8 (b) carriage, freight, delivery, dispatch, packaging, postage, courier, "
+            "transport, logistics and comparable charges."
+        )
+        parsed = parse_coverage_assessments(
+            {
+                "items": [
+                    {
+                        "index": 1,
+                        "policy_violation_probability": 0.8,
+                        "clause": assembled,
+                        "reasoning": "Excluded delivery cost",
+                    }
+                ]
+            },
+            self.items,
+            policy,
+        )
+
+        self.assertTrue(parsed[1].quote_verified)
+        self.assertEqual(parsed[1].policy_violation_probability, 0.8)
+        self.assertIn(parsed[1].clause, policy)
+
     def test_request_selects_the_requested_model_and_strict_schema(self) -> None:
         client = MagicMock()
         client.responses.create.return_value.output_text = (

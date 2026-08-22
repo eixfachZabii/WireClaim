@@ -171,6 +171,18 @@ async def propose(case: CaseData, deadline: float | None = None) -> Proposal | N
     coverage = results[-1]
     ranges = aggregate_price_ranges(price_draws, document.items)
     proposal = build_proposal(priced_case, document, ranges, coverage, config)
+    policy_locks = sum(
+        1
+        for assessment in coverage.values()
+        if assessment.quote_verified
+        and assessment.policy_violation_probability >= config.zero_limit_violation_threshold
+    )
+    logger.info(
+        "Strategy 5 policy gate locked %s/%s Line Items for Game %s.",
+        policy_locks,
+        len(document.items),
+        case.game_id,
+    )
     log_timing(
         logger,
         STRATEGY_NAME,
@@ -179,6 +191,7 @@ async def propose(case: CaseData, deadline: float | None = None) -> Proposal | N
         price_models=sum(1 for draw in price_draws if draw),
         range_items=len(ranges),
         coverage_items=len(coverage),
+        policy_locks=policy_locks,
         priced=0 if proposal is None else len(proposal.prices),
     )
     return proposal

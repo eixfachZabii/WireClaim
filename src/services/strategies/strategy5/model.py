@@ -12,7 +12,7 @@ from typing import Any, Iterable
 from src.api import get_llm_client, get_service_tier
 from src.data.models import CaseData
 from src.domain.pricing.engine import Evidence
-from src.services.policy.quotes import is_policy_quote
+from src.services.policy.coverage import repair_quote
 from src.services.strategies.strategy5.config import ZERO_LIMIT_VIOLATION_THRESHOLD
 from src.services.strategies.strategy5.invoice import InvoiceItem
 from src.services.strategies.strategy5.prompts import COVERAGE_SYSTEM_PROMPT, PRICE_SYSTEM_PROMPT
@@ -190,14 +190,15 @@ def parse_coverage_assessments(
         if index not in allowed:
             continue
         clause = str(raw.get("clause") or "").strip()
-        verified = is_policy_quote(clause, policy_text)
+        repaired = repair_quote(clause, policy_text)
+        verified = bool(repaired)
         violation = probability(raw.get("policy_violation_probability"))
         if violation >= ZERO_LIMIT_VIOLATION_THRESHOLD and not verified:
             violation = DEFAULT_POLICY_VIOLATION_PROBABILITY
         found[index] = CoverageAssessment(
             index=index,
             policy_violation_probability=violation,
-            clause=clause,
+            clause=repaired or clause,
             reasoning=str(raw.get("reasoning") or "").strip(),
             quote_verified=verified,
         )
