@@ -69,10 +69,25 @@ fund the Field's Charges on the same item.
 | verdict | Charge `a` | Limit `b` |
 | --- | --- | --- |
 | covered | at `t̂` | bottom third of the posterior |
-| **not covered** | **high** — free option toward the Cap floor (R6c) | **0** |
+| covered but **betterment** ("upgrade from pre-loss …") | at the **pre-loss standard** | bottom third of the *reduced* posterior |
+| **not covered** | at the **as-if-covered `t̂`** — a plausible price, *not* a big one | **0** |
+| quantity implausible | at `t̂` for the **plausible** quantity | bottom third of that |
 | unsure | mid | low; never above `t̂` |
 
 Game 5 did the opposite on both axes at once: `a = 0` *and* unbounded `b`, same items.
+
+**On uncovered items, charge a realistic price — not a large one.** An earlier version of
+this line said "charge high, toward the Cap floor". Game 3 refutes it. Every Line Item
+there was uncovered, and the two teams that collected did it with modest Charges:
+
+| issuer | Charge | accepted by | collected |
+| --- | ---: | ---: | ---: |
+| error404 ai | **101.32** | 2/16 | 202.64 |
+| Non Deterministic | **100.00** | 2/16 | 200.00 |
+
+The only teams who will pay on an uncovered item are those who **mis-classified it as
+covered**, and their Limit is calibrated to a plausible price. A Charge at 4× is rejected
+by all of them. It costs nothing to try, but it collects nothing either.
 
 ## 5. Check the Price Memory before reasoning — scenarios repeat
 
