@@ -1,0 +1,589 @@
+{
+  "game_id": 50,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 25815.0,
+    "paid_on_accepts": 5558.07,
+    "penalties": 9929.565,
+    "net": 10327.365,
+    "saved_by_rejecting": 29696.859999999997,
+    "lawyer_waste": 3309.855,
+    "fraud_let_through": 2073.06,
+    "strictness_net": 24313.944999999996
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Filling valve (internal frost-burst fitting) (1 pcs)",
+      "t_lo": 50.79,
+      "t_hi": 68.64,
+      "our_charge": 39.72,
+      "our_limit_bracket": [
+        17.1,
+        42.38
+      ],
+      "estimate_median": 57.342720358407654,
+      "coverage_probability": 0.96,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 419.925,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Connection hose (1 pcs)",
+      "t_lo": 25.59,
+      "t_hi": 26.57,
+      "our_charge": 19.8,
+      "our_limit_bracket": [
+        17.1,
+        21.19
+      ],
+      "estimate_median": 28.583669779515223,
+      "coverage_probability": 0.95,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 174.255,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Senior installer hours (3 hrs)",
+      "t_lo": 290.22,
+      "t_hi": null,
+      "our_charge": 194.75,
+      "our_limit_bracket": [
+        0.0,
+        204.14
+      ],
+      "estimate_median": 281.14144564904734,
+      "coverage_probability": 0.96,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 5207.7300000000005,
+      "stage": "estimate-too-low",
+      "why": "Estimated 281 against a proven floor of t >= 290; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 4,
+      "name": "Auxiliary and cleaning material (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 7.65,
+      "our_charge": 26.28,
+      "our_limit_bracket": [
+        18.2,
+        Infinity
+      ],
+      "estimate_median": 42.42640687119284,
+      "coverage_probability": 0.935,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.94 but the item is worth about nothing (t < 8)."
+    },
+    {
+      "index": 5,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 30.87,
+      "t_hi": 44.1,
+      "our_charge": 51.37,
+      "our_limit_bracket": [
+        44.59,
+        Infinity
+      ],
+      "estimate_median": 74.15782163719508,
+      "coverage_probability": 0.85,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 51 against t < 44, so every opponent owed us nothing."
+    },
+    {
+      "index": 6,
+      "name": "Thermal imaging camera (leak detection) (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 80.75,
+      "our_charge": null,
+      "our_limit_bracket": [
+        238.37,
+        Infinity
+      ],
+      "estimate_median": 584.9786320883868,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.98 but the item is worth about nothing (t < 81)."
+    },
+    {
+      "index": 7,
+      "name": "Facade damage where the wall froze from the internal (1 pcs)",
+      "t_lo": 384.0,
+      "t_hi": 617.5,
+      "our_charge": 384.0,
+      "our_limit_bracket": [
+        247.04,
+        383.6
+      ],
+      "estimate_median": 591.6079783099611,
+      "coverage_probability": 0.945,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 575.4000000000001,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Loose plaster (1 pcs)",
+      "t_lo": 25.05,
+      "t_hi": 65.94,
+      "our_charge": 145.24,
+      "our_limit_bracket": [
+        76.5,
+        Infinity
+      ],
+      "estimate_median": 222.26110770892868,
+      "coverage_probability": 0.945,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 145 against t < 66, so every opponent owed us nothing."
+    },
+    {
+      "index": 9,
+      "name": "Base plaster (1 pcs)",
+      "t_lo": 32.3,
+      "t_hi": 58.46,
+      "our_charge": 58.46,
+      "our_limit_bracket": [
+        32.3,
+        Infinity
+      ],
+      "estimate_median": 84.39266979629888,
+      "coverage_probability": 0.945,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 10,
+      "name": "Additional work (1 pcs)",
+      "t_lo": 137.25,
+      "t_hi": 173.34,
+      "our_charge": 126.44,
+      "our_limit_bracket": [
+        88.28,
+        104.27
+      ],
+      "estimate_median": 206.76073128135332,
+      "coverage_probability": 0.78,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 362.28,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Newly plastered substrate (1 pcs)",
+      "t_lo": 20.4,
+      "t_hi": 46.42,
+      "our_charge": 46.42,
+      "our_limit_bracket": [
+        20.4,
+        Infinity
+      ],
+      "estimate_median": 67.01701805451854,
+      "coverage_probability": 0.945,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 12,
+      "name": "Facade paint (4 coats) (1 pcs)",
+      "t_lo": 49.3,
+      "t_hi": 68.42,
+      "our_charge": 68.42,
+      "our_limit_bracket": [
+        49.3,
+        Infinity
+      ],
+      "estimate_median": 98.76778758452235,
+      "coverage_probability": 0.945,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 13,
+      "name": "Drying (1 pcs)",
+      "t_lo": 246.25,
+      "t_hi": 350.0,
+      "our_charge": 223.87,
+      "our_limit_bracket": [
+        154.65,
+        227.97
+      ],
+      "estimate_median": 323.1686857963292,
+      "coverage_probability": 0.95,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1055.58,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 14,
+      "name": "Priming (1 pcs)",
+      "t_lo": 119.0,
+      "t_hi": 136.38,
+      "our_charge": 99.67,
+      "our_limit_bracket": [
+        92.08,
+        114.0
+      ],
+      "estimate_median": 143.88371301504455,
+      "coverage_probability": 0.945,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 349.5,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 15,
+      "name": "Painter hours (5 hrs)",
+      "t_lo": 243.0,
+      "t_hi": 276.25,
+      "our_charge": 218.16,
+      "our_limit_bracket": [
+        216.75,
+        243.0
+      ],
+      "estimate_median": 314.92771994288523,
+      "coverage_probability": 0.955,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 364.5,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 16,
+      "name": "Flat rate (1 pcs)",
+      "t_lo": 360.0,
+      "t_hi": null,
+      "our_charge": 76.06,
+      "our_limit_bracket": [
+        54.57,
+        60.0
+      ],
+      "estimate_median": 124.89995996796794,
+      "coverage_probability": 0.83,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1420.395,
+      "stage": "charge-far-below-t",
+      "why": "Charged 76 against t >= 360; the difference was forfeited from every opponent."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -2603.8600000000006,
+        "income": 12494.0,
+        "cost": 15097.86,
+        "items_priced": 16,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 10327.365,
+        "income": 25815.0,
+        "cost": 15487.635,
+        "items_priced": 16,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": 1036.5650000000005,
+        "income": 16185.5,
+        "cost": 15148.935,
+        "items_priced": 16,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 15,
+        "name": "Painter hours (5 hrs)",
+        "delta": -3598.9349999999995,
+        "winner_net": 2909.3099999999995,
+        "alternative_net": -689.625,
+        "t_hat": 314.92771994288523,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 243.0,
+        "t_hi": 276.25,
+        "rule": "priced"
+      },
+      {
+        "index": 6,
+        "name": "Thermal imaging camera (leak detection) (1 pcs)",
+        "delta": 3395.3999999999996,
+        "winner_net": -1745.3999999999999,
+        "alternative_net": 1650.0,
+        "t_hat": 584.9786320883868,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 80.75,
+        "rule": "priced"
+      },
+      {
+        "index": 7,
+        "name": "Facade damage where the wall froze from the internal (1 pcs)",
+        "delta": -3351.47,
+        "winner_net": 4643.66,
+        "alternative_net": 1292.19,
+        "t_hat": 591.6079783099611,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 384.0,
+        "t_hi": 617.5,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Senior installer hours (3 hrs)",
+        "delta": -3116.0,
+        "winner_net": -2091.7300000000005,
+        "alternative_net": -5207.7300000000005,
+        "t_hat": 281.14144564904734,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 290.22,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 16,
+        "name": "Flat rate (1 pcs)",
+        "delta": 2068.05,
+        "winner_net": -395.58500000000026,
+        "alternative_net": 1672.4650000000001,
+        "t_hat": 124.89995996796794,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 360.0,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 14,
+        "name": "Priming (1 pcs)",
+        "delta": -1878.2900000000002,
+        "winner_net": 634.5600000000002,
+        "alternative_net": -1243.73,
+        "t_hat": 143.88371301504455,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 119.0,
+        "t_hi": 136.38,
+        "rule": "priced"
+      },
+      {
+        "index": 13,
+        "name": "Drying (1 pcs)",
+        "delta": -1567.1449999999986,
+        "winner_net": 1718.9899999999984,
+        "alternative_net": 151.8449999999998,
+        "t_hat": 323.1686857963292,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 246.25,
+        "t_hi": 350.0,
+        "rule": "priced"
+      },
+      {
+        "index": 10,
+        "name": "Additional work (1 pcs)",
+        "delta": -1529.6300000000008,
+        "winner_net": 1292.9100000000008,
+        "alternative_net": -236.72000000000003,
+        "t_hat": 206.76073128135332,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 137.25,
+        "t_hi": 173.34,
+        "rule": "priced"
+      },
+      {
+        "index": 12,
+        "name": "Facade paint (4 coats) (1 pcs)",
+        "delta": 994.0400000000002,
+        "winner_net": 626.9399999999998,
+        "alternative_net": 1620.98,
+        "t_hat": 98.76778758452235,
+        "bucket": "t_hat < 100",
+        "t_lo": 49.3,
+        "t_hi": 68.42,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Filling valve (internal frost-burst fitting) (1 pcs)",
+        "delta": -644.0700000000002,
+        "winner_net": 198.49500000000023,
+        "alternative_net": -445.57499999999993,
+        "t_hat": 57.342720358407654,
+        "bucket": "t_hat < 100",
+        "t_lo": 50.79,
+        "t_hi": 68.64,
+        "rule": "priced"
+      },
+      {
+        "index": 9,
+        "name": "Base plaster (1 pcs)",
+        "delta": 495.48,
+        "winner_net": 645.1600000000001,
+        "alternative_net": 1140.64,
+        "t_hat": 84.39266979629888,
+        "bucket": "t_hat < 100",
+        "t_lo": 32.3,
+        "t_hi": 58.46,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -313.78499999999997,
+        "winner_net": 206.82,
+        "alternative_net": -106.965,
+        "t_hat": 74.15782163719508,
+        "bucket": "t_hat < 100",
+        "t_lo": 30.87,
+        "t_hi": 44.1,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Connection hose (1 pcs)",
+        "delta": -313.2850000000001,
+        "winner_net": 93.13500000000008,
+        "alternative_net": -220.15,
+        "t_hat": 28.583669779515223,
+        "bucket": "t_hat < 100",
+        "t_lo": 25.59,
+        "t_hi": 26.57,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Auxiliary and cleaning material (1 pcs)",
+        "delta": -308.46000000000004,
+        "winner_net": 157.85000000000002,
+        "alternative_net": -150.61,
+        "t_hat": 42.42640687119284,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 7.65,
+        "rule": "priced"
+      },
+      {
+        "index": 11,
+        "name": "Newly plastered substrate (1 pcs)",
+        "delta": 306.53999999999996,
+        "winner_net": 583.0600000000001,
+        "alternative_net": 889.6,
+        "t_hat": 67.01701805451854,
+        "bucket": "t_hat < 100",
+        "t_lo": 20.4,
+        "t_hi": 46.42,
+        "rule": "priced"
+      },
+      {
+        "index": 8,
+        "name": "Loose plaster (1 pcs)",
+        "delta": 70.75999999999999,
+        "winner_net": 849.19,
+        "alternative_net": 919.95,
+        "t_hat": 222.26110770892868,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 25.05,
+        "t_hi": 65.94,
+        "rule": "priced"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 10327.365,
+    "replayed_actual_net": 10327.365,
+    "oracle_net": 27372.560000000005,
+    "oracle_exact_net": 31568.410000000003,
+    "line_items": 16,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": -9290.8
+  },
+  "estimate": {
+    "n_scorable": 12,
+    "median_log_error": 0.23967028654837919,
+    "rmsle": 0.5983910859638177
+  },
+  "cost_by_stage": {
+    "estimate-too-low": 5207.7300000000005,
+    "ok": 3301.44,
+    "charge-far-below-t": 1420.395,
+    "coverage-too-high": 0.0,
+    "charge-above-t": 0.0
+  }
+}
