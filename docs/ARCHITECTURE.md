@@ -174,7 +174,8 @@ with a strict JSON schema. A verdict of "not covered" survives only if
 1. `covered` or `related` is false, **and**
 2. `confidence ≥ 0.85`, **and**
 3. `exclusion_quote` is a **verbatim substring of `policy.txt`** (case- and
-   whitespace-normalised, ≥ 12 characters) — checked in code by `_is_policy_quote`.
+   whitespace-normalised), **at least 60 characters long**, and **contains exclusion
+   language** from `EXCLUSION_MARKERS` — checked in code by `_is_policy_quote`.
 
 Rule 3 is the load-bearing one. Case 7 dangles *"a couple of metres from the hob"* in the
 Damage Description while the policy states that proximity to another appliance **does not**
@@ -186,12 +187,25 @@ detail in the Damage Description is not an exclusion."*
 `coverage_probability < 0.5 or relatedness_probability < 0.5`, to set
 `confirmed_uncovered`.
 
-> ⚠️ **The gate as written does not hold.** `MIN_QUOTE_LENGTH = 12` against a ~63,000-character
-> policy means `"the schedule"`, `"is not covered"` and `"the policyholder"` all pass. It
-> verifies that the quote *exists*, not that it *proves an exclusion*. In Games 10 and 11
-> every Line Item was flagged, `b` went to 0 across the board, and we paid 65,806 and 36,017
-> in wrongful-rejection penalties. See the quick wins in
-> [`brainstorm/sebi/strats/review/trackplan.md`](brainstorm/sebi/strats/review/trackplan.md).
+**Why 60 characters and a marker list.** The original gate asked only for a 12-character
+substring, which against a ~63,000-character policy is no test at all: `"the schedule"`,
+`"is not covered"` and `"the policyholder"` all passed. It verified that the quote
+*existed*, not that it *proved an exclusion*. Game 10 flagged every Line Item, `b` went to
+0 across the board, and the wrongful-rejection penalties came to 65,806.
+
+The two added conditions come from the policies themselves. Splitting all 14 extracted
+`policy.txt` files into sentences containing exclusion language gives a median length of
+**112 characters**, and nearly every one under 60 is a *heading* — `"3.1 general
+exclusions"`, `"3.2 exclusions within the fire group"` — which names a section without
+excluding anything. A 60-character floor drops the headings and keeps 81 % of real clauses.
+
+**The all-flagged circuit breaker.** `detect_fraud` discards its own verdict when it flags
+*every* Line Item of a Case with 3 or more of them. This is a count and not a share on
+purpose: settled Games 1–13 carry only **2–4 Line Items each** (max index 4), so any
+percentage threshold is decided by rounding — at 35 % of 4 items, a single legitimate
+second flag would be thrown away. Cases of 2 are exempt because a genuinely
+whole-uncovered Case exists (Game 3, `t = 0` on both items). Tripping the breaker is cheap:
+it falls back to the Strategy's own posterior Limit, never to an unbounded one.
 
 ---
 
@@ -212,6 +226,22 @@ and the design leans on it hard.
 
 Omitted Line Items default to `(0, 0)` **and still participate in Transactions** — the
 handbook is explicit. Hence invariant 1 above.
+
+### The blind floor
+
+`run_game` publishes `blind_floor()` — `STANDARD_CHARGE` / `STANDARD_LIMIT` on indices 1–8
+— **before it tries to load the Case**, and the floor stands if the load fails.
+
+This is the single highest-value line in the runner. Games 11 and 12 submitted nothing and
+scored −36,017 and −43,381, *identical to the teams that never showed up at all*, because
+`(0, 0)` is not a neutral score: it charges nothing and wrongfully rejects every fair
+claim at `1.5a`. Game 13, where the pipeline did run, cost only −2,607. Uptime, not
+accuracy, is what the last four Games were decided on.
+
+The index range is fixed at 8 because the Line Item count is unknowable before the Case
+loads. Settled Games 1–13 all carry 2–4 items (max index 4), and indices past the real
+count are accepted and ignored — verified against the test Game, where a `PUT` of indices
+1–8 returned `200`. `RunManager.snapshot()` drops the surplus once the Case is in.
 
 ---
 

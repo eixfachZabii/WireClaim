@@ -20,25 +20,37 @@ Game 11 submitted `a = 0` *and* `b = 0` everywhere — the raw default.
 `"the schedule"`, `"is not covered"`, `"the policyholder"` all pass. **The gate verifies
 the quote exists, not that it proves an exclusion** — so almost every item is flagged.
 
-Four fixes, in order of euros per line of code:
+All four are **implemented and merged** (Sebi), with 40 tests green. Two were
+changed on contact with the data — the original wording is kept so the reasoning is
+auditable.
 
-- [ ] **1. Cap fraud flags per Case.** If the detector flags more than ~35 % of Line Items,
-      **discard the whole `FraudDecision`.** The measured base rate is ~12 % (2 of 17 in
-      Game 5); a Case where everything is uncovered is possible (Game 3) but a detector
-      that says so is far more likely to be broken. One `if` in `RunManager.apply_fraud`.
-      *This alone would have prevented both losses above.* Owner: ______
-- [ ] **2. Require the quote to look like an exclusion.** Raise `MIN_QUOTE_LENGTH` from 12
-      to ~60, and require the normalised quote to contain one of `not covered`, `excluded`,
-      `does not`, `no indemnity`, `is not insured`. Owner: ______
-- [ ] **3. Never submit `a = 0`.** Game 11 went out as the pure default, which means the
-      `standard_values` base layer never published — the Case failed to load, or the first
-      `publish()` never ran. Guarantee one Submission per Game before any producer starts.
-      Owner: ______
-- [ ] **4. Log the flag count per Case** (`flagged/total`) so this is visible in one grep
-      rather than needing a leaderboard inversion to find. Owner: ______
+- [x] **1. Cap fraud flags per Case.** ~~Discard the verdict above a ~35 % share.~~
+      **Superseded: a share cap is unusable here.** Settled Games 1–13 carry only **2–4
+      Line Items each** (max index 4) — the "2 of 17 in Game 5" base rate was counting
+      Transactions, not items. At 35 % of 4 items, a single legitimate *second* flag gets
+      thrown away. Shipped instead as a count: discard only when **every** item of a Case
+      with **≥ 3** items is flagged. Cases of 2 are exempt (Game 3 was genuinely uncovered
+      end to end). Tripping it falls back to the Strategy's own posterior Limit, never an
+      unbounded one.
+- [x] **2. Require the quote to look like an exclusion.** `MIN_QUOTE_LENGTH` 12 → **60**,
+      plus an `EXCLUSION_MARKERS` list, in **both** `fraud_detection` and `strategy1`.
+      60 is measured, not guessed: across all 14 extracted policies, exclusion-bearing
+      sentences have a **median length of 112**, and nearly every one under 60 is a
+      *heading* (`"3.1 general exclusions"`) that excludes nothing.
+- [x] **3. Never submit `a = 0`.** `run_game` now publishes `blind_floor()` — indices 1–8
+      at `STANDARD_CHARGE`/`STANDARD_LIMIT` — **before** it tries to load the Case, and the
+      floor stands if the load fails. Verified against the test Game that a `PUT` of
+      indices 1–8 returns `200`, so surplus indices are harmless.
+- [x] **4. Log the flag count per Case.** `detect_fraud` logs `flagged/total` at INFO and
+      the discarded verdict at ERROR.
 
-**Verify on the next settled Game:** flagged share < 35 %, wrongful-rejection penalties
-below income, no Line Item at `a = 0`.
+**Verify on the next settled Game:** no Line Item at `a = 0`, wrongful-rejection penalties
+below income, and `grep "Fraud gate flagged"` showing a plausible share.
+
+> **The real lesson from Games 11–13 is uptime, not accuracy.** Games 11 and 12 scored
+> −36,017 and −43,381 — *identical to the teams that never showed up*, i.e. we submitted
+> nothing at all. Game 13, where the pipeline actually ran, cost only −2,607 on income of
+> 1,500. Fix #3 is worth more than the other three combined.
 
 ---
 
