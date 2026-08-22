@@ -3,7 +3,7 @@
 Live as of Game 5 (Sat ~16:00). We are **5th, 7,139**, having been 3rd. Game 5 cost us
 −10,604. ~95 Games and ~20 hours remain.
 
-**Assign a name to each track and tick boxes as they land.** Everything in P0 is worth
+**Four owners. Matthi has P0.** Tick boxes as they land. Everything in P0 is worth
 more than everything below it combined.
 
 ---
@@ -37,13 +37,13 @@ His shape is right and two details are wrong.
 
 ---
 
-## P0 — stop the bleeding (tonight, before anything else)
+## P0 — stop the bleeding (tonight, before anything else) · **Matthi**
 
 - [ ] **Coverage verdict drives the Limit.** `not covered ⇒ b = 0`. Owner: ______
 - [ ] **Cap the Limit globally.** Never unbounded, never above `t̂`. Target the bottom
       third of the posterior. Owner: ______
 - [ ] **Invert the "not covered ⇒ a = 0" rule.** Not covered ⇒ charge **high** (toward
-      the Cap floor), because it is free (R6c). Owner: ______
+      the Cap floor), because it is free (R6c). Owner: **Matthi**
 - [ ] **Audit the coverage gate — it is emitting false "uncovered" on covered items.**
       Only 2 of 17 Game 5 Line Items were truly uncovered; we charged 0 on ones worth
       500+. This is now the #1 root cause. Owner: ______

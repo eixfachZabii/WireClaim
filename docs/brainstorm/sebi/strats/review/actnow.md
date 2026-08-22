@@ -104,3 +104,58 @@ a `p` estimate across a phase boundary.
   submission plus a considered overwrite is free insurance.
 - **Re-run the inversion after each Settlement** and watch the `t/a` ratio move toward
   1.0. If it does not, the multiplier is wrong — not the model.
+
+
+---
+
+# Learned from Game 5 (net −10,604, 3rd → 5th)
+
+`actnow` items 1–4 went in for Game 5. Here is what the data says next, in order.
+
+## 5. Most Line Items are legitimate — default to COVERED
+
+**Only 2 of 17 Line Items in Game 5 were genuinely uncovered.** The rest were real work
+by a real tradesperson, and we charged **0** on several of them — item 3 sits in
+`[497.94, 773.50)` and we asked for nothing.
+
+An invoice is not a fraud attempt. It is mostly honest work with a *minority* of traps,
+and the traps announce themselves in the text (see `field-findings.md`): "no confirmed
+water contact", "upgrade from pre-loss ceramic tiling", "was already failing before the
+storm", "no diagnostic report provided". Whole-Case exclusions announce themselves too, in
+the policy's scope clause — Case 3's buildings-only policy versus a suitcase stolen from a
+car.
+
+**Change.** Make COVERED the default and require *positive textual evidence* to overturn
+it: a quoted policy exclusion, or a disqualifier in the Line Item's own wording. No quote,
+no "uncovered" verdict. A false "uncovered" is the most expensive mistake in the pipeline
+because it costs twice — we forfeit the Charge *and* we then fund the Field's Charges on
+the same item.
+
+## 6. One verdict, two outputs, opposite directions
+
+The coverage verdict must drive both numbers, and it pushes them apart:
+
+| verdict | Charge `a` | Limit `b` |
+| --- | --- | --- |
+| covered | at `t̂` | bottom third of the posterior |
+| **not covered** | **high** — free option toward the Cap floor (R6c) | **0** |
+| unsure | mid | low; never above `t̂` |
+
+Game 5 did the opposite of this on both axes simultaneously: `a = 0` *and* an unbounded
+`b` on the same Line Items.
+
+## 7. Stop tuning the global multiplier — the problem is variance now
+
+Item 2's 2.5× was fitted on Games 1–2, where we were uniformly the Field minimum. After it
+shipped, Game 5 shows **zeros and overshoots in the same Case**: item 1 `t < 875` (we
+charged 875), item 2 `t < 199` (charged 450), item 5 `t < 131` (charged 600) — alongside
+the zeros above. That is not bias any more, it is variance, and no global constant fixes
+it. Per-item verdict quality is the only lever left.
+
+## 8. Bracket `t` from several teams' rows, never just ours
+
+Our own Transaction rows only bound `t` where *we* were a counterparty. That is exactly
+what made an earlier read of Game 5 conclude those items were uncovered — they were not.
+Pulling five teams' rows (2,380 Transactions) gave two-sided brackets and reversed the
+diagnosis. **Any analyser that reads only our own rows will produce confidently wrong
+brackets.**
