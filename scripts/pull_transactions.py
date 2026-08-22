@@ -1,8 +1,7 @@
 """Pull every settled Transaction for a team, following pagination.
 
 The leaderboard endpoint returns 100 rows per page. Reading only page 1 makes a
-17-Line-Item Game look like a 4-Line-Item Game, which is exactly the mistake that put
-BLIND_LINE_ITEMS at 8 and justified a per-Case flag cap on the wrong denominator.
+17-Line-Item Game look like a 4-Line-Item Game and distorts per-Case analysis.
 Always page to the end.
 """
 

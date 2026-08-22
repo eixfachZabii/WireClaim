@@ -8,7 +8,7 @@ from src.data.models import CaseData, Proposal
 from src.services.strategies.strategy1 import propose as strategy1
 from src.services.strategies.strategy2 import propose as strategy2
 from src.services.strategies.strategy3 import propose as strategy3
-from src.timing import log_timing, start_timer
+from src.timing import format_error_card, format_skipped_strategy_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[..., Awaitable[Proposal | None]]
@@ -56,11 +56,43 @@ class StrategyRouter:
                     name, started_at = jobs[task]
                     try:
                         proposal = task.result()
-                    except Exception:
-                        logger.exception("Strategy failed for Game %s.", case.game_id)
+                    except Exception as error:
+                        logger.error(
+                            "%s",
+                            format_error_card(
+                                name,
+                                error,
+                                case.game_id,
+                                "Strategy result skipped; the current batch stays active.",
+                                elapsed_s=start_timer() - started_at,
+                            ),
+                        )
                         log_timing(logger, name, started_at, "failed", game=case.game_id)
                         continue
                     log_timing(logger, name, started_at, game=case.game_id, produced=proposal is not None)
+                    candidate_priority = STRATEGY_PRIORITIES.get(proposal.source, 0) if proposal else 0
+                    current = self._current
+                    if (
+                        proposal is not None
+                        and not proposal.is_empty
+                        and current is not None
+                        and candidate_priority < self._current_priority
+                    ):
+                        logger.info(
+                            "%s",
+                            format_skipped_strategy_card(
+                                case.game_id,
+                                proposal.source,
+                                candidate_priority,
+                                current.source,
+                                self._current_priority,
+                                start_timer() - started_at,
+                                tuple(
+                                    (price.index, price.charge_price, price.acceptance_limit)
+                                    for price in proposal.prices
+                                ),
+                            ),
+                        )
                     active = self.register(proposal)
                     if active is not None:
                         yield active

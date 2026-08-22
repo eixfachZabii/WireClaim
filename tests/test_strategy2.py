@@ -10,6 +10,8 @@ from src.services.strategies.strategy2.strategy import (
     ENSEMBLE_PROMPTS,
     PROMPT,
     PROMPT_UNANCHORED,
+    LLM_TIMEOUT_SECONDS,
+    SUBMISSION_RESERVE_SECONDS,
     STRATEGY_NAME,
     _band_of,
     _blend,
@@ -202,6 +204,10 @@ class BandTests(unittest.TestCase):
 
 
 class ProposeTests(unittest.TestCase):
+    def test_strategy2_allows_a_55_second_request_window(self) -> None:
+        self.assertEqual(LLM_TIMEOUT_SECONDS, 55.0)
+        self.assertEqual(SUBMISSION_RESERVE_SECONDS, 3.0)
+
     def test_a_model_failure_still_produces_a_submission(self) -> None:
         """Submitting nothing is the most expensive thing we do: 139,904 over three Games."""
         case = case_with(LineItem(1, "Vehicle costs", quantity_missing=True))

@@ -72,7 +72,8 @@ from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 STRATEGY_NAME = "strategy2"
-LLM_TIMEOUT_SECONDS = 40.0
+LLM_TIMEOUT_SECONDS = 55.0
+SUBMISSION_RESERVE_SECONDS = 3.0
 
 # Median Fair Value over the 148 settled Line Items with a bounded bracket. Handed to the
 # model as a prior because our measured failure is charging *above* `t`.
@@ -438,7 +439,11 @@ async def propose(case: CaseData, deadline: float | None = None) -> Proposal | N
     timeout = LLM_TIMEOUT_SECONDS
     if deadline is not None:
         timeout = max(
-            min(LLM_TIMEOUT_SECONDS, deadline - asyncio.get_running_loop().time() - 2.0), 1.0
+            min(
+                LLM_TIMEOUT_SECONDS,
+                deadline - asyncio.get_running_loop().time() - SUBMISSION_RESERVE_SECONDS,
+            ),
+            1.0,
         )
 
     async def draw(prompt: str) -> dict[int, Evidence]:
