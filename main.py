@@ -4,7 +4,6 @@ import subprocess
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional
 
 
 def load_env() -> None:
@@ -27,7 +26,11 @@ def load_env() -> None:
 
 load_env()
 
-from src.api import APIError, get_decryption_key, list_games, query_llm, submit_price
+from src.ab_calculation import calculate_ab
+from src.api import APIError, get_decryption_key, list_games, query_llm
+from src.api_post import post_result
+from src.lineitem_checks import check_line_items
+from src.parse_invoice import parse_invoice
 
 ARCHIVE_DIR = Path("[PUBLIC] EHL Cases/cases")
 OUTPUT_DIR = Path("var/cases")
@@ -66,14 +69,14 @@ def extract_case(game_id: int, key: str) -> Path:
 def process_case(game_id: int, case_dir: Path) -> None:
     """Entry point for pricing analysis and submission."""
     print(f"Game {game_id} is ready: {case_dir}")
-
-    # Submitting default pricing decision
-    result = submit_price(
-        game_id=game_id,
-        charge_price=410.0,
-        acceptance_limit=430.0,
+    line_items = parse_invoice(case_dir / "invoices.pdf")
+    checked_line_items = check_line_items(
+        line_items,
+        policy_path=case_dir / "policy.txt",
+        description_path=case_dir / "description.txt",
     )
-    print(f"Game {game_id} Submission confirmed:", result)
+    ab_result = calculate_ab(checked_line_items)
+    post_result(game_id, ab_result)
 
 
 def handle_game(game_id: int) -> None:
