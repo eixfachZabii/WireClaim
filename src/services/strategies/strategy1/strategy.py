@@ -26,7 +26,8 @@ EXCLUSION_MARKERS = (
     "is not insured", "no indemnity", "not indemnified", "does not extend",
     "not apply", "shall not",
 )
-LLM_TIMEOUT_SECONDS = 35.0
+LLM_TIMEOUT_SECONDS = 55.0
+SUBMISSION_RESERVE_SECONDS = 3.0
 
 PROMPT = """Read this insurance Case and return structured evidence for every invoice Line Item.
 
@@ -162,13 +163,17 @@ def build_input_content(case: CaseData) -> list[dict[str, Any]]:
     return content
 
 
-def _request_evidence(case: CaseData, model: str | None = None) -> tuple[Evidence, ...]:
+def _request_evidence(
+    case: CaseData,
+    model: str | None = None,
+    timeout: float = LLM_TIMEOUT_SECONDS,
+) -> tuple[Evidence, ...]:
     client = get_llm_client()
     model = get_model_name(model)
     response = client.responses.create(
         model=model,
         service_tier=get_service_tier(),
-        timeout=LLM_TIMEOUT_SECONDS,
+        timeout=timeout,
         input=[{"role": "user", "content": build_input_content(case)}],
     )
     payload = _extract_json(str(response.output_text or ""))
@@ -273,15 +278,29 @@ async def propose_with_model(
     case: CaseData,
     model: str | None = None,
     source: str = STRATEGY_NAME,
+    deadline: float | None = None,
 ) -> Proposal | None:
     started_at = start_timer()
+    timeout = LLM_TIMEOUT_SECONDS
+    if deadline is not None:
+        timeout = max(deadline - asyncio.get_running_loop().time() - SUBMISSION_RESERVE_SECONDS, 0.0)
+    if timeout <= 0:
+        logger.warning("%s skipped for Game %s because no submission time remains.", source, case.game_id)
+        log_timing(logger, source, started_at, "expired", game=case.game_id, model=get_model_name(model))
+        return None
     try:
-        evidence = await asyncio.to_thread(_request_evidence, case, model)
+        evidence = await asyncio.to_thread(_request_evidence, case, model, timeout)
         estimates = estimate_fair_values(case, evidence)
-        return proposal_from_estimates(estimates, source)
-    finally:
-        log_timing(logger, source, started_at, game=case.game_id, model=get_model_name(model))
+        proposal = proposal_from_estimates(estimates, source)
+    except asyncio.CancelledError:
+        log_timing(logger, source, started_at, "cancelled", game=case.game_id, model=get_model_name(model))
+        raise
+    except Exception:
+        log_timing(logger, source, started_at, "failed", game=case.game_id, model=get_model_name(model))
+        raise
+    log_timing(logger, source, started_at, game=case.game_id, model=get_model_name(model))
+    return proposal
 
 
-async def propose(case: CaseData) -> Proposal | None:
-    return await propose_with_model(case)
+async def propose(case: CaseData, deadline: float | None = None) -> Proposal | None:
+    return await propose_with_model(case, deadline=deadline)

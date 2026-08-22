@@ -172,7 +172,7 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
     tasks = [
         asyncio.create_task(_emit_result(events, "fast_path", llm_values(case), game_id)),
         asyncio.create_task(_emit_result(events, "fraud", detect_fraud(case), game_id)),
-        asyncio.create_task(_forward_strategies(events, router, case)),
+        asyncio.create_task(_forward_strategies(events, router, case, deadline)),
     ]
     try:
         while loop.time() < deadline:
@@ -234,10 +234,11 @@ async def _forward_strategies(
     events: asyncio.Queue[RunEvent],
     router: StrategyRouter,
     case: CaseData,
+    deadline: float,
 ) -> None:
     started_at = start_timer()
     try:
-        async for proposal in router.start_strategies(case):
+        async for proposal in router.start_strategies(case, deadline):
             log_timing(logger, "strategy_result", started_at, game=case.game_id, source=proposal.source)
             await events.put(RunEvent("strategy", proposal))
     finally:

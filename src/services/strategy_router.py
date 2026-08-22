@@ -11,7 +11,7 @@ from src.services.strategies.strategy3 import propose as strategy3
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
-Strategy = Callable[[CaseData], Awaitable[Proposal | None]]
+Strategy = Callable[..., Awaitable[Proposal | None]]
 STRATEGY_PRIORITIES = {"strategy1": 1, "strategy2": 2, "strategy3": 3}
 
 
@@ -35,14 +35,15 @@ class StrategyRouter:
         self._current_priority = priority
         return proposal
 
-    def start_strategies(self, case: CaseData) -> AsyncIterator[Proposal]:
-        return self.results(case)
+    def start_strategies(self, case: CaseData, deadline: float | None = None) -> AsyncIterator[Proposal]:
+        return self.results(case, deadline)
 
-    async def results(self, case: CaseData) -> AsyncIterator[Proposal]:
+    async def results(self, case: CaseData, deadline: float | None = None) -> AsyncIterator[Proposal]:
         jobs: dict[asyncio.Task[Proposal | None], tuple[str, float]] = {}
         for strategy in self._strategies:
             name = strategy.__module__.split(".")[-2] if "." in strategy.__module__ else strategy.__name__
-            jobs[asyncio.create_task(strategy(case), name=name)] = (name, start_timer())
+            operation = strategy(case) if deadline is None else strategy(case, deadline)
+            jobs[asyncio.create_task(operation, name=name)] = (name, start_timer())
         pending = set(jobs)
         try:
             while pending:

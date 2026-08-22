@@ -158,6 +158,25 @@ class Strategy1Tests(unittest.TestCase):
         self.assertEqual(proposal.source, "strategy1")
         self.assertEqual(proposal.prices[0].index, 1)
 
+    def test_propose_uses_time_remaining_before_the_game_deadline(self) -> None:
+        evidence = (Evidence(1, 1.0, 1.0, 300.0, 400.0),)
+
+        async def run() -> tuple[object, float]:
+            loop = asyncio.get_running_loop()
+            deadline = loop.time() + 50.0
+            with patch(
+                "src.services.strategies.strategy1.strategy._request_evidence",
+                return_value=evidence,
+            ) as request_evidence:
+                proposal = await propose(self.case, deadline=deadline)
+            return proposal, float(request_evidence.call_args.args[2])
+
+        proposal, timeout = asyncio.run(run())
+
+        self.assertIsNotNone(proposal)
+        self.assertGreater(timeout, 45.0)
+        self.assertLess(timeout, 50.0)
+
 
 if __name__ == "__main__":
     unittest.main()

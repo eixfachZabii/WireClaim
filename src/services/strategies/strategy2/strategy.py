@@ -12,7 +12,7 @@ async def estimate_fair_values(case: CaseData) -> None:
     return None
 
 
-async def propose(case: CaseData) -> Proposal | None:
+async def propose(case: CaseData, deadline: float | None = None) -> Proposal | None:
     started_at = start_timer()
     try:
         await estimate_fair_values(case)
