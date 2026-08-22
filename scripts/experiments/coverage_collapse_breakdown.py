@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from scripts.charge_buckets import ALL_GAMES, dataset, snapshot  # noqa: E402
 from scripts.replay_payoffs import INF  # noqa: E402
 
-from src.domain.pricing.engine import COVERAGE_FLOOR  # noqa: E402
+from src.pricing.engine import COVERAGE_FLOOR  # noqa: E402
 
 
 def main() -> None:

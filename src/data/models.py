@@ -86,20 +86,3 @@ class FraudDecision:
     """Identifies Line Items whose Limit must be locked to zero."""
 
     fraud_indices: frozenset[int] = field(default_factory=frozenset)
-
-
-@dataclass(frozen=True)
-class FairValueEstimate:
-    """A strategy-local estimate of a Line Item Fair Value."""
-
-    line_item_index: int
-    median: float
-    lower: float
-    upper: float
-
-
-@dataclass(frozen=True)
-class FairValueEstimates:
-    """All Fair Value estimates produced for one Case by one strategy."""
-
-    values: tuple[FairValueEstimate, ...] = field(default_factory=tuple)

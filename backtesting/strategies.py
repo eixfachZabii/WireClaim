@@ -99,7 +99,7 @@ def load_json_submissions(path: str | Path, strategy: str | None = None) -> dict
 
 
 def standard_submission(case: CaseData) -> dict[int, Submission]:
-    from src.services.strategies.fast_path import standard_values
+    from src.strategies.fast_path import standard_values
 
     return {
         price.index: Submission(price.charge_price, price.acceptance_limit)

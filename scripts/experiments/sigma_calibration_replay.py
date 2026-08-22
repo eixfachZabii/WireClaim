@@ -54,9 +54,9 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from src.data.case_loader import read_case  # noqa: E402
-from src.domain.pricing.engine import Evidence, price_item  # noqa: E402
-from src.services.strategies.strategy2 import blend  # noqa: E402
-from src.domain.pricing.memory import PriceMemory, build_entries  # noqa: E402
+from src.pricing.engine import Evidence, price_item  # noqa: E402
+from src.strategies.strategy2 import blend  # noqa: E402
+from src.evidence.memory import PriceMemory, build_entries  # noqa: E402
 import build_price_memory as bpm  # noqa: E402
 from scripts.dump_evidence import load as load_model_evidence  # noqa: E402
 from scripts.replay_payoffs import replay, snapshot as _snapshot, usable_games  # noqa: E402
@@ -124,7 +124,7 @@ def _memory_evidence(game_id: int, index: int, name: str, quantity: float, sigma
     parse (the invoice text isn't re-parsed here; `unit_of` needs the raw name string, which
     `_line_items` already returns from `read_case`, same source the live path uses).
     """
-    from src.services.strategies.strategy2.channels import unit_of
+    from src.strategies.strategy2.channels import unit_of
 
     memory = _memory_excluding(game_id)
     hit = memory.lookup(name, unit=unit_of(name), quantity=max(quantity, 1.0))

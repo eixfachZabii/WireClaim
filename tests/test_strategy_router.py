@@ -4,11 +4,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from src.observability import decisions as decision_log
+from src.runtime import decisions as decision_log
 from src.data.models import CaseData, ItemPrice, Proposal
-from src.observability.decisions import load, proposals
-from src.services import strategy_router
-from src.services.strategy_router import StrategyRouter
+from src.runtime.decisions import load, proposals
+from src.strategies import router as strategy_router
+from src.strategies.router import StrategyRouter
 
 
 def proposal(source: str, charge: float, index: int = 1) -> Proposal:
@@ -95,7 +95,7 @@ class StrategyRouterConcurrencyTests(unittest.IsolatedAsyncioTestCase):
 
         router = StrategyRouter(strategies=(failed_strategy,))
         case = CaseData(game_id=1, case_dir=Path("var/cases/case_01"))
-        with self.assertLogs("src.services.strategy_router", level="ERROR") as logs:
+        with self.assertLogs("src.strategies.router", level="ERROR") as logs:
             results = [proposal async for proposal in router.results(case, deadline=1.0)]
 
         self.assertEqual(results, [])
@@ -126,7 +126,7 @@ class StrategyRouterConcurrencyTests(unittest.IsolatedAsyncioTestCase):
         results = router.results(case, deadline=1.0)
 
         self.assertEqual((await anext(results)).source, "strategy2")
-        with self.assertLogs("src.services.strategy_router", level="INFO") as logs:
+        with self.assertLogs("src.strategies.router", level="INFO") as logs:
             release_strategy1.set()
             with self.assertRaises(StopAsyncIteration):
                 await anext(results)
@@ -199,7 +199,7 @@ class ProposalRecordingTests(unittest.IsolatedAsyncioTestCase):
                 source=source, prices=(ItemPrice(1, charge, charge * 0.3, source),)
             )
 
-        run.__module__ = f"src.services.strategies.{source}.strategy"
+        run.__module__ = f"src.strategies.{source}.strategy"
         return run
 
     async def drain(self, router: StrategyRouter, game_id: int = 26) -> list[Proposal]:

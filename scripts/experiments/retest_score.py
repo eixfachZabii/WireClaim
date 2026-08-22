@@ -54,11 +54,11 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from src.data.case_loader import read_case  # noqa: E402
-from src.domain.pricing.engine import Evidence, implied_sigma, price_item  # noqa: E402
-from src.domain.pricing.memory import PriceMemory  # noqa: E402
-import src.domain.pricing.memory as memory_module  # noqa: E402
-from src.services.strategies.strategy2.blend import blend, combine  # noqa: E402
-from src.services.strategies.strategy2.channels import local_evidence  # noqa: E402
+from src.pricing.engine import Evidence, implied_sigma, price_item  # noqa: E402
+from src.evidence.memory import PriceMemory  # noqa: E402
+import src.evidence.memory as memory_module  # noqa: E402
+from src.strategies.strategy2.blend import blend, combine  # noqa: E402
+from src.strategies.strategy2.channels import local_evidence  # noqa: E402
 
 from replay_payoffs import replay, snapshot  # noqa: E402
 

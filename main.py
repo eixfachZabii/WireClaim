@@ -11,17 +11,17 @@ from datetime import datetime, timedelta, timezone
 from src.api import list_games, warm_llm_resources
 from src.data.case_loader import load_case
 from src.data.models import CaseData, FraudDecision, ItemPrice, Proposal
-from src.services.fraud_detection import detect_fraud
-from src.services.strategy_router import STRATEGY_PRIORITIES, StrategyRouter
-from src.services.strategies.fast_path import (
+from src.evidence.fraud_detection import detect_fraud
+from src.strategies.router import STRATEGY_PRIORITIES, StrategyRouter
+from src.strategies.fast_path import (
     LLM_TIMEOUT_SECONDS,
     STANDARD_CHARGE,
     STANDARD_LIMIT,
     llm_values,
     standard_values,
 )
-from src.services.submission_coordinator import SubmissionCoordinator
-from src.observability.timing import format_error_card, log_timing, start_timer
+from src.runtime.submission_coordinator import SubmissionCoordinator
+from src.runtime.timing import format_error_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 RUN_SECONDS = 60.0

@@ -38,15 +38,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.api import get_llm_client, get_service_tier  # noqa: E402
 from src.data.case_loader import read_case  # noqa: E402
 from src.data.models import CaseData  # noqa: E402
-from src.services.policy.slice import slice_policy  # noqa: E402
-from src.services.strategies.strategy1.strategy import build_input_content  # noqa: E402
-from src.services.strategies.strategy2.constants import LLM_TIMEOUT_SECONDS  # noqa: E402
-from src.services.strategies.strategy2.model import (  # noqa: E402
+from src.evidence.policy.slice import slice_policy  # noqa: E402
+from src.legacy.strategy1.strategy import build_input_content  # noqa: E402
+from src.strategies.strategy2.constants import LLM_TIMEOUT_SECONDS  # noqa: E402
+from src.strategies.strategy2.model import (  # noqa: E402
     build_request_text,
     extract_json,
     parse_items,
 )
-from src.services.strategies.strategy2.prompts import PROMPT  # noqa: E402
+from src.strategies.strategy2.prompts import PROMPT  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from live_window import wait_for_safe_window  # noqa: E402

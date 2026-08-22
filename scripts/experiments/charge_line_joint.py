@@ -47,7 +47,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "experiments"))
 
-from src.domain.pricing.engine import (  # noqa: E402
+from src.pricing.engine import (  # noqa: E402
     CHARGE_BOUNDS,
     COVERAGE_FLOOR,
     LIMIT_CAP,
@@ -58,7 +58,7 @@ from src.domain.pricing.engine import (  # noqa: E402
     _lognormal_quantile,
     implied_sigma,
 )
-from src.services.strategies.strategy2.channels import local_evidence  # noqa: E402
+from src.strategies.strategy2.channels import local_evidence  # noqa: E402
 from src.data.case_loader import read_case  # noqa: E402
 
 from replay_payoffs import replay, snapshot  # noqa: E402

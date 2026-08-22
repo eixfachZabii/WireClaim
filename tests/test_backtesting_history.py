@@ -9,7 +9,7 @@ from backtesting.models import (
     HistoricalItem,
     Interval,
 )
-from src.domain.pricing import memory as price_memory
+from src.evidence import memory as price_memory
 
 
 class BacktestingHistoryTests(unittest.TestCase):

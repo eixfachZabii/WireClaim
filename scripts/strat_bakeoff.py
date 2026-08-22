@@ -4,7 +4,7 @@ Why this exists
 ---------------
 Four things price every Case concurrently -- `strategy1`, `strategy2`, `strategy3` and the
 `fast_path` `llm_values` layer -- and only the router's winner is ever submitted. The router
-ranks `strategy2 > strategy3 > strategy1` (`src.services.strategies.STRATEGY_PRIORITIES`) and
+ranks `strategy2 > strategy3 > strategy1` (`src.strategies.STRATEGY_PRIORITIES`) and
 Strategy 2 has won every Game since 21, so we have never checked that the winner deserved to
 win. Game 27 is the only Game where all three Proposals reached disk, and it says the opposite
 of the ranking. One Game proves nothing. This script settles it over a range of Games.
@@ -43,7 +43,7 @@ Judging rules that are not negotiable
 
 Side effects, deliberately suppressed
 -------------------------------------
-`strategy2.propose` writes a decision log through `src.observability.decisions.record`, and re-running it
+`strategy2.propose` writes a decision log through `src.runtime.decisions.record`, and re-running it
 for a settled Game would overwrite `var/decisions/game_NNN.json` -- destroying the only place
 Game 27's three Proposals are recorded. `_redirect_decision_log()` repoints `DECISIONS_DIR` at
 `var/bakeoff/decisions` for the duration of the run. Nothing under `src/` is modified.
@@ -117,14 +117,14 @@ def noise_floor(n_games: int) -> float:
 
 
 def _redirect_decision_log() -> None:
-    """Point `src.observability.decisions` at `var/bakeoff/decisions` so a replay cannot clobber a Game.
+    """Point `src.runtime.decisions` at `var/bakeoff/decisions` so a replay cannot clobber a Game.
 
     `strategy2.propose` records unconditionally, and `_existing_for_merge` refuses to merge
     with a log older than its merge window -- so a re-run of a settled Game writes a *fresh*
     file and the `proposals` section, which is the only record that Strategy 1 and 3 ever
     answered, is gone. This is the whole reason the bake-off is safe to run repeatedly.
     """
-    import src.observability.decisions as decision_log
+    import src.runtime.decisions as decision_log
 
     decision_log.DECISIONS_DIR = CACHE / "decisions"
     decision_log.DECISIONS_DIR.mkdir(parents=True, exist_ok=True)
@@ -199,23 +199,23 @@ def save_draw(result: Draw) -> None:
 async def _call(source: str, case: Any) -> Any:
     """Invoke one track on one Case. No `deadline`, so nothing is truncated by the clock."""
     if source == "strategy1":
-        from src.services.strategies.strategy1 import propose
+        from src.legacy.strategy1 import propose
 
         return await propose(case)
     if source == "strategy2":
-        from src.services.strategies.strategy2 import propose
+        from src.strategies.strategy2 import propose
 
         return await propose(case)
     if source == "strategy3":
-        from src.services.strategies.strategy3 import propose
+        from src.legacy.strategy3 import propose
 
         return await propose(case)
     if source == "fast_path":
-        from src.services.strategies.fast_path import llm_values
+        from src.strategies.fast_path import llm_values
 
         return await llm_values(case)
     if source == "standard":
-        from src.services.strategies.fast_path import standard_values
+        from src.strategies.fast_path import standard_values
 
         return standard_values(case)
     raise ValueError(f"unknown source {source!r}")
@@ -268,7 +268,7 @@ def merged_submission(
     This mirrors `main.RunManager`: `standard_values` is the floor, `fast_path` overwrites it,
     and the three tracks overwrite that per index in priority order.
     """
-    from src.services.strategies import STRATEGY_PRIORITIES
+    from src.strategies import STRATEGY_PRIORITIES
 
     out: dict[int, tuple[float, float]] = {}
     layers: list[tuple[int, str]] = [(-2, "standard"), (-1, "fast_path")]

@@ -58,7 +58,7 @@ US = "Bin busy"
 # -------------------------------------------------
 # `scripts/rivals_study.py` (the script the earlier eyay-copying study used) has, at
 # module level, `from src.pricing import Evidence as _Evidence`. `src/pricing.py` no
-# longer exists -- `Evidence` moved to `src.domain.pricing.engine` in a refactor that
+# longer exists -- `Evidence` moved to `src.pricing.engine` in a refactor that
 # landed after that script was written (confirmed: only a stale `.pyc` remains under
 # `src/__pycache__`; `blend.py` itself now imports the new path). Python executes a
 # module's entire top level on import, so `import rivals_study` fails *at import time*
@@ -67,8 +67,8 @@ US = "Bin busy"
 # handful of functions this file needs (`TeamMetrics`/`measure_team`/`replay_capped`/
 # `reconstruct_t_hat`/formatting helpers) are reproduced below, logic byte-identical to
 # `rivals_study.py`, importing `Evidence` from where it actually lives now.
-from src.domain.pricing.engine import Evidence as _Evidence  # noqa: E402
-from src.services.strategies.strategy2.blend import combine as _combine  # noqa: E402
+from src.pricing.engine import Evidence as _Evidence  # noqa: E402
+from src.strategies.strategy2.blend import combine as _combine  # noqa: E402
 
 
 # --------------------------------------------------------- reproduced from rivals_study.py

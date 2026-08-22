@@ -44,7 +44,7 @@ async def run_track_draws(
         raise ValueError(f"unknown tracks {sorted(unknown)}")
     decisions_dir = run_dir / "decisions"
     decisions_dir.mkdir(parents=True, exist_ok=True)
-    import src.observability.decisions as decision_log
+    import src.runtime.decisions as decision_log
 
     previous_dir = decision_log.DECISIONS_DIR
     decision_log.DECISIONS_DIR = decisions_dir
@@ -96,18 +96,18 @@ async def _run_one(case: CaseData, track: str, draw: int, timeout_seconds: float
 def _operation(track: str, case: CaseData, timeout_seconds: float) -> Awaitable[Proposal | None]:
     deadline = asyncio.get_running_loop().time() + timeout_seconds
     if track == "strategy1":
-        from src.services.strategies.strategy1 import propose
+        from src.legacy.strategy1 import propose
 
         return propose(case, deadline)
     if track == "strategy2":
-        from src.services.strategies.strategy2 import propose
+        from src.strategies.strategy2 import propose
 
         return propose(case, deadline)
     if track == "strategy3":
-        from src.services.strategies.strategy3 import propose
+        from src.legacy.strategy3 import propose
 
         return propose(case, deadline)
-    from src.services.strategies.fast_path import llm_values
+    from src.strategies.fast_path import llm_values
 
     return llm_values(case)
 
@@ -115,8 +115,8 @@ def _operation(track: str, case: CaseData, timeout_seconds: float) -> Awaitable[
 def merged_submission(
     case: CaseData, draws: Mapping[str, TrackDraw]
 ) -> dict[int, Submission]:
-    from src.services.strategies import STRATEGY_PRIORITIES
-    from src.services.strategies.fast_path import standard_values
+    from src.strategies import STRATEGY_PRIORITIES
+    from src.strategies.fast_path import standard_values
 
     valid = {item.index for item in case.line_items}
     merged = {
