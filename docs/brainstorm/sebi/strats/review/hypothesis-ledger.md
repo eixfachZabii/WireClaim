@@ -238,7 +238,7 @@ genuinely has a zero bottom third. And that is the payoff table being correct: a
 
 
 76 of 192 settled Line Items are worth nothing, and `p_covered <= 2/3` is what collapses the
-Limit. The parked detector (`src/services/coverage.py`) measures **61.8%** recall at 1.7%
+Limit. The parked detector (`src/evidence/policy/coverage.py`) measures **61.8%** recall at 1.7%
 false positives, Brier 0.122 against 0.327 for a flat 0.9 — but it is unwired, because
 swapping estimators needs a euro comparison, not a better confusion matrix.
 

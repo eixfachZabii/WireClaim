@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from src.data.models import CaseData, LineItem
-from src.services.strategies.strategy1.strategy import (
+from src.legacy.strategy1.strategy import (
     Evidence,
     LLM_TIMEOUT_SECONDS,
     SUBMISSION_RESERVE_SECONDS,
@@ -123,7 +123,7 @@ class Strategy1Tests(unittest.TestCase):
             image_paths=self.case.image_paths,
         )
         with patch(
-            "src.services.strategies.strategy1.strategy._request_evidence",
+            "src.legacy.strategy1.strategy._request_evidence",
             return_value=(Evidence(3, 0.9, 0.9, 1000.0, 2000.0),),
         ):
             proposal = asyncio.run(propose(case))
@@ -188,7 +188,7 @@ class Strategy1Tests(unittest.TestCase):
             '"anchors":["60 EUR per hour","two hour repair"]}]}'
         )
         with patch(
-            "src.services.strategies.strategy1.strategy.get_llm_client",
+            "src.legacy.strategy1.strategy.get_llm_client",
             return_value=client,
         ):
             evidence = _request_evidence(self.case)
@@ -203,7 +203,7 @@ class Strategy1Tests(unittest.TestCase):
     def test_propose_runs_the_strategy_local_estimator(self) -> None:
         evidence = (Evidence(1, 1.0, 1.0, 300.0, 400.0),)
         with patch(
-            "src.services.strategies.strategy1.strategy._request_evidence",
+            "src.legacy.strategy1.strategy._request_evidence",
             return_value=evidence,
         ):
             proposal = asyncio.run(propose(self.case))
@@ -223,7 +223,7 @@ class Strategy1Tests(unittest.TestCase):
             loop = asyncio.get_running_loop()
             deadline = loop.time() + 50.0
             with patch(
-                "src.services.strategies.strategy1.strategy._request_evidence",
+                "src.legacy.strategy1.strategy._request_evidence",
                 return_value=evidence,
             ) as request_evidence:
                 proposal = await propose(self.case, deadline=deadline)

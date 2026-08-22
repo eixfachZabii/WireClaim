@@ -24,21 +24,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.data.case_loader import read_case  # noqa: E402
 from src.data.models import CaseData  # noqa: E402
-from src.domain.pricing.engine import Evidence  # noqa: E402
+from src.pricing.engine import Evidence  # noqa: E402
 
 INF = math.inf
 CASES = Path("[PUBLIC] EHL Cases/cases")
 EVIDENCE = Path("var/evidence")
 
 _s2 = __import__(
-    "src.services.strategies.strategy2.strategy", fromlist=["strategy"]
+    "src.strategies.strategy2.strategy", fromlist=["strategy"]
 )
 
 
 def _resolve(module: str, new: str, old: str):
     """The new module-level name if the refactor landed, else the old private one."""
     try:
-        loaded = __import__(f"src.services.strategies.strategy2.{module}", fromlist=[module])
+        loaded = __import__(f"src.strategies.strategy2.{module}", fromlist=[module])
         if hasattr(loaded, new):
             return getattr(loaded, new)
     except ImportError:
@@ -70,7 +70,7 @@ def set_model_sigma_prior(value: float) -> None:
     for module in ("constants", "blend", "channels", "model", "strategy"):
         try:
             loaded = __import__(
-                f"src.services.strategies.strategy2.{module}", fromlist=[module]
+                f"src.strategies.strategy2.{module}", fromlist=[module]
             )
         except ImportError:  # pragma: no cover - pre-refactor layout
             continue
@@ -82,7 +82,7 @@ def set_model_sigma_prior(value: float) -> None:
 
 def model_sigma_prior() -> float:
     loaded = __import__(
-        "src.services.strategies.strategy2.constants", fromlist=["constants"]
+        "src.strategies.strategy2.constants", fromlist=["constants"]
     )
     return loaded.MODEL_SIGMA_PRIOR
 

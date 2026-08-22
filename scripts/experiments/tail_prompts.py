@@ -25,7 +25,7 @@ from dump_evidence import _dump, _path, load  # noqa: E402
 from tail_replay import CASES  # noqa: E402
 
 from src.data.case_loader import read_case  # noqa: E402
-from src.services.strategies.strategy2 import strategy as s2  # noqa: E402
+from src.strategies.strategy2 import strategy as s2  # noqa: E402
 
 COMMON_HEAD = """Read this insurance Case and return evidence for every invoice Line Item.
 

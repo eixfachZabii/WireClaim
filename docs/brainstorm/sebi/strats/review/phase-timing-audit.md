@@ -308,7 +308,7 @@ of fatally (§6.4's diff).
 no concurrency limit**:
 
 ```python
-# src/services/fraud_detection.py:102-105
+# src/evidence/fraud_detection.py:102-105
 results = await asyncio.gather(
     *(_timed_check(line_item, case) for line_item in case.line_items),
     return_exceptions=True,
@@ -401,7 +401,7 @@ an explicit loop rather than `asyncio.run()`'s implicit one:
      logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 +    # Default executor is min(32, cpu_count+4) -- 12 workers on an 8-core box. The
 +    # fraud gate alone fires one asyncio.to_thread call per Line Item, all at once
-+    # (src/services/fraud_detection.py), and the largest known Case is 39 items,
++    # (src/evidence/fraud_detection.py), and the largest known Case is 39 items,
 +    # so the default pool queues roughly 3-4x its own size on the biggest Cases.
 +    # See phase-timing-audit.md §6.2. Sized once, for the whole process.
 +    loop = asyncio.new_event_loop()
