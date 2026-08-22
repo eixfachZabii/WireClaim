@@ -45,6 +45,25 @@ direction loses money.
 Remaining weakness is the heavy tail: G10 still replays at only +1,000 because its Line
 Item worth `t ≥ 7,225` is priced like an ordinary one.
 
+### Do not "fix" the undercharging with a multiplier
+
+Over 15 Games (1, 2, 4, 5, 8–15, 17–19) where we actually scored **−324,706**, scaling
+every Charge by a single factor:
+
+| Charge × | 0.7 | **1.0 (shipped)** | 1.3 | 1.6 | 2.0 | 3.0 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| net | −17,164 | **+62,814** | +32,098 | −63,807 | −238,384 | −383,211 |
+
+**The shipped level is already the global optimum, worth +387,521 against what we
+actually did.** Raising Charges across the board loses money quickly, because most Line
+Items are cheap — median `t` is ~59 — and pushing them above `t` forfeits income that was
+otherwise collected from *every* opponent.
+
+So the tail problem is **item-specific, not a level problem**, and no multiplier can fix
+it. It needs the estimate itself to recognise an expensive item. The counter-example is
+Game 20, where Strategy 2 replays at +5,473 against our actual +12,765: it charged 1,281
+on an air-conditioning unit we charged 2,345 for, and the item was worth more than both.
+
 ---
 
 ## Every settled Game, current through Game 14
