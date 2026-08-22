@@ -5,8 +5,7 @@ t-estimation checks against the shipped test case (case_00: stolen mountain bike
 - The estimator test calls the LLM API and is skipped when no API key
   (AZURE_OPENAI_API_KEY / OPENAI_API_KEY / OPENAI_KEY) is configured. The case
   description states the bike was worth 420 EUR and the policy covers market
-  value, so the estimated t should be close to 420 and the item must be
-  classified as covered.
+  value, so the estimated t should be close to 420.
 """
 
 from __future__ import annotations
@@ -29,26 +28,24 @@ HAS_API_KEY = bool(
 )
 
 
-def test_sanitize_forces_uncovered_to_zero() -> None:
+def test_sanitize_clips_negative_values() -> None:
     estimate = _sanitize(
         {
-            "covered": False,
-            "t_estimate": 250.0,
-            "t_low": 200.0,
+            "t_estimate": -50.0,
+            "t_low": -10.0,
             "t_high": 300.0,
             "confidence": 0.9,
-            "reasoning": "not covered",
+            "reasoning": "negative values are invalid",
         }
     )
     assert estimate.t_estimate == 0.0
     assert estimate.t_low == 0.0
-    assert estimate.t_high == 0.0
+    assert estimate.t_high == 300.0
 
 
 def test_sanitize_clamps_estimate_into_interval() -> None:
     estimate = _sanitize(
         {
-            "covered": True,
             "t_estimate": 900.0,
             "t_low": 380.0,
             "t_high": 430.0,
@@ -68,7 +65,6 @@ def test_estimate_case00() -> None:
         description_path=CASE_00_DIR / "description.txt",
     )
 
-    assert estimate.covered, f"case_00 bike should be covered: {estimate.reasoning}"
     # The description anchors the bike's market value at 420 EUR.
     assert 300 <= estimate.t_estimate <= 450, (
         f"t={estimate.t_estimate}: {estimate.reasoning}"
