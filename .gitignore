@@ -20,9 +20,22 @@ data/price_memory*.json
 __pycache__/
 *.py[cod]
 .venv/
+venv/
+env/
 .pixi/
 .pytest_cache/
 .DS_Store
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # Tooling state that is not ours to track
 .impeccable/
