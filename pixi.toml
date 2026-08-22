@@ -1,0 +1,17 @@
+[workspace]
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "osx-64", "linux-64", "linux-aarch64", "win-64"]
+
+[dependencies]
+python = ">=3.11,<3.15"
+
+[target.unix.dependencies]
+p7zip = "*"
+
+[target.win-64.dependencies]
+7zip = "*"
+
+[tasks]
+test = "python -m unittest discover -s tests -v"
+start = "python main.py"
+case-0 = "python main.py --game-id 0"

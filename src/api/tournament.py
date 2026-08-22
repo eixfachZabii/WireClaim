@@ -1,8 +1,7 @@
 """
 QuantCo Claim-to-Fame Functional Tournament API Client & Submission Module.
 
-This module provides purely functional helpers (no class instantiation needed)
-to interact with the QuantCo Claim-to-Fame tournament backend:
+This module provides purely functional helpers to interact with the QuantCo Claim-to-Fame tournament backend:
 - `list_games()`: List all scheduled and test games.
 - `get_decryption_key(game_id)`: Retrieve the AES decryption key for a case.
 - `submit_price(game_id, charge_price, acceptance_limit, index=1)`: Submit a single line item price.
@@ -18,24 +17,54 @@ If a case has only 1 line item, `index` is simply 1 (default).
 Configuration & Environment Variables:
 ---------------------------------------
 - `TEAM_API_KEY`: Team token sent in the `X-API-Key` HTTP header.
-- `BASE_URL`: Base competition URL (default: `https://c2f.public.quantco.cloud/`).
+- `BASE_URL`: Base competition URL (default: `https://c2f.public.quantco.cloud`).
 """
 
 from __future__ import annotations
 
+import json
 import math
 import os
+import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
-import requests
-from dotenv import find_dotenv, load_dotenv
+# Load .env with optional python-dotenv or stdlib fallback
+try:
+    from dotenv import find_dotenv, load_dotenv
 
-# Load .env file automatically
-env_file = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent.parent.parent / ".env")
-load_dotenv(dotenv_path=env_file, override=True)
+    env_file = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent.parent.parent / ".env")
+    load_dotenv(dotenv_path=env_file, override=True)
+except ImportError:
+    env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+    if env_path.exists():
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"\''))
 
-DEFAULT_BASE_URL = "https://c2f.public.quantco.cloud/"
+DEFAULT_BASE_URL = "https://c2f.public.quantco.cloud"
+
+
+class APIError(RuntimeError):
+    """Raised when tournament API returns a non-200 HTTP response."""
+
+    def __init__(self, status_code: int, message: str) -> None:
+        super().__init__(f"[{status_code}] {message}")
+        self.status_code = status_code
+        self.message = message
+
+
+def _get_urlopen():
+    """Retrieve urlopen function, supporting monkeypatching on src.api."""
+    try:
+        import src.api
+        return getattr(src.api, "urlopen", urllib.request.urlopen)
+    except Exception:
+        return urllib.request.urlopen
 
 
 def _get_config(
@@ -45,9 +74,7 @@ def _get_config(
     """Resolve API key and base URL from arguments or environment variables."""
     key = (api_key or os.environ.get("TEAM_API_KEY", "")).strip()
     if not key:
-        raise ValueError(
-            "Missing TEAM_API_KEY. Provide it as an argument or set the 'TEAM_API_KEY' environment variable in your .env file."
-        )
+        raise RuntimeError("TEAM_API_KEY is missing; copy .env.example to .env")
 
     url = (base_url or os.environ.get("BASE_URL") or DEFAULT_BASE_URL).rstrip("/")
     return key, url
@@ -65,28 +92,43 @@ def _validate_price(name: str, value: float) -> float:
     return val_float
 
 
-def _check_response(response: requests.Response, action: str) -> requests.Response:
-    """Check API response status and raise descriptive error if not HTTP 200."""
-    if response.status_code == 200:
-        return response
+def _get(path: str, api_key: Optional[str] = None, base_url: Optional[str] = None, timeout: float = 10.0) -> Any:
+    """Send a GET request to the tournament backend."""
+    key, url = _get_config(api_key, base_url)
+    request = Request(
+        f"{url}{path}",
+        headers={"X-API-Key": key, "Accept": "application/json"},
+    )
+    try:
+        with _get_urlopen()(request, timeout=timeout) as response:
+            return json.load(response)
+    except HTTPError as error:
+        message = error.read().decode("utf-8", errors="replace")
+        raise APIError(error.code, message) from error
 
-    status = response.status_code
-    error_msg = response.text.strip()
 
-    if status == 401:
-        raise RuntimeError(f"[{status}] {action} failed: Unauthorized. Missing or invalid TEAM_API_KEY.")
-    elif status == 403:
-        raise RuntimeError(
-            f"[{status}] {action} failed: Forbidden. Game has not started yet, already ended, or team ineligible."
-        )
-    elif status == 404:
-        raise RuntimeError(f"[{status}] {action} failed: Not found. Verify the game_id.")
-    elif status == 422:
-        raise RuntimeError(
-            f"[{status}] {action} failed: Unprocessable Entity. Check that prices are non-negative and finite."
-        )
-    else:
-        raise RuntimeError(f"[{status}] {action} failed: {error_msg}")
+def _put(
+    path: str,
+    data: Any,
+    api_key: Optional[str] = None,
+    base_url: Optional[str] = None,
+    timeout: float = 10.0,
+) -> Any:
+    """Send a PUT request to the tournament backend with JSON body."""
+    key, url = _get_config(api_key, base_url)
+    body = json.dumps(data).encode("utf-8")
+    request = Request(
+        f"{url}{path}",
+        data=body,
+        headers={"X-API-Key": key, "Content-Type": "application/json", "Accept": "application/json"},
+        method="PUT",
+    )
+    try:
+        with _get_urlopen()(request, timeout=timeout) as response:
+            return json.load(response)
+    except HTTPError as error:
+        message = error.read().decode("utf-8", errors="replace")
+        raise APIError(error.code, message) from error
 
 
 # ============================================================================
@@ -97,34 +139,26 @@ def _check_response(response: requests.Response, action: str) -> requests.Respon
 def list_games(
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
-    timeout: float = 30.0,
+    timeout: float = 10.0,
 ) -> List[Dict[str, Any]]:
     """Fetch the list of all tournament games and their scheduled start times.
 
     Calls `GET /api/games/list`.
     """
-    key, url = _get_config(api_key, base_url)
-    headers = {"X-API-Key": key}
-    resp = requests.get(f"{url}/api/games/list", headers=headers, timeout=timeout)
-    _check_response(resp, "Listing games")
-    return resp.json()
+    return _get("/api/games/list", api_key=api_key, base_url=base_url, timeout=timeout)
 
 
 def get_decryption_key(
     game_id: int,
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
-    timeout: float = 30.0,
+    timeout: float = 10.0,
 ) -> str:
     """Fetch the AES-256 decryption key for a game's case zip archive.
 
     Calls `GET /api/games/{game_id}/key`.
     """
-    key, url = _get_config(api_key, base_url)
-    headers = {"X-API-Key": key}
-    resp = requests.get(f"{url}/api/games/{game_id}/key", headers=headers, timeout=timeout)
-    _check_response(resp, f"Getting decryption key for game {game_id}")
-    data = resp.json()
+    data = _get(f"/api/games/{game_id}/key", api_key=api_key, base_url=base_url, timeout=timeout)
     return str(data["decryption_key"])
 
 
@@ -135,7 +169,7 @@ def submit_price(
     index: int = 1,
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
-    timeout: float = 30.0,
+    timeout: float = 10.0,
 ) -> Dict[str, Any]:
     """Submit a single line item price for an active game round."""
     results = submit_prices(
@@ -153,15 +187,12 @@ def submit_prices(
     submissions: Sequence[Union[Dict[str, Any], Tuple[float, float]]],
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
-    timeout: float = 30.0,
+    timeout: float = 10.0,
 ) -> List[Dict[str, Any]]:
     """Submit or update line item prices for an active game round.
 
     Calls `PUT /api/games/{game_id}/submissions`.
     """
-    key, url = _get_config(api_key, base_url)
-    headers = {"X-API-Key": key, "Content-Type": "application/json"}
-
     payload: List[Dict[str, Union[int, float]]] = []
     for idx, item in enumerate(submissions, start=1):
         if isinstance(item, tuple) and len(item) == 2:
@@ -179,14 +210,13 @@ def submit_prices(
                 f"Unsupported submission item format: {item}. Expected dict or (charge_price, acceptance_limit) tuple."
             )
 
-    resp = requests.put(
-        f"{url}/api/games/{game_id}/submissions",
-        headers=headers,
-        json=payload,
+    return _put(
+        f"/api/games/{game_id}/submissions",
+        data=payload,
+        api_key=api_key,
+        base_url=base_url,
         timeout=timeout,
     )
-    _check_response(resp, f"Submitting prices for game {game_id}")
-    return resp.json()
 
 
 def print_submissions(results: Sequence[Dict[str, Any]]) -> None:

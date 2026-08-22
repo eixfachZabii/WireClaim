@@ -18,18 +18,26 @@ import os
 from pathlib import Path
 from typing import Any, Optional
 
-from dotenv import find_dotenv, load_dotenv
-from openai import OpenAI
+# Optional dotenv loading with stdlib fallback
+try:
+    from dotenv import find_dotenv, load_dotenv
 
-# Robust dotenv loading
-ENV_PATH = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent.parent.parent / ".env")
-load_dotenv(dotenv_path=ENV_PATH, override=True)
+    env_file = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent.parent.parent / ".env")
+    load_dotenv(dotenv_path=env_file, override=True)
+except ImportError:
+    env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+    if env_path.exists():
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"\''))
 
 
 def get_llm_client(
     api_key: Optional[str] = None,
     endpoint: Optional[str] = None,
-) -> OpenAI:
+) -> Any:
     """Initialize and return an OpenAI / Azure OpenAI client.
 
     Args:
@@ -42,6 +50,8 @@ def get_llm_client(
     Raises:
         ValueError: If no API key is provided or found in the environment.
     """
+    from openai import OpenAI
+
     resolved_key = (
         api_key
         or os.getenv("AZURE_OPENAI_API_KEY")
@@ -72,23 +82,7 @@ def query_llm(
     api_key: Optional[str] = None,
     endpoint: Optional[str] = None,
 ) -> str:
-    """Send a prompt to the LLM and return the generated text response.
-
-    Uses `client.responses.create(...)` with fallback to `client.chat.completions.create(...)`.
-
-    Args:
-        prompt: The input text / instructions for the model.
-        model: Model / deployment name (defaults to `AZURE_OPENAI_MODEL`).
-        api_key: Optional explicit API key.
-        endpoint: Optional explicit endpoint URL.
-
-    Returns:
-        str: Model text response.
-
-    Example:
-        >>> answer = query_llm("Is a broken windshield covered under comprehensive insurance?")
-        >>> print(answer)
-    """
+    """Send a prompt to the LLM and return the generated text response."""
     client = get_llm_client(api_key=api_key, endpoint=endpoint)
     target_model = model or os.getenv("AZURE_OPENAI_MODEL") or "gpt-4o"
 
@@ -104,7 +98,6 @@ def query_llm(
             if hasattr(response, "output") and response.output:
                 return str(response.output).strip()
     except Exception:
-        # Fallback to standard chat completions if responses.create is not supported by endpoint
         pass
 
     # Standard Chat Completions API fallback
