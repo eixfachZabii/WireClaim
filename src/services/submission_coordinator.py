@@ -6,11 +6,11 @@ from collections.abc import Callable, Sequence
 
 from src.api import submit_prices
 from src.data.models import ItemPrice
+from src.services.strategies import STRATEGY_PRIORITIES
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Submitter = Callable[..., object]
-STRATEGY_PRIORITIES = {"strategy1": 1, "strategy2": 2, "strategy3": 3}
 
 
 def format_submission_update(

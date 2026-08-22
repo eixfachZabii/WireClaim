@@ -11,13 +11,13 @@ class SubmissionCoordinatorTests(unittest.IsolatedAsyncioTestCase):
         update = format_submission_update(
             game_id=19,
             sequence=4,
-            reason="strategy:strategy3",
+            reason="strategy:strategy2",
             force=False,
             prices=(ItemPrice(1, 300.0, 35.0), ItemPrice(2, 400.0, 0.0)),
         )
 
         self.assertTrue(update.startswith("\n\n\n-------------"))
-        self.assertIn("source: strategy3", update)
+        self.assertIn("source: strategy2", update)
         self.assertIn("priority: 3", update)
         self.assertIn("1 |       300.00 |        35.00", update)
         self.assertIn("2 |       400.00 |         0.00", update)
