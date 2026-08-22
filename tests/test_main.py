@@ -170,6 +170,18 @@ class MainTests(unittest.TestCase):
 
         self.assertIn("INFO:main:Stopping WireClaim runner.", logs.output)
 
+    def test_game_id_and_retry_dry_runs_one_game_without_posting(self) -> None:
+        args = argparse.Namespace(game_id=18, retry_dry=True)
+        run_game = Mock(return_value=object())
+        with (
+            patch.object(main.argparse.ArgumentParser, "parse_args", return_value=args),
+            patch.object(main, "run_game", new=run_game),
+            patch.object(main.asyncio, "run"),
+        ):
+            main.main()
+
+        run_game.assert_called_once_with(18, dry_run=True)
+
 
 if __name__ == "__main__":
     unittest.main()
