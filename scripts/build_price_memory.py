@@ -235,7 +235,15 @@ def memory_payload(records: list[dict[str, Any]], games: list[int]) -> dict[str,
         "line_items_joined": len(records),
         "line_items_with_proven_positive_t": sum(1 for r in records if r["positive"]),
         "per_unit_units": sorted({r["unit"] for r in records if r.get("basis") == "per_unit"}),
-        "measured_leave_one_out_sigma_log": 0.43,
+        # Computed, not asserted. This field said `0.43` unconditionally on every build the
+        # script had ever done -- a name containing the word "measured" attached to a literal
+        # that no measurement could move. The value happened to be right for the store it was
+        # written against (Cases 1-14, per-unit rule on, which re-measures at 0.431 today) and
+        # drifted as the store grew, so the field quietly aged into a claim about a store that
+        # no longer existed. Nothing under `src/` reads it -- `memory.SIGMA_LOG` is the
+        # constant the pricing path uses -- so this is a truthfulness fix, not a behaviour
+        # change, and it is here because it cost real time to discover the number was fixed.
+        "measured_leave_one_out_sigma_log": evaluate(records, games, per_unit=True)["sigma"],
         "warning": (
             "PRICE ONLY. This store never asserts coverage; "
             "advisory_zero_observations is a hint to read the policy clause, "
