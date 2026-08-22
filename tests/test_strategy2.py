@@ -251,10 +251,15 @@ class UncorrectedLevelTests(unittest.TestCase):
             self.assertAlmostEqual(blended[1].price_median, median, places=6)
 
     def test_the_charge_scales_linearly_with_the_stated_median(self) -> None:
-        """A level correction of any shape would break proportionality somewhere."""
+        """A level correction of any shape would break proportionality somewhere.
+
+        Still true, and still the point -- below `BIG_ITEM_THRESHOLD`. All three medians here
+        stay under it deliberately, so this guards the range where the estimator is calibrated
+        enough for a level correction to be the mistake it has been six times.
+        """
         case = case_with(LineItem(1, "Leak detection call-out"))
         charges = []
-        for median in (20.0, 200.0, 2000.0):
+        for median in (9.0, 90.0, 900.0):
             proposal = build_proposal(
                 case, {1: Evidence(1, 0.95, median * 0.8, median, median * 1.25)}, {}
             )

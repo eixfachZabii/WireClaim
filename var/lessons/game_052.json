@@ -1,0 +1,89 @@
+{
+  "game_id": 52,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 946.62,
+    "paid_on_accepts": 2544.94,
+    "penalties": 0.0,
+    "net": -1598.3200000000002,
+    "saved_by_rejecting": 4467.01,
+    "lawyer_waste": 0.0,
+    "fraud_let_through": 1568.0,
+    "strictness_net": 2899.01
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Internal frost-burst fitting repair including thermal- (1 flat rate)",
+      "t_lo": 399.21,
+      "t_hi": 503.5,
+      "our_charge": 946.62,
+      "our_limit_bracket": [
+        552.5,
+        Infinity
+      ],
+      "estimate_median": 1299.0381056766576,
+      "coverage_probability": 0.95,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 947 against t < 504, so every opponent owed us nothing."
+    },
+    {
+      "index": 2,
+      "name": "Exterior facade frost damage repair (re-plaster and (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 45.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 2796.426290821913,
+      "coverage_probability": 0.02,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy2": {
+        "net": -1598.3199999999997,
+        "income": 946.62,
+        "cost": 2544.9399999999996,
+        "items_priced": 2,
+        "items_missing": []
+      }
+    },
+    "drivers": [],
+    "reconstructs": true,
+    "actual_net": -1598.3200000000002,
+    "replayed_actual_net": -1598.3199999999997,
+    "oracle_net": 6604.739999999999,
+    "oracle_exact_net": 6604.739999999999,
+    "line_items": 2,
+    "best_alternative": null,
+    "best_alternative_delta": 0.0
+  },
+  "estimate": {
+    "n_scorable": 1,
+    "median_log_error": 1.0571251813041274,
+    "rmsle": 1.0571251813041274
+  },
+  "cost_by_stage": {
+    "charge-above-t": 0.0,
+    "ok": 0.0
+  }
+}

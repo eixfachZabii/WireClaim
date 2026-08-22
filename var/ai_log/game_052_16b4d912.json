@@ -1,0 +1,10 @@
+{
+ "game_id": 52,
+ "draw": "16b4d912",
+ "model": "gpt-5.6-terra",
+ "service_tier": "priority",
+ "elapsed_seconds": 9.58,
+ "recorded_at": 1787442246.9523,
+ "reply_characters": 975,
+ "reply": "{\"items\":[{\"line_item\":1,\"coverage_probability\":0.95,\"price_low\":850.0,\"price_median\":1350.0,\"price_high\":2200.0,\"clause\":\"Where a pipe or a fitting has fractured in an insured event, the indemnity comprises the fractured item, the connection elements and seals that have to be renewed with it, the labour under 7.1.7(f), the consumables under 7.1.7(e), the opening up and making good under 7.1.7(b), and one attendance under 7.1.11.\"},{\"line_item\":2,\"coverage_probability\":0.03,\"price_low\":1200.0,\"price_median\":2300.0,\"price_high\":4500.0,\"clause\":\"Where the schedule does not show the peril in 2.1(d) as agreed, the following are not covered: (b) in consequence of (a), the taking off and renewal of loosened or failed surface material, the preparation, levelling and re-forming of the substrate beneath it, its drying, its priming, the successive coats of the new finish however many are applied, and any further work carried out on the elevation on the same occasion;\"}]}"
+}

@@ -1,0 +1,59 @@
+{
+  "game_id": 52,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 946.62,
+      "coverage_probability": 0.95,
+      "index": 1,
+      "limit": 584.57,
+      "name": "Internal frost-burst fitting repair including thermal- (1 flat rate)",
+      "price_high": 2023.853279157436,
+      "price_low": 833.8055022953707,
+      "price_median": 1299.0381056766576,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.26953142029210697
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 1829.33,
+      "coverage_probability": 0.02,
+      "index": 2,
+      "limit": 0.0,
+      "name": "Exterior facade frost damage repair (re-plaster and (1 flat rate)",
+      "price_high": 5721.434497859463,
+      "price_low": 1366.7900948487072,
+      "price_median": 2796.426290821913,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.435183758669013
+    }
+  ],
+  "memory_items": 0,
+  "model_draws": 2,
+  "model_items": 2,
+  "proposals": {
+    "strategy2": {
+      "1": [
+        946.62,
+        584.57
+      ],
+      "2": [
+        1829.33,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787442246.955012,
+  "recorded_at": 1787442246.954011,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

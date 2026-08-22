@@ -317,6 +317,52 @@ CHARGE_BOUNDS = (0.30, 0.80)
 # is exact arithmetic on the payoff table and `LIMIT_CEILING` is the honest place to express
 # a Field measurement. Two knobs pulling in one direction only need one of them moved; this
 # note exists so that nobody reads the flat sweep as evidence for loosening it.
+# Above this estimate, the Charge is scaled by `BIG_ITEM_CHARGE_SCALE`.
+#
+# Both numbers are the answer to a question that had been asked the wrong way round all
+# night. The complaint was that we lose the "big fish" -- Game 41's watch at `t >= 11,131`
+# Charged 3,826, Game 44's at `t >= 9,361` Charged 4,738. True, and the obvious reading is
+# that we under-price expensive items. The obvious reading is wrong.
+#
+# Of the 24 settled Line Items where our own estimate said `t_hat >= 1,000`, **67 % are
+# proven too HIGH and only 12 % proven too low**, and the median `t_hat / t` is **4.12**.
+# When this estimator says an item is worth over a thousand, it is typically worth about
+# a quarter of that: Game 29 item 2 estimated 7,139 against `t < 57`, Game 52 item 2
+# estimated 2,796 against `t < 45`.
+#
+# Scaling the Charge *up* on that bucket nonetheless wins, and the asymmetry is why. On an
+# item already above `t` the income is ~0 whatever we Charge, so raising it costs nothing;
+# on the few far below `t` it recovers a great deal; and the in-band items are the only real
+# risk, since a scale can push them across the cliff. At 1.25 most stay in band. At 1.5
+# enough cross that the early half collapses.
+#
+# Replayed through `price_item` and `scripts/replay_payoffs.replay` against the real Field
+# over the 26 Games with a decision log:
+#
+#     scale        all       odd      even   Games<=40   Games>40
+#      0.80    -32,926   -25,670    -7,256     -16,889    -16,037
+#      1.00         +0        +0        +0          +0         +0
+#      1.25    +36,525   +10,065   +26,461      +3,128    +33,398   <- all four folds positive
+#      1.50     -1,906    +4,413    -6,319     -61,306    +59,400
+#
+# 1.25 is the only cell in the family positive on every fold, which is the bar
+# `LIMIT_CEILING_MEMORY` had to clear. At n=26 the +36,525 only just passes the +/-31,996
+# noise floor, so the fold consistency is carrying this, not the total.
+#
+# The threshold matters as much as the scale. Repeat the sweep at `t_hat >= 500` and every
+# scale loses -- -17,033 at 1.25, -113,736 at 1.5 -- because the 100-500 bucket is a
+# different population: 49 % too high against 24 % too low, and a median `t_hat / t` of 1.20
+# rather than 4.12. This is a rule about the tail, not about size in general.
+#
+# Only the Charge moves. The Limit is untouched: it is drawn from the same posterior but
+# through the quantile, and the `b <= a` clamp below still holds because `a` only rises.
+#
+# What would falsify it: the tail bucket's direction balance shifting. Re-run
+# `scripts/export_runs.py` and re-bucket -- if "proven too high" falls near 50 %, the free
+# half of the asymmetry is gone and this constant should go back to 1.0.
+BIG_ITEM_THRESHOLD = 1000.0
+BIG_ITEM_CHARGE_SCALE = 1.25
+
 LIMIT_QUANTILE = 1.0 / 3.0
 
 # A guard against the model claiming precision it does not have. The quantile above is
@@ -902,6 +948,11 @@ def price_item(
     # item turns out to be worthless the Charge simply gets rejected at no cost, whereas
     # shading it down for doubt forfeits guaranteed income on everything that is covered.
     charge = charge_factor(sigma) * filled.price_median
+    if filled.price_median >= BIG_ITEM_THRESHOLD:
+        # See `BIG_ITEM_THRESHOLD`: in this bucket two thirds of our estimates are already
+        # above `t`, where the income is zero whatever we Charge, so raising it is close to
+        # free -- and it recovers a great deal on the few that sit far below.
+        charge *= BIG_ITEM_CHARGE_SCALE
 
     # The Limit reads the bottom third of the *whole* posterior, which carries mass
     # (1 - covered) at zero. At P(covered) <= 1 - LIMIT_QUANTILE = 2/3 the zero mass alone
