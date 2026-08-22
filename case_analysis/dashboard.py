@@ -151,6 +151,11 @@ def main() -> None:
         fig.savefig(PNG_PATH, dpi=110)
         print(f"wrote {PNG_PATH}")
     else:
+        if matplotlib.get_backend().lower() == "agg":
+            raise SystemExit(
+                "No GUI matplotlib backend available (Agg cannot open a window). "
+                "Install one (e.g. `pip install PyQt5`) or run with --save."
+            )
         plt.show()
 
 
