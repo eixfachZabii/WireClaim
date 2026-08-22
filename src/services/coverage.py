@@ -95,6 +95,23 @@ QUANTITY_MISSING_CEILING = 0.10
 #: from crowding out the Policy.
 MAX_INVOICE_CHARS = 12000
 
+#: Independent samples per chunk, averaged. The model's per-Case verdicts are noisy -- two
+#: runs of the identical prompt over the settled record scored 68.4%/5.2% and 72.4%/6.0%
+#: (recall of true-zero items / covered items wrongly pushed under 1/3) -- and the noise is
+#: not symmetric in cost: a false positive forfeits guaranteed income and then pays the
+#: field 1.5a on the same Line Item.
+#:
+#: Averaging is the cheapest fix available, because the disagreements are exactly the
+#: doubtful items and the mean lands them in the middle band the Limit is built to read.
+#: Measured over Games 1-14: single runs 68.4/5.2/0.131 and 72.4/6.0/0.129
+#: (recall/false-positive/Brier), their mean 67.1/1.7/0.116. The false-positive rate falls
+#: by two thirds for four points of recall, and the Brier score improves as well.
+#:
+#: Two, not three: a third sample moved the pooled numbers to 65.8/4.3/0.118, inside the
+#: run-to-run noise, for another 50% of tokens. The samples run concurrently, so this costs
+#: tokens and not wall clock.
+SAMPLES = 2
+
 #: Items per LLM call. One call per Case would let a single failure blind a 39-item
 #: invoice; one call per item repeats a ~20k-character Policy 39 times and loses the
 #: cross-item view that keeps the model from flagging a uniform Case. Chunks give both
@@ -515,6 +532,26 @@ async def _timed_chunk(
     return verdicts
 
 
+def merge_samples(samples: Sequence[CoverageVerdict]) -> CoverageVerdict:
+    """Average independent verdicts on one Line Item and keep the best-evidenced clause.
+
+    The probability is the plain mean -- two samples that disagree describe a genuinely
+    doubtful position, and the middle band is what the Limit is built to read. The clause
+    comes from the most incriminating sample that carries a verified quote, so an item
+    that survives the average still ships the exclusion someone found.
+    """
+    probability = sum(sample.p_covered for sample in samples) / len(samples)
+    verified = [sample for sample in samples if sample.quote_verified]
+    evidence = min(verified or list(samples), key=lambda sample: sample.p_covered)
+    return CoverageVerdict(
+        index=evidence.index,
+        p_covered=probability,
+        clause=evidence.clause,
+        quote_verified=evidence.quote_verified,
+        reasoning=evidence.reasoning,
+    )
+
+
 async def assess_coverage(
     case: CaseData,
     deadline: float | None = None,
@@ -528,13 +565,15 @@ async def assess_coverage(
     started_at = start_timer()
     if not case.line_items:
         return ()
+    chunks = _chunks(case.line_items)
     try:
         policy_text = slice_policy(case.policy_text)
         timeout = _remaining_seconds(deadline)
         results = await asyncio.gather(
             *(
                 _timed_chunk(case, chunk, policy_text, timeout)
-                for chunk in _chunks(case.line_items)
+                for _ in range(SAMPLES)
+                for chunk in chunks
             ),
             return_exceptions=True,
         )
@@ -542,13 +581,14 @@ async def assess_coverage(
         logger.error("Coverage assessment failed for Game %s: %s", case.game_id, error)
         return tuple(default_verdict(item) for item in case.line_items)
 
-    verdicts: dict[int, CoverageVerdict] = {}
-    for chunk, result in zip(_chunks(case.line_items), results):
+    samples: dict[int, list[CoverageVerdict]] = {}
+    for chunk, result in zip(chunks * SAMPLES, results):
         if isinstance(result, BaseException):
             logger.warning("Coverage chunk raised for Game %s: %s", case.game_id, result)
             result = tuple(default_verdict(item) for item in chunk)
         for verdict in result:
-            verdicts[verdict.index] = verdict
+            samples.setdefault(verdict.index, []).append(verdict)
+    verdicts = {index: merge_samples(group) for index, group in samples.items() if group}
 
     ordered = tuple(
         verdicts.get(item.index) or default_verdict(item) for item in case.line_items
