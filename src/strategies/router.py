@@ -42,7 +42,23 @@ __all__ = ["STRATEGY_PRIORITIES", "StrategyRouter"]
 
 class StrategyRouter:
     def __init__(self, strategies: tuple[Strategy, ...] | None = None) -> None:
-        self._strategies = (strategy1, strategy2, strategy3) if strategies is None else strategies
+        #: Strategy 2 only, from Game 52. Strategies 1 and 3 are kept in the tree and still
+        #: importable -- they are the record of how this got here, and `strategies=` still
+        #: takes them for a backtest -- but they no longer run in a Game.
+        #:
+        #: They were retired for two reasons, and the second is the bigger one.
+        #:
+        #: They never won. Over the 18 Games where all three were recorded, Strategy 2 leads
+        #: Strategy 3 by 117,135 and Strategy 1 by 327,049, both outside the 26,622 noise
+        #: floor at that sample size. Strategy 1 has been best on 2 Games out of 24.
+        #:
+        #: And each of them fires its own LLM call -- Strategy 1 on terra, Strategy 3 on luna
+        #: -- against the same deployment Strategy 2 needs inside the same sixty seconds.
+        #: That contention is not theoretical: Game 46 lost *both* of Strategy 2's ensemble
+        #: draws to a timeout on a 31-item Case, and Game 49 lost one to an outright HTTP 429
+        #: from the endpoint. Two Games of the model channel, spent on two tracks that were
+        #: never going to be submitted.
+        self._strategies = (strategy2,) if strategies is None else strategies
         self._current: Proposal | None = None
         self._current_priority = -1
         #: Every Proposal seen this run, winners and losers alike: source -> {index: (a, b)}.
