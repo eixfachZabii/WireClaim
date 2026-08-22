@@ -12,9 +12,9 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name, get_service_tier
 from src.data.models import CaseData, ItemPrice, Proposal
-from src.policy_quote import has_explicit_line_item_exclusion, is_policy_quote
+from src.services.policy.quotes import has_explicit_line_item_exclusion, is_policy_quote
 from src.services.strategies.fast_path import STANDARD_LIMIT
-from src.timing import log_timing, start_timer
+from src.observability.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 STRATEGY_NAME = "strategy1"

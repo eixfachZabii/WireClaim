@@ -1,7 +1,7 @@
 """What we ask the model, and what has already been tried and failed.
 
 The model returns **evidence only** — a coverage probability, a gross-total price band and
-a quoted Policy clause. It never returns a Charge, a Limit or a Fair Value; `src/pricing.py`
+a quoted Policy clause. It never returns a Charge, a Limit or a Fair Value; `src/domain/pricing/engine.py`
 derives those deterministically (ADR 0001). Two regenerations over one invoice must not
 disagree about the number we are scored on.
 """
@@ -10,12 +10,28 @@ from __future__ import annotations
 
 from src.services.strategies.strategy2.constants import SETTLED_MEDIAN
 
+#: Every figure here is measured over the 457 settled Line Items whose Fair Value we have
+#: recovered, and every one of them used to be too low. The hint previously said the median
+#: was 59 (it is 97), that a quarter fall under 20 (it is 25), and that the top decile "runs
+#: past 400 EUR to several thousand" -- when p90 is 616, p99 is 2,345 and the largest settled
+#: position we have seen is 11,131. Understating a distribution to a model is not a neutral
+#: act: it anchors low, and it anchors hardest exactly where we are already measurably worst,
+#: which is the expensive tail. On Game 41 a watch declared on a valuables schedule settled
+#: at `t >= 11,131` and we priced it at 5,524.
 _DISTRIBUTION_HINT = (
-    "\nFor reference, the settled distribution of these positions is wide and skewed: a "
-    f"quarter are under 20 EUR, the median is around {SETTLED_MEDIAN:.0f} EUR, and the top "
-    "decile runs past 400 EUR to several thousand. Use it as a sanity check on the shape, "
-    "never as an anchor for an individual position -- an expensive item priced like the "
-    "median is the single most expensive mistake you can make here.\n"
+    "\nFor reference, here is the settled distribution of these positions, measured over 457 "
+    "positions whose true value is known. It is wide and very skewed:\n"
+    "  25% under 25 EUR   median "
+    f"{SETTLED_MEDIAN:.0f} EUR"
+    "   75% under 330 EUR   90% under 616 EUR   99% under 2,345 EUR\n"
+    "The remaining 1% runs into five figures; the largest settled position seen so far is "
+    "11,131 EUR. Expensive positions are rarer than they look but they are not bounded by a "
+    "few thousand, and they are typically declared valuables, specialist restoration, or a "
+    "whole-system replacement rather than a labour line.\n"
+    "Use this as a sanity check on the shape, never as an anchor for an individual position. "
+    "Pricing an expensive item like the median is the single most expensive mistake you can "
+    "make here, and it is the one we actually make: on the positions we have got wrong, we "
+    "are far more often too low than too high.\n"
 )
 
 _TEMPLATE = """Read this insurance Case and return evidence for every invoice Line Item.
@@ -35,7 +51,11 @@ Price the actual work at real German market rates, and get the LEVEL right. Both
 Anchors, since gross totals for a whole Line Item are easy to get wrong by an order of magnitude:
 - Tradesman labour runs roughly 60-110 EUR per hour, so an hourly Line Item is that rate multiplied by the hours: 6.75 technician hours is several hundred EUR, not tens.
 - Small parts, fittings, screws and consumables are genuinely cheap: tens of EUR for the whole position.
-- Equipment hire, drying, leak detection and disposal are typically 50-400 EUR per position.
+- Leak detection, leak pinpointing and moisture surveys settle around 430 EUR and reach 850. They are NOT a small call-out fee: seven in ten are above 400.
+- Drying (room, cavity, insulation-layer) settles around 425 EUR; large-area or borehole drying reaches 1,400-2,600.
+- Damage assessment, inspection and surveys settle around 490 EUR and reach 920.
+- Disposal, strip-out and removal are cheaper, around 130 EUR, but a full strip-out reaches 1,000+.
+- Equipment and machinery hire runs 50-700 EUR per position.
 - Appliances, electronics, restoration and structural work reach the low thousands.
 
 {distribution}

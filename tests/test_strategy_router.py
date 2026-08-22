@@ -1,8 +1,13 @@
 import asyncio
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from src.observability import decisions as decision_log
 from src.data.models import CaseData, ItemPrice, Proposal
+from src.observability.decisions import load, proposals
+from src.services import strategy_router
 from src.services.strategy_router import StrategyRouter
 
 
@@ -75,6 +80,64 @@ class StrategyRouterTests(unittest.TestCase):
 
 
 class StrategyRouterConcurrencyTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self) -> None:
+        # `results()` now writes the Proposals it sees, so the log directory is redirected:
+        # a test must never leave a decision log behind for a real Game to be analysed.
+        self.tmp = tempfile.TemporaryDirectory()
+        patcher = patch.object(decision_log, "DECISIONS_DIR", Path(self.tmp.name))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.addCleanup(self.tmp.cleanup)
+
+    async def test_logs_a_compact_error_card_for_a_failed_strategy(self) -> None:
+        async def failed_strategy(case: CaseData, deadline: float | None = None) -> Proposal:
+            raise TimeoutError("model request timed out")
+
+        router = StrategyRouter(strategies=(failed_strategy,))
+        case = CaseData(game_id=1, case_dir=Path("var/cases/case_01"))
+        with self.assertLogs("src.services.strategy_router", level="ERROR") as logs:
+            results = [proposal async for proposal in router.results(case, deadline=1.0)]
+
+        self.assertEqual(results, [])
+        self.assertIn("\033[91m", logs.output[0])
+        self.assertIn("FAILED", logs.output[0])
+        self.assertIn("TimeoutError", logs.output[0])
+        self.assertIn("model request timed out", logs.output[0])
+        self.assertNotIn("Traceback", logs.output[0])
+
+    async def test_logs_a_gray_comparison_for_a_lower_priority_strategy(self) -> None:
+        release_strategy1 = asyncio.Event()
+
+        async def strategy2(case: CaseData, deadline: float | None = None) -> Proposal:
+            return Proposal(
+                source="strategy2",
+                prices=(ItemPrice(1, 200.0, 150.0, "strategy2"),),
+            )
+
+        async def strategy1(case: CaseData, deadline: float | None = None) -> Proposal:
+            await release_strategy1.wait()
+            return Proposal(
+                source="strategy1",
+                prices=(ItemPrice(1, 100.0, 75.0, "strategy1"),),
+            )
+
+        case = CaseData(game_id=1, case_dir=Path("var/cases/case_01"))
+        router = StrategyRouter(strategies=(strategy2, strategy1))
+        results = router.results(case, deadline=1.0)
+
+        self.assertEqual((await anext(results)).source, "strategy2")
+        with self.assertLogs("src.services.strategy_router", level="INFO") as logs:
+            release_strategy1.set()
+            with self.assertRaises(StopAsyncIteration):
+                await anext(results)
+
+        comparison = "\n".join(logs.output)
+        self.assertIn("\033[90m", comparison)
+        self.assertIn("STRATEGY1 COMPARISON ONLY", comparison)
+        self.assertIn("candidate: strategy1 (priority 1)", comparison)
+        self.assertIn("active: strategy2 (priority 3)", comparison)
+        self.assertIn("NOT POSTED", comparison)
+
     async def test_starts_strategies_concurrently_and_keeps_the_highest_complete_batch(self) -> None:
         started: set[str] = set()
         both_started = asyncio.Event()
@@ -113,6 +176,101 @@ class StrategyRouterConcurrencyTests(unittest.IsolatedAsyncioTestCase):
         release_strategy1.set()
         with self.assertRaises(StopAsyncIteration):
             await anext(results)
+
+
+class ProposalRecordingTests(unittest.IsolatedAsyncioTestCase):
+    """Every Proposal is logged, not only the one priority keeps.
+
+    Only the winner's numbers were ever recorded, so "would Strategy 3 have done better on
+    this Game?" had no answer even though the settled Transactions determine it exactly.
+    """
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        patcher = patch.object(decision_log, "DECISIONS_DIR", Path(self.tmp.name))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.addCleanup(self.tmp.cleanup)
+
+    @staticmethod
+    def strategy(source: str, charge: float):
+        async def run(case: CaseData, deadline: float | None = None) -> Proposal:
+            return Proposal(
+                source=source, prices=(ItemPrice(1, charge, charge * 0.3, source),)
+            )
+
+        run.__module__ = f"src.services.strategies.{source}.strategy"
+        return run
+
+    async def drain(self, router: StrategyRouter, game_id: int = 26) -> list[Proposal]:
+        case = CaseData(game_id=game_id, case_dir=Path("var/cases/case_26"))
+        return [p async for p in router.results(case, deadline=1.0)]
+
+    async def test_the_losers_are_recorded_next_to_the_winner(self) -> None:
+        router = StrategyRouter(
+            strategies=(
+                self.strategy("strategy1", 100.0),
+                self.strategy("strategy2", 200.0),
+                self.strategy("strategy3", 300.0),
+            )
+        )
+
+        await self.drain(router)
+
+        payload = load(26)
+        self.assertEqual(
+            proposals(payload),
+            {
+                "strategy1": {1: (100.0, 30.0)},
+                "strategy2": {1: (200.0, 60.0)},
+                "strategy3": {1: (300.0, 90.0)},
+            },
+        )
+        self.assertEqual(payload["winner"], "strategy2")
+        self.assertEqual(payload["game_id"], 26)
+
+    async def test_an_empty_proposal_is_recorded_as_having_answered_with_nothing(self) -> None:
+        async def silent(case: CaseData, deadline: float | None = None) -> Proposal:
+            return Proposal(source="strategy1", prices=())
+
+        router = StrategyRouter(strategies=(silent, self.strategy("strategy2", 200.0)))
+
+        await self.drain(router)
+
+        self.assertEqual(proposals(load(26))["strategy1"], {})
+        self.assertEqual(load(26)["winner"], "strategy2")
+
+    async def test_a_strategy_that_returns_nothing_is_not_recorded(self) -> None:
+        async def nothing(case: CaseData, deadline: float | None = None) -> None:
+            return None
+
+        router = StrategyRouter(strategies=(nothing, self.strategy("strategy2", 200.0)))
+
+        await self.drain(router)
+
+        self.assertEqual(sorted(proposals(load(26))), ["strategy2"])
+
+    async def test_a_logging_failure_never_costs_the_submission(self) -> None:
+        """A missing log costs one Game's learning; a lost Proposal costs the Game."""
+        router = StrategyRouter(strategies=(self.strategy("strategy2", 200.0),))
+
+        with patch.object(
+            strategy_router, "record_proposals", side_effect=RuntimeError("disk on fire")
+        ):
+            yielded = await self.drain(router)
+
+        self.assertEqual([p.source for p in yielded], ["strategy2"])
+        self.assertEqual(router.current.source, "strategy2")
+
+    async def test_seen_exposes_the_rejected_proposals(self) -> None:
+        router = StrategyRouter(
+            strategies=(self.strategy("strategy2", 200.0), self.strategy("strategy3", 300.0))
+        )
+
+        await self.drain(router)
+
+        self.assertEqual(sorted(router.seen), ["strategy2", "strategy3"])
+        self.assertEqual(router.current.source, "strategy2")
 
 
 if __name__ == "__main__":

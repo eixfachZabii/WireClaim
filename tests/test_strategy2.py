@@ -5,10 +5,15 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.data.models import CaseData, LineItem
-from src.pricing import Evidence
+from src.domain.pricing.engine import Evidence
 from src.services.strategies.strategy2.blend import blend as _blend, combine as _combine
-from src.services.strategies.strategy2.constants import STRATEGY_NAME
+from src.services.strategies.strategy2.constants import (
+    LLM_TIMEOUT_SECONDS,
+    STRATEGY_NAME,
+    SUBMISSION_RESERVE_SECONDS,
+)
 from src.services.strategies.strategy2.model import parse_items
+from src.services.strategies.strategy2.constants import SETTLED_MEDIAN
 from src.services.strategies.strategy2.prompts import (
     ENSEMBLE_PROMPTS,
     PROMPT,
@@ -132,6 +137,24 @@ class CombineTests(unittest.TestCase):
 
         self.assertAlmostEqual(combined.coverage_probability, 0.2)
 
+    def test_a_zero_model_band_keeps_the_memory_anchor(self) -> None:
+        """The model zeroes the band on items it judges uncovered, and that used to throw
+        the anchor away: Game 31 item 17 had an exact memory hit at 300 and was Charged
+        39.62 (`FALLBACK_MEDIAN`) against a Fair Value of at least 315."""
+        combined = _combine(
+            Evidence(1, 0.3, 0.0, 0.0, 0.0),
+            Evidence(1, 0.9, 195.0, 300.0, 461.0),
+        )
+
+        self.assertEqual(combined.price_median, 300.0)
+        # The coverage verdict is still the model's, so the Limit collapses as before.
+        self.assertAlmostEqual(combined.coverage_probability, 0.3)
+
+    def test_a_zero_model_band_with_no_anchor_is_left_alone(self) -> None:
+        only_model = Evidence(1, 0.3, 0.0, 0.0, 0.0)
+
+        self.assertIs(_combine(only_model, Evidence(1, 0.9, 0.0, 0.0, 0.0)), only_model)
+
     def test_either_side_alone_is_enough(self) -> None:
         only_model = Evidence(1, 0.9, 80.0, 100.0, 125.0)
         only_memory = Evidence(1, 0.9, 80.0, 100.0, 125.0)
@@ -178,8 +201,13 @@ class BlendTests(unittest.TestCase):
 
     def test_the_two_framings_differ_only_in_the_distribution_hint(self) -> None:
         self.assertEqual(ENSEMBLE_PROMPTS, (PROMPT, PROMPT_UNANCHORED))
-        self.assertIn("the median is around 59 EUR", PROMPT)
-        self.assertNotIn("the median is around", PROMPT_UNANCHORED)
+        # Assert the invariant, not the figure. This test used to pin the literal string
+        # "the median is around 59 EUR", which is how a statistic measured over 148 Line
+        # Items stayed in the prompt unchallenged until Game 41, by which point the true
+        # median over 457 Line Items was 97 and every number in the hint was low.
+        self.assertIn(f"median {SETTLED_MEDIAN:.0f} EUR", PROMPT)
+        self.assertIn("settled distribution", PROMPT)
+        self.assertNotIn("settled distribution", PROMPT_UNANCHORED)
 
 
 class UncorrectedLevelTests(unittest.TestCase):
@@ -280,6 +308,10 @@ class ParseItemsTests(unittest.TestCase):
 
 
 class ProposeTests(unittest.TestCase):
+    def test_strategy2_allows_a_55_second_request_window(self) -> None:
+        self.assertEqual(LLM_TIMEOUT_SECONDS, 55.0)
+        self.assertEqual(SUBMISSION_RESERVE_SECONDS, 3.0)
+
     def test_a_model_failure_still_produces_a_submission(self) -> None:
         """Submitting nothing is the most expensive thing we do: 139,904 over three Games."""
         case = case_with(LineItem(1, "Vehicle costs", quantity_missing=True))
@@ -307,7 +339,7 @@ class ProposeTests(unittest.TestCase):
 
         with patch(
             "src.services.strategies.strategy2.strategy.request_evidence", side_effect=flaky
-        ), patch("src.price_memory.lookup", return_value=None):
+        ), patch("src.domain.pricing.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertEqual(len(calls), 2)
@@ -327,7 +359,7 @@ class ProposeTests(unittest.TestCase):
         with patch(
             "src.services.strategies.strategy2.strategy.request_evidence",
             side_effect=RuntimeError("model down"),
-        ), patch("src.price_memory.lookup", return_value=None):
+        ), patch("src.domain.pricing.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertIsNotNone(proposal)

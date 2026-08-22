@@ -66,7 +66,7 @@ Charge at or below `t` is collected from **every single opponent**, guaranteed, 
 times. One euro above `t` and both cells in the right column pay `H` nothing unless some
 opponent's Limit happens to be loose enough to buy the overcharge. That is not a smooth
 trade-off; it is a cliff, and we have measured how tall it is on our own settled Charges
-(module docstring of [`src/pricing.py`](../src/pricing.py), and §0 of the
+(module docstring of [`src/domain/pricing/engine.py`](../src/domain/pricing/engine.py), and §0 of the
 [strategy plan](brainstorm/sebi/strats/review/strategy2-plan.md)):
 
 | our `a / t` | opponents who pay | expected income |
@@ -92,7 +92,7 @@ a  <  1.5a · P(the Charge is fair)      ⟺      P(fair) > 2/3
 Our Limit is therefore the value below which we still believe with two-thirds confidence
 that the Charge is fair: the **one-third quantile of our posterior over `t`**. That is
 README's "bottom third" with a proof attached rather than a heuristic, and it is why
-[`src/pricing.py`](../src/pricing.py) has `LIMIT_QUANTILE = 1.0 / 3.0` and no tuning knob
+[`src/domain/pricing/engine.py`](../src/domain/pricing/engine.py) has `LIMIT_QUANTILE = 1.0 / 3.0` and no tuning knob
 next to it.
 
 The two facts pull in opposite directions and that is the whole game: the Charge wants to
@@ -181,7 +181,7 @@ knowable for free (Channels A and B, [§5](#5-the-three-estimation-channels)), t
 neighbouring positions and can notice duplicates, an inflated quantity, or a sub-limit that
 applies across several lines.
 
-The prompt is handed a **sliced** Policy. [`policy_slice.slice_policy`](../src/policy_slice.py)
+The prompt is handed a **sliced** Policy. [`policy_slice.slice_policy`](../src/services/policy/slice.py)
 keeps only `PART 3` (exclusions), `4` (insured property), `5` (insured costs), `7`
 (calculation of the indemnity) and `11` (the claim-specific loss description), which is
 about 41 % of a 35k–65k-character document. The slice is **verbatim** — never reflowed,
@@ -255,7 +255,7 @@ free deterministic shortcut; the middle is the memory lookup; everything converg
 single `Evidence` record, and the fork near the bottom is the only place where the Charge
 and the Limit part company. Both are read off the same distribution.
 
-[`src/pricing.py`](../src/pricing.py) is the **only** module in the repo that decides a
+[`src/domain/pricing/engine.py`](../src/domain/pricing/engine.py) is the **only** module in the repo that decides a
 number we are scored on. Nothing that talks to a model is allowed to emit a Charge, a Limit
 or a Fair Value — models emit `Evidence` (a coverage probability, a price band, a quoted
 clause) and this module prices it. That is
@@ -306,7 +306,7 @@ if p_covered <= 1/3:
 else:
     q = (1/3 − (1 − p_covered)) / p_covered        # strip the zero mass, re-normalise
     b = median × exp(σ × z(q))
-    b = min(b, 0.85 × median)                      # LIMIT_CEILING
+    b = min(b, 0.45 × median, 708.0)               # LIMIT_CEILING, LIMIT_CAP
 b = min(b, a)
 ```
 
@@ -317,11 +317,20 @@ of the arithmetic. There is no threshold in the code that says "if uncertain, re
 correct answer often: about 40 % of settled Line Items (76 of 192 in Games 1–14) have
 `t = 0`, and paying anything on one of those is a pure loss.
 
-Two guards sit on top. `LIMIT_CEILING = 0.85` caps the Limit at 85 % of the median, because
+Three guards sit on top. `LIMIT_CEILING = 0.45` caps the Limit at 45 % of the median, because
 the quantile rule trusts the band and a model returning `95–105` on an item worth 20 would
-otherwise have us accept nearly the full median; it binds only below `σ ≈ 0.38`, so at
-realistic widths the band still drives the number. And `b ≤ a` always holds, since the Limit
-is a lower quantile of the same posterior than the Charge.
+otherwise have us accept nearly the full median. `LIMIT_CAP = 708` (12 × the settled median)
+caps it in **euros**, which is the one thing a multiplier cannot do: when the estimate blows
+up, a multiplicative ceiling blows up with it, and Game 29 bought thirteen opponents' Charges
+of 2,000.00 on an item worth under 57 for 24,157 of pure loss. And `b ≤ a` always holds, since
+the Limit is a lower quantile of the same posterior than the Charge.
+
+The ceiling has been re-opened twice and stays at 0.45 both times. Loosening to 0.70 is worth
++17,835 over 32 Games and is positive in **32 of 32** leave-one-Game-out folds — and is still
+wrong, because leave-one-out cannot see a regime change when 31 training Games stay in every
+fold. Split on *time* instead (train on Games 1–25, score on 26+) and it scores **−2,274**;
++17,218 of the +17,835 is Games 1–19, and every value above 0.45 loses on Games 28–32. The
+full table lives on the constant in [`engine.py`](../src/domain/pricing/engine.py).
 
 One empirical shading is worth knowing: the 2/3 rule prices an accepted Overcharge at `a`,
 but the Cap allows `min(a, c)` with `c ≥ 4t`, so accepting is in truth slightly worse than
@@ -361,7 +370,7 @@ price band, because the Charge on a worthless item is free. The same channel own
 slicer and the rule that the index is the printed POS number.
 
 **Channel B — Price Memory, an anchor and not an answer.**
-[`src/price_memory.py`](../src/price_memory.py) holds the Fair Values reconstructed from
+[`src/domain/pricing/memory.py`](../src/domain/pricing/memory.py) holds the Fair Values reconstructed from
 settled Games, keyed on the normalised Line Item wording. Measured leave-one-out over Cases
 1–14 (each Case scored against a store built from the other thirteen) it reaches **22 %** of
 the items with a known non-zero Fair Value at **σ = 0.43**. That is good enough to narrow a
@@ -387,21 +396,39 @@ Policy, so it is always decided from the Case at hand.
 zero and Channel B reaches a fifth of the rest, so the model is not a fallback: it is the
 load-bearing estimator. It returns evidence only — `coverage_probability`, a gross-total
 `price_low / price_median / price_high` band, and the deciding clause quoted verbatim. Its
-own σ is **not yet measured**; `MODEL_SIGMA_PRIOR = 0.6` is a stated guess used only to
-weight it against Price Memory when both speak, and it is the single most important number
-still missing from this system.
+own σ **has since been measured**, and `MODEL_SIGMA_PRIOR = 0.6` — the weight used against
+Price Memory when both speak — turns out to be close: graded on the logged Games against the
+recovered Fair Values, the model-only channel scores RMSLE **0.76** and the memory-backed one
+**0.48**, against asserted band widths of 0.39 and 0.35. So the model is overconfident by
+about **1.9×** and Price Memory by 1.4×; the *ordering* the blend assumes is right, the
+*calibration* of the band is not. Two cautions on those figures: they are computed on items
+with a two-sided bracket, which exist only where somebody rightfully rejected and therefore
+skew cheap, and the sample is small. Median `t̂/t` over both one- and two-sided brackets is
+**0.99**, so the estimator is roughly median-unbiased and the apparent level error in the
+per-Game digests is a censoring artefact, not a bias to correct.
 
-When both a model band and a memory band exist for the same index, `_combine` does an
-inverse-variance blend in log space with weights `1/0.6²` and `1/0.43²`. Two independent
+When both a model band and a memory band exist for the same index, `combine` does an
+inverse-variance blend in log space with weights `1/0.6²` and `1/0.43²`. One special case sits
+in front of it: the model zeroes its band on items it judges uncovered — every zero-band Line
+Item in the logged Games came back with `coverage ≤ 0.30` — and that used to discard the
+memory anchor, dropping the item onto `FALLBACK_MEDIAN` so it was Charged a flat 39.62 whatever
+it was worth. `combine` now keeps the model's coverage verdict, so the Limit still collapses,
+and takes the anchor's band. Two independent
 estimates of the same quantity are worth more than either, and blending them *narrows* the
 band, which raises both the Charge and the Limit toward the estimate — the mechanism by which
 better evidence turns directly into more money.
 
 The prompt itself is a piece of engineering worth reading in full in
-[`strategy.py`](../src/services/strategies/strategy2/strategy.py). It states the level
-anchors explicitly (tradesman labour at roughly 60–110 EUR/hour multiplied by the hours;
-small parts and consumables genuinely in the tens; equipment hire, drying, leak detection and
-disposal typically 50–400; appliances and structural work into the low thousands), gives the
+[`prompts.py`](../src/services/strategies/strategy2/prompts.py). It states the level anchors
+explicitly, and those anchors are **measured against the settled Fair Values, not guessed**:
+tradesman labour at roughly 60–110 EUR/hour multiplied by the hours; small parts and
+consumables genuinely in the tens; leak detection and moisture surveys around 430 and reaching
+850; drying around 425, or 1,400–2,600 large-area; assessment and inspection around 490;
+disposal and strip-out around 130; appliances and structural work into the low thousands. The
+band they replaced — a single "equipment hire, drying, leak detection and disposal typically
+50–400" — was wrong on its two largest members, and the model anchored on it: our estimates on
+the fourteen settled leak-detection items were 180…561, and sat **below the proven floor of
+`t` on 11 of them**. The prompt also gives the
 settled distribution as a shape check (a quarter under 20 EUR, median around 59, top decile
 past 400), and tells the model that pricing an expensive item like the median is the most
 expensive single mistake available to it. It also encodes the two coverage traps: judge the
@@ -421,7 +448,7 @@ contract, written up in
 **per Line Item, a probability `p_covered ∈ [0, 1]` that the Policy indemnifies this
 position at all, plus the deciding clause quoted verbatim** — at least 60 characters,
 character-exact from `policy.txt`, validated with
-[`policy_quote.is_policy_quote()`](../src/policy_quote.py). Not a boolean. When nothing was
+[`policy_quote.is_policy_quote()`](../src/services/policy/quotes.py). Not a boolean. When nothing was
 found, the answer is `0.9` (cover is the normal case), not `0.5`. The index is the printed
 POS number, gaps kept.
 
@@ -567,15 +594,14 @@ estimated in one is worthless in the next.
 
 ## 9. Legacy and known weaknesses
 
-**Legacy, being retired.** `strategies/strategy1`, `strategies/strategy3`,
-`fast_path.llm_values` and `services/t_calc.py` are the previous generation: two more
-whole-Case estimators, an early LLM fast path, and a Fair Value helper. They still run —
-`strategy1` and `strategy3` as a free ensemble and disagreement signal, `llm_values` as
-merge layer 2 — but Strategy 2 outranks all of them and none of their constants are fitted to
-reconstructed Fair Values. They are documented nowhere else in this file on purpose. Two
-things must be untangled before they can be deleted: `strategy2` still imports
-`build_input_content` from `strategy1`, and `main.run_game` still imports and launches
-`llm_values` directly.
+**Legacy, being retired.** `strategies/strategy1`, `strategies/strategy3` and
+`fast_path.llm_values` are the previous generation: two more whole-Case estimators and an
+early LLM fast path. They still run — `strategy1` and `strategy3` as a free ensemble and
+disagreement signal, `llm_values` as merge layer 2 — but Strategy 2 outranks all of them and
+none of their constants are fitted to reconstructed Fair Values. They are documented nowhere
+else in this file on purpose. Two things must be untangled before they can be deleted:
+`strategy2` still imports `build_input_content` from `strategy1`, and `main.run_game` still
+imports and launches `llm_values` directly.
 
 **Known weaknesses, honestly stated.**
 
@@ -585,7 +611,7 @@ things must be untangled before they can be deleted: `strategy2` still imports
 - **The coverage detector in the live path is still a boolean.** §6 specifies `p_covered` as a
   probability, but `fraud_detection.py` emits a set of flagged indices, and the `p_covered`
   that actually reaches the posterior comes from Strategy 2's own Channel C. A probability-
-  emitting replacement, `src/services/coverage.py`, exists in the tree but is not yet imported
+  emitting replacement, `src/services/policy/coverage.py`, exists in the tree but is not yet imported
   by `main.py` or by Strategy 2; until it is wired in, the contract seam is a design document
   rather than a running interface.
 - **`fast_path.llm_values` still contributes numbers.** As merge layer 2 it fills any index

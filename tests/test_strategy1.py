@@ -7,6 +7,8 @@ from unittest.mock import MagicMock, patch
 from src.data.models import CaseData, LineItem
 from src.services.strategies.strategy1.strategy import (
     Evidence,
+    LLM_TIMEOUT_SECONDS,
+    SUBMISSION_RESERVE_SECONDS,
     _request_evidence,
     build_input_content,
     estimate_fair_values,
@@ -209,6 +211,10 @@ class Strategy1Tests(unittest.TestCase):
         self.assertIsNotNone(proposal)
         self.assertEqual(proposal.source, "strategy1")
         self.assertEqual(proposal.prices[0].index, 1)
+
+    def test_strategy1_allows_a_55_second_request_window(self) -> None:
+        self.assertEqual(LLM_TIMEOUT_SECONDS, 55.0)
+        self.assertEqual(SUBMISSION_RESERVE_SECONDS, 3.0)
 
     def test_propose_uses_time_remaining_before_the_game_deadline(self) -> None:
         evidence = (Evidence(1, 1.0, 1.0, 300.0, 400.0),)

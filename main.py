@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import json
 import logging
 from collections.abc import Awaitable
 from contextlib import suppress
@@ -15,16 +14,28 @@ from src.data.models import CaseData, FraudDecision, ItemPrice, Proposal
 from src.services.fraud_detection import detect_fraud
 from src.services.strategy_router import STRATEGY_PRIORITIES, StrategyRouter
 from src.services.strategies.fast_path import (
+    LLM_TIMEOUT_SECONDS,
     STANDARD_CHARGE,
     STANDARD_LIMIT,
     llm_values,
     standard_values,
 )
 from src.services.submission_coordinator import SubmissionCoordinator
-from src.timing import log_timing, start_timer
+from src.observability.timing import format_error_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 RUN_SECONDS = 60.0
+
+
+def _recovery_action(kind: str) -> str:
+    if kind == "fast_path":
+        return (
+            f"Fast Path exceeded its {LLM_TIMEOUT_SECONDS:.0f}s request timeout; "
+            "the current batch stays active while Strategies continue."
+        )
+    if kind == "fraud":
+        return "Fraud locks remain unchanged; the current batch stays active."
+    return "This result was skipped; the current batch stays active."
 
 
 @dataclass(frozen=True)
@@ -77,6 +88,10 @@ class RunManager:
         self._fraud_indices.update(decision.fraud_indices)
         return current != self._fraud_indices
 
+    @property
+    def fraud_indices(self) -> frozenset[int]:
+        return frozenset(self._fraud_indices)
+
     def snapshot(self) -> tuple[ItemPrice, ...]:
         prices = self._standard.by_index()
         valid_indices = set(prices)
@@ -97,26 +112,32 @@ class RunManager:
         )
 
 
-# A Game with no Submission at all is not a zero: it is the (0, 0) default, which
-# wrongfully rejects every fair claim at 1.5a and charges nothing. Games 11 and 12 went
-# out that way and cost 36,017 and 43,381 -- scores identical to the teams that never
-# showed up. So we publish a floor before loading anything, and only then start work.
-#
-# We cannot know the Line Item count before the Case loads, so we cover a fixed range.
-# Settled Games 1-14 carry 2, 2, 6, 6, 7, 12, 13, 15, 16, 17, 17, 18, 23 and 39 Line
-# Items, so 40 covers every Case seen so far with a slot of headroom. Indices past the
-# real count create no Transactions and are accepted by the API (verified against the
-# test Game: a PUT of indices 1-8 returned 200), and RunManager.snapshot() drops them
-# once the Case loads.
-#
-# This was 8 for one commit, on the false reading that Games had 2-4 Line Items. That
-# came from the leaderboard's /transactions endpoint, which paginates at 100 rows: page
-# one of a 544-row Game is 32 rows for each of the first three indices and 4 of the
-# fourth, which looks exactly like a 4-item Case. Always page to the end.
+#: How many Line Items the blind floor covers. Invoices in the settled record run to 39
+#: positions, so this is the observed maximum plus one. An index past the real Line Item
+#: count creates no Transaction and costs nothing; a *missing* index is what costs.
 BLIND_LINE_ITEMS = 40
 
 
 def blind_floor() -> tuple[ItemPrice, ...]:
+    """Something to submit before we know anything at all -- even the Line Item count.
+
+    Published before the key fetch, so the window is never empty. If the Case then loads,
+    the real prices overwrite these within a second and this costs exactly nothing
+    (submission is an upsert, last write wins). If the Case does *not* load, this is the
+    difference between a bad submission and no submission.
+
+    That difference is not small. The API handbook is explicit: "Omitted line items use the
+    game defaults of charge_price = 0 and acceptance_limit = 0. They still participate in
+    transactions; omitting a line does not opt the team out of it." So silence is not
+    abstention -- it is `a = 0, b = 0`, which earns nothing and wrongfully rejects every
+    fair claim at 1.5x (CLAUDE.md rule 1, README R7). Games 10-12 paid a combined 139,904
+    to establish this, which is why `b5ba5dc` added this function.
+
+    It was then deleted by `9b5ee55`, a 112-line refactor whose message does not mention it
+    -- collateral, not a decision. Two tests were written in the same commit to match the new
+    behaviour, so nothing recorded that a safety net had been removed, and it stayed gone for
+    twenty Games until a documentation audit noticed the docs still described it.
+    """
     return tuple(
         ItemPrice(
             index=index,
@@ -128,31 +149,7 @@ def blind_floor() -> tuple[ItemPrice, ...]:
     )
 
 
-def format_dry_run_submission(game_id: int, submissions: list[dict[str, float | int]]) -> str:
-    rows = [
-        (
-            int(submission["index"]),
-            float(submission["charge_price"]),
-            float(submission["acceptance_limit"]),
-        )
-        for submission in sorted(submissions, key=lambda item: int(item["index"]))
-    ]
-    lines = [
-        "DRY RUN SUBMISSION",
-        f"  at_utc: {datetime.now(timezone.utc).isoformat()}",
-        f"  request: PUT /api/games/{game_id}/submissions",
-        "  mode: simulated; tournament API was not called",
-        f"  line_items: {len(rows)}",
-        "  line |       charge |        limit",
-        "  -----+--------------+--------------",
-    ]
-    lines.extend(f"  {index:>4} | {charge:>12.2f} | {limit:>12.2f}" for index, charge, limit in rows)
-    lines.append(f"  payload: {json.dumps(submissions, ensure_ascii=False)}")
-    return "\n".join(lines)
-
-
 def dry_run_submit(game_id: int, submissions: list[dict[str, float | int]], timeout: float) -> list[dict]:
-    logger.info("%s", format_dry_run_submission(game_id, submissions))
     return []
 
 
@@ -166,6 +163,7 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
         else SubmissionCoordinator(game_id, deadline)
     )
     await coordinator.start()
+    # Before the key fetch, so that a Case which never loads still submits something.
     coordinator.publish(blind_floor())
 
     case_load_started_at = start_timer()
@@ -197,7 +195,11 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
         warm_llm_resources()
     except Exception as error:
         logger.warning("Could not warm OpenAI resources: %s", error)
-    coordinator.publish(manager.snapshot(), reason="case_loaded", force=dry_run)
+    coordinator.publish(
+        manager.snapshot(),
+        reason="case_loaded",
+        fraud_indices=manager.fraud_indices,
+    )
     tasks = [
         asyncio.create_task(_emit_result(events, "fast_path", llm_values(case), game_id)),
         asyncio.create_task(_emit_result(events, "fraud", detect_fraud(case), game_id)),
@@ -227,8 +229,12 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
                 reason,
                 changed,
             )
-            if changed or dry_run:
-                coordinator.publish(manager.snapshot(), reason=reason, force=dry_run)
+            if changed:
+                coordinator.publish(
+                    manager.snapshot(),
+                    reason=reason,
+                    fraud_indices=manager.fraud_indices,
+                )
     finally:
         for task in tasks:
             if not task.done():
@@ -250,8 +256,17 @@ async def _emit_result(
     except asyncio.CancelledError:
         log_timing(logger, kind, started_at, "cancelled", game=game_id)
         raise
-    except Exception:
-        logger.exception("%s failed for Game %s.", kind, game_id)
+    except Exception as error:
+        logger.error(
+            "%s",
+            format_error_card(
+                kind,
+                error,
+                game_id,
+                _recovery_action(kind),
+                elapsed_s=start_timer() - started_at,
+            ),
+        )
         log_timing(logger, kind, started_at, "failed", game=game_id)
         return
     log_timing(logger, kind, started_at, game=game_id, produced=result is not None)
@@ -335,6 +350,8 @@ def main() -> None:
     )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    for http_logger in ("httpx", "httpx2", "httpcore", "httpcore2"):
+        logging.getLogger(http_logger).setLevel(logging.WARNING)
     try:
         if args.game_id is not None:
             asyncio.run(run_game(args.game_id, dry_run=args.retry_dry))
