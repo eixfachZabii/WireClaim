@@ -6,7 +6,7 @@ not outrank the incumbent. Until now that discard was total: only the winner's n
 reached disk, so "would Strategy 3 have scored better on Game 26?" was unanswerable even
 though the answer is exactly computable from the settled Transactions. `results()` is the
 one place that sees every Proposal, so it writes all of them to the Game's decision log
-(`src.decision_log.record_proposals`) alongside the source that is currently winning;
+(`src.observability.decisions.record_proposals`) alongside the source that is currently winning;
 `scripts/learn_from_game.py` then replays each one against the real Field.
 
 The logging is strictly subordinate to the Submission: it happens after `register`, it
@@ -25,12 +25,12 @@ import logging
 from collections.abc import AsyncIterator, Awaitable, Callable
 
 from src.data.models import CaseData, Proposal
-from src.decision_log import record_proposals
+from src.observability.decisions import record_proposals
 from src.services.strategies import STRATEGY_PRIORITIES
 from src.services.strategies.strategy1 import propose as strategy1
 from src.services.strategies.strategy2 import propose as strategy2
 from src.services.strategies.strategy3 import propose as strategy3
-from src.timing import log_timing, start_timer
+from src.observability.timing import format_error_card, format_skipped_strategy_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[..., Awaitable[Proposal | None]]
@@ -107,19 +107,15 @@ class StrategyRouter:
                     try:
                         proposal = task.result()
                     except Exception as error:
-                        # One line, not a traceback. A Strategy timing out is an *expected*
-                        # outcome inside a 60-second window, not an incident: every track is
-                        # optional and a higher-priority one has usually already answered.
-                        # `logger.exception` here printed sixty lines of httpx internals twice
-                        # in a row for Games 29 and 30, which buries the timing lines that
-                        # actually say what happened. The full traceback is still available at
-                        # DEBUG for a genuine bug.
-                        logger.warning(
-                            "%s did not finish for Game %s: %s: %s",
-                            name,
-                            case.game_id,
-                            type(error).__name__,
-                            error,
+                        logger.error(
+                            "%s",
+                            format_error_card(
+                                name,
+                                error,
+                                case.game_id,
+                                "Strategy result skipped; the current batch stays active.",
+                                elapsed_s=start_timer() - started_at,
+                            ),
                         )
                         logger.debug(
                             "%s traceback for Game %s", name, case.game_id, exc_info=error
@@ -127,6 +123,29 @@ class StrategyRouter:
                         log_timing(logger, name, started_at, "failed", game=case.game_id)
                         continue
                     log_timing(logger, name, started_at, game=case.game_id, produced=proposal is not None)
+                    candidate_priority = STRATEGY_PRIORITIES.get(proposal.source, 0) if proposal else 0
+                    current = self._current
+                    if (
+                        proposal is not None
+                        and not proposal.is_empty
+                        and current is not None
+                        and candidate_priority < self._current_priority
+                    ):
+                        logger.info(
+                            "%s",
+                            format_skipped_strategy_card(
+                                case.game_id,
+                                proposal.source,
+                                candidate_priority,
+                                current.source,
+                                self._current_priority,
+                                start_timer() - started_at,
+                                tuple(
+                                    (price.index, price.charge_price, price.acceptance_limit)
+                                    for price in proposal.prices
+                                ),
+                            ),
+                        )
                     active = self.register(proposal)
                     # After `register`, so the recorded winner is the one that would be
                     # submitted right now, and before the yield, so a consumer that stops

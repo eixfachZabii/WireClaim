@@ -2,7 +2,7 @@
 
 The EHL policies (35k-65k characters) all share the same skeleton of
 top-level ``PART <n> - <title>`` headers.  Instead of burning a ~20s
-blocking LLM call on ``src.policy_digest`` to compress the wording before
+blocking LLM call on ``src.services.policy.digest`` to compress the wording before
 pricing can start, we can simply slice out the parts that actually decide
 Line Items.
 

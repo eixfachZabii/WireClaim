@@ -7,9 +7,8 @@ shape: *never trust a length, always carry the identity of the thing you fetched
 1. Short reads
 --------------
 The endpoint returns 100 rows per page. Reading only page 1 makes a 17-Line-Item Game look
-like a 4-Line-Item Game, which is exactly the mistake that put BLIND_LINE_ITEMS at 8 and
-justified a per-Case flag cap on the wrong denominator. We page to the end *and* compare
-the row count against the endpoint's own `total`.
+like a 4-Line-Item Game and justifies a per-Case flag cap on the wrong denominator. We page
+to the end *and* compare the row count against the endpoint's own `total`.
 
 That check was already here -- but the on-disk cache under ``var/transactions`` stored a
 bare list of rows, so a file written by an older, short-reading version was indistinguishable

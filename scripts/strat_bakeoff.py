@@ -43,7 +43,7 @@ Judging rules that are not negotiable
 
 Side effects, deliberately suppressed
 -------------------------------------
-`strategy2.propose` writes a decision log through `src.decision_log.record`, and re-running it
+`strategy2.propose` writes a decision log through `src.observability.decisions.record`, and re-running it
 for a settled Game would overwrite `var/decisions/game_NNN.json` -- destroying the only place
 Game 27's three Proposals are recorded. `_redirect_decision_log()` repoints `DECISIONS_DIR` at
 `var/bakeoff/decisions` for the duration of the run. Nothing under `src/` is modified.
@@ -117,14 +117,14 @@ def noise_floor(n_games: int) -> float:
 
 
 def _redirect_decision_log() -> None:
-    """Point `src.decision_log` at `var/bakeoff/decisions` so a replay cannot clobber a Game.
+    """Point `src.observability.decisions` at `var/bakeoff/decisions` so a replay cannot clobber a Game.
 
     `strategy2.propose` records unconditionally, and `_existing_for_merge` refuses to merge
     with a log older than its merge window -- so a re-run of a settled Game writes a *fresh*
     file and the `proposals` section, which is the only record that Strategy 1 and 3 ever
     answered, is gone. This is the whole reason the bake-off is safe to run repeatedly.
     """
-    import src.decision_log as decision_log
+    import src.observability.decisions as decision_log
 
     decision_log.DECISIONS_DIR = CACHE / "decisions"
     decision_log.DECISIONS_DIR.mkdir(parents=True, exist_ok=True)

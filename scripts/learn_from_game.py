@@ -79,8 +79,8 @@ from replay_payoffs import (  # noqa: E402
     snapshot,
 )
 
-from src.decision_log import load as load_decisions  # noqa: E402
-from src.decision_log import proposals as logged_proposals  # noqa: E402
+from src.observability.decisions import load as load_decisions  # noqa: E402
+from src.observability.decisions import proposals as logged_proposals  # noqa: E402
 
 US = "Bin busy"
 LESSONS_DIR = Path("var/lessons")

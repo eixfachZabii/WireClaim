@@ -151,7 +151,7 @@ except ModuleNotFoundError:  # pragma: no cover
 
 from dump_evidence import load as load_model_evidence  # noqa: E402
 
-from src.pricing import Evidence, _lognormal_quantile, implied_sigma  # noqa: E402
+from src.domain.pricing.engine import Evidence, _lognormal_quantile, implied_sigma  # noqa: E402
 
 DECISIONS = Path("var/decisions")
 

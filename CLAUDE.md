@@ -189,11 +189,11 @@ What runs, in the order a Game touches it:
 | layer | where | what it decides |
 | --- | --- | --- |
 | schedule + Case load | `main.py`, `src/data/` | unzip, parse the invoice, slice the Policy |
-| evidence | `strategy2/{prompts,model,channels}.py` | coverage probability, a price band, the clause quoted verbatim |
+| evidence | `strategy2/{prompts,model,channels}.py`, `src/services/policy/` | coverage probability, a price band, the clause quoted verbatim |
 | blend | `strategy2/blend.py` | two model draws + the Price Memory anchor, inverse-variance in log space |
-| pricing | `src/pricing.py` | the Charge and the Limit — the only place a scored number is decided |
+| pricing | `src/domain/pricing/engine.py` | the Charge and the Limit — the only place a scored number is decided |
 | submission | `src/api/`, `src/services/submission*` | four sequenced posts per Game, merged per Line Item |
-| learning | `scripts/learn_*.py`, `scripts/replay_payoffs.py` | decision log × recovered Fair Value → the stage that was wrong |
+| learning | `scripts/learn_*.py`, `scripts/replay_payoffs.py`, `src/observability/` | decision log × recovered Fair Value → the stage that was wrong |
 
 Three strategies price every Case and a router picks one; `strategy2` wins most Games.
 `scripts/replay_payoffs.py` reproduces every published net to the cent, so any proposed

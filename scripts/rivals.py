@@ -319,6 +319,12 @@ class Stat:
     other_income: float = 0.0
     round_items: int = 0
     other_items: int = 0
+    #: `sum over opponents of t` for the items in each bucket -- the honest ceiling on that
+    #: bucket, so `income / ceiling` compares anchored and priced Charges on the same scale.
+    #: Without it the comparison is meaningless: round numbers land on *big* items, so income
+    #: per item is high for a reason that has nothing to do with anchoring.
+    round_ceiling: float = 0.0
+    other_ceiling: float = 0.0
     income_fair: float = 0.0
     income_over: float = 0.0
     t_available: float = 0.0  # sum of `t` over items, times opponents: the honest ceiling
@@ -335,7 +341,12 @@ class Stat:
     net: float = 0.0
     per_game: dict[int, float] = dc_field(default_factory=dict)
     per_game_a_over_t: dict[int, list[float]] = dc_field(default_factory=dict)
-    per_game_accept: dict[int, tuple[int, int]] = dc_field(default_factory=dict)
+    #: `(accepted fair, seen fair, accepted Overcharge, seen Overcharge)` per Game, counting
+    #: only rows where the issuer Charged something. A Charge of `0` is accepted by everyone
+    #: including a team at `b = 0`, so leaving those rows in makes the early Games -- when a
+    #: third of the field Charged nothing -- look like an era of reckless generosity. That
+    #: artefact put a spurious "break at Game 4" on every single team.
+    per_game_accept: dict[int, tuple[int, int, int, int]] = dc_field(default_factory=dict)
     per_game_charges: dict[int, list[float]] = dc_field(default_factory=dict)
 
     # ---- derived, all in euros
@@ -381,6 +392,12 @@ def measure(book: Book, team: str, stat: Stat) -> None:
     stat.games.add(book.game_id)
     stat.per_game_a_over_t.setdefault(book.game_id, [])
     stat.per_game_charges.setdefault(book.game_id, [])
+    opponents = len(book.team_names) - 1
+
+    item_income: dict[int, float] = collections.defaultdict(float)
+    for row in book.rows[team]:
+        if row["issuer"] == team and row["amount"] > 0:
+            item_income[row["line_item_index"]] += row["amount"]
 
     for index in book.items:
         a = book.charge[index][team]
@@ -414,10 +431,14 @@ def measure(book: Book, team: str, stat: Stat) -> None:
         if is_round(a):
             stat.round_charges += 1
             stat.round_items += 1
+            stat.round_income += item_income[index]
+            stat.round_ceiling += t * opponents
         else:
             stat.other_items += 1
+            stat.other_income += item_income[index]
+            stat.other_ceiling += t * opponents
 
-    acc = seen = 0
+    game_acc = [0, 0, 0, 0]  # accepted fair, seen fair, accepted over, seen over
     for row in book.rows[team]:
         index = row["line_item_index"]
         t = book.t(index)
@@ -427,11 +448,6 @@ def measure(book: Book, team: str, stat: Stat) -> None:
                     stat.income_fair += row["amount"]
                 else:
                     stat.income_over += row["amount"]
-                a = book.charge[index][team]
-                if a != INF and is_round(a):
-                    stat.round_income += row["amount"]
-                else:
-                    stat.other_income += row["amount"]
         if row["reviewer"] == team:
             a = book.charge[index].get(row["issuer"], INF)
             fair = a != INF and book.status[index][row["issuer"]] != "capped" and a <= t
@@ -535,7 +551,7 @@ def anchor_report(stats: dict[str, Stat], order: list[str], title: str) -> None:
     print(f"\n=== {title}: estimator or anchor? ===")
     print(
         f"{'team':22s} {'items':>6s} {'corr(a,t)':>10s} {'rank corr':>10s} {'a/t med':>8s} "
-        f"{'fair%':>7s} {'round>500':>10s} {'EUR/round':>10s} {'EUR/other':>10s}"
+        f"{'fair%':>7s} {'round>500':>10s} {'collect% round':>15s} {'collect% other':>15s}"
     )
     for team in order:
         s = stats[team]
@@ -543,12 +559,13 @@ def anchor_report(stats: dict[str, Stat], order: list[str], title: str) -> None:
         print(
             f"{team:22s} {s.n_items:6d} {pearson(s.pairs_at):10.2f} {spearman(s.pairs_at):10.2f} "
             f"{q(s.a_over_t, 0.5):8.2f} {pct(s.n_fair, n):>7s} {s.round_charges:10d} "
-            f"{(s.round_income / s.round_items if s.round_items else float('nan')):10,.0f} "
-            f"{(s.other_income / s.other_items if s.other_items else float('nan')):10,.0f}"
+            f"{pct(s.round_income, s.round_ceiling):>15s} "
+            f"{pct(s.other_income, s.other_ceiling):>15s}"
         )
     print("  corr over items with a bounded `t` and an *uncensored* Charge only.")
     print("  `round>500` = exact multiples of 100 above 500, cap-truncated rows removed.")
-    print("  EUR/round vs EUR/other = income per Line Item, so anchoring pays iff EUR/round wins.")
+    print("  `collect%` = income earned / the honest ceiling (`sum over opponents of t`) on the")
+    print("  same items. 100 % is what `a = t` collects; anchoring pays iff round beats other.")
 
 
 # ---------------------------------------------------------------- Q2 income composition
