@@ -1,0 +1,21 @@
+[workspace]
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "osx-64", "linux-64", "linux-aarch64", "win-64"]
+
+[dependencies]
+python = ">=3.11,<3.15"
+pytest = ">=8"
+
+[target.unix.dependencies]
+p7zip = "*"
+
+[target.win-64.dependencies]
+7zip = "*"
+
+[pypi-dependencies]
+wireclaim = { path = ".", editable = true }
+
+[tasks]
+test = "python -m pytest"
+doctor = "python -m wireclaim.cli doctor"
+watch = "python -m wireclaim.cli watch"

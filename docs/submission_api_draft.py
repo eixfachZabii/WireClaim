@@ -1,4 +1,6 @@
 """
+Archived teammate draft - not packaged or used by the initial setup.
+
 QuantCo Claim-to-Fame Functional API Client & Submission Module.
 
 This module provides purely functional helpers (no class instantiation needed)
