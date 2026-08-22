@@ -8,7 +8,7 @@ from typing import Any
 from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, FraudDecision, LineItem
 from src.policy_quote import is_policy_quote
-from src.timing import log_timing, start_timer
+from src.timing import format_fraud_lock_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 FRAUD_TIMEOUT_SECONDS = 15.0
@@ -96,7 +96,8 @@ async def _timed_check(line_item: LineItem, case: CaseData) -> bool:
     except Exception:
         log_timing(logger, "fraud_item", started_at, "failed", game=case.game_id, line_item=line_item.index)
         raise
-    log_timing(logger, "fraud_item", started_at, game=case.game_id, line_item=line_item.index, fraud=result)
+    if result:
+        log_timing(logger, "fraud_item", started_at, game=case.game_id, line_item=line_item.index, fraud=True)
     return result
 
 
@@ -123,6 +124,13 @@ async def detect_fraud(case: CaseData) -> FraudDecision:
             len(indices), total, case.game_id, allowance,
         )
         indices.clear()
+    locked_items = tuple(
+        (line_item.index, line_item.name)
+        for line_item in case.line_items
+        if line_item.index in indices
+    )
+    if locked_items:
+        logger.warning("%s", format_fraud_lock_card(case.game_id, locked_items))
     decision = FraudDecision(fraud_indices=frozenset(indices))
     log_timing(logger, "fraud_detection", started_at, game=case.game_id, locks=len(indices))
     return decision

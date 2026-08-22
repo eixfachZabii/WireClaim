@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from src.data.models import CaseData, LineItem
-from src.services.fraud_detection import _check_item, detect_fraud
+from src.services.fraud_detection import _check_item, _timed_check, detect_fraud
 
 
 class FraudDetectionTests(unittest.TestCase):
@@ -23,13 +23,36 @@ class FraudDetectionTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_locks_only_items_with_confirmed_violations(self) -> None:
-        with patch(
-            "src.services.fraud_detection._check_item",
-            side_effect=lambda line_item, case: line_item.index == 2,
+        with (
+            patch(
+                "src.services.fraud_detection._check_item",
+                side_effect=lambda line_item, case: line_item.index == 2,
+            ),
+            self.assertLogs("src.services.fraud_detection", level="WARNING") as logs,
         ):
             decision = asyncio.run(detect_fraud(self.case))
 
         self.assertEqual(decision.fraud_indices, frozenset({2}))
+        self.assertIn("FRAUD LIMIT LOCKS CONFIRMED", logs.output[0])
+        self.assertIn("[2] Unrelated item -> Limit=0.00", logs.output[0])
+        self.assertIn("Later Fast Path and Strategy snapshots retain these locks.", logs.output[0])
+
+    def test_logs_only_confirmed_fraud_items(self) -> None:
+        with patch("src.services.fraud_detection._check_item", return_value=True):
+            with self.assertLogs("src.services.fraud_detection", level="INFO") as logs:
+                locked = asyncio.run(_timed_check(self.case.line_items[1], self.case))
+
+        self.assertTrue(locked)
+        self.assertIn("event=fraud_item", logs.output[0])
+        self.assertIn("line_item=2", logs.output[0])
+        self.assertIn("fraud=True", logs.output[0])
+
+    def test_does_not_log_a_clear_fraud_item(self) -> None:
+        with patch("src.services.fraud_detection._check_item", return_value=False):
+            with self.assertNoLogs("src.services.fraud_detection", level="INFO"):
+                locked = asyncio.run(_timed_check(self.case.line_items[0], self.case))
+
+        self.assertFalse(locked)
 
     def test_unquoted_violation_does_not_lock_a_limit(self) -> None:
         client = MagicMock()
