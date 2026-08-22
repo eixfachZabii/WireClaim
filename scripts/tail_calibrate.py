@@ -19,7 +19,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from replay_payoffs import replay, snapshot  # noqa: E402
-from tail_replay import case_of, load_evidence, submission_of  # noqa: E402
+from tail_replay import (  # noqa: E402
+    case_of,
+    inflate,
+    load_evidence,
+    parse_games,
+    submission_of,
+)
 
 from src.pricing import Evidence  # noqa: E402
 
@@ -47,20 +53,20 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--games", default="1-14")
     parser.add_argument("--tag", default="model")
+    parser.add_argument("--tail-factor", type=float, default=1.0)
+    parser.add_argument("--frozen-pricing", action="store_true")
     args = parser.parse_args()
-    start, _, end = args.games.partition("-")
-    game_ids = list(range(int(start), int(end or start) + 1))
 
     loaded = []
-    for game_id in game_ids:
+    for game_id in parse_games(args.games):
         model = load_evidence(game_id, args.tag)
         case = case_of(game_id)
         if model is None or case is None:
             continue
-        loaded.append((snapshot(game_id), case, model))
+        loaded.append((inflate(snapshot(game_id), args.tail_factor), case, model))
 
-    multipliers = [0.6, 0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0]
-    floors = [0.0, 0.3, 0.5, 0.7, 0.9, 1.1, 1.3]
+    multipliers = [0.8, 1.0, 1.2, 1.5, 2.0]
+    floors = [0.0, 0.3, 0.5, 0.7, 0.9, 1.1]
     print("net (EUR) by median multiplier (rows) x implied-sigma floor (cols)")
     print("      " + "".join(f"{f:>12}" for f in floors))
     best = (-1e18, None)
