@@ -25,20 +25,35 @@ buyers are the few teams whose Limit is loose. Measured on our own settled Charg
 Overcharging forfeits ~80 % of income. **We never overcharge deliberately.** The leaders'
 `a/t` p75 above 1 is the upper tail of their estimate noise, not an exploit.
 
-**Fact 2 — accuracy is the only lever.** Simulating `a = β·t̂`, `b = α·t̂` with
-`t̂ = t·lognormal(σ)` against the real Charges:
+**Fact 2 — accuracy is the only lever, and the bar is reachable.** `scripts/replay_payoffs.py`
+re-runs the real payoff table over Games 1–14 against every opponent's reconstructed
+behaviour, and it reproduces all 14 of our published nets to the cent before being trusted.
+Blurring a perfect estimate by a known log-noise:
 
-| σ | net per transaction |
-| ---: | ---: |
-| 0.25 | **+18** |
-| 0.35 | ≈ 0 |
-| 0.50 | −14 |
-| 0.75 | −33 |
+| σ | net over 14 Games, `a = t̂` | net over 14 Games, **`a = 0.7·t̂`** |
+| ---: | ---: | ---: |
+| 0.35 | +74,796 | **+131,497** |
+| 0.50 | +37,483 | **+89,807** |
+| 0.75 | −8,894 | **+31,725** |
+| 1.00 | −48,914 | −20,915 |
 
-**Break-even is σ ≈ 0.35.** A blind constant is σ ≈ 1.12. A perfect per-item Limit costs
-65.0 per transaction against 97.5 for rejecting everything and 195.7 for accepting
-everything — so no constant recovers any of the prize, and tuning multipliers without
-first fixing σ is theatre. **σ is the acceptance gate for this strategy.**
+**Break-even is σ ≈ 0.85**, and `a = 0.7·t̂` beats `a = t̂` at every σ ≥ 0.1 — R5b confirmed
+on a validated harness instead of argued. Price Memory's 0.43 clears the bar comfortably.
+
+> **Correction.** An earlier version of this plan put break-even at **σ ≈ 0.35**. That came
+> from a cruder simulation that proxied `t` with the field's *median Charge* (biased high)
+> and credited nothing for an accepted Overcharge. The replay above is the trustworthy
+> number. Keep 0.35 as the target — the payoff is 4× larger there — but the strategy is
+> viable well before it, which changes the build order: **ship, then tune.**
+
+Two measurement traps. **Score with total log error (RMSLE), not standard deviation:** a
+stdev cannot see a level error, and every constant scores an identical 1.77 by that metric.
+Our actual failure is a *bias* — median `a/t` of 1.06 where it should be ~0.7. And σ is
+computed on the 148 items with a bounded bracket, so it is **optimistic**.
+
+**Our live results sit far below this curve** (−276,950 where σ = 1.0 predicts −20,915),
+because the replay assumes a sane `b = α·t̂`. Ours was effectively unbounded on many items,
+which is off the curve entirely — see §4.
 
 ---
 
@@ -111,25 +126,39 @@ Games, mostly not — which is why the channels are ranked.
 
 ### Channel B — Price Memory, exact where it hits
 
-Settled brackets from `scripts/invert_fair_values.py`. Measured honestly:
+Settled brackets from `scripts/invert_fair_values.py`, built and measured in
+`src/price_memory.py`. **Leave-one-out** over Cases 1–14 (store built from the other
+thirteen each time), which is the only honest way to score it:
 
-- **Recall 23 %** on exact normalised wording (0 % on Case 1, 62 % on Case 14).
-- **σ ≈ 0.33 conditioned on both occurrences being covered** — at break-even, so worth
-  having, not a silver bullet.
-- **7 of 19 repeated wordings flip between `t = 0` and `t > 0`.** "vehicle costs" is `t = 0`
-  in Cases 1, 2, 4, 5, 14 and 32–111 in Cases 5, 8, 9, 11, 13. **Memory supplies price
+- **Recall 22 %** of Line Items with a proven non-zero Fair Value (29 % on wording alone).
+- **σ = 0.43 — it does *not* clear the 0.35 gate.** A memory hit is an **anchor that
+  narrows the band, not an answer that settles it.** My earlier 0.33 came from a
+  hand-rolled parser that silently ate items; do not use it.
+- **The per-unit rule is the single biggest lever**: storing price per unit for
+  `hrs`/`m`/`m²`/`kg` and a gross total for `pcs`/`flat rate` takes σ from **0.659 to
+  0.431**. Extending per-unit treatment to `pcs`, or to everything, made it worse.
+  "skilled worker hours" settles at 219, 232, 754, 986 — the hours are the difference.
+- **Fuzzy matching is a trap**: Jaccard nearest-neighbour lifts recall to 25–56 % and
+  wrecks σ (0.72 at threshold 0.7, 1.19 at 0.25). Matching stays exact wording plus a
+  qualifier-stripped key (`"TV set (surge damaged)"` ↔ `"TV set"`).
+- **6 of 15 repeated wordings flip between `t = 0` and `t > 0`.** "vehicle costs" is `t = 0`
+  in Cases 1, 2, 3, 4, 14 and 34–94 in Cases 5, 8, 9, 11, 13. **Memory supplies price
   only. Coverage is always decided from this Case's policy.**
-- Within a template, quantity *does* matter: "skilled worker hours" settles at 219, 232,
-  754, 986. Store price **per unit** for hour/area/length units, gross total for `pcs`.
-- The trade roster is a stable identity key — `7 U-Bend Boulevard, Pipeville` is the
-  plumber in Cases 1, 5, 8, 11, 13. Key on `(normalised wording, unit)` with trade as a
-  tie-breaker. Cases 11 and 13 share a parts list almost line for line.
+- The raw observed spread of one to three past prices contained the true Fair Value only
+  **42 %** of the time, so the returned band is widened to at least the measured σ, which
+  covers 65 %. Two prices that happen to agree are a small sample, not a tight posterior.
 
-### Channel C — the model, for the other 77 %
+### Channel C — the LLM, for the other 78 %
+
+**Yes, Channel C is the AI** — and it is the *only* channel that can get us under the gate
+on the bulk of a Case. Channel A is exact but only speaks about items worth zero; Channel
+B measured **0.43**, above the gate, and reaches 22 % of items. So the model is not a
+fallback, it is the load-bearing estimator.
 
 Highest-quality model, evidence only (ADR 0001: the model reads, the engine prices). It
 returns a price **band** and a coverage **probability** with a quoted clause; it never
-returns `a`, `b` or `t`. **σ unmeasured — that is what the backtest is for.**
+returns `a`, `b` or `t`. **σ unmeasured — that is what the backtest is for**, and it is the
+single most important number still missing.
 
 ---
 
