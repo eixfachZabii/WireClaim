@@ -171,9 +171,23 @@ def _write_merged(game_id: int, patch: dict[str, Any]) -> None:
         payload = _existing_for_merge(game_id)
         merged = dict(payload.get("proposals") or {})
         merged.update(patch.pop("proposals", {}) or {})
+        # Merge `items` by Line Item index, the same way `proposals` merges by source. A bare
+        # `payload.update(patch)` replaces the list wholesale, so a *second* write carrying
+        # fewer items silently destroys the record of the first -- and this log is the ground
+        # truth the whole learning loop is built on. It happened: Game 42's real run priced
+        # and submitted all 17 Line Items at 23:37:54, and a stray write at 23:38:20 carrying
+        # one item left a log that made the digest report `no-decision-log` on the other
+        # sixteen, complete with an invented list of the items that "cost the most".
+        # A corrupted measurement is worse than a missing one, because it gets acted on.
+        items = {item["index"]: item for item in (payload.get("items") or []) if "index" in item}
+        items.update(
+            {item["index"]: item for item in (patch.get("items") or []) if "index" in item}
+        )
         payload.update(patch)
         if merged:
             payload["proposals"] = merged
+        if items:
+            payload["items"] = [items[index] for index in sorted(items)]
         payload["game_id"] = game_id
         payload["schema"] = SCHEMA_VERSION
         DECISIONS_DIR.mkdir(parents=True, exist_ok=True)

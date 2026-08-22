@@ -36,6 +36,7 @@ import argparse
 import collections
 import json
 import math
+import os
 import re
 import statistics
 import subprocess
@@ -51,6 +52,7 @@ from src.evidence.memory import (  # noqa: E402
     PriceMemory,
     build_entries,
     core_key,
+    infer_unit,
     is_per_unit,
     normalise,
     normalise_unit,
@@ -203,7 +205,7 @@ def observations(
 
 
 def _record(game_id: int, item: Mapping[str, Any], t_low: float, t_high: float) -> dict[str, Any]:
-    unit = normalise_unit(item["unit"])
+    unit = infer_unit(item["name"], item["unit"])
     quantity = float(item["quantity"]) or 1.0
     total = fair_value(t_low, t_high)
     per_unit = is_per_unit(unit) and quantity > 0
@@ -233,7 +235,15 @@ def memory_payload(records: list[dict[str, Any]], games: list[int]) -> dict[str,
         "line_items_joined": len(records),
         "line_items_with_proven_positive_t": sum(1 for r in records if r["positive"]),
         "per_unit_units": sorted({r["unit"] for r in records if r.get("basis") == "per_unit"}),
-        "measured_leave_one_out_sigma_log": 0.43,
+        # Computed, not asserted. This field said `0.43` unconditionally on every build the
+        # script had ever done -- a name containing the word "measured" attached to a literal
+        # that no measurement could move. The value happened to be right for the store it was
+        # written against (Cases 1-14, per-unit rule on, which re-measures at 0.431 today) and
+        # drifted as the store grew, so the field quietly aged into a claim about a store that
+        # no longer existed. Nothing under `src/` reads it -- `memory.SIGMA_LOG` is the
+        # constant the pricing path uses -- so this is a truthfulness fix, not a behaviour
+        # change, and it is here because it cost real time to discover the number was fixed.
+        "measured_leave_one_out_sigma_log": evaluate(records, games, per_unit=True)["sigma"],
         "warning": (
             "PRICE ONLY. This store never asserts coverage; "
             "advisory_zero_observations is a hint to read the policy clause, "
@@ -324,6 +334,23 @@ def _print_repeats(records: list[dict[str, Any]]) -> None:
     )
 
 
+def _write_atomically(target: Path, text: str) -> None:
+    """Replace `target` in one step, so a reader never sees a half-written store.
+
+    `Path.write_text` truncates and then writes, which leaves a window -- small, but a
+    rebuild now runs after every settled Game while the runner is playing the next one --
+    where `PriceMemory.load` reads a partial file. It does not raise on that: it catches
+    `ValueError` and returns an **empty** memory, exactly the silent failure the module
+    docstring warns about, where "the channel looks wired, reports no error, and
+    contributes nothing". A torn read would cost Channel B for a whole Game and say so
+    nowhere. `os.replace` is atomic within a filesystem, so the reader sees either the old
+    store or the new one.
+    """
+    tmp = target.with_name(target.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, target)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--games", default="1-14")
@@ -349,7 +376,7 @@ def main() -> None:
         _print_evaluation(records, games)
     if not args.no_write:
         args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(json.dumps(payload, indent=1, ensure_ascii=False))
+        _write_atomically(args.out, json.dumps(payload, indent=1, ensure_ascii=False))
         print(f"\nWrote {args.out}")
 
 

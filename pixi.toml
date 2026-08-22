@@ -22,6 +22,12 @@ cases = { cmd = "python scripts/extract_cases.py", env = { PYTHONPATH = "." } }
 # step of the command too. The runner used to extract only into var/cases, which left the
 # readable copy in "[PUBLIC] EHL Cases/cases" lagging several Games behind.
 start = { cmd = "python main.py", depends-on = ["cases"] }
+
+# The same runner, supervised. Use this one for an unattended stretch -- overnight above all.
+# `watch_games()` awaits `run_game()` with no exception boundary, so an uncaught error there
+# does not cost a Game, it ends the tournament. `supervise.sh` restarts the process instead,
+# which is the cheapest way to buy that back without editing the submission path.
+play = { cmd = "bash scripts/supervise.sh", depends-on = ["cases"], env = { PYTHONPATH = "." } }
 case-0 = { cmd = "python main.py --game-id 0", depends-on = ["cases"] }
 
 # What a settled Game taught us: joins the decision log against the reconstructed Fair Value
@@ -37,6 +43,8 @@ watch = { cmd = "python scripts/learn_watch.py", env = { PYTHONPATH = "." } }
 # and judges the digest against CLAUDE.md's own evidentiary bar. `pixi run review-game 42`
 # runs it by hand for one Game, e.g. to reread it after editing the prompt in review_game.py.
 review-game = { cmd = "python scripts/review_game.py", env = { PYTHONPATH = "." } }
+backtest-sync = { cmd = "python -m backtesting sync", env = { PYTHONPATH = "." } }
+backtest-run = { cmd = "python -m backtesting run --spec backtesting/specs/default.json", env = { PYTHONPATH = "." } }
 
 [pypi-dependencies]
 openai = ">=3.3.1, <4"

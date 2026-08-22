@@ -70,7 +70,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from invert_fair_values import brackets  # noqa: E402
+from invert_fair_values import brackets, charges as field_charges  # noqa: E402
 from pull_transactions import teams, transactions  # noqa: E402
 from replay_payoffs import (  # noqa: E402
     UnreconstructableGame,
@@ -114,16 +114,70 @@ def _our_numbers(rows: list[dict]) -> tuple[dict[int, float], dict[int, tuple[fl
     return charges, limits
 
 
-def _mechanisms(rows: list[dict]) -> dict[str, float]:
+def _mechanisms(
+    rows: list[dict],
+    table: dict[int, tuple[float, float]] | None = None,
+    opponent_charges: dict[tuple[int, str], float] | None = None,
+) -> dict[str, float]:
+    """The Game's money, and -- crucially -- what our strictness *saved* as well as cost.
+
+    The first three numbers were the whole story this digest told for its first forty Games,
+    and they made the Limit look like an open wound: every Game printed a large `penalties`
+    figure and nothing at all on the other side of the ledger. But a rejection has two very
+    different meanings depending on which column of the payoff table it lands in:
+
+        rejected a *fair* Charge    -> we pay 1.5a where accepting costs a. The 0.5a is
+                                       waste, and it is the only part that is.
+        rejected a *fraudulent* one -> we pay nothing, where a loose Limit would have paid
+                                       the whole `a`. That is a saving, and it never appeared.
+
+    Measured over the first forty Games the invisible column is the bigger one: **582,594
+    saved against 225,630 of lawyer waste, a ratio of 2.58 to 1**, and +229,600 net once the
+    127,364 of fraud we did let through is subtracted. Reading `penalties` alone had us
+    arguing the Limit was too tight on four separate occasions.
+
+    Needs the recovered brackets and the Field's Charges, because a rightful rejection is
+    recorded as an `amount` of zero -- the Charge we avoided has to be recovered from the
+    rows of whoever *did* pay it. Where that is impossible the Charge is simply omitted, so
+    `saved_by_rejecting` is a floor rather than an estimate.
+    """
     income = sum(r["amount"] for r in rows if r["issuer"] == US)
     paid = sum(r["amount"] for r in rows if r["reviewer"] == US and r["accepted"])
     penalties = sum(1.5 * r["amount"] for r in rows if r["reviewer"] == US and not r["accepted"])
-    return {
+    mechanisms = {
         "income": income,
         "paid_on_accepts": paid,
         "penalties": penalties,
         "net": income - paid - penalties,
     }
+    if table is None or opponent_charges is None:
+        return mechanisms
+
+    decided: dict[tuple[int, str], bool] = {}
+    for row in rows:
+        if row["reviewer"] == US and row["issuer"] != US:
+            decided[(row["line_item_index"], row["issuer"])] = bool(row["accepted"])
+
+    saved = waste = let_through = 0.0
+    for (index, team), charge in opponent_charges.items():
+        if team == US or (index, team) not in decided:
+            continue
+        t_lo, t_hi = table.get(index, (0.0, math.inf))
+        accepted = decided[(index, team)]
+        if accepted:
+            if t_hi != math.inf and charge >= t_hi:
+                let_through += charge
+        elif charge <= t_lo:
+            waste += 0.5 * charge
+        elif t_hi != math.inf and charge >= t_hi:
+            saved += charge
+    mechanisms.update(
+        saved_by_rejecting=saved,
+        lawyer_waste=waste,
+        fraud_let_through=let_through,
+        strictness_net=saved - waste - let_through,
+    )
+    return mechanisms
 
 
 def _stage(item: dict, t_lo: float, t_hi: float, charge: float | None) -> tuple[str, str]:
@@ -164,6 +218,25 @@ def _stage(item: dict, t_lo: float, t_hi: float, charge: float | None) -> tuple[
         )
     if covered and median > 0 and t_lo > 0 and median > 3 * t_hi:
         return "estimate-too-high", f"Estimated {median:.0f} against t < {t_hi:.0f}."
+    if covered and median > 0 and median < t_lo:
+        # `t_lo` is a *proven* floor -- somebody was wrongfully rejected at that Charge -- so a
+        # median below it is definitely wrong, with no interpretation needed.
+        #
+        # This stage exists because our largest single failure mode had no name and therefore
+        # no cost. Game 44's stolen watch carried **85% of that Game's penalty** and was tagged
+        # `ok`: `charge-far-below-t` needs the Charge under half the floor, and we Charged
+        # 4,738 against a half-floor of 4,680 -- it missed by fifty-eight euros. Game 41's
+        # watch was the same shape at a larger scale.
+        #
+        # Note it is the *median* that is wrong, not the band: Game 44's posterior ran to
+        # 12,155 and did contain the truth. So this is a centring failure, which is why
+        # widening the band does not fix it and why it survives into the Charge, which is
+        # taken as a factor of the median.
+        return (
+            "estimate-too-low",
+            f"Estimated {median:.0f} against a proven floor of t >= {t_lo:.0f}; the Charge and "
+            f"the Limit are both taken from that median, so both landed low.",
+        )
     return "ok", "Nothing obviously wrong with this item."
 
 
@@ -224,7 +297,7 @@ def analyse(game_id: int, team_names: list[str], *, with_replay: bool = True) ->
         "game_id": game_id,
         "had_decision_log": log is not None,
         "log_schema": (log or {}).get("schema"),
-        "mechanisms": _mechanisms(rows),
+        "mechanisms": _mechanisms(rows, table, field_charges(game_id, team_names)),
         "items": items,
         "counterfactual": counterfactual,
         "estimate": {
@@ -460,6 +533,19 @@ def digest(report: dict) -> str:
         f"income {m['income']:+,.0f} | paid on accepts −{m['paid_on_accepts']:,.0f} "
         f"| penalties −{m['penalties']:,.0f}",
     ]
+    if "strictness_net" in m:
+        # The other side of the Limit's ledger. Without this the digest prints a large
+        # `penalties` figure every Game and nothing at all to weigh it against, which reads
+        # as "the Limit is bleeding us" when over forty Games strictness is +229,600 ahead.
+        ratio = m["saved_by_rejecting"] / m["lawyer_waste"] if m["lawyer_waste"] else float("inf")
+        lines += [
+            "",
+            f"the Limit: +{m['saved_by_rejecting']:,.0f} saved by rightly rejecting "
+            f"| −{m['lawyer_waste']:,.0f} lawyer waste on fair claims "
+            f"| −{m['fraud_let_through']:,.0f} fraud let through "
+            f"→ **{m['strictness_net']:+,.0f}**"
+            + (f"  ({ratio:.1f}:1 saved to wasted)" if ratio != float("inf") else ""),
+        ]
     if not report["had_decision_log"]:
         lines += [
             "",

@@ -1,5 +1,6 @@
 import json
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -241,3 +242,34 @@ class BuildProposalLoggingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ItemsMergeByIndex(unittest.TestCase):
+    """A second write must not be able to destroy the first write's Line Items.
+
+    Game 42's real run priced and submitted all 17 Line Items; a stray write carrying one
+    item left a log that made the digest report `no-decision-log` on the other sixteen and
+    invent a list of the items that "cost the most". A corrupted measurement is worse than a
+    missing one, because it gets acted on.
+    """
+
+    def test_a_later_write_with_fewer_items_keeps_the_earlier_ones(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(decision_log, "DECISIONS_DIR", Path(tmp)):
+                # `recorded_at` is what `record()` writes and what `_existing_for_merge`
+                # keys its window on; without it the file is not a merge candidate at all.
+                decision_log._write_merged(
+                    99,
+                    {
+                        "recorded_at": time.time(),
+                        "items": [{"index": i, "name": f"item {i}"} for i in range(1, 18)],
+                    },
+                )
+                decision_log._write_merged(
+                    99, {"recorded_at": time.time(), "items": [{"index": 1, "name": "clobber"}]}
+                )
+                written = json.loads((Path(tmp) / "game_099.json").read_text())
+
+        indices = [item["index"] for item in written["items"]]
+        self.assertEqual(indices, list(range(1, 18)))
+        self.assertEqual(written["items"][0]["name"], "clobber")

@@ -27,6 +27,23 @@ from src.strategies.strategy2.constants import SETTLED_MEDIAN
 
 logger = logging.getLogger(__name__)
 
+#: Line Items naming a member of the "Valuables" class (Policy 4.2.2): jewellery, watches,
+#: precious metals or stones. The only aggregate sub-limit class measured so far. Extend this
+#: table if a second is confirmed -- 4.2.3 "means of payment" is named in the Policy text but
+#: has never been observed to collide the way valuables has.
+_AGGREGATE_CLASSES = {
+    "valuables": re.compile(
+        r"\b(watch(?:es)?|ring|necklace|bracelet|earring|jewell?ery|brooch|cufflink|"
+        r"pendant|tiara|gem(?:stone)?|diamond|locket|anklet)\b",
+        re.IGNORECASE,
+    ),
+}
+
+#: Below this, `price_item`'s existing zero-collapse already zeroes the Limit
+#: (`COVERAGE_FLOOR = 1 - LIMIT_QUANTILE = 2/3`). 0.30 sits under it with margin for the
+#: model's own coverage read to vary without escaping the collapse.
+_AGGREGATE_DISCOUNT_COVERAGE = 0.30
+
 #: The parser folds the invoice unit into the Line Item name as a trailing "(12 m)".
 _UNIT_IN_NAME = re.compile(
     r"\(\s*[\d.,]+\s+(?P<unit>pcs|hrs?|m2|m²|m|kg|days?|units?|flat rate)\s*\)\s*$",
@@ -68,12 +85,86 @@ def worthless_evidence(index: int) -> Evidence:
     )
 
 
+def aggregate_class_discount(
+    case: CaseData, model_evidence: dict[int, Evidence]
+) -> dict[int, Evidence]:
+    """When two or more Line Items share an aggregate sub-limit, only the dearest is covered.
+
+    Some Policies put a whole class of property under **one** sub-limit shared across every
+    item of that class in the event, not a limit each. Policy 4.2.2, in every Case seen:
+    valuables "form a single class of property... applied per item and, where more than one
+    such item is affected, **in the aggregate per insured event across all items**".
+
+    Game 44 is the only Case in the corpus that has shown the collision, and it shows it
+    cleanly: watch `t >= 9,361` (paid), ring `t < 884` and necklace `t < 663` (both zero).
+    The watch alone exhausted the shared pot. The model priced all three at an *identical*
+    coverage probability of 0.925 -- it never noticed there was a pot to exhaust. A prompt
+    fix was tried first and failed on both the Case it needed to fix and a single-item safety
+    check; this is the deterministic replacement (ADR 0001: the model reads, the engine
+    prices), and detection needs no model call.
+
+    Only the **Limit** moves, and only downward: `price_item` derives the Charge without ever
+    reading `coverage_probability`, so Issuer income on the discounted members is untouched --
+    which is right, because an uncovered item is worth `t = 0` and a rejected Charge on it
+    costs nothing (README R6c). Worth +2,026.89 replayed over Game 44.
+
+    Deliberately narrow. It fires only where a class has two or more matched members that
+    *both* carry model evidence to compare; one matched member, or a member the model never
+    priced, leaves the evidence untouched. No other Case in 44 has ever had two valuables
+    items, so its measured downside across the corpus is exactly zero.
+    """
+    out = dict(model_evidence)
+    for pattern in _AGGREGATE_CLASSES.values():
+        members = [item for item in case.line_items if pattern.search(item.name or "")]
+        if len(members) < 2:
+            continue
+        priced = [
+            (item, model_evidence[item.index])
+            for item in members
+            if item.index in model_evidence
+        ]
+        if len(priced) < 2:
+            continue
+        winner = max(priced, key=lambda pair: pair[1].price_median)[0].index
+        for item, evidence in priced:
+            if item.index == winner:
+                continue
+            out[item.index] = Evidence(
+                index=evidence.index,
+                coverage_probability=min(
+                    evidence.coverage_probability, _AGGREGATE_DISCOUNT_COVERAGE
+                ),
+                price_low=evidence.price_low,
+                price_median=evidence.price_median,
+                price_high=evidence.price_high,
+            )
+    return out
+
+
 def local_evidence(case: CaseData) -> dict[int, Evidence]:
     """Channels A and B together, keyed by Line Item index. Never raises."""
     try:
-        from src.evidence.memory import lookup
+        from src.evidence.memory import PriceMemory, load, lookup
     except Exception:  # pragma: no cover - the memory channel is optional
         return {}
+
+    # Pick up a store rebuilt since this process started. Every settled Game is ground truth
+    # -- `invert_fair_values` recovers `t` exactly -- so `learn_watch` folds each Game into
+    # Price Memory as it settles, and Channel B is the only channel measured more accurate
+    # than the model. But `load()` caches process-wide, so a runner started before a rebuild
+    # would answer all night from the store it read at boot. Once per Case, one small JSON
+    # parse, off the model's critical path.
+    #
+    # The guard is the point. `PriceMemory.load` turns an unreadable or missing store into an
+    # *empty* memory rather than raising, and a bare `load(refresh=True)` would then install
+    # that emptiness process-wide -- trading a stale channel for no channel, silently, which
+    # is precisely the failure the memory module's own docstring warns about. So read first
+    # and only adopt a store that actually carries entries.
+    try:
+        if len(PriceMemory.load()):
+            load(refresh=True)
+    except Exception as error:  # pragma: no cover - never worth a Game
+        logger.warning("Price Memory refresh failed, keeping the loaded store: %s", error)
 
     found: dict[int, Evidence] = {}
     for line_item in case.line_items:
@@ -103,4 +194,4 @@ def local_evidence(case: CaseData) -> dict[int, Evidence]:
     return found
 
 
-__all__ = ["local_evidence", "unit_of", "worthless_evidence"]
+__all__ = ["aggregate_class_discount", "local_evidence", "unit_of", "worthless_evidence"]
