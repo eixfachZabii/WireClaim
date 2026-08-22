@@ -44,6 +44,7 @@ def team_stats(game: dict, rows: list[dict]) -> dict[str, dict]:
     fair = {li["line_item_index"]: li["fair_flags"] for li in game["line_items"]}
     t_pt = {li["line_item_index"]: li["t_point"] for li in game["line_items"]}
     charges = {li["line_item_index"]: li["charges_a"] for li in game["line_items"]}
+    limits = {li["line_item_index"]: li["limits_b"] for li in game["line_items"]}
 
     stats: dict[str, dict] = {}
 
@@ -74,6 +75,14 @@ def team_stats(game: dict, rows: list[dict]) -> dict[str, dict]:
             if charges[i].get(team) and t_pt.get(i)
         ]
         st["med_at"] = median(ratios) if ratios else None
+        b_ratios = []
+        for i, lim in limits.items():
+            b = lim.get(team)
+            if b and t_pt.get(i):
+                b_mid = ((b["b_lo"] or 0) + b["b_hi"]) / 2 if b.get("b_hi") is not None else b["b_lo"]
+                if b_mid is not None:
+                    b_ratios.append(b_mid / t_pt[i])
+        st["med_bt"] = median(b_ratios) if b_ratios else None
     return stats
 
 
@@ -100,7 +109,7 @@ def fmt(x: float | None, money: bool = True) -> str:
 def main() -> None:
     analysis, transactions = load()
 
-    header = ["game", "team", "net", "med a/t", "inc fair", "inc over",
+    header = ["game", "team", "net", "med a/t", "med b/t", "inc fair", "inc over",
               "inc 1.5a", "paid over", "lawyer fees", "what worked"]
     png_rows: list[list[str]] = []
     csv_rows: list[list] = []
@@ -112,19 +121,21 @@ def main() -> None:
         for rank, (team, st) in enumerate(ranked):
             csv_rows.append([gid, rank + 1, team, round(st["net"], 2),
                              None if st["med_at"] is None else round(st["med_at"], 3),
+                             None if st["med_bt"] is None else round(st["med_bt"], 3),
                              round(st["inc_fair"], 2), round(st["inc_over"], 2),
                              round(st["inc_penalty"], 2), round(st["paid_over"], 2),
                              round(st["lawyer"], 2), verdict(st)])
             if rank < TOP_N or team == TEAM:
                 label = team if rank < TOP_N else f"{team} (#{rank + 1})"
                 png_rows.append([str(gid), label, fmt(st["net"]),
-                                 fmt(st["med_at"], money=False), fmt(st["inc_fair"]),
+                                 fmt(st["med_at"], money=False),
+                                 fmt(st["med_bt"], money=False), fmt(st["inc_fair"]),
                                  fmt(st["inc_over"]), fmt(st["inc_penalty"]),
                                  fmt(st["paid_over"]), fmt(st["lawyer"]), verdict(st)])
 
     with (DATA_DIR / "teams.csv").open("w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["game", "rank", "team", "net", "med_a_over_t", "inc_fair",
+        writer.writerow(["game", "rank", "team", "net", "med_a_over_t", "med_b_over_t", "inc_fair",
                          "inc_over", "inc_penalty", "paid_over", "lawyer_fees", "verdict"])
         writer.writerows(csv_rows)
 
@@ -132,7 +143,7 @@ def main() -> None:
     ax.axis("off")
     table = ax.table(cellText=png_rows, colLabels=header, loc="center",
                      cellLoc="center",
-                     colWidths=[0.04, 0.14, 0.07, 0.06, 0.07, 0.07, 0.07, 0.07, 0.08, 0.33])
+                     colWidths=[0.04, 0.13, 0.07, 0.055, 0.055, 0.065, 0.065, 0.065, 0.065, 0.075, 0.31])
     table.auto_set_font_size(False)
     table.set_fontsize(8)
     table.scale(1, 1.25)
