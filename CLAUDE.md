@@ -79,6 +79,13 @@ Read the leaderboard at the rate a browser would. Do not enumerate endpoints tha
 
 ## Status
 
-Nothing is built yet. As of Sat ~14:00 CEST the repo holds the game analysis, the glossary, five strategy pitches (~4,150 lines) under `docs/brainstorm/sebi/`, and one ADR.
+The repository now contains a tested Python ingestion scaffold under `src/wireclaim/`.
+It provides `wireclaim doctor`, `games`, `watch`, `ingest`, `process`, and `status`
+commands for scheduled case retrieval, archive validation, publication, and a
+downstream processing hook. The game analysis, glossary, five strategy pitches
+(~4,150 lines) under `docs/brainstorm/sebi/`, and one ADR remain the source of
+strategy and domain decisions.
 
-**Blocking everything:** `TEAM_API_KEY`, the shared case folder, `API_HANDBOOK.md`, `starter_script.py`, and case 0 — none of which we have. A proven round-trip on case 0 before 15:00 matters more than any plan in this repo.
+**Still unimplemented:** invoice parsing, policy analysis, pricing, and submission;
+the boundary is marked with `TODO(api-submission)`. Running the scaffold requires
+`TEAM_API_KEY`, the case archives, and the Pixi environment described in `README.md`.

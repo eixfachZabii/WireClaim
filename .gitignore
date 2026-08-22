@@ -19,6 +19,7 @@ data/price_memory*.json
 .playwright/
 __pycache__/
 *.py[cod]
+$py.class
 .venv/
 venv/
 env/
@@ -39,3 +40,11 @@ dist/
 
 # Tooling state that is not ours to track
 .impeccable/
+# Testing
+.ruff_cache/
+
+# Runtime state and decrypted case material must stay local.
+var/*
+!var/cases/
+var/cases/*
+!var/cases/.gitkeep

@@ -1,25 +1,25 @@
-# WireClaim — QuantCo *Claim to Fame*
+# WireClaim — QuantCo _Claim to Fame_
 
 > Munich Agentic Hackathon (EHL stop #3), 22–23 Aug 2026 · Track 1: QuantCo
 
 This repo is our entry to QuantCo's **Claim to Fame** challenge. This README is the
-single source of truth for *what the game is*, *how it is scored*, and *what we
-proved about how to beat it*. Read this before touching code.
+single source of truth for _what the game is_, _how it is scored_, and _what we
+proved about how to beat it_. Read this before touching code.
 
 ---
 
 ## 1. The hard facts (verified against the live API, not the handout)
 
-| Fact | Value | Source |
-| --- | --- | --- |
-| Total games | **100** | `GET /leaderboard/api/games?page_size=1000` |
-| Cadence | **757.575 s** = 12 min 37.6 s | derived from schedule |
-| First game | **Sat 15:00:00 CEST** (13:00 UTC) | API |
-| Last game | **Sun 11:50:00 CEST** | API |
-| Submission window per game | **60 s** (`gameDurationSeconds = 60.0`) | leaderboard JS |
-| Games between 00:00 and 11:50 Sun | **~48** | API |
-| Hackathon submission deadline | **Sun 12:00** | kickoff deck |
-| Pitch | Sun 12:30 (5 min + 3 min Q&A), finals 14:15 | kickoff deck |
+| Fact                              | Value                                       | Source                                      |
+| --------------------------------- | ------------------------------------------- | ------------------------------------------- |
+| Total games                       | **100**                                     | `GET /leaderboard/api/games?page_size=1000` |
+| Cadence                           | **757.575 s** = 12 min 37.6 s               | derived from schedule                       |
+| First game                        | **Sat 15:00:00 CEST** (13:00 UTC)           | API                                         |
+| Last game                         | **Sun 11:50:00 CEST**                       | API                                         |
+| Submission window per game        | **60 s** (`gameDurationSeconds = 60.0`)     | leaderboard JS                              |
+| Games between 00:00 and 11:50 Sun | **~48**                                     | API                                         |
+| Hackathon submission deadline     | **Sun 12:00**                               | kickoff deck                                |
+| Pitch                             | Sun 12:30 (5 min + 3 min Q&A), finals 14:15 | kickoff deck                                |
 
 > ⏱ **Half the tournament happens while everyone is asleep.** This is the single
 > most important fact in this document. See §5.
@@ -35,13 +35,13 @@ Entire**. Challenge selection and final submission both happen on `ehl.gg`.
 
 ## 2. The game in one paragraph
 
-Every 12.6 minutes a *case* is released — an insurance `policy.txt`, a damage
+Every 12.6 minutes a _case_ is released — an insurance `policy.txt`, a damage
 `description.txt`, an `invoices.pdf` with line items **but no prices**, sometimes
 `images.png`. We have 60 seconds to fetch a decryption key, decrypt the archive,
 read it, and submit **two numbers per line item**:
 
-- **`a` — charge price.** What we invoice every other team, as *gross total for the
-  whole line item* (quantity × unit price, incl. VAT). Default `0`.
+- **`a` — charge price.** What we invoice every other team, as _gross total for the
+  whole line item_ (quantity × unit price, incl. VAT). Default `0`.
 - **`b` — acceptance limit.** The most we will pay when another team invoices us the
   same line item. Default `0`.
 
@@ -54,10 +54,10 @@ with `c ≥ 4t`**, shared across all teams.
 
 `H` = handyman/issuer, `I` = insurance/reviewer.
 
-|  | `a ≤ t` — price fair | `a > t` — price fraudulent |
-| --- | --- | --- |
-| **`a ≤ b`** accepted | `I` pays `a`, `H` gets `a` | `I` pays `min(a,c)`, `H` gets `min(a,c)` |
-| **`a > b`** rejected | `I` pays `1.5a`, `H` gets `a` | nothing happens |
+|                      | `a ≤ t` — price fair          | `a > t` — price fraudulent               |
+| -------------------- | ----------------------------- | ---------------------------------------- |
+| **`a ≤ b`** accepted | `I` pays `a`, `H` gets `a`    | `I` pays `min(a,c)`, `H` gets `min(a,c)` |
+| **`a > b`** rejected | `I` pays `1.5a`, `H` gets `a` | nothing happens                          |
 
 **Score = `net = income − costs`**, summed over all matchups and all 100 games.
 Public leaderboard: <https://c2f.public.quantco.cloud/leaderboard/>
@@ -69,21 +69,25 @@ Public leaderboard: <https://c2f.public.quantco.cloud/leaderboard/>
 Fifteen results. They are the reason the plan looks the way it does.
 
 ### R1 — Below `t`, income is risk-free
+
 If `a ≤ t`, `H` receives exactly `a` **whether the reviewer accepts or rejects**.
-Acceptance risk exists *only* above `t`. Corollary: within the fair zone, `a = t`
-strictly dominates every smaller charge. Estimating `t` accurately *is* the game.
+Acceptance risk exists _only_ above `t`. Corollary: within the fair zone, `a = t`
+strictly dominates every smaller charge. Estimating `t` accurately _is_ the game.
 
 ### R2 — The game is negative-sum, and the lawyer fee evaporates
+
 On a wrongful rejection `I` pays `1.5a` but `H` only receives `a`. The `0.5a`
 goes to nobody. Aggregate net across all teams equals `−0.5 × Σ(wrongfully
-rejected fair charges)`. There is no pot to win, only a pot to *avoid burning*.
+rejected fair charges)`. There is no pot to win, only a pot to _avoid burning_.
 
 ### R3 — One `a` and one `b` per line item, against the entire field
+
 Submissions are not per-opponent. There is no price discrimination: we choose a
 single `a` against the whole distribution of opponents' `b`. All reasoning must be
 distributional, never pairwise.
 
 ### R4 — The reviewer should accept only at ≥ 2/3 confidence
+
 Let `q = P(a ≤ t)`. Accepting a fair claim saves `0.5a`; accepting a fraudulent one
 costs `min(a,c)`. Accept iff `(1−q)·min(a,c) < 0.5·q·a`, which for `a ≤ c` reduces to
 
@@ -94,15 +98,16 @@ accept  ⟺  q > 2/3          ⟹      b* = Q₁ᐟ₃(t)
 **`b` is the one-third quantile of our posterior on `t`** — not the mean, not the
 mode.
 
-Above the Cap the algebra actually goes the *other* way — `q > c/(c + 0.5a)`, which
+Above the Cap the algebra actually goes the _other_ way — `q > c/(c + 0.5a)`, which
 **falls** toward zero as `a` grows, because the payout is capped at `c` while the
 wrongful-rejection penalty `1.5a` keeps growing. An earlier draft claimed the bar
 rises; that was wrong. The conclusion survives for a different and stronger reason:
-`c ≥ 4t` means `t ≤ c/4`, so any Charge above the Cap is *provably* in the Fraud Zone,
+`c ≥ 4t` means `t ≤ c/4`, so any Charge above the Cap is _provably_ in the Fraud Zone,
 `q` is exactly zero, and the falling bar is never reached. Reject, always — but reject
 it because it cannot be fair, not because the bar is high.
 
-### R4b — The threshold is distribution-free; only *calibration* matters
+### R4b — The threshold is distribution-free; only _calibration_ matters
+
 The accept/reject decision at each charge level is separable, so a threshold at
 `Q₁ᐟ₃` implements the pointwise-optimal rule **exactly, whatever the field charges**.
 The field's charge distribution changes how much we gain, never where `b` belongs.
@@ -111,14 +116,15 @@ The one thing that can break it is a miscalibrated posterior. Too narrow and `Q�
 hugs `t̂` and we get farmed; too wide and we reject everything and bleed `0.5a`. So
 the tunable buffer is the **width of the interval, not its centre** — and R9 measures
 it: compare predicted quantiles against realised `t` brackets, check empirical
-coverage, widen or narrow. Intuition to resist: *"put `b` in the upper half of the CI
-so we don't wrongfully reject."* Being generous is ~8× more expensive than being
+coverage, widen or narrow. Intuition to resist: _"put `b` in the upper half of the CI
+so we don't wrongfully reject."_ Being generous is ~8× more expensive than being
 strict (`4t` vs `0.5t`), and the worst case is not a slightly-over charge — it is an
 exploiter parked at the cap.
 
 ### R5 — A failed fraudulent charge costs exactly zero
+
 This is the load-bearing asymmetry on the issuer side. Look again at the matrix:
-`a > t` and `a > b` ⟹ **"nothing happens"**. There is *no* penalty for a rejected
+`a > t` and `a > b` ⟹ **"nothing happens"**. There is _no_ penalty for a rejected
 fraudulent claim — not a fee, not a reputation effect, nothing. Charging above `t` is
 therefore a **free option**: its only cost is the risk-free `t` we forgo by leaving
 the fair zone. Compare per opponent:
@@ -144,6 +150,7 @@ the field wakes recalibrated. Aggression is not a values dial; it is a **measure
 quantity we re-read every 12.6 minutes.**
 
 ### R5c — A mis-measured `p(a)` is worse than no `p(a)` at all
+
 Discovered the hard way: the first version of `docs/brainstorm/sebi/evidence/sim.py` estimated the
 Field's acceptance rate inline from a single stale Line Item. The estimate was
 spuriously high, it pushed the Charge above optimum, and it cost **~60 % of net** —
@@ -154,22 +161,24 @@ unlocked by an acceptance curve measured from settled Games (R9) with enough sup
 to trust it.** Never estimate `p` from a handful of observations, and never carry a
 stale `p` across a phase boundary (R10) — the Field's behaviour changes at midnight.
 
-### R5b — The Charge belongs *well below* the median Estimate
+### R5b — The Charge belongs _well below_ the median Estimate
+
 ```
 a* = argmax_a [ a·G(a) + min(a,c)·(1−G(a))·p(a) ]
        where G(a) = P(t ≥ a)  and  p(a) = share of the Field with b ≥ a
 ```
+
 The trap: R1 says income below Fair Value is risk-free, which tempts you to charge at
-`t̂`. But risk-free is *conditional on `a ≤ t`* — charging at the median forfeits the
+`t̂`. But risk-free is _conditional on `a ≤ t`_ — charging at the median forfeits the
 whole claim half the time. Solving `argmax a·G(a)` for a log-normal posterior
 (`σ·Φ(−z) = φ(z)`), confirmed by Monte Carlo in `docs/brainstorm/sebi/evidence/sim.py`:
 
 | posterior log-sd σ | optimal Charge | as a quantile | E[revenue]/t̂ |
-| --- | --- | --- | --- |
-| 0.15 | 0.80 · t̂ | ~Q₀.₀₅ | 1.01 |
-| 0.30 | 0.69–0.75 · t̂ | ~Q₀.₁₇ | 0.62–0.80 |
-| 0.45 | 0.59–0.75 · t̂ | ~Q₀.₂₆ | 0.57–0.66 |
-| 0.60 | 0.56–0.82 · t̂ | ~Q₀.₃₇ | 0.52–0.59 |
+| ------------------ | -------------- | ------------- | ------------ |
+| 0.15               | 0.80 · t̂       | ~Q₀.₀₅        | 1.01         |
+| 0.30               | 0.69–0.75 · t̂  | ~Q₀.₁₇        | 0.62–0.80    |
+| 0.45               | 0.59–0.75 · t̂  | ~Q₀.₂₆        | 0.57–0.66    |
+| 0.60               | 0.56–0.82 · t̂  | ~Q₀.₃₇        | 0.52–0.59    |
 
 **Practical rule: charge ≈ 0.7 × t̂, and never above it unless `p(a)` says otherwise.**
 The multiple is strikingly stable across σ even though the quantile is not, which makes
@@ -177,6 +186,7 @@ it a safe default when calibration is still poor. A measured `p(a) > 0` pushes `
 (that is the Overcharge of R5); `p ≈ 0` overnight pulls it back down to ~0.6–0.7 · t̂.
 
 ### R6 — Charge and Limit both sit low, and the Charge is the knob that matters
+
 An earlier draft of this document claimed the error asymmetries force `a > b`. **That
 was wrong**, and the simulator caught it. Sweeping both quantiles against a mixed
 Field:
@@ -190,6 +200,7 @@ So: **both low, in the same neighbourhood, and spend the engineering effort on `
 Do not over-tune `b` — get it in the bottom third and move on.
 
 ### R6b — Shrink the Estimate before pricing it
+
 The Monte Carlo optimum sits below the analytic one for a reason: the analytic version
 assumes the posterior is centred on `t̂`, but a noisy Estimate should regress toward the
 category median before use. With prior log-sd `τ` and error log-sd `σ`, shrink in log
@@ -198,6 +209,7 @@ category median. Empirical Bayes, and it is why the Price Memory (R9) pays twice
 supplies both the prior and the calibration.
 
 ### R6c — On items the policy does not cover, always Charge. It is free.
+
 When an item is not covered, `t = 0` (stated in the handout). Every possible Charge is
 then in the Fraud Zone, so the honest branch of R5b pays **exactly zero**. And R5 says a
 rejected Overcharge costs nothing. So:
@@ -214,31 +226,34 @@ generous Limit, we collect, and if none does, we lose nothing we could have had.
 Two constraints on how far to push it. The Cap still binds (`c ≥ 4t = 0`, but "never
 below an absolute floor"), so charging past the floor only depresses `p(x)` for no extra
 payoff — aim at the estimated floor, not at infinity. And this is conditional on
-*actually being right about coverage*: if the item is covered after all, a high Charge
+_actually being right about coverage_: if the item is covered after all, a high Charge
 forfeits the guaranteed `a·G(a)`. So it must be driven by an explicit coverage
 probability, not a binary guess — which is exactly why ADR 0001 makes the coverage
-agent emit a verdict *and* a confidence, and lets the engine carry `π₀` as a spike at
+agent emit a verdict _and_ a confidence, and lets the engine carry `π₀` as a spike at
 zero rather than collapsing it early.
 
 ### R7 — The default submission is the worst possible submission
-`a = 0` earns nothing. `b = 0` rejects *every* fair claim, so we pay `1.5a` to every
+
+`a = 0` earns nothing. `b = 0` rejects _every_ fair claim, so we pay `1.5a` to every
 opponent on every line item. A team that goes dark does not score zero — it bleeds.
 (Confirmed by the demo leaderboard in QuantCo's slides: three teams at
 `income 0.00 / costs −3247.38`.)
 
 But note the flip side: **`b = 0` caps our downside at a 50 % surcharge on fair
-claims**, while `b` set too high can cost `4t+` per item. So `b = 0` is a *terrible
-default but an acceptable panic mode*. `a = 0` is never acceptable — any plausible
+claims**, while `b` set too high can cost `4t+` per item. So `b = 0` is a _terrible
+default but an acceptable panic mode_. `a = 0` is never acceptable — any plausible
 number beats it.
 
 ### R8 — Relative rank and absolute net agree (and rejection is quietly good)
+
 Ranking is relative, so what matters is `our net − their net`. For `a ≤ t` the swing
 per opponent is `2a` if they accept and `2.5a` if they wrongfully reject. Being
-rejected is 25 % *better* for our rank. Both objectives are still maximised at
+rejected is 25 % _better_ for our rank. Both objectives are still maximised at
 `a = t`, so we do not need a separate adversarial objective — but it means we should
 never soften `a` to be "acceptable" to the field.
 
 ### R9 — The public leaderboard inverts to `t`
+
 The Transactions view exposes `line_item_index, issuer, reviewer, accepted, amount`
 for **any** team in **any** settled game. That inverts:
 
@@ -252,11 +267,11 @@ accept. That is a labelled training example every 12.6 minutes, 100 times.
 
 **The cap `c` falls out too.** If any team overcharges past `c` and is accepted, the
 leaderboard shows `amount < a` — which pins `c` exactly. Since `c ≥ 4t`, that hands us
-a free *upper* bound `t ≤ c/4`, bracketing `t` from above as well as below. With a
+a free _upper_ bound `t ≤ c/4`, bracketing `t` from above as well as below. With a
 field of tens of teams, somebody overshoots every round.
 
 > ⚠️ **Ask the organisers first.** Fair play forbids "extract the secret thresholds"
-> and "read other teams' submissions". Reading the *published, settled* leaderboard
+> and "read other teams' submissions". Reading the _published, settled_ leaderboard
 > is explicitly encouraged by the handout, and inference from public results is not
 > the same as extraction — but this is close enough to the line that we ask in
 > `#❓-ask-orgateam` **before** we build on it. The rules say to ask when unsure.
@@ -264,6 +279,7 @@ field of tens of teams, somebody overshoots every round.
 > settled results alone is unaffected.
 
 ### R10 — A dark team is a one-way money fountain, and overnight is the main event
+
 A team sitting at defaults (`a = 0`, `b = 0`) is not a neutral participant:
 
 - **as Issuer it charges `0`** — trivially in the Fair Zone, so we accept and pay nothing.
@@ -272,17 +288,17 @@ A team sitting at defaults (`a = 0`, `b = 0`) is not a neutral participant:
   while we collect `t`.
 
 Net **`+t` to us, `−1.5t` to them: a 2.5t relative swing per Line Item, per dark team,
-per Game.** Overnight income is linear in *how many others sleep* × *how accurate `t̂` is*.
+per Game.** Overnight income is linear in _how many others sleep_ × _how accurate `t̂` is_.
 
 It also kills the Overcharge: against `b = 0`, `p(a) → 0`, so charging above Fair Value
 earns exactly nothing. **Overnight the honest play strictly dominates.** Hence three
 regimes:
 
-| Phase | Games | Field | What wins |
-| --- | --- | --- | --- |
-| Sat 15:00 → 00:00 | ~1–43 | awake, `b` probably generous | measure `p(a)`; Overcharge window; Limit discipline |
-| 00:00 → 08:00 | ~44–81 | mostly dark | **honest harvest at `a = t̂`** — accuracy is the only lever |
-| 08:00 → 11:50 | ~82–100 | waking, recalibrated | back to phase-1 logic |
+| Phase             | Games   | Field                        | What wins                                                  |
+| ----------------- | ------- | ---------------------------- | ---------------------------------------------------------- |
+| Sat 15:00 → 00:00 | ~1–43   | awake, `b` probably generous | measure `p(a)`; Overcharge window; Limit discipline        |
+| 00:00 → 08:00     | ~44–81  | mostly dark                  | **honest harvest at `a = t̂`** — accuracy is the only lever |
+| 08:00 → 11:50     | ~82–100 | waking, recalibrated         | back to phase-1 logic                                      |
 
 The phase where accuracy pays most is also the phase where we have accumulated the most
 calibration data (R9). The flywheel and the harvest compound.
@@ -299,14 +315,14 @@ coverage and relatedness, the machine owns the number.**
 
 Recorded deliberately, because two of these would have cost us money.
 
-| We initially thought | Actually |
-| --- | --- |
-| "Optimal is `a = t = b`." | Only under *certainty*. Under uncertainty the error asymmetry forces `a > b` (R4–R6). |
-| "Charge just above their `t'` so we get the lawyer bonus and claim it." | **There is no bonus to claim.** The `0.5a` evaporates (R2). And any `a ≤ t` pays us exactly `a`, so the top of the fair zone is always right (R1). |
-| "If their `t' > t*` we just take `a = t'`." | Impossible — `a` is one number against the whole field, not per opponent (R3). |
-| "Find `t` so our claims get paid either way." | ✅ Correct, and it is the core insight. |
-| "As insurer always pay up to `t*`, reject above." | ✅ Correct in spirit, but the Limit belongs in the bottom third of the posterior, not at `t̂` (R4, R6). |
-| *(this document, earlier draft)* "the optimum Charge sits at or above the median, so `a > b`." | **Wrong, twice.** The optimal Charge is ~0.7 · t̂, well *below* the median (R5b), and `a` ends up near or below `b`, not above it (R6). The original `a = t = b` intuition was closer than the correction. Caught by `docs/brainstorm/sebi/evidence/sim.py`. |
+| We initially thought                                                                           | Actually                                                                                                                                                                                                                                                    |
+| ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Optimal is `a = t = b`."                                                                      | Only under _certainty_. Under uncertainty the error asymmetry forces `a > b` (R4–R6).                                                                                                                                                                       |
+| "Charge just above their `t'` so we get the lawyer bonus and claim it."                        | **There is no bonus to claim.** The `0.5a` evaporates (R2). And any `a ≤ t` pays us exactly `a`, so the top of the fair zone is always right (R1).                                                                                                          |
+| "If their `t' > t*` we just take `a = t'`."                                                    | Impossible — `a` is one number against the whole field, not per opponent (R3).                                                                                                                                                                              |
+| "Find `t` so our claims get paid either way."                                                  | ✅ Correct, and it is the core insight.                                                                                                                                                                                                                     |
+| "As insurer always pay up to `t*`, reject above."                                              | ✅ Correct in spirit, but the Limit belongs in the bottom third of the posterior, not at `t̂` (R4, R6).                                                                                                                                                      |
+| _(this document, earlier draft)_ "the optimum Charge sits at or above the median, so `a > b`." | **Wrong, twice.** The optimal Charge is ~0.7 · t̂, well _below_ the median (R5b), and `a` ends up near or below `b`, not above it (R6). The original `a = t = b` intuition was closer than the correction. Caught by `docs/brainstorm/sebi/evidence/sim.py`. |
 
 ---
 
@@ -328,7 +344,7 @@ In priority order:
 4. **Compound over 100 rounds.** Build a price memory keyed on item description; by
    Sunday morning we should be near-exact on repeated trades (R9).
 5. **Be aggressive as issuer, timid as reviewer** (R6).
-6. **Write the methodology as we go**, not at 11:00 Sunday. R1–R9 *are* the pitch:
+6. **Write the methodology as we go**, not at 11:00 Sunday. R1–R9 _are_ the pitch:
    we did the maths, then built the machine.
 
 **Winning the overall hackathon** additionally needs a 5-minute demo that lands. A
@@ -378,5 +394,92 @@ data/schedule.json         the 100 Game start times, pinned locally
 ```
 
 Everyone gets a folder under `docs/brainstorm/`. Put ideas there, not in this
-README — this file is the shared understanding of the *game*, and it should only
+README — this file is the shared understanding of the _game_, and it should only
 change when we learn something about the rules or prove a new result.
+
+## 9. Application scaffold
+
+Python scaffolding for the QuantCo Claim to Fame challenge. The current scope is
+scheduled case ingestion: read the EHL game schedule, retrieve a key at its UTC
+start time, decrypt the matching archive, publish verified case files, and invoke
+a downstream processing hook.
+
+It deliberately does **not** post submissions. The future submission boundary is
+marked with `TODO(api-submission)` under `src/api` and in the placeholder pipeline.
+
+## Runtime flow
+
+```text
+GET /api/games/list
+    -> wait for start_time
+    -> GET /api/games/{id}/key
+    -> decrypt case_{id:02d}.zip into a staging directory
+    -> validate and checksum files
+    -> atomically publish var/cases/case_N/input
+    -> invoke WIRECLAIM_PROCESSOR
+```
+
+The supplied encrypted archives remain in `[PUBLIC] EHL Cases/cases`; they are
+not copied or modified. Decrypted files, manifests, and local state under `var/`
+are ignored by Git.
+
+## Setup
+
+The easiest setup uses the included Pixi environment:
+
+```bash
+pixi install
+export TEAM_API_KEY="..."
+pixi run doctor
+```
+
+Alternatively, use Python 3.11+ with 7-Zip on `PATH`:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+export TEAM_API_KEY="..."
+wireclaim doctor
+```
+
+Configuration options are documented in `.env.example`. The application reads
+environment variables directly; it does not automatically load `.env` files.
+
+## Commands
+
+```bash
+wireclaim doctor          # Check credentials, archives, 7-Zip, and hook config
+wireclaim games           # Print the authenticated UTC game schedule
+wireclaim watch           # Run the long-lived schedule watcher
+wireclaim ingest 0        # Ingest and trigger one game immediately
+wireclaim process 0       # Re-trigger an already extracted case, offline
+wireclaim status          # Inspect durable local lifecycle state
+```
+
+The watcher refreshes the schedule every 15 seconds by default, sleeps until the
+next known `start_time`, retries briefly if the key endpoint still returns 403,
+and catches up unfinished games after restarts. It never stores keys.
+
+## Downstream hook
+
+The hook is configured as `module:function`:
+
+```bash
+export WIRECLAIM_PROCESSOR="my_package.claims:process_case"
+```
+
+It receives a `wireclaim.domain.CaseReady` value containing the required file
+paths, all discovered JPG/PNG images, the game start time, and the derived
+one-minute deadline. The default hook in
+`wireclaim.pipeline.placeholder:process_case` only logs readiness and contains
+TODOs for invoice parsing, policy analysis, pricing, and eventual submission.
+
+## Tests
+
+```bash
+pixi run test
+```
+
+Tests mock the HTTP API and 7-Zip process; they never retrieve unreleased keys or
+send submissions.
