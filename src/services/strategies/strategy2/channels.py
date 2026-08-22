@@ -71,9 +71,27 @@ def worthless_evidence(index: int) -> Evidence:
 def local_evidence(case: CaseData) -> dict[int, Evidence]:
     """Channels A and B together, keyed by Line Item index. Never raises."""
     try:
-        from src.domain.pricing.memory import lookup
+        from src.domain.pricing.memory import PriceMemory, load, lookup
     except Exception:  # pragma: no cover - the memory channel is optional
         return {}
+
+    # Pick up a store rebuilt since this process started. Every settled Game is ground truth
+    # -- `invert_fair_values` recovers `t` exactly -- so `learn_watch` folds each Game into
+    # Price Memory as it settles, and Channel B is the only channel measured more accurate
+    # than the model. But `load()` caches process-wide, so a runner started before a rebuild
+    # would answer all night from the store it read at boot. Once per Case, one small JSON
+    # parse, off the model's critical path.
+    #
+    # The guard is the point. `PriceMemory.load` turns an unreadable or missing store into an
+    # *empty* memory rather than raising, and a bare `load(refresh=True)` would then install
+    # that emptiness process-wide -- trading a stale channel for no channel, silently, which
+    # is precisely the failure the memory module's own docstring warns about. So read first
+    # and only adopt a store that actually carries entries.
+    try:
+        if len(PriceMemory.load()):
+            load(refresh=True)
+    except Exception as error:  # pragma: no cover - never worth a Game
+        logger.warning("Price Memory refresh failed, keeping the loaded store: %s", error)
 
     found: dict[int, Evidence] = {}
     for line_item in case.line_items:
