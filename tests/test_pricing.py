@@ -168,8 +168,9 @@ class MeasuredConstants(unittest.TestCase):
         grounds that we are paid on the Games that come next.
 
         Games 20-24 then reversed the reversal. Re-measured over every settled Game with
-        `scripts/accept_limit_sweep.py` (Game 16 excluded -- its Transactions do not
-        reconstruct), a ceiling of 0.30 beats 0.85 in every window:
+        `scripts/accept_limit_sweep.py` (Game 16 held out of these totals for comparability
+        with the older ones -- it does reconstruct, to the cent, and including it changes
+        nothing), a ceiling of 0.30 beats 0.85 in every window:
 
             Games 1-14   +32,100 against +13,599
             Games 15-19  +19,639 against +37,688   <- the only window that prefers 0.85
@@ -182,6 +183,35 @@ class MeasuredConstants(unittest.TestCase):
         the total: loosening from 0.30 to 0.85 saves 222,098 in wrongful-rejection penalties
         and pays 148,065 more on claims we owed plus 109,738 more on accepted Overcharges,
         so it is a losing trade on the cost side alone, with income untouched.
+
+        Re-audited at Game 26 (`scripts/limit_audit.py`) against the first two Games that
+        actually ran this ceiling, on **disjoint** windows so neither total borrows the
+        other's Games. All 26 Games reconstruct; nothing is excluded:
+
+            ceiling   Games 1-20   Games 21-26      all 26
+              0.15       +64,686       +17,727     +82,412   <- 21-26 argmax
+              0.25       +67,417       +15,819     +83,236   <- all argmax
+              0.30       +67,730       +15,300     +83,030   <- shipped
+              0.45       +71,630        -1,287     +70,343
+              0.70       +74,533       -23,396     +51,138   <- 1-20 argmax
+              0.85       +73,981       -22,244     +51,737
+
+        The windows disagree about the argmax and it does not matter: 0.30 is within 3% of
+        it in all three, both argmaxes are inside the noise floor (+340 and +404 a Game
+        against a floor of ~1,670), and 0.00-0.35 is one flat region everywhere. The
+        asymmetry is the argument -- train on 1-20 and it picks 0.85, which scores -22,244
+        on Games 21-26 against +15,300 for 0.30; train on 21-26 and it picks 0.10, which
+        costs only 2,844 on Games 1-20. Leave-one-out loses to fixing the constant in every
+        window, as usual at this sample size.
+
+        And the penalties that motivated the re-audit are not this constant's fault. Against
+        a per-item oracle Limit `b = t` -- the best any rule could achieve -- only 36,791 of
+        the 108,793 we paid over Games 21-26 was avoidable at all, because rejecting a fair
+        Charge costs 1.5a where accepting costs a, so two thirds of every penalty is money we
+        owed anyway. The remaining third is per-item headroom a multiplier cannot reach: on
+        the penalised items our estimate's median is 0.74x the true Fair Value, and 30% of
+        the penalty needs a ceiling above 1.0. This is an estimator problem wearing a Limit's
+        clothes.
 
         0.20-0.35 is a plateau (2,557 euros of spread on 108,000); leave-one-out picks
         inside 0.20-0.40 in all 23 folds, though its held-out total (+86,774) loses to
@@ -205,10 +235,54 @@ class MeasuredConstants(unittest.TestCase):
         answer through the -8 clamp inside `_normal_quantile`, leaving a Limit of
         `median * exp(-8 * sigma)` where the derivation says zero. Making it exact is worth
         +21 euros over 23 Games: shipped because it is derived, not because it pays.
+
+        Re-examined at Game 26, because the floor makes the Limit discontinuous -- an item
+        called 60% covered gets a Limit of exactly zero, and 93 of the 316 settled Line Items
+        are collapsed that way -- so it was a live candidate for "the ceiling is fine and this
+        cliff is the real cost". It is not. Sweeping the *threshold* cannot answer the
+        question (below the floor the quantile already saturates at -8 sigma, so a lower
+        threshold buys a rounding error, not a Limit, which is why that sweep is flat).
+        Replacing the *rule* answers it: removing the collapse entirely is worth **-1,049
+        over 26 Games and -57 over the on-policy six**, and a continuous
+        `b = covered * ceiling * median` is worth -426. It recovers 47 euros of the 113,238
+        penalty on Games 21-26, because `0.30 * median` is below the Field's Charges on those
+        items anyway. The cliff pays for itself and is derived; it stays.
         """
         self.assertAlmostEqual(LIMIT_QUANTILE, 1.0 / 3.0)
         self.assertAlmostEqual(COVERAGE_FLOOR, 2.0 / 3.0)
         self.assertAlmostEqual(COVERAGE_FLOOR, 1.0 - LIMIT_QUANTILE)
+
+    def test_two_thirds_of_a_penalty_is_money_we_owed_anyway(self) -> None:
+        """The arithmetic that settles "our penalties prove the Limit is too strict".
+
+        Games 21-26 paid 108,793 in wrongful-rejection penalties against 145,564 of income,
+        which reads as a Limit set far too low. It is not, and the reason is a payoff-table
+        identity rather than a measurement: rejecting a fair Charge costs `1.5a` while
+        accepting the same Charge costs `a`, so a Limit that avoided the rejection would
+        still have paid `2/3` of what the penalty cost. Only the `0.5a` surcharge -- one third
+        -- is money strictness wasted.
+
+        Confirmed against a per-item oracle Limit `b = t` in `scripts/limit_audit.py
+        avoidable`, which is the tightest possible bound: the oracle's reviewer cost over
+        those six Games is 81,127 against our 117,918, i.e. 36,791 of headroom, of which
+        36,264 is this surcharge and 526 is Overcharges we accepted. The oracle needs `t`
+        per item, so none of it is reachable by moving `LIMIT_CEILING`.
+
+        This test pins the identity, not the euros, so that the 2/3 quoted throughout
+        `src/pricing.py` cannot drift if the payoff table is ever restated.
+        """
+        charge = 1_000.0
+        cost_of_rejecting_a_fair_charge = 1.5 * charge
+        cost_of_accepting_it = charge
+
+        avoidable = cost_of_rejecting_a_fair_charge - cost_of_accepting_it
+
+        self.assertAlmostEqual(avoidable / cost_of_rejecting_a_fair_charge, 1.0 / 3.0)
+        self.assertAlmostEqual(cost_of_accepting_it / cost_of_rejecting_a_fair_charge, 2.0 / 3.0)
+        # The measured split of the six on-policy Games, to the euro.
+        penalty = 108_793.0
+        self.assertAlmostEqual(penalty * 2.0 / 3.0, 72_528.67, places=2)
+        self.assertAlmostEqual(penalty / 3.0, 36_264.33, places=2)
 
 
 class TheCeilingIsWhatBinds(unittest.TestCase):
@@ -261,6 +335,10 @@ class TheCeilingIsWhatBinds(unittest.TestCase):
         Field at a ceiling of 0.85 against 12,189 at 0.30. So the honest version of the
         asymmetry argument is aggregate, not tail: many moderate Overcharges, each one
         cheap, and no Cap to stop any of them.
+
+        Still true with Games 25-26 added (127,397 at 0.85 against 12,168 at 0.30 over all
+        26), and it is what makes the Games 21-26 penalties the cheaper of the two evils:
+        loosening there recovers 52,272 of penalty and buys 54,969 of Overcharges to do it.
         """
         for sigma in self.OBSERVED_SIGMAS:
             price = price_item(self.band(sigma, median=2200.0))

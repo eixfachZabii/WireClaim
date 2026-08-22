@@ -73,6 +73,18 @@ therefore answers **no, it is still slightly too loose** -- and the accept rate 
 matched against the leaders' 63-65%. Copying their Limits outright is measured, in
 `LIMIT_CEILING`, at 60-75k of loss over four Games.
 
+Re-audited again at Game 26 against the first Games that actually ran the 0.30 ceiling
+(`scripts/limit_audit.py`), and the verdict is unchanged but better founded: over Games
+21-26 our penalties are 108,793 against 145,564 of income, which looks exactly like a Limit
+set too low, and **it is not one**. Two thirds of a penalty is money we owed anyway -- a
+wrongful rejection costs `1.5a` where accepting costs `a` -- so a per-item oracle Limit
+`b = t`, the best any rule could do, saves only 36,791 of it, and none of that is reachable
+by a multiplier: every looser ceiling buys more Overcharges than it saves in penalties
+(0.30 -> 0.85 over those six Games recovers 52,272 of penalty for 54,969 of new Overcharges
+and 34,848 of claims we owed). The penalised items are the ones where **our estimate is low**
+-- median 0.74 x the true Fair Value -- so the Limit is not what is broken there. See
+`LIMIT_CEILING`.
+
 **The band is not calibrated, and that is the real problem.** `implied_sigma` on the
 current model's evidence has median 0.375, but the estimator's actual RMSLE against the
 recovered Fair Values is **0.80** -- overconfident by a factor of 2.1. Worse, the width
@@ -269,6 +281,91 @@ LIMIT_QUANTILE = 1.0 / 3.0
 # test is weak even though the direction is unanimous across windows. And the unbiased
 # lognormal estimator still prefers a Limit near 1.0 x median: if somebody fixes the
 # estimator's tail, re-run `accept_limit_sweep.py recommend` and this constant should rise.
+#
+# ## Re-audited at Game 26, because the penalties looked like a Limit set too low
+#
+# Games 21-26 as played produced **108,793 of wrongful-rejection penalties against 145,564
+# of income** -- 75% of income -- while we paid 9,124 on accepted claims. That is the
+# textbook signature of a Limit that is too strict, and Games 25-26 are the *first* Games
+# played with this 0.30 ceiling, i.e. the only genuinely on-policy evidence there has ever
+# been for it. `scripts/limit_audit.py` re-asked the question against them. **Nothing moved,
+# and the reason it did not is worth more than the constant.**
+#
+# All 26 Games reconstruct to the cent, so nothing is excluded -- not even Game 16, which
+# older notes here held out. The windows are **disjoint** this time (1-20 against 21-26)
+# rather than nested, so neither total can borrow the other's Games:
+#
+#     ceiling    Games 1-20    Games 21-26      all 26     accept (1-20 / 21-26)
+#       0.00        +64,872        +17,441     +82,312       36.9% / 16.1%
+#       0.15        +64,686        +17,727     +82,412       38.4% / 17.8%   <- 21-26 argmax
+#       0.25        +67,417        +15,819     +83,236       40.6% / 20.0%   <- all argmax
+#       0.30        +67,730        +15,300     +83,030       42.0% / 21.9%   <- shipped
+#       0.35        +67,704        +14,720     +82,424       43.7% / 23.6%
+#       0.40        +70,044         -2,772     +67,272       46.1% / 28.0%
+#       0.45        +71,630         -1,287     +70,343       48.5% / 32.2%
+#       0.70        +74,533        -23,396     +51,138       58.9% / 46.6%   <- 1-20 argmax
+#       0.85        +73,981        -22,244     +51,737       59.6% / 47.3%   <- was shipped
+#
+# The two windows do disagree about the argmax -- 1-20 wants 0.70, 21-26 wants 0.15 -- and
+# the instruction is to weight the recent one because we are paid on the Games that come
+# next. **That is an extrapolation from six Games and is stated as one.** But it does not
+# matter which way it is weighted, and that is the finding: 0.30 is within 3% of the argmax
+# in *all three* windows, both argmaxes are inside the noise floor (+6,803 over 20 Games =
+# +340 a Game; +2,427 over 6 = +404 a Game), and 0.00-0.35 is one flat region in every
+# window. What is *not* flat is the far side: 0.35 -> 0.40 costs 17,492 over six Games, and
+# 0.85 costs 37,544. The knob is flat where we stand and a cliff in the direction the
+# penalties seemed to argue for.
+#
+# The disjoint train/test split says the same thing without a plateau argument. Train the
+# ceiling on one window (plateau-smoothed argmax), score it on the other:
+#
+#     train 1-20  -> 0.85, scored on 21-26:  -22,244  (0.30 scores +15,300; -37,544)
+#     train 21-26 -> 0.10, scored on 1-20:   +64,886  (0.30 scores +67,730;  -2,844)
+#
+# So the old window's preference is *catastrophic* out of sample and the recent window's is
+# nearly free. Leave-one-out loses to fixing the constant in every window (+52,858 against
+# +67,730 on 1-20; -6,265 against +15,300 on 21-26), which is the usual verdict on samples
+# this size: take the plateau, do not tune per Game.
+#
+# ## The number that settles it: how much of the 108,793 is avoidable?
+#
+# Against a **per-item oracle Limit `b = t`** -- the best any Limit rule could ever do, since
+# it accepts every fair Charge and rejects every Overcharge:
+#
+#     72,529  we owed anyway. Rejecting a fair Charge costs 1.5a where accepting costs a, so
+#             an oracle avoiding a penalty of P still pays 2P/3. This is not a Limit problem
+#             and must not be counted as one.
+#     36,264  the 0.5a surcharge -- the only part strictness actually wasted.
+#     +  526  paid on accepted Overcharges, which the oracle avoids outright.
+#     ------
+#     36,791  total oracle headroom over six Games (6,132 a Game).
+#
+# **So reading (2) is right: the penalties are ~2/3 unavoidable, and the remaining third is
+# not reachable by this constant.** The oracle headroom is per-item; every multiplier that
+# tries to capture it buys Overcharges instead. Loosening 0.30 -> 0.85 over Games 21-26 does
+# recover 52,272 of penalty, and pays 34,848 more on fair claims plus **54,969 more on
+# accepted Overcharges** to get it. The earlier decomposition's conclusion survives its own
+# next two Games, on-policy, with the sign unchanged and the ratio worse.
+#
+# ## Which is at fault, the estimate or the Limit? The estimate.
+#
+# On the Line Items where we took penalties, our median sits at **0.74 x the true `t`**
+# (0.81 over all 26 Games), and 64% of them had an estimate strictly *below* `t`. The
+# ceiling that would have been needed to accept a penalised Charge, `k = their_charge /
+# our_median`, has median 0.70 and p90 1.33; **30% of the penalty on Games 21-26 needs
+# k > 1.0** and is therefore out of reach of any ceiling at all. Raising the multiplier to
+# k ~ 0.70 to reach the median penalised item is exactly the "treating a symptom" case: it
+# also raises the Limit on every item where the median is *high*, which is what turns
+# +15,300 into -23,396. Anchoring the Limit on `price_high` instead of the median -- the one
+# version of "too strict" that survives this -- is worth at best +2,298 over 26 Games and
+# the two windows pick different multipliers for it. Inside the noise; not shipped.
+#
+# **Nothing is shipped here. 0.30 stays, now with on-policy evidence behind it rather than
+# an extrapolation from Games 1-24.** What would falsify it: an estimator whose median stops
+# sitting below `t` on the items we reject (re-run `limit_audit.py blame` -- if that ratio
+# reaches ~1.0 the oracle headroom becomes reachable and this constant should rise), a
+# Field that starts Charging below our estimates (watch `pay_over` at 0.45 fall toward
+# `pay_fair`), or a Cap that finally binds. Any of those, re-run `limit_audit.py all`.
 LIMIT_CEILING = 0.30
 
 # Below this, the bottom third of the posterior is zero anyway; naming it makes the
@@ -298,6 +395,40 @@ LIMIT_CEILING = 0.30
 # 23 Games and leaves the accept rate unchanged at 59.5% (`accept_limit_sweep.py recommend`,
 # row `floor=2/3 only`). It is a clarity change with a measurement that says it costs
 # nothing, which is the only kind worth making to a constant we are scored on.
+#
+# ## Is this cliff the real cost, rather than the ceiling? No -- and the sweep above cannot
+# ## see that, which is the trap
+#
+# The threshold makes the Limit discontinuous: an item the model calls 60% covered gets a
+# Limit of exactly zero, so *every* fair Charge on it is penalised at 1.5a. Over all 26
+# settled Games **93 of 316 Line Items are collapsed this way**, and they are not harmless --
+# 24 of Game 25's 148 penalised Charges and 21 of Game 26's 91 are collapsed items, carrying
+# 14,347 and 2,757 euros of penalty; Game 10 alone carries 61,302.
+#
+# But sweeping the *threshold*, which is what the paragraph above does, cannot price any of
+# that, and reading its flatness as "the cliff is cheap" would be wrong for the right-sounding
+# reason. Below the floor the conditional quantile `(q - (1 - covered)) / covered` is already
+# negative, `_normal_quantile` saturates at -8, and the Limit comes out as
+# `median * exp(-8 * sigma)`. Lowering the threshold therefore swaps an exact zero for a
+# rounding error rather than restoring a usable Limit -- which is exactly why the sweep is
+# flat to a few euros from 0.00 to 0.70. **A flat sweep over a parameter that does not change
+# the behaviour is not evidence about the behaviour.**
+#
+# To price the cliff the *rule* has to change. `scripts/limit_audit.py cliff` replaces it
+# (net, against the shipped rule, at ceiling 0.30):
+#
+#     rule                          Games 1-20   Games 21-26     all 26
+#     hard zero at 2/3 (shipped)       +67,730       +15,300    +83,030
+#     hard zero at 1/2                 +67,730       +15,300    +83,030      +0
+#     no collapse at all               +66,738       +15,243    +81,981  -1,049
+#     b = covered x ceiling x median   +67,313       +15,291    +82,604    -426
+#
+# **Removing the cliff entirely loses money** -- 1,049 over 26 Games, 57 over the on-policy
+# six -- and the continuous version loses too. The reason is the same one that pins
+# `LIMIT_CEILING`: on a collapsed item `0.30 x median` is still below what the Field Charges,
+# so un-collapsing recovers only 47 euros of the 113,238 penalty on Games 21-26 while buying
+# Overcharges on the items the coverage signal was right about. The collapse pays for itself,
+# barely, and it is derived, so it stays. It is not the hidden cost; the estimate is.
 COVERAGE_FLOOR = 1.0 - LIMIT_QUANTILE
 
 # Median Fair Value over the 148 settled Line Items with a bounded bracket. Used only when
