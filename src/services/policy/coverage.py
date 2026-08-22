@@ -41,6 +41,86 @@ module renormalises towards a target rate.
    an air-conditioning unit "a couple of metres from the hob" while the Policy says
    proximity to another appliance does not remove cover. Only a Policy clause counts,
    which is why a low probability without a verified quote is pulled back up.
+
+## Measured against Channel C in euros at Game 30, and NOT wired in
+
+This module is still imported by nothing, and after `scripts/coverage_bakeoff.py` that is a
+decision rather than an omission. It was dumped over all 30 settled Games
+(`scripts/coverage_dump.py`, 339 Line Items), graded against `t_lo == 0` from
+`invert_fair_values.brackets`, and then scored **in euros** by feeding each estimator's
+probability into `src.pricing.price_item` with the band, the Charge, `LIMIT_CEILING`,
+`LIMIT_CAP` and Channel A's dash flag all held fixed, and replaying against the real Field.
+
+At the threshold that actually zeroes the Limit (`pricing.COVERAGE_FLOOR = 2/3`), recall of
+truly worthless items / false-positive rate on valuable ones / Brier:
+
+    channel C (shipped)   69.6%    9.8%   0.145
+    this module           59.1%    7.1%   0.151
+    mean of the two       71.3%   10.7%   0.125   <- best Brier
+    min of the two        75.7%   16.1%   0.140
+    max of the two        53.0%    0.9%   0.157
+    flat 0.9               0.0%    0.0%   0.281
+
+So the 61.8% / 1.7% / 0.122 this module was originally graded at does **not** reproduce on
+the full record -- that was Games 1-14, and out of sample it is *worse* than Channel C on
+both recall and Brier. Where the two disagree, Channel C's unique flags are right 19 of 39
+and this module's 7 of 21. Only the **mean** improves anything, and only the Brier score.
+
+None of it is worth a euro, and the reason is not a close call:
+
+    estimator          all 30 Games      G21-27     held out G28-30
+    channel C             184,581        32,325            -999
+    this module           184,514  -67    31,577  -749    -1,775  -776
+    mean                  184,002 -578    32,230   -95    -1,728  -729
+    min                   184,922 +341    31,652  -674      -868  +130
+    max                   184,173 -408    32,250   -75    -1,906  -907
+    flat 0.9              180,641 -3,940  31,188 -1,137    -1,906  -907
+    ORACLE                195,138 +10,557 33,758 +1,433       188 +1,187
+
+The noise floor is 26,622 * sqrt(n/18), i.e. +/-34,369 over 30 Games and +/-10,868 over
+three. **A coverage oracle -- p = 1 where the item was worth something and 0 where it was
+not, the ceiling on what any reading of any Policy can be worth -- gains 10,557 over 30
+Games, 352 a Game, comfortably inside the noise floor.** Every real variant is inside +/-800
+of Channel C on the full record, every one of them loses on Games 21-27, and `min`'s +341 is
+one Game (G7, +963) against five losses. There is nothing here to win.
+
+`coverage_bakeoff.py blame` says why, and it corrects the premise that motivated this
+module's integration. 102 of the 339 Line Items (30%) are collapsed by Channel C's coverage
+and 22 of them were worth real money -- the wrongful-rejection story is real, and those 22
+carry **93,294** of reviewer cost. But handing those 22 items a *perfect* coverage
+probability costs **93,771**, i.e. 477 more. Un-collapsing them buys nothing, because
+`LIMIT_CEILING * median` (and `LIMIT_CAP`) still sits below what the Field Charges on almost
+every one: Game 10 item 3 goes from a Limit of 0 to a Limit of 708 against 61,302 of penalty
+and recovers 282; Game 30 item 5 -- coverage 0.40 on an item worth at least 100 -- goes from
+0 to 34 and recovers exactly nothing. The collapse is not what costs us on those items; the
+*level* of the Limit is, and that is `src/pricing.py`'s constant and not this module's
+probability. What little the oracle does earn comes from the opposite direction -- declining
+to pay on worthless items Channel C called covered -- and Channel C already finds 70% of
+those.
+
+**So: not wired, and the timing question is moot.** For the record it does fit: dumped one
+Case at a time, the largest Case (Case 8, 39 Line Items, five chunks x two samples) takes
+**8.0 s**, the slowest of the thirty is Case 14 at 13.1 s and the median is 5.6 s. Run
+concurrently with Strategy 2's two draws that is `max(7-16, 13)` rather than a sum, so it
+would have fit inside the 60-second window with room. It is simply not worth the tokens.
+
+What would falsify this and put the integration back on the table, in order of how much it
+would change:
+
+* **A Limit that can actually pay a Field Charge on a collapsed item.** The oracle bound
+  above is computed *through* today's `LIMIT_CEILING` and `LIMIT_CAP`. If either rises far
+  enough that `b` reaches the Field's Charges on the 22 wrongly collapsed items, the coverage
+  probability starts gating real money and this table has to be re-run. Re-run
+  `coverage_bakeoff.py blame`: if `cost orcl` drops materially below `cost ship`, the prize
+  exists. (`LIMIT_CEILING`'s own note says every loosening measured so far loses more on
+  Overcharges than it saves here, so this is a joint measurement, not a free knob.)
+* **More Games.** 10,557 over 30 Games is inside the noise floor but it is *positive in all
+  three windows*, which a pure artefact need not be. At ~60 settled Games the floor is
+  ~48,600 and the oracle would need ~21,000 to clear it; if the per-Game 352 holds it never
+  will, and that is the cheapest check there is.
+* **A Field that starts Charging near `t`.** Every number above is dominated by opponents
+  Charging far above our median, which is what makes the Limit level rather than the coverage
+  verdict binding.
 """
 
 from __future__ import annotations
@@ -78,8 +158,18 @@ DEFAULT_P_COVERED = 0.9
 #: module reports between 1/3 and 2/3 passes *this* gate and still receives a zero Limit
 #: downstream. That interacts with `UNVERIFIED_SHRINK` below, which shrinks an unquoted
 #: doubt to about 0.48 precisely so a story cannot zero a Limit — an intention the pricing
-#: engine does not currently honour. Resolve it when this module is wired in; it is
-#: imported by nothing today, so nothing is broken by writing the truth down.
+#: engine does not currently honour.
+#:
+#: **That disagreement is now measured rather than merely noted, and it is worth nothing.**
+#: The module docstring holds the table: this constant is the threshold the *grading* is
+#: reported at, and both thresholds are graded (`coverage_bakeoff.py grade`) because only
+#: 2/3 changes a number we are scored on. Moving this constant to 2/3 would only make the
+#: `collapses_limit` property honest in logs — it cannot move a euro, because nothing
+#: imports this module and, per the docstring, even a perfect coverage probability is worth
+#: 352 a Game against a 26,622-per-18-Games noise floor. Left at the derived 1/3 so that
+#: `UNVERIFIED_SHRINK`'s intention stays legible; resolve it *in the same commit* that wires
+#: the module in, and not before, because a constant changed for tidiness in a file nothing
+#: imports is how a threshold ends up disagreeing with its own comment.
 LIMIT_COLLAPSE = 1.0 / 3.0
 
 #: An unquoted doubt is still information -- the model is right more often than not -- but
