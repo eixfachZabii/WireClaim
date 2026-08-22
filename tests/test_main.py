@@ -110,7 +110,7 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
     def test_blind_floor_covers_every_index_a_case_might_use(self) -> None:
         floor = main.blind_floor()
 
-        self.assertEqual([price.index for price in floor], list(range(1, 9)))
+        self.assertEqual([price.index for price in floor], list(range(1, main.BLIND_LINE_ITEMS + 1)))
         for price in floor:
             self.assertGreater(price.charge_price, 0.0)
             self.assertGreater(price.acceptance_limit, 0.0)
