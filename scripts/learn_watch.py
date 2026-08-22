@@ -13,6 +13,13 @@ buried under the next one.
 It also tops up the Case extraction, since a Case whose archive is never unzipped cannot be
 read, and reading the Case is what turns a number into a diagnosis (CLAUDE.md rule 2).
 
+Once a Game's lesson is on disk it also spawns a Claude review of that Game (`review_game.py`)
+-- the interpretation step a human would otherwise have to do by reading the digest -- so the
+loop runs unattended overnight instead of piling up digests nobody read until morning. That
+step runs after the digest is already printed and is wrapped so it can never delay or swallow
+the digest itself: see `review_game.py`'s own docstring for the safety rails. `--no-review` or
+`WIRECLAIM_NO_REVIEW=1` turns it off if the `claude` CLI is unavailable or unwanted.
+
 Safe to leave running for the whole tournament: it polls at a browser's pace, only analyses
 a Game once, and never touches the runner or the submission path.
 """
@@ -29,6 +36,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import review_game  # noqa: E402
 
 LESSONS = Path("var/lessons")
 POLL_SECONDS = 90
@@ -51,6 +60,12 @@ def _completed() -> list[int]:
 
 def _analysed() -> set[int]:
     return {int(path.stem.split("_")[1]) for path in LESSONS.glob("game_*.json")}
+
+
+def _reviewed() -> set[int]:
+    return {
+        int(path.stem.split("_")[1]) for path in review_game.REVIEWS_DIR.glob("game_*.md")
+    }
 
 
 def _child_env() -> dict[str, str]:
@@ -139,6 +154,11 @@ def _prettify(line: str) -> str:
     return painted
 
 
+def _print_pretty(output: str) -> None:
+    for line in output.rstrip().splitlines():
+        print(_prettify(line))
+
+
 def _run(command: list[str], pretty: bool = False) -> None:
     result = subprocess.run(
         command, capture_output=True, text=True, check=False, env=_child_env()
@@ -149,15 +169,45 @@ def _run(command: list[str], pretty: bool = False) -> None:
     if not pretty:
         print(output.rstrip())
         return
-    for line in output.rstrip().splitlines():
-        print(_prettify(line))
+    _print_pretty(output)
+
+
+def _review_pending(game_ids: list[int]) -> None:
+    """Spawn a Claude review for each Game that now has a lesson but no review yet.
+
+    Runs after the digest for these Games is already on screen, so a slow, missing, or
+    misbehaving `claude` binary can only ever delay or drop the *review* -- never the
+    digest, which is the thing the loop actually depends on. `review_game.review` already
+    swallows every failure it can hit and prints its own notice; the `try` here is a second
+    net in case something unexpected escapes it, because a broken review must never stop the
+    poll loop that plays no part in generating it.
+    """
+    todo = sorted((set(game_ids) & _analysed()) - _reviewed())
+    for game_id in todo:
+        try:
+            text = review_game.review(game_id)
+        except Exception as error:  # noqa: BLE001 - belt and braces; review_game should not raise
+            print(f"review: Game {game_id} raised unexpectedly ({type(error).__name__}: {error}).")
+            continue
+        if text:
+            _print_pretty(text)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--poll", type=int, default=POLL_SECONDS, help="seconds between checks")
     parser.add_argument("--once", action="store_true", help="check once and exit")
+    parser.add_argument(
+        "--no-review",
+        action="store_true",
+        help="skip the Claude review step (also: WIRECLAIM_NO_REVIEW=1)",
+    )
     args = parser.parse_args()
+    # On by default: the whole point of this loop is to run unattended overnight, and a
+    # review nobody asked for costs a few cents and a printed notice at worst -- see
+    # `review_game.py` for why it cannot cost more than that. Anyone who would rather not
+    # pay for it, or does not have `claude` installed, opts out with either knob.
+    review_enabled = not args.no_review and not os.environ.get("WIRECLAIM_NO_REVIEW")
 
     python = sys.executable
     print()
@@ -177,6 +227,11 @@ def main() -> None:
                     [python, "scripts/learn_from_game.py", "--games", f"{pending[0]}-{pending[-1]}"],
                     pretty=True,
                 )
+                # After, never before: the digest above is the loop's real output, and the
+                # review is commentary on it. A slow or absent `claude` must not be able to
+                # hold either of the two calls above hostage.
+                if review_enabled:
+                    _review_pending(pending)
         except KeyboardInterrupt:
             raise
         except Exception as error:  # never die on a transient failure

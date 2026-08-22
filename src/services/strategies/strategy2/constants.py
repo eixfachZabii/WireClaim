@@ -14,7 +14,21 @@ STRATEGY_NAME = "strategy2"
 
 #: Per model call. The Game window is 60 s and the two ensemble draws run concurrently, so
 #: the wall clock is one call, not two. `propose` clamps this further against the deadline.
-LLM_TIMEOUT_SECONDS = 40.0
+#:
+#: Raised from 40 to 50 at Game 34, when the evidence model moved from `gpt-5.4-mini` to
+#: `gpt-5.6-terra`. Terra is markedly more accurate but far more variable: three runs of the
+#: real `request_evidence` path over Case 31 (18 Line Items) took **19.4 s, >40.8 s and
+#: 51.1 s**, against 6.5 s for mini. At 40 s a draw that would have landed at 45 s was being
+#: discarded for nothing.
+#:
+#: Raising it cannot overrun the window, and that is the only reason it is safe:
+#: `_draw_timeout` in `strategy.py` returns
+#: `min(LLM_TIMEOUT_SECONDS, deadline - now - _SUBMISSION_RESERVE_SECONDS)`, so the deadline
+#: always binds first and this constant can only ever *lower* the real budget. Game 33
+#: submitted 9 s after its start, so the Case load leaves ~55 s; the clamp hands a draw ~53 s
+#: of that. And a draw that still times out costs nothing beyond itself -- the cheap fast-path
+#: submission has already landed, so the floor is the fast path, never the default (rule 1).
+LLM_TIMEOUT_SECONDS = 50.0
 
 #: Median Fair Value over the 148 settled Line Items with a bounded bracket. Used as a
 #: prior in the prompt and as the last-resort price when no channel has anything to say.

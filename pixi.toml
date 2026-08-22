@@ -33,6 +33,11 @@ learn = { cmd = "python scripts/learn_from_game.py", env = { PYTHONPATH = "." } 
 # only appear a minute or two after a Game ends. Two terminals: one plays, one learns.
 watch = { cmd = "python scripts/learn_watch.py", env = { PYTHONPATH = "." } }
 
+# What `watch` spawns automatically for every new lesson: a Claude agent that opens the Case
+# and judges the digest against CLAUDE.md's own evidentiary bar. `pixi run review-game 42`
+# runs it by hand for one Game, e.g. to reread it after editing the prompt in review_game.py.
+review-game = { cmd = "python scripts/review_game.py", env = { PYTHONPATH = "." } }
+
 [pypi-dependencies]
 openai = ">=3.3.1, <4"
 python-dotenv = ">=1.2.3, <2"
