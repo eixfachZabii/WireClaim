@@ -48,3 +48,6 @@ var/*
 !var/cases/
 var/cases/*
 !var/cases/.gitkeep
+
+# case_analysis raw leaderboard pulls (regenerable via case_analysis/fetch_data.py)
+case_analysis/data/raw/
