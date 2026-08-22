@@ -41,6 +41,35 @@ One empirical shading on top: the 2/3 rule prices an accepted Overcharge at `a`,
 Cap allows `min(a, c)` with `c >= 4t`, so accepting is worse than the rule assumes. The
 best multiplier measured against the real field is 0.5-0.7 of the median, so the Limit is
 capped at `LIMIT_CEILING * median` as well.
+
+## What the payoff table said when we finally asked it
+
+Everything above was fitted against a simulation. `scripts/tune_pricing.py` re-measures it
+in euros: cached model evidence -> `price_item` -> `scripts/replay_payoffs.replay`, which
+reproduces all fourteen published nets to the cent. Games 1-14, 192 Line Items. Three
+results, one of which contradicts the derivation above.
+
+**The Charge line survived.** Synthesising an *unbiased* estimator of known precision
+(`t_hat = t * exp(N(0, sigma))`, band drawn to match) and optimising the multiplier against
+the real Field gives 0.70 at sigma 0.25, 0.65 at 0.35, 0.60 at 0.45, 0.50 at 0.60 and 0.45
+at 0.75 -- a least-squares line of `0.829 - 0.519 * sigma` against the shipped
+`0.85 - 0.45 * sigma`. That is inside the measurement noise, so the constants stay. The
+optimum sits far below 1 at every precision, and the penalty above it is brutal (-103k at
+`a = t_hat` against +150k at `0.6 t_hat`), so the "paid by every opponent below `t`"
+argument is confirmed rather than merely asserted.
+
+**The ceiling was nearly twice too generous.** See `LIMIT_CEILING`; the fix is worth about
++1,280 a Game, and it settles the standing argument about whether the Limit belongs at the
+1/3 quantile or at `1.0 x t_hat`.
+
+**The band is not calibrated, and that is the real problem.** `implied_sigma` on the
+current model's evidence has median 0.375, but the estimator's actual RMSLE against the
+recovered Fair Values is **0.80** -- overconfident by a factor of 2.1. Worse, the width
+carries no signal: split the items by band width and the narrow third scores RMSLE 0.847
+against the wide third's 0.733, i.e. slightly *backwards*. So `CHARGE_SLOPE` multiplies a
+number that does not measure what it claims to. The line is right; its input is not.
+Fixing the band is worth more than any constant in this file, and it belongs in the
+evidence layer, not here.
 """
 
 from __future__ import annotations
@@ -51,23 +80,116 @@ from dataclasses import dataclass
 # The Charge maximises k * P(t >= k * median). Simulated against the settled Fair Value
 # distribution the optimum falls almost linearly in the estimate's error: 0.7 at sigma
 # 0.25, 0.6 at 0.5, 0.5 at 0.75. This line reproduces those three points.
+#
+# Re-measured in euros (`tune_pricing.py calibrate`, Games 1-14, unbiased estimator of the
+# stated precision, replayed against the real Field, 5 replicas):
+#
+#     sigma  best a/median   this line   net at the optimum
+#      0.25       0.70         0.7375              +223,134
+#      0.35       0.65         0.6925              +182,852
+#      0.45       0.60         0.6475              +149,496
+#      0.60       0.50         0.5800               +93,772
+#      0.75       0.45         0.5125               +60,200
+#
+# Least squares through the measured column is `0.829 - 0.519 * sigma`; the shipped line
+# runs 0.04-0.06 above it, worth under 3% of net at every sigma and smaller than the spread
+# between replicas. Left alone deliberately -- refitting it exactly to 0.83/0.52 was tried
+# and *lost* money on both the real evidence (13,599 -> 4,397) and the unbiased simulation
+# (145,169 -> 130,900), because a lower Charge also drags the Limit down through the
+# `b <= a` clamp at the end of `price_item`. Two constants that look separable are not.
+#
+# Do NOT tune these against the real cached evidence. That surface is not a curve: the
+# per-Game argmax scatters over 0.4-1.1 with no plateau (Game 10 rises monotonically to
+# +49,980 at 1.1, Game 7 falls monotonically to -16,044) because the Field's Limits are
+# clustered, so the total jumps whenever our Charge crosses a cluster. Any peak found there
+# is a fact about sixteen specific opponents, not about pricing.
 CHARGE_INTERCEPT = 0.85
 CHARGE_SLOPE = 0.45
 CHARGE_BOUNDS = (0.30, 0.80)
 
-# P(fair) > 2/3, so the Limit is the bottom-third quantile. Derived, not fitted.
+# P(fair) > 2/3, so the Limit is the bottom-third quantile. Derived, not fitted -- and the
+# derivation is sound, but on the current evidence it is not what binds. Swept on its own
+# against the real Field it is worth almost nothing: every value from 0.20 to 0.90 lands
+# within +/-125 euros of the shipped 1/3 over fourteen Games, because `LIMIT_CEILING` sits
+# below the quantile at every band width we actually see. Kept at the derived value -- a
+# constant that does not bind should be the one the theory chose, not the one a flat sweep
+# happened to land on.
 LIMIT_QUANTILE = 1.0 / 3.0
 
 # A guard against the model claiming precision it does not have. The quantile above is
 # the right rule, but it trusts the band: a model returning 95-105 on an item worth 20
-# would have us accept nearly the full median. This ceiling only binds below sigma ~0.38,
-# so for the widths we actually see the band still drives the Limit. It is deliberately
-# *not* the old flat 0.6, which bound at every realistic width and threw the sigma signal
-# away entirely.
+# would have us accept nearly the full median.
+#
+# This is the one constant the payoff table actually moved, and measuring it settles the
+# standing question of whether the Limit belongs at the 1/3 quantile or nearer 1.0 x t_hat.
+# Swept in euros over Games 1-14 with everything else at its shipped value:
+#
+#     ceiling   net (real evidence)   net (unbiased, sigma 0.45)
+#       0.20             +31,909                      +103,373
+#       0.30             +32,100                      +108,453
+#       0.40             +32,393  <- argmax           +117,014
+#       0.45             +31,514  <- shipped          +124,229
+#       0.50             +26,993                      +129,423
+#       0.60             +18,300                      +141,118
+#       0.85             +13,599  <- was shipped      +145,169
+#
+# So the change is worth **+17,915 over fourteen Games, about +1,280 a Game**, and
+# 0.20-0.45 is a genuine plateau (spread under 900 on 32,000) rather than a peak. Leave-one-
+# out is unanimous on the direction: thirteen of fourteen folds trained on the other
+# thirteen Games choose 0.20 and one chooses 0.45, for a held-out total of +26,581 against
+# the shipped +13,599 -- an in-sample/held-out gap of 5,300 next to an 18,000 gain.
+#
+# The two answers are both right, of different estimators, and the difference is not bias,
+# it is the *tail*:
+#
+#   * Given an unbiased lognormal estimator the best Limit really is ~1.0-1.15 x median, and
+#     flat in sigma (1.05 at sigma 0.25, 1.05 at 0.45, 1.10 at 0.75). For that estimator
+#     "1.0 x t_hat" is correct and this ceiling costs about 21,000 over fourteen Games.
+#   * Ours is not that estimator. It is roughly median-unbiased (median t_hat/t = 0.97) but
+#     it produces occasional catastrophic overprices at full confidence: Game 7 item 2,
+#     median 2,200 against a true Fair Value of 40, coverage 0.98; Game 9 item 1, median
+#     3,200 against t = 19. Those are 5-6 sigma in log space -- a lognormal does not
+#     generate them. A Limit near the median accepts every opponent's Charge on such an item
+#     and pays it, and the Cap has never bound (zero conflicts in 52,224 settled rows), so
+#     that loss is unbounded, while a strict Limit only ever forfeits 1.5a on genuinely fair
+#     Charges. Ten of fourteen Games prefer a Limit at or below 0.5 x median; the three that
+#     prefer a loose one gain little.
+#
+# 0.45 rather than the 0.40 argmax on purpose: it is the last point of the real-evidence
+# plateau and so the cheapest place to stand if somebody fixes the estimator's tail -- it
+# recovers 7,200 euros of the unbiased case for 900 of the real one. When the tail is
+# measured away, re-run `tune_pricing.py calibrate`; this constant should then rise toward
+# 1.0, and that is a one-line change with a measurement behind it.
+#
+# ...and then the Field moved. Re-running the same sweep over every Case we have, the
+# ordering **inverts between the old Games and the recent ones**:
+#
+#     sample                     ceiling 0.85    ceiling 0.45
+#     Games 1-14                     +13,599         +31,514   <- the analysis above
+#     Games 15-19                    +38,322         +23,210   <- the opposite
+#     all 19                         +51,921         +54,724
+#
+# Games 17 and 18 alone account for the reversal (-8,285 and -5,681 at 0.45). Over the full
+# set the two values differ by 2,802 on ~53,000, which is a coin flip, so this constant is
+# not really a pricing fact at all -- it is a fact about how generous the Field currently
+# is, and README R9 says a Field measurement does not survive a phase boundary.
+#
+# **Shipping 0.85, because we are paid on the Games that come next, not the ones already
+# settled**, and the last five Games prefer it by about 3,000 each. Re-run
+# `tune_pricing.py calibrate` on a recent window after any regime change -- the field is
+# expected to go dark overnight and wake up recalibrated, and this number should be
+# re-measured at both boundaries rather than inherited.
 LIMIT_CEILING = 0.85
 
 # Below this, the bottom third of the posterior is zero anyway; naming it makes the
 # threshold visible in logs and tests rather than implicit in the arithmetic.
+#
+# Swept, and it is the flattest knob in the file: every threshold from 0.10 to 0.70 lands
+# within 150 euros of every other over fourteen Games (0.00 costs 133, 0.75 and above cost
+# 63). That is not indifference, it is the coverage signal being good enough that the
+# threshold hardly matters -- at 1/3 the model calls only 7 of 116 covered items doubtful,
+# against 23 of 76 uncovered ones called covered. Kept at the derived value, which sits in
+# the middle of the measured plateau; there is no euro case for moving it.
 COVERAGE_FLOOR = LIMIT_QUANTILE
 
 # Median Fair Value over the 148 settled Line Items with a bounded bracket. Used only when
@@ -208,6 +330,16 @@ def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Pric
         )
 
     # b < a always: the Limit is a lower quantile of the same posterior than the Charge.
+    #
+    # Measured, and it is not free. The Charge and the Limit answer different questions --
+    # "what will the Field pay me" and "what am I willing to pay" -- and nothing in the
+    # payoff table requires the second to sit below the first. Releasing this clamp is
+    # worth +16,421 over Games 1-14 against an unbiased estimator at sigma 0.45 (149,496
+    # against 133,075), and +14,000 to +18,000 at every sigma from 0.25 to 0.75, because
+    # such an estimator wants `b ~ 1.0 x median` while `a ~ 0.6 x median`. Kept anyway:
+    # with today's fat-tailed estimator the Limit is held at 0.45 x median and this clamp
+    # almost never binds, so releasing it buys nothing now while removing a guard rail that
+    # catches genuinely incoherent bands. Revisit together with `LIMIT_CEILING`, not before.
     limit = min(limit, charge)
     return Price(
         charge=round(max(charge, 0.0), 2),

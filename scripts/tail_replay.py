@@ -23,6 +23,29 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+
+def use_frozen_pricing() -> None:
+    """Substitute the frozen pricing constants for `src.pricing`.
+
+    `src/pricing.py` belongs to another agent and moved twice while a sweep was running --
+    once into a state that did not import, and once from `LIMIT_CEILING = 0.85` to `0.45`,
+    which alone moved the total by +17,730. An A/B on the *prompt* has to hold that fixed.
+    """
+    import importlib
+    import importlib.util
+
+    importlib.import_module("src")
+    spec = importlib.util.spec_from_file_location(
+        "src.pricing", Path(__file__).resolve().parent / "tail_pricing_frozen.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["src.pricing"] = module  # dataclasses resolve their module during exec
+    spec.loader.exec_module(module)
+
+
+if "--frozen-pricing" in sys.argv:
+    use_frozen_pricing()
+
 from dump_evidence import load as load_evidence  # noqa: E402
 from replay_payoffs import GameSnapshot, our_actual_submission, replay, snapshot  # noqa: E402
 
@@ -135,7 +158,19 @@ def main() -> None:
     parser.add_argument("--worst", type=int, default=0)
     parser.add_argument("--memory", action="store_true", help="enable Price Memory (leaks)")
     parser.add_argument("--tag", default="model", help="evidence cache tag")
+    parser.add_argument("--tail-factor", type=float, default=1.0)
+    parser.add_argument("--frozen-pricing", action="store_true", help="see use_frozen_pricing")
+    parser.add_argument(
+        "--limit-ceiling",
+        type=float,
+        default=None,
+        help="pin src.pricing.LIMIT_CEILING so an A/B is not confounded by a concurrent edit",
+    )
     args = parser.parse_args()
+    if args.limit_ceiling is not None:
+        import src.pricing
+
+        src.pricing.LIMIT_CEILING = args.limit_ceiling
     start, _, end = args.games.partition("-")
     game_ids = list(range(int(start), int(end or start) + 1))
 
@@ -149,7 +184,7 @@ def main() -> None:
             print(f"{game_id:5d} {'--':>6} (no cached evidence or case)")
             continue
         try:
-            snap = snapshot(game_id)
+            snap = inflate(snapshot(game_id), args.tail_factor)
         except Exception as error:  # pragma: no cover - offline / unsettled Game
             print(f"{game_id:5d} no snapshot: {error}")
             continue
