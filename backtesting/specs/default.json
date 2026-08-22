@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "name": "all-settled-field-backtest",
+  "games": "all",
+  "seat": "Bin busy",
+  "draws": 3,
+  "timeout_seconds": 60,
+  "cap_mode": "fitted",
+  "include_game_0": false,
+  "seed": 20260822,
+  "tracks": [
+    "strategy1",
+    "strategy2",
+    "strategy3",
+    "fast_path"
+  ],
+  "candidates": [],
+  "sweeps": [],
+  "validation": {
+    "holdout_fraction": 0.3,
+    "walk_forward_min_train": 5,
+    "walk_forward_step": 1
+  },
+  "regimes": [
+    {"name": "awake", "start": 1, "end": 43},
+    {"name": "dark", "start": 44, "end": 81},
+    {"name": "recalibrated", "start": 82, "end": 100}
+  ]
+}
