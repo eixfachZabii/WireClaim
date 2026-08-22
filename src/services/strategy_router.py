@@ -7,6 +7,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from src.data.models import CaseData, Proposal
 from src.services.strategies.strategy1 import propose as strategy1
 from src.services.strategies.strategy2 import propose as strategy2
+from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[[CaseData], Awaitable[Proposal | None]]
@@ -37,19 +38,28 @@ class StrategyRouter:
         return self.results(case)
 
     async def results(self, case: CaseData) -> AsyncIterator[Proposal]:
-        tasks = [asyncio.create_task(strategy(case)) for strategy in self._strategies]
+        jobs: dict[asyncio.Task[Proposal | None], tuple[str, float]] = {}
+        for strategy in self._strategies:
+            name = strategy.__module__.split(".")[-2] if "." in strategy.__module__ else strategy.__name__
+            jobs[asyncio.create_task(strategy(case), name=name)] = (name, start_timer())
+        pending = set(jobs)
         try:
-            for task in asyncio.as_completed(tasks):
-                try:
-                    proposal = await task
-                except Exception:
-                    logger.exception("Strategy failed for Game %s.", case.game_id)
-                    continue
-                active = self.register(proposal)
-                if active is not None:
-                    yield active
+            while pending:
+                done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+                for task in done:
+                    name, started_at = jobs[task]
+                    try:
+                        proposal = task.result()
+                    except Exception:
+                        logger.exception("Strategy failed for Game %s.", case.game_id)
+                        log_timing(logger, name, started_at, "failed", game=case.game_id)
+                        continue
+                    log_timing(logger, name, started_at, game=case.game_id, produced=proposal is not None)
+                    active = self.register(proposal)
+                    if active is not None:
+                        yield active
         finally:
-            for task in tasks:
+            for task in jobs:
                 if not task.done():
                     task.cancel()
-            await asyncio.gather(*tasks, return_exceptions=True)
+            await asyncio.gather(*jobs, return_exceptions=True)

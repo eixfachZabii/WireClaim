@@ -36,7 +36,6 @@ def digest_policy_text(policy_text: str) -> str:
     else:
         response = get_llm_client().chat.completions.create(
             model=get_model_name(),
-            temperature=0.0,
             timeout=DIGEST_TIMEOUT_SECONDS,
             messages=[
                 {"role": "system", "content": PROMPT},

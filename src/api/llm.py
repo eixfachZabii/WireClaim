@@ -36,6 +36,11 @@ except ImportError:
                 os.environ.setdefault(k.strip(), v.strip().strip('"\''))
 
 
+def warm_llm_resources() -> None:
+    import openai.resources.chat
+    import openai.resources.responses
+
+
 def get_llm_client(
     api_key: Optional[str] = None,
     endpoint: Optional[str] = None,

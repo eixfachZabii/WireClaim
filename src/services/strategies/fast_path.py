@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import logging
 import mimetypes
 import re
 from pathlib import Path
@@ -10,7 +11,9 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, ItemPrice, Proposal
+from src.timing import log_timing, start_timer
 
+logger = logging.getLogger(__name__)
 STANDARD_CHARGE = 100.0
 STANDARD_LIMIT = 75.0
 FALLBACK_ESTIMATE = 150.0
@@ -158,4 +161,8 @@ def _request_proposal(case: CaseData) -> Proposal | None:
 
 
 async def llm_values(case: CaseData) -> Proposal | None:
-    return await asyncio.to_thread(_request_proposal, case)
+    started_at = start_timer()
+    try:
+        return await asyncio.to_thread(_request_proposal, case)
+    finally:
+        log_timing(logger, "fast_path_llm", started_at, game=case.game_id)

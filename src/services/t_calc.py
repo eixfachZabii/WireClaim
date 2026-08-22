@@ -13,6 +13,7 @@ from PIL import Image
 from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, FairValueEstimate, FairValueEstimates, LineItem
 from src.policy_digest import digest_policy_text
+from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 LLM_TIMEOUT_SECONDS = 25.0
@@ -101,7 +102,6 @@ def _estimate_item(
     )
     response = get_llm_client().chat.completions.create(
         model=get_model_name(),
-        temperature=0.0,
         timeout=LLM_TIMEOUT_SECONDS,
         response_format={"type": "json_schema", "json_schema": RESPONSE_SCHEMA},
         messages=[
@@ -112,8 +112,50 @@ def _estimate_item(
     return _sanitize(line_item.index, json.loads(response.choices[0].message.content or "{}"))
 
 
+async def _timed_estimate_item(
+    line_item: LineItem,
+    case: CaseData,
+    policy_digest: str,
+    all_items: list[dict[str, Any]],
+    encoded_images: list[str],
+    strategy_name: str,
+) -> FairValueEstimate:
+    started_at = start_timer()
+    try:
+        result = await asyncio.to_thread(
+            _estimate_item,
+            line_item,
+            policy_digest,
+            case.description_text,
+            all_items,
+            encoded_images,
+        )
+    except Exception:
+        log_timing(
+            logger,
+            "fair_value_item",
+            started_at,
+            "failed",
+            game=case.game_id,
+            strategy=strategy_name,
+            line_item=line_item.index,
+        )
+        raise
+    log_timing(
+        logger,
+        "fair_value_item",
+        started_at,
+        game=case.game_id,
+        strategy=strategy_name,
+        line_item=line_item.index,
+    )
+    return result
+
+
 async def estimate_fair_values(case: CaseData, strategy_name: str) -> FairValueEstimates | None:
+    started_at = start_timer()
     if not case.line_items:
+        log_timing(logger, "fair_value", started_at, game=case.game_id, strategy=strategy_name, values=0)
         return None
     try:
         policy_digest = await asyncio.to_thread(digest_policy_text, case.policy_text)
@@ -124,13 +166,13 @@ async def estimate_fair_values(case: CaseData, strategy_name: str) -> FairValueE
     all_items = [item.to_dict() for item in case.line_items]
     results = await asyncio.gather(
         *(
-            asyncio.to_thread(
-                _estimate_item,
+            _timed_estimate_item(
                 line_item,
+                case,
                 policy_digest,
-                case.description_text,
                 all_items,
                 encoded_images,
+                strategy_name,
             )
             for line_item in case.line_items
         ),
@@ -142,4 +184,5 @@ async def estimate_fair_values(case: CaseData, strategy_name: str) -> FairValueE
             logger.warning("%s: Fair Value estimate failed for Line Item %s: %s", strategy_name, line_item.index, result)
             continue
         values.append(result)
+    log_timing(logger, "fair_value", started_at, game=case.game_id, strategy=strategy_name, values=len(values))
     return FairValueEstimates(values=tuple(values)) if values else None
