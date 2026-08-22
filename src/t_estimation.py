@@ -3,12 +3,15 @@ Line-item T-estimation.
 
 For each invoice line item there is a secret threshold `t`: the maximum gross
 total (quantity x unit price, incl. VAT) a claims expert would still accept.
-Items not covered by the policy or unrelated to the damage have `t = 0`.
+
+This module estimates t purely as the fair market value of the line item; it
+deliberately does NOT judge coverage or relation to the damage (that lives in
+`src/violation_check.py`). This lets the charge price `a` track t even for
+items we would reject as insurers.
 
 `estimate_t` sends the policy, the damage description, and one line item to an
 LLM acting as a claims expert and returns a `TEstimate` with:
 
-- `covered`: covered by the policy AND related to the damage
 - `t_estimate`: best point estimate of the fair gross total (EUR)
 - `t_low` / `t_high`: a confidence interval believed to contain the true t
 - `confidence`: 0..1 self-reported confidence
@@ -45,8 +48,8 @@ unit price, including VAT) that a claims expert would still consider
 appropriate. This threshold is called t.
 
 Rules:
-- The item is only covered if the policy covers it AND it is related to the
-  reported damage AND no exclusion applies. If not covered, t = 0.
+- Estimate the fair market value of the item itself. Do NOT judge whether it
+  is covered by the policy or related to the damage; assume it is legitimate.
 - t is always the gross TOTAL for the whole line item, never a per-unit or
   net price. Multiply by the quantity where one is given.
 - Use price anchors from the case documents when available (e.g. a stated
@@ -65,13 +68,9 @@ RESPONSE_SCHEMA: dict[str, Any] = {
         "type": "object",
         "additionalProperties": False,
         "properties": {
-            "covered": {
-                "type": "boolean",
-                "description": "Covered by policy AND related to the damage",
-            },
             "t_estimate": {
                 "type": "number",
-                "description": "Best estimate of t (gross total, EUR). 0 if not covered.",
+                "description": "Best estimate of t (gross total, EUR)",
             },
             "t_low": {"type": "number"},
             "t_high": {"type": "number"},
@@ -79,7 +78,6 @@ RESPONSE_SCHEMA: dict[str, Any] = {
             "reasoning": {"type": "string"},
         },
         "required": [
-            "covered",
             "t_estimate",
             "t_low",
             "t_high",
@@ -94,7 +92,6 @@ RESPONSE_SCHEMA: dict[str, Any] = {
 class TEstimate:
     """Estimated fair-value threshold for a single invoice line item."""
 
-    covered: bool
     t_estimate: float
     t_low: float
     t_high: float
@@ -125,17 +122,13 @@ def _clamp(value: float, low: float, high: float) -> float:
 
 
 def _sanitize(payload: dict[str, Any]) -> TEstimate:
-    covered = bool(payload["covered"])
     t = max(0.0, float(payload["t_estimate"]))
     t_low = max(0.0, float(payload["t_low"]))
     t_high = max(0.0, float(payload["t_high"]))
-    if not covered:
-        t = t_low = t_high = 0.0
     if t_low > t_high:
         t_low, t_high = t_high, t_low
     return TEstimate(
-        covered=covered,
-        t_estimate=_clamp(t, t_low, t_high) if covered else 0.0,
+        t_estimate=_clamp(t, t_low, t_high),
         t_low=t_low,
         t_high=t_high,
         confidence=_clamp(float(payload["confidence"]), 0.0, 1.0),
@@ -150,7 +143,7 @@ def estimate_t(
     model: str | None = None,
     api_key: str | None = None,
 ) -> TEstimate:
-    """Estimate the fair-value threshold t for one invoice line item."""
+    """Estimate the fair market value threshold t for one invoice line item."""
     policy_text = policy_path.read_text(encoding="utf-8", errors="replace")
     description_text = description_path.read_text(encoding="utf-8", errors="replace")
     prompt = (
