@@ -47,6 +47,32 @@ class RunManagerTests(unittest.TestCase):
 
         self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (120.0, 90.0))
 
+    def test_complete_strategy_result_replaces_the_entire_fast_path_batch(self) -> None:
+        self.manager.set_fast_path(proposal("fast_path_llm", [(1, 110.0, 80.0), (2, 210.0, 160.0)]))
+        self.manager.set_strategy(proposal("strategy3", [(1, 300.0, 250.0), (2, 400.0, 350.0)]))
+
+        prices = {price.index: price for price in self.manager.snapshot()}
+
+        self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (300.0, 250.0))
+        self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (400.0, 350.0))
+
+    def test_fraud_locks_survive_a_complete_high_priority_strategy_batch(self) -> None:
+        self.manager.set_fast_path(proposal("fast_path_llm", [(1, 110.0, 80.0), (2, 210.0, 160.0)]))
+        self.manager.apply_fraud(FraudDecision(frozenset({2})))
+        self.manager.set_strategy(proposal("strategy3", [(1, 300.0, 250.0), (2, 400.0, 350.0)]))
+
+        prices = {price.index: price for price in self.manager.snapshot()}
+
+        self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (300.0, 250.0))
+        self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (400.0, 0.0))
+
+    def test_republishing_the_same_prices_reports_no_change(self) -> None:
+        """The coordinator dedupes by signature, but do not wake it needlessly."""
+        first = proposal("strategy2", [(1, 120.0, 90.0)])
+
+        self.assertTrue(self.manager.set_strategy(first))
+        self.assertFalse(self.manager.set_strategy(first))
+
     def test_strategy_has_priority_over_fast_path(self) -> None:
         self.manager.set_fast_path(proposal("fast_path_llm", [(1, 110.0, 80.0)]))
         self.manager.set_strategy(proposal("strategy1", [(1, 120.0, 90.0)]))
@@ -143,6 +169,18 @@ class MainTests(unittest.TestCase):
             main.main()
 
         self.assertIn("INFO:main:Stopping WireClaim runner.", logs.output)
+
+    def test_game_id_and_retry_dry_runs_one_game_without_posting(self) -> None:
+        args = argparse.Namespace(game_id=18, retry_dry=True)
+        run_game = Mock(return_value=object())
+        with (
+            patch.object(main.argparse.ArgumentParser, "parse_args", return_value=args),
+            patch.object(main, "run_game", new=run_game),
+            patch.object(main.asyncio, "run"),
+        ):
+            main.main()
+
+        run_game.assert_called_once_with(18, dry_run=True)
 
 
 if __name__ == "__main__":

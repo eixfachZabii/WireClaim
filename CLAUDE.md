@@ -40,7 +40,29 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 **1. The default submission is an incident, never a fallback.** `a = 0, b = 0` does not score zero — `b = 0` wrongfully rejects every fair claim, so we pay `1.5a` to every opponent on every Line Item (R7). A team that goes dark becomes a **money fountain** for everyone awake: `+t` to them, `−1.5t` to us, per item, per Game (R10). Any plausible number beats the default. If the pipeline has nothing, it still submits something.
 
-**2. Before anything else, unzip and read the new Cases.** Decryption keys never expire
+**1b. After every settled Game, run the learning loop. It is one command.**
+
+```bash
+set -a && . .env && set +a && pixi run cases && pixi run learn
+```
+
+`pixi run learn` joins the **decision log** Strategy 2 writes at submission time
+(`var/decisions/game_NNN.json`) against the reconstructed Fair Value, and names *the stage
+that was wrong* rather than the amount that was lost. If it reports **"No decision log for
+this Game"**, stop: that means Strategy 2 did not land, and nothing else in the report can be
+interpreted until you know why. Games 21–24 submitted a Limit of 35 on every Line Item —
+`STANDARD_LIMIT`, from a lower layer — and an hour went into inferring what one log line now
+says outright.
+
+Then follow the **`learn-from-runs`** skill (`.devin/skills/learn-from-runs/`): attribute to a
+stage, add the evidence to
+[`hypothesis-ledger.md`](docs/brainstorm/sebi/strats/review/hypothesis-ledger.md), and change
+**at most one thing** — validated across *every* settled Game, never on the strength of the
+Game that just settled. One Game is far inside the **26,622** noise floor.
+
+**2. Before anything else, unzip and read the new Cases.** `pixi run start` now does this
+first (`pixi run cases`), because the runner extracts to `var/cases/` and used to leave the
+readable copy several Games behind. Decryption keys never expire
 and every Game whose `start_time` has passed is readable, so at the start of any session —
 and before any analysis, any strategy claim, any prompt change — top up the extraction and
 look at what is actually in there:
@@ -68,10 +90,17 @@ routinely disagree:
 - Game 5 read from our own Transaction rows said the Line Items we charged 0 on were
   uncovered. Pulling five teams' rows and reading the Case showed they were covered and
   worth hundreds — item 3 sat in `[497.94, 773.50)`. The diagnosis reversed completely.
-- Case 7's brackets alone suggest the kitchen air-conditioning unit was excluded (`t < 683`
-  against `[1232, 1756)` for the identical living-room unit). The Case says the opposite:
-  the description dangles *"a couple of metres from the hob"* as bait, and the policy
-  states in terms that proximity to another appliance **does not** remove cover.
+- ~~Case 7's brackets alone suggest the kitchen air-conditioning unit was excluded. The Case
+  says the opposite: the description dangles *"a couple of metres from the hob"* as bait,
+  and the policy states that proximity to another appliance **does not** remove cover.~~
+  **Falsified — and the way it was falsified is the lesson.** Reconstructing the Fair Value
+  from settled Transactions puts Case 7 item 2 at **`t ∈ [0, 81)`** against `[1233, 1756)`
+  for the identical living-room unit. The kitchen unit really was excluded; it was never
+  paid. The claim above came from reading the policy and stopping there, which is the same
+  error in the opposite direction: *a reading is not an outcome.* The general rule — that
+  only a quoted clause is evidence, never a detail in the description — still stands, but
+  this Case is no longer the example for it. Where the settled Fair Value exists, it
+  outranks anyone's reading of the policy, including this file's.
 
 A number without its Case is a symptom without a diagnosis. Read `policy.txt`,
 `description.txt` and the invoice before concluding anything about why a Game went the way
@@ -92,6 +121,20 @@ it did — and quote the clause when you do.
 **9. The tournament has three regimes, and the right play differs in each.** Games ~1–43 the Field is awake and probably generous (measure `p`, Limit discipline matters most); ~44–81 it is mostly dark (honest harvest — accuracy is the only lever, and overcharging earns nothing against `b = 0`); ~82–100 it wakes recalibrated. Never carry a `p` estimate across a phase boundary.
 
 ---
+
+**10. Re-measure after every Game, and never tune a knob whose error you have not measured.** The Fair Value is **exactly recoverable** from settled Games: a rejected Transaction carrying a non-zero `amount` is a wrongful rejection, so it reveals the Charge *and* proves `a ≤ t`, while a rejected Transaction at `0` proves `a > t`. `scripts/invert_fair_values.py --verify` reproduces all published nets to the cent, so there is ground truth for every Line Item we have ever played.
+
+That makes one number the gate on everything: **σ, the log error of our Fair Value estimate.** Replaying the real payoff table over Games 1–14 with `a = 0.7·t̂` gives **+131,497 at σ = 0.35, +89,807 at 0.5, +31,725 at 0.75 and −20,915 at 1.0**, so **break-even is σ ≈ 0.85**. Price Memory measures 0.43 and clears it; a blind constant does not. The same sweep shows `a = 0.7·t̂` beating `a = t̂` at every σ ≥ 0.1, which is R5b confirmed on a validated harness rather than argued.
+
+Two traps in measuring it. **Use total log error (RMSLE), not standard deviation** — a stdev cannot see a level error, and our failure mode is precisely a *bias*: median `a/t` was 1.06 when it should be ~0.7. And **an earlier "break-even σ ≈ 0.35" was from a cruder model** that proxied `t` with the field's median Charge and credited nothing for Overcharges; treat 0.35 as a target and 0.85 as the crossing.
+
+So after every settled Game, recompute and record: **σ** (overall and per channel), the coverage confusion against the true `t = 0` set, income vs. the two cost sides, and the accept share. Append it to `field-findings.md`. Three specific risks stay open and must be watched rather than assumed away:
+
+- **σ is measured on a censored sample.** 44 of 192 items have no upper bracket — nobody rightfully rejected them — and those are plausibly the expensive ones. Treat every σ we quote as **optimistic**.
+- **The Cap `c` has never bound** in 52,224 settled rows, so we only know `c > max observed accepted amount`. Any plan leaning on large Charges extrapolates past the data.
+- **Regime change** (rule 9): a field measurement does not survive a phase boundary. Re-measure, do not carry it over.
+
+**And page to the end of every API list.** `/transactions` paginates at 100 rows; page one of a 544-row Game reads exactly like a 4-item Case. That single mistake produced a wrong Line Item count, a wrong fraud denominator and a wrong blind-floor range before anyone noticed.
 
 ## Fair play — the line, and which side we sit on
 

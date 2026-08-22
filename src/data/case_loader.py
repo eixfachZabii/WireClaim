@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import re
+from dataclasses import replace
 from pathlib import Path
 
 from src.api import APIError, get_decryption_key
@@ -12,11 +13,12 @@ OUTPUT_DIR = Path("var/cases")
 _NUMBERED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s*(?:[.)]|[-–])\s*(?P<name>\S.*)$")
 _SPACED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s+(?P<name>\S.*)$")
 _TRAILING_QUANTITY = re.compile(
-    r"\s+(?P<quantity>\d+(?:[.,]\d+)?)\s+(?P<unit>pcs|hrs?|m2|m²|m|days?|units?|flat rate)\s*$",
+    r"\s+(?P<quantity>\d+(?:[.,]\d+)?)\s+(?P<unit>pcs|hrs?|m2|m²|m|kg|days?|units?|flat rate)\s*$",
     re.IGNORECASE,
 )
-_TRAILING_DASHES = re.compile(r"\s+[-–]\s+[-–]\s*$")
-_UNIT_ONLY = re.compile(r"^(?:pcs|hrs?|m2|m²|m|days?|units?|flat rate)$", re.IGNORECASE)
+_TRAILING_DASHES = re.compile(r"\s+[-–—]\s+[-–—]\s*$")
+_DASH_ONLY_ROW = re.compile(r"^[-–—]\s+[-–—]$")
+_UNIT_ONLY = re.compile(r"^(?:pcs|hrs?|m2|m²|m|kg|days?|units?|flat rate)$", re.IGNORECASE)
 IMAGE_SUFFIXES = frozenset({".png", ".jpg", ".jpeg", ".webp"})
 
 
@@ -134,6 +136,12 @@ def parse_invoice_text(text: str) -> list[LineItem]:
             continue
         if not in_items_section:
             continue
+        if _DASH_ONLY_ROW.match(stripped):
+            # A wrapped description pushes its amount and unit onto their own row.
+            # "– –" there means the same as an inline dash pair: no quantity given.
+            if last_index is not None and last_index in line_items:
+                line_items[last_index] = replace(line_items[last_index], quantity_missing=True)
+            continue
         match = _NUMBERED_LINE_ITEM.match(line) or _SPACED_LINE_ITEM.match(line)
         if match is None:
             continue
@@ -142,21 +150,28 @@ def parse_invoice_text(text: str) -> list[LineItem]:
         if _UNIT_ONLY.match(name):
             if last_index is not None and last_index in line_items:
                 previous = line_items[last_index]
-                line_items[last_index] = LineItem(
-                    index=previous.index,
+                line_items[last_index] = replace(
+                    previous,
                     name=f"{previous.name} ({index} {name})",
                     quantity=float(index),
+                    quantity_missing=False,
                 )
             continue
         quantity = 1.0
+        quantity_missing = False
         quantity_match = _TRAILING_QUANTITY.search(name)
         if quantity_match:
             quantity = float(quantity_match.group("quantity").replace(",", "."))
             name = f"{name[: quantity_match.start()]} ({quantity_match.group(0).strip()})"
         else:
-            name = _TRAILING_DASHES.sub("", name)
+            stripped_name = _TRAILING_DASHES.sub("", name)
+            quantity_missing = stripped_name != name
+            name = stripped_name
         if not name or not any(character.isalpha() for character in name):
             continue
-        line_items.setdefault(index, LineItem(index=index, name=name, quantity=quantity))
+        line_items.setdefault(
+            index,
+            LineItem(index=index, name=name, quantity=quantity, quantity_missing=quantity_missing),
+        )
         last_index = index
     return list(line_items.values())

@@ -10,6 +10,62 @@ Append a block per Game. Everything here is inverted from the public leaderboard
 largest such Charge on a Line Item is a hard **lower bound** on Fair Value. Rejected with
 `amount = 0` ⇒ Fraud Zone.
 
+## Games 15–19: the Limit fix landing, and overshooting
+
+| Game | Line Items | income | paid on accepts | penalties | net | accept rate |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 15 | 29 | 17,200 | 21,056 | 14,946 | **-18,802** | 77% |
+| 16 | 2 | 0 | 4,721 | 0 | **-4,721** | 97% |
+| 17 | 20 | 20,580 | 70,736 | 13,633 | **-63,789** | 71% |
+| 18 | 14 | 14,469 | 419 | 51,132 | **-37,082** | 32% |
+| 19 | 9 | 54,618 | 58 | 20,152 | **34,408** | 33% |
+| 20 | 6 | 38,202 | 51 | 25,387 | **12,765** | 29% |
+
+The `max(coverage_probability, 0.9)` fix (commit `c147ce9`) is visible in one number: the
+accept rate falls from **71 % in G17 to 32–33 %**, and with it the 70,736 we paid out on
+accepted claims in G17. It then **overshot** — G18 lost 51,132 purely to wrongful
+rejections while paying 419 on accepts. G19 was the first clear win, **+34,408 on income
+of 54,618**, and is the first Game where the Charge side carried us.
+
+## Strategy 2, replayed against the real field
+
+Feeding the cached model evidence (`scripts/dump_evidence.py`) through `src/pricing.py`
+and scoring with `scripts/replay_payoffs.py`, which reproduces every published net to the
+cent. **Price Memory is excluded**, so this is the honest number and not a leak:
+
+| Limit multiplier | 0.5 | **1.0 (shipped)** | 1.5 | 2.0 | 3.0 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| net over G5, 8, 10, 13, 14, 15, 17, 18, 19 | +33,793 | **+46,421** | +38,663 | +4,125 | −15,697 |
+
+**We actually scored −241,655 on those nine Games.** G17 replays at ≈0 instead of −63,789
+and G18 at ≈+1,000 instead of −37,082. The shipped Limit is already at the optimum, so the
+bottom-third quantile is confirmed on real data rather than argued — scaling it in either
+direction loses money.
+
+Remaining weakness is the heavy tail: G10 still replays at only +1,000 because its Line
+Item worth `t ≥ 7,225` is priced like an ordinary one.
+
+### Do not "fix" the undercharging with a multiplier
+
+Over 15 Games (1, 2, 4, 5, 8–15, 17–19) where we actually scored **−324,706**, scaling
+every Charge by a single factor:
+
+| Charge × | 0.7 | **1.0 (shipped)** | 1.3 | 1.6 | 2.0 | 3.0 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| net | −17,164 | **+62,814** | +32,098 | −63,807 | −238,384 | −383,211 |
+
+**The shipped level is already the global optimum, worth +387,521 against what we
+actually did.** Raising Charges across the board loses money quickly, because most Line
+Items are cheap — median `t` is ~59 — and pushing them above `t` forfeits income that was
+otherwise collected from *every* opponent.
+
+So the tail problem is **item-specific, not a level problem**, and no multiplier can fix
+it. It needs the estimate itself to recognise an expensive item. The counter-example is
+Game 20, where Strategy 2 replays at +5,473 against our actual +12,765: it charged 1,281
+on an air-conditioning unit we charged 2,345 for, and the item was worth more than both.
+
+---
+
 ## Every settled Game, current through Game 14
 
 Generated with `scripts/pull_transactions.py` (which pages to the end) and

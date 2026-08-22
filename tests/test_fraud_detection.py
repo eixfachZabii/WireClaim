@@ -25,7 +25,7 @@ class FraudDetectionTests(unittest.TestCase):
     def test_locks_only_items_with_confirmed_violations(self) -> None:
         with patch(
             "src.services.fraud_detection._check_item",
-            side_effect=(False, True),
+            side_effect=lambda line_item, case: line_item.index == 2,
         ):
             decision = asyncio.run(detect_fraud(self.case))
 
@@ -121,11 +121,23 @@ class FraudDetectionTests(unittest.TestCase):
 
         self.assertEqual(decision.fraud_indices, frozenset({1, 2}))
 
+    @staticmethod
+    def _flag_only(*indices: int):
+        """Flag specific Line Items, keyed on the item itself.
+
+        The checks run concurrently in threads, so a positional `side_effect` sequence is
+        consumed in completion order rather than index order and the mapping is a
+        coin flip.
+        """
+        return lambda line_item, case: line_item.index in indices
+
     def test_a_plausible_share_of_a_large_case_survives(self) -> None:
         """Game 8 had 3 of 39 Line Items that the whole field charged 0 on."""
         case = self._case_with(17)
-        flags = [index in (2, 3, 9) for index in range(1, 18)]
-        with patch("src.services.fraud_detection._check_item", side_effect=flags):
+        with patch(
+            "src.services.fraud_detection._check_item",
+            side_effect=self._flag_only(2, 3, 9),
+        ):
             decision = asyncio.run(detect_fraud(case))
 
         self.assertEqual(decision.fraud_indices, frozenset({2, 3, 9}))
@@ -135,7 +147,7 @@ class FraudDetectionTests(unittest.TestCase):
         case = self._case_with(4)
         with patch(
             "src.services.fraud_detection._check_item",
-            side_effect=(False, True, True, False),
+            side_effect=self._flag_only(2, 3),
         ):
             decision = asyncio.run(detect_fraud(case))
 

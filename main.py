@@ -13,7 +13,7 @@ from src.api import list_games, warm_llm_resources
 from src.data.case_loader import load_case
 from src.data.models import CaseData, FraudDecision, ItemPrice, Proposal
 from src.services.fraud_detection import detect_fraud
-from src.services.strategy_router import StrategyRouter
+from src.services.strategy_router import STRATEGY_PRIORITIES, StrategyRouter
 from src.services.strategies.fast_path import (
     STANDARD_CHARGE,
     STANDARD_LIMIT,
@@ -39,7 +39,7 @@ class RunManager:
             raise ValueError("Standard values must cover at least one Line Item.")
         self._standard = standard
         self._fast_path: Proposal | None = None
-        self._strategy: Proposal | None = None
+        self._strategy: dict[int, tuple[int, ItemPrice]] = {}
         self._fraud_indices: set[int] = set()
 
     def set_fast_path(self, proposal: Proposal) -> bool:
@@ -49,10 +49,28 @@ class RunManager:
         return True
 
     def set_strategy(self, proposal: Proposal) -> bool:
+        """Merge a Strategy's prices **per Line Item**, keeping the best source per index.
+
+        A Proposal need not cover the whole Case. A 39-item Case cannot be priced by one
+        model call inside 60 seconds, so a Strategy is free to publish each Line Item as
+        its estimate lands and a slow item then costs one item rather than the whole
+        Submission. Swapping the layer wholesale, which this did before, discarded every
+        earlier item the moment a partial arrived.
+
+        Ties go to the newer price so a Strategy can revise its own answer, but a
+        lower-priority Strategy cannot overwrite an index a higher one has already priced.
+        """
         if proposal.is_empty:
             return False
-        self._strategy = proposal
-        return True
+        priority = STRATEGY_PRIORITIES.get(proposal.source, 0)
+        changed = False
+        for index, price in proposal.by_index().items():
+            current = self._strategy.get(index)
+            if current is not None and (current[0] > priority or current[1] == price):
+                continue
+            self._strategy[index] = (priority, price)
+            changed = True
+        return changed
 
     def apply_fraud(self, decision: FraudDecision) -> bool:
         current = self._fraud_indices.copy()
@@ -62,13 +80,17 @@ class RunManager:
     def snapshot(self) -> tuple[ItemPrice, ...]:
         prices = self._standard.by_index()
         valid_indices = set(prices)
-        for proposal in (self._fast_path, self._strategy):
-            if proposal is not None:
-                prices.update(
-                    (index, price)
-                    for index, price in proposal.by_index().items()
-                    if index in valid_indices
-                )
+        if self._fast_path is not None:
+            prices.update(
+                (index, price)
+                for index, price in self._fast_path.by_index().items()
+                if index in valid_indices
+            )
+        prices.update(
+            (index, price)
+            for index, (_, price) in self._strategy.items()
+            if index in valid_indices
+        )
         return tuple(
             price.with_limit(0.0) if index in self._fraud_indices else price
             for index, price in sorted(prices.items())
@@ -277,6 +299,7 @@ async def retry_expired_games(now: datetime | None = None) -> None:
         if start_time + timedelta(seconds=RUN_SECONDS) > reference_time:
             logger.info("Stopping dry retry before Game %s at %s.", game["id"], start_time.isoformat())
             return
+        logger.info("\n\n\n################ CASE %s ##################\n\n\n", game["id"])
         logger.info("Dry retry for expired Game %s.", game["id"])
         await run_game(int(game["id"]), dry_run=True)
 
@@ -311,16 +334,14 @@ def main() -> None:
         help="Run expired Games in order and print submissions without posting them.",
     )
     args = parser.parse_args()
-    if args.game_id is not None and args.retry_dry:
-        parser.error("--game-id and --retry_dry cannot be used together.")
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     try:
-        if args.retry_dry:
+        if args.game_id is not None:
+            asyncio.run(run_game(args.game_id, dry_run=args.retry_dry))
+        elif args.retry_dry:
             asyncio.run(retry_expired_games())
-        elif args.game_id is None:
-            asyncio.run(watch_games())
         else:
-            asyncio.run(run_game(args.game_id))
+            asyncio.run(watch_games())
     except KeyboardInterrupt:
         logger.info("Stopping WireClaim runner.")
 

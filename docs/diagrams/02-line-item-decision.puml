@@ -1,0 +1,87 @@
+@startuml
+' WireClaim — how one Line Item becomes a Charge and a Limit.
+' Source of truth: src/pricing.py (price_item, charge_factor, implied_sigma),
+' src/services/strategies/strategy2/strategy.py (_memory_evidence, _combine),
+' main.py (RunManager.snapshot).
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam defaultFontName "Inter, Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam ArrowColor #18181B
+skinparam ArrowFontColor #52525B
+skinparam ActivityDiamondBackgroundColor #FAFAFA
+
+title One Line Item: evidence in, a Charge and a Limit out
+
+start
+:LineItem(index = printed POS number,\nname, quantity, quantity_missing);
+
+if (quantity_missing?\n(invoice printed "- -")) then (yes)
+  :Channel A shortcut\np_covered := 0.0\nband := 0.5 x 59 / 59 / 2 x 59; <<#FDE68A>>
+  note right
+    20 of 20 such positions in the
+    settled Games had t = 0, against
+    a 33% base rate.
+    A price band still exists, because
+    the Charge is a free option.
+  end note
+else (no)
+  :Channel B — Price Memory lookup\n(exact wording, then qualifier-stripped key);
+  if (hit?) then (yes, ~22% of items)
+    :band from settled Fair Values,\nwidened to sigma 0.43;
+    note right: price only —\nnever a coverage verdict
+  else (no, ~78%)
+    :no memory anchor;
+  endif
+endif
+
+:Channel C — one whole-Case model call\non the sliced Policy (PART 3, 4, 5, 7, 11)\nreturns p_covered, price_low/median/high, clause;
+
+if (both a model band and a memory band?) then (yes)
+  :inverse-variance blend in log space\nweights 1/0.6^2 (model) and 1/0.43^2 (memory)\n-> narrower band;
+else (no)
+  :take whichever channel spoke;
+endif
+
+:Evidence.with_defaults()\nfill or repair an incoherent band\n(no band at all -> median 60.0);
+
+:sigma = log(high / low) / (2 x 1.645)\ncapped at 2.0;
+
+fork
+  :CHARGE\nk = clamp(0.85 - 0.45 x sigma, 0.30, 0.80)\na = k x median; <<#DBEAFE>>
+  note right
+    Income is a whenever a <= t and it is
+    collected from EVERY opponent, because
+    a wrongful rejection still owes it.
+    Above t it collapses by ~80%, so the
+    Charge always sits under the median —
+    further under the wider the band.
+    The Charge ignores coverage: on an
+    uncovered item t = 0, so a rejected
+    Charge costs nothing.
+  end note
+fork again
+  :LIMIT\nposterior(t) = (1 - p_covered) x delta(0)\n+ p_covered x Lognormal(median, sigma); <<#DCFCE7>>
+  if (p_covered <= 1/3?) then (yes)
+    :b = 0\nthe bottom third of the posterior\nIS the spike at zero — no special case; <<#FECACA>>
+  else (no)
+    :q = (1/3 - (1 - p_covered)) / p_covered\nb = median x exp(sigma x z(q));
+    :b = min(b, 0.85 x median)\nguard against a model claiming\nprecision it does not have;
+  endif
+endfork
+
+:b = min(b, a)   — the Limit is a lower quantile\nof the same posterior than the Charge;
+:round both to 2 decimals, floor at 0;
+
+:RunManager.snapshot()\nlayer this ItemPrice over the standard layer\nBY INDEX — unknown indices are dropped;
+
+if (index in FraudDecision.fraud_indices?) then (yes)
+  :coverage mask: b := 0\n(a is never touched); <<#FECACA>>
+else (no)
+endif
+
+:PUT {index, charge_price, acceptance_limit};
+stop
+@enduml

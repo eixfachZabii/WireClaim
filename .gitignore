@@ -12,6 +12,11 @@ data/cases/
 # Tournament state written at runtime
 data/runs/
 data/price_memory*.json
+# ...except the committed Price Memory store. It is derived from public settled Games, so
+# it is reproducible, but it has to travel with the code: whoever runs the tournament is
+# not the person who built it, and an absent store makes the memory channel silently empty
+# rather than loudly broken. Rebuild with `scripts/build_price_memory.py` as Games settle.
+!data/price_memory.json
 *.sqlite
 *.db
 
@@ -51,3 +56,7 @@ var/cases/*
 
 # case_analysis raw leaderboard pulls (regenerable via case_analysis/fetch_data.py)
 case_analysis/data/raw/
+
+# Learning-loop artefacts: derived from settled Games, regenerable
+var/decisions/
+var/lessons/
