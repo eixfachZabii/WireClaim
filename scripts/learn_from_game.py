@@ -218,6 +218,25 @@ def _stage(item: dict, t_lo: float, t_hi: float, charge: float | None) -> tuple[
         )
     if covered and median > 0 and t_lo > 0 and median > 3 * t_hi:
         return "estimate-too-high", f"Estimated {median:.0f} against t < {t_hi:.0f}."
+    if covered and median > 0 and median < t_lo:
+        # `t_lo` is a *proven* floor -- somebody was wrongfully rejected at that Charge -- so a
+        # median below it is definitely wrong, with no interpretation needed.
+        #
+        # This stage exists because our largest single failure mode had no name and therefore
+        # no cost. Game 44's stolen watch carried **85% of that Game's penalty** and was tagged
+        # `ok`: `charge-far-below-t` needs the Charge under half the floor, and we Charged
+        # 4,738 against a half-floor of 4,680 -- it missed by fifty-eight euros. Game 41's
+        # watch was the same shape at a larger scale.
+        #
+        # Note it is the *median* that is wrong, not the band: Game 44's posterior ran to
+        # 12,155 and did contain the truth. So this is a centring failure, which is why
+        # widening the band does not fix it and why it survives into the Charge, which is
+        # taken as a factor of the median.
+        return (
+            "estimate-too-low",
+            f"Estimated {median:.0f} against a proven floor of t >= {t_lo:.0f}; the Charge and "
+            f"the Limit are both taken from that median, so both landed low.",
+        )
     return "ok", "Nothing obviously wrong with this item."
 
 
