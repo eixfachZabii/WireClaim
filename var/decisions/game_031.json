@@ -1,0 +1,552 @@
+{
+  "game_id": 31,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 133.05,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 81.0,
+      "name": "Leak detection call-out and pinpointing of the sink (1 pcs)",
+      "price_high": 269.9073597393243,
+      "price_low": 120.04118758114569,
+      "price_median": 180.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.24627473383293091
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 110.33,
+      "coverage_probability": 0.96,
+      "index": 2,
+      "limit": 71.44,
+      "name": "Moisture measurement of the kitchen floor and wall (1 pcs)",
+      "price_high": 279.7519924871126,
+      "price_low": 90.07978737152652,
+      "price_median": 158.7450786638754,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34444001994017487
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 680.36,
+      "coverage_probability": 0.925,
+      "index": 3,
+      "limit": 441.97,
+      "name": "Service technician hours (14 hrs)",
+      "price_high": 1745.3286464092296,
+      "price_low": 552.6946961706386,
+      "price_median": 982.1577703938716,
+      "quantity": 14.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 39.17,
+      "coverage_probability": 0.35,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 100.47118325105461,
+      "price_low": 31.816294435487087,
+      "price_median": 56.5386659605383,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 115.49,
+      "coverage_probability": 0.91,
+      "index": 5,
+      "limit": 76.37,
+      "name": "Freeing the affected pipe run beneath the kitchen sink1 pcs",
+      "price_high": 315.2858145137943,
+      "price_low": 91.34568913102794,
+      "price_median": 169.70562748477138,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3765436121795709
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 23.61,
+      "coverage_probability": 0.91,
+      "index": 6,
+      "limit": 15.34,
+      "name": "Removal and disposal of damaged insulation (2 pcs)",
+      "price_high": 60.56355604845274,
+      "price_low": 19.178712432228384,
+      "price_median": 34.0812415461412,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 251.64,
+      "coverage_probability": 0.96,
+      "index": 7,
+      "limit": 164.97,
+      "name": "Repair of the confirmed leak (1 pcs)",
+      "price_high": 666.6553897222111,
+      "price_low": 201.6034102056881,
+      "price_median": 366.60605559646694,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.36351696156755603
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 61.74,
+      "coverage_probability": 0.905,
+      "index": 8,
+      "limit": 47.62,
+      "name": "Replacement copper pipe section and standard (1 flat rate)",
+      "price_high": 280.4758044545698,
+      "price_low": 39.93214324415686,
+      "price_median": 105.83005244258368,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.5924941847852179
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.18,
+      "index": 9,
+      "limit": 0.0,
+      "name": "Room drying line item for the roof space (Dachstuhl)1 pcs",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 103.13,
+      "coverage_probability": 0.9299999999999999,
+      "index": 10,
+      "limit": 66.99,
+      "name": "Condensation dryer (kitchen) (1 pcs)",
+      "price_high": 264.5587089991872,
+      "price_low": 83.77802976558588,
+      "price_median": 148.87648369463486,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 431.8,
+      "coverage_probability": 0.96,
+      "index": 11,
+      "limit": 286.59,
+      "name": "Room drying of the kitchen floor and wall base (1 pcs)",
+      "price_high": 1194.3021656899266,
+      "price_low": 339.6125466838559,
+      "price_median": 636.8673331236266,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3822224719746038
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.2,
+      "index": 12,
+      "limit": 0.0,
+      "name": "Drying fan (roof space) (2 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 57.98,
+      "coverage_probability": 0.45,
+      "index": 13,
+      "limit": 0.0,
+      "name": "Final site cleaning of the covered work area (1 pcs)",
+      "price_high": 190.91883092036787,
+      "price_low": 42.42640687119285,
+      "price_median": 90.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4571663819988675
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 36.31,
+      "coverage_probability": 0.275,
+      "index": 14,
+      "limit": 0.0,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 93.14449777068026,
+      "price_low": 29.49614675794541,
+      "price_median": 52.41568253814028,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.0,
+      "index": 15,
+      "limit": 0.0,
+      "name": "Cleaning of entire apartment",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 168.57,
+      "coverage_probability": 0.865,
+      "index": 16,
+      "limit": 109.5,
+      "name": "Removal, transport and disposal of the water-damaged (3 pcs)",
+      "price_high": 432.42746402273093,
+      "price_low": 136.93717016310535,
+      "price_median": 243.34213203652348,
+      "quantity": 3.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.3,
+      "index": 17,
+      "limit": 0.0,
+      "name": "Delivery and assembly of the replacement table (1 flat rate)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 108.58,
+      "coverage_probability": 0.425,
+      "index": 18,
+      "limit": 0.0,
+      "name": "Inspection of further furniture items stored in the (1 pcs)",
+      "price_high": 299.3325909419152,
+      "price_low": 85.52359741197577,
+      "price_median": 159.99999999999994,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.38077901777974715
+    }
+  ],
+  "memory_items": 9,
+  "model_draws": 2,
+  "model_items": 18,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        210.0,
+        35.0
+      ],
+      "10": [
+        150.0,
+        35.0
+      ],
+      "11": [
+        350.0,
+        35.0
+      ],
+      "12": [
+        300.0,
+        35.0
+      ],
+      "13": [
+        150.0,
+        35.0
+      ],
+      "14": [
+        150.0,
+        35.0
+      ],
+      "15": [
+        164.5,
+        35.0
+      ],
+      "16": [
+        150.0,
+        0.0
+      ],
+      "17": [
+        150.0,
+        0.0
+      ],
+      "18": [
+        150.0,
+        0.0
+      ],
+      "2": [
+        154.0,
+        35.0
+      ],
+      "3": [
+        2100.0,
+        0.0
+      ],
+      "4": [
+        150.0,
+        35.0
+      ],
+      "5": [
+        210.0,
+        35.0
+      ],
+      "6": [
+        300.0,
+        35.0
+      ],
+      "7": [
+        304.5,
+        35.0
+      ],
+      "8": [
+        150.0,
+        35.0
+      ],
+      "9": [
+        350.0,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        133.05,
+        81.0
+      ],
+      "10": [
+        103.13,
+        66.99
+      ],
+      "11": [
+        431.8,
+        286.59
+      ],
+      "12": [
+        39.62,
+        0.0
+      ],
+      "13": [
+        57.98,
+        0.0
+      ],
+      "14": [
+        36.31,
+        0.0
+      ],
+      "15": [
+        39.62,
+        0.0
+      ],
+      "16": [
+        168.57,
+        109.5
+      ],
+      "17": [
+        39.62,
+        0.0
+      ],
+      "18": [
+        108.58,
+        0.0
+      ],
+      "2": [
+        110.33,
+        71.44
+      ],
+      "3": [
+        680.36,
+        441.97
+      ],
+      "4": [
+        39.17,
+        0.0
+      ],
+      "5": [
+        115.49,
+        76.37
+      ],
+      "6": [
+        23.61,
+        15.34
+      ],
+      "7": [
+        251.64,
+        164.97
+      ],
+      "8": [
+        61.74,
+        47.62
+      ],
+      "9": [
+        39.62,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        175.0,
+        35.0
+      ],
+      "10": [
+        175.0,
+        35.0
+      ],
+      "11": [
+        595.0,
+        35.0
+      ],
+      "12": [
+        300.0,
+        0.0
+      ],
+      "13": [
+        150.0,
+        33.33
+      ],
+      "14": [
+        150.0,
+        35.0
+      ],
+      "15": [
+        385.0,
+        35.0
+      ],
+      "16": [
+        245.0,
+        0.0
+      ],
+      "17": [
+        350.0,
+        0.0
+      ],
+      "18": [
+        150.0,
+        0.0
+      ],
+      "2": [
+        150.0,
+        35.0
+      ],
+      "3": [
+        2100.0,
+        0.0
+      ],
+      "4": [
+        150.0,
+        35.0
+      ],
+      "5": [
+        150.0,
+        35.0
+      ],
+      "6": [
+        300.0,
+        35.0
+      ],
+      "7": [
+        192.5,
+        35.0
+      ],
+      "8": [
+        315.0,
+        35.0
+      ],
+      "9": [
+        150.0,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787426375.251055,
+  "recorded_at": 1787426344.016979,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

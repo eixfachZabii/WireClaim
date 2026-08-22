@@ -26,6 +26,39 @@ class PriceItemTests(unittest.TestCase):
             price_high=median * 1.25,
         )
 
+    def test_a_memory_backed_item_gets_a_looser_ceiling(self) -> None:
+        """Channel B's error is measured at half the model's, so its Limit may sit higher.
+
+        Worth +40,791 over 37 Games with all eight fold cells positive, and 7.53 fair
+        Charges accepted for every Overcharge let in. See `LIMIT_CEILING_MEMORY`.
+        """
+        evidence = self.confident(1000.0)
+
+        model_only = price_item(evidence)
+        memory = price_item(evidence, memory_backed=True)
+
+        self.assertGreater(memory.limit, model_only.limit)
+
+    def test_the_looser_ceiling_moves_the_limit_and_nothing_else(self) -> None:
+        """It is a Limit-side rule. A Charge that moved with the channel would be a
+        conditional Charge rule, and every one of those failed out of sample."""
+        evidence = self.confident(1000.0)
+
+        self.assertEqual(
+            price_item(evidence).charge,
+            price_item(evidence, memory_backed=True).charge,
+        )
+
+    def test_a_memory_hit_never_resurrects_the_limit_on_an_uncovered_item(self) -> None:
+        """A proven exclusion outranks the channel. `t = 0`, so any Limit above zero is a
+        pure loss -- but the Charge stays, because a rejected Overcharge is free (R6c)."""
+        price = price_item(
+            self.confident(1000.0), confirmed_uncovered=True, memory_backed=True
+        )
+
+        self.assertEqual(price.limit, 0.0)
+        self.assertGreater(price.charge, 0.0)
+
     def test_charge_sits_below_the_estimate(self) -> None:
         """Income is `a` whenever a <= t and collapses ~80% above it."""
         price = price_item(self.confident(200.0))

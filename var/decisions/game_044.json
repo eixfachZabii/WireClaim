@@ -1,0 +1,345 @@
+{
+  "game_id": 44,
+  "items": [
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 4738.18,
+      "coverage_probability": 0.925,
+      "index": 1,
+      "limit": 4738.18,
+      "name": "Compensation for stolen watch (1 pcs)",
+      "price_high": 12154.850664687468,
+      "price_low": 3849.086823241062,
+      "price_median": 6839.961661581986,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 2337.29,
+      "coverage_probability": 0.925,
+      "index": 2,
+      "limit": 708.0,
+      "name": "Compensation for stolen diamond ring (1 pcs)",
+      "price_high": 12132.611478392702,
+      "price_low": 1442.3935054020535,
+      "price_median": 4183.3001326703825,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.647292735684484
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 1150.57,
+      "coverage_probability": 0.925,
+      "index": 3,
+      "limit": 708.0,
+      "name": "Compensation for stolen gold necklace (1 pcs)",
+      "price_high": 6530.944613403032,
+      "price_low": 689.027432687906,
+      "price_median": 2121.3203435596424,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.6835944631776875
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 300.91,
+      "coverage_probability": 0.475,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Compensation for cash taken in robbery (1 pcs)",
+      "price_high": 771.921940245513,
+      "price_low": 244.44517260929064,
+      "price_median": 434.38760562913507,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 411.67,
+      "coverage_probability": 0.92,
+      "index": 5,
+      "limit": 303.54,
+      "name": "Compensation for stolen mobile phone (1 pcs)",
+      "price_high": 1620.152969570633,
+      "price_low": 280.8376792474001,
+      "price_median": 674.5368781616022,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.532674468366534
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 6,
+      "limit": 0.0,
+      "name": "Replacement travel and extra hotel nights after the",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.0,
+      "index": 7,
+      "limit": 0.0,
+      "name": "Shipping (1 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.0,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Translation from Spanish to English (2 hrs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 9,
+      "limit": 0.0,
+      "name": "Notary certification of translated documents",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 66.41,
+      "coverage_probability": 0.0,
+      "index": 10,
+      "limit": 0.0,
+      "name": "Material costs (1 pcs)",
+      "price_high": 139.3908259477404,
+      "price_low": 58.98491216403672,
+      "price_median": 90.675,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.26139817629179335
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.0,
+      "index": 11,
+      "limit": 0.0,
+      "name": "Administrative and claim-processing fee (1 flat rate)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    }
+  ],
+  "memory_items": 5,
+  "model_draws": 2,
+  "model_items": 11,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        43750.0,
+        35.0
+      ],
+      "10": [
+        150.0,
+        0.0
+      ],
+      "11": [
+        150.0,
+        0.0
+      ],
+      "2": [
+        10500.0,
+        35.0
+      ],
+      "3": [
+        3150.0,
+        35.0
+      ],
+      "4": [
+        175.0,
+        35.0
+      ],
+      "5": [
+        525.0,
+        35.0
+      ],
+      "6": [
+        150.0,
+        0.0
+      ],
+      "7": [
+        150.0,
+        0.0
+      ],
+      "8": [
+        300.0,
+        20.0
+      ],
+      "9": [
+        150.0,
+        6.67
+      ]
+    },
+    "strategy2": {
+      "1": [
+        4738.18,
+        4738.18
+      ],
+      "10": [
+        66.41,
+        0.0
+      ],
+      "11": [
+        39.62,
+        0.0
+      ],
+      "2": [
+        2337.29,
+        708.0
+      ],
+      "3": [
+        1150.57,
+        708.0
+      ],
+      "4": [
+        300.91,
+        0.0
+      ],
+      "5": [
+        411.67,
+        303.54
+      ],
+      "6": [
+        64.06,
+        0.0
+      ],
+      "7": [
+        39.62,
+        0.0
+      ],
+      "8": [
+        39.62,
+        0.0
+      ],
+      "9": [
+        64.06,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        6125.0,
+        35.0
+      ],
+      "10": [
+        150.0,
+        1.67
+      ],
+      "11": [
+        150.0,
+        16.67
+      ],
+      "2": [
+        4620.0,
+        35.0
+      ],
+      "3": [
+        3080.0,
+        35.0
+      ],
+      "4": [
+        717.5,
+        35.0
+      ],
+      "5": [
+        665.0,
+        35.0
+      ],
+      "6": [
+        980.0,
+        35.0
+      ],
+      "7": [
+        150.0,
+        0.0
+      ],
+      "8": [
+        300.0,
+        26.67
+      ],
+      "9": [
+        150.0,
+        10.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787436223.62273,
+  "recorded_at": 1787436183.359353,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

@@ -1,0 +1,120 @@
+{
+  "game_id": 29,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 176.85,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 79.6,
+      "name": "Water extraction from the flooded plant room (1 pcs)",
+      "price_high": 518.8603161451879,
+      "price_low": 135.6819895632579,
+      "price_median": 265.3299832284321,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.40769631336941636
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 4649.21,
+      "coverage_probability": 0.94,
+      "index": 2,
+      "limit": 2141.59,
+      "name": "Renew the water-damaged boiler, flue and storage (1 flat rate)",
+      "price_high": 14760.733431840827,
+      "price_low": 3452.4029741010427,
+      "price_median": 7138.627319029896,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.44161094395742356
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 239.22,
+      "coverage_probability": 0.97,
+      "index": 3,
+      "limit": 109.41,
+      "name": "Dispose of the old boiler system 1 \u2013",
+      "price_high": 741.295773614306,
+      "price_low": 179.41556492563993,
+      "price_median": 364.6916505762093,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.43121428372539994
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.08,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    }
+  ],
+  "memory_items": 1,
+  "model_draws": 2,
+  "model_items": 4,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        315.0,
+        35.0
+      ],
+      "2": [
+        5110.0,
+        35.0
+      ],
+      "3": [
+        245.0,
+        35.0
+      ],
+      "4": [
+        150.0,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        176.85,
+        79.6
+      ],
+      "2": [
+        4649.21,
+        2141.59
+      ],
+      "3": [
+        239.22,
+        109.41
+      ],
+      "4": [
+        39.62,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787424832.478272,
+  "recorded_at": 1787424819.0439732,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

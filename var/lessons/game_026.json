@@ -1,0 +1,281 @@
+{
+  "game_id": 26,
+  "had_decision_log": true,
+  "log_schema": 1,
+  "mechanisms": {
+    "income": 21306.93,
+    "paid_on_accepts": 1196.11,
+    "penalties": 24041.145,
+    "net": -3930.3250000000007
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Disassembly and assembly service (1 pcs)",
+      "t_lo": 95.47,
+      "t_hi": 106.2,
+      "our_charge": 251.64,
+      "our_limit_bracket": [
+        106.56,
+        Infinity
+      ],
+      "estimate_median": 288.44410203711897,
+      "coverage_probability": 0.95,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 252 against t < 106, so every opponent owed us nothing."
+    },
+    {
+      "index": 2,
+      "name": "Construction dryer (7 days)",
+      "t_lo": 282.33,
+      "t_hi": 378.0,
+      "our_charge": 252.63,
+      "our_limit_bracket": [
+        110.88,
+        139.53
+      ],
+      "estimate_median": 1047.6640682967034,
+      "coverage_probability": 0.975,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2945.385,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Rock wool pipe insulation (1 pcs)",
+      "t_lo": 37.17,
+      "t_hi": 41.94,
+      "our_charge": 29.27,
+      "our_limit_bracket": [
+        7.0,
+        18.85
+      ],
+      "estimate_median": 46.68713442566234,
+      "coverage_probability": 0.87,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 304.245,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Construction waste disposal (1 flat rate)",
+      "t_lo": 58.39,
+      "t_hi": 60.0,
+      "our_charge": 58.39,
+      "our_limit_bracket": [
+        16.54,
+        32.13
+      ],
+      "estimate_median": 87.06739557667055,
+      "coverage_probability": 0.835,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 351.69,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Wall levelling material (1 pcs)",
+      "t_lo": 65.0,
+      "t_hi": null,
+      "our_charge": 18.39,
+      "our_limit_bracket": [
+        0.0,
+        15.0
+      ],
+      "estimate_median": 51.961524227066306,
+      "coverage_probability": 0.9299999999999999,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 748.365,
+      "stage": "charge-far-below-t",
+      "why": "Charged 18 against t >= 65; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 6,
+      "name": "Rough renovation (2.78 m\u00b2)",
+      "t_lo": 181.39,
+      "t_hi": 206.58,
+      "our_charge": 250.04,
+      "our_limit_bracket": [
+        72.83,
+        112.5
+      ],
+      "estimate_median": 319.99999999999994,
+      "coverage_probability": 0.9450000000000001,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2114.4,
+      "stage": "charge-above-t",
+      "why": "Charged 250 against t < 207, so every opponent owed us nothing."
+    },
+    {
+      "index": 7,
+      "name": "Mounting / service opening (1 pcs)",
+      "t_lo": 130.23,
+      "t_hi": 176.75,
+      "our_charge": 79.25,
+      "our_limit_bracket": [
+        39.63,
+        65.0
+      ],
+      "estimate_median": 198.99748742132394,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1392.96,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Premium large-format designer wall tiles 120 x 120 (5 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 43.6,
+      "our_charge": 109.87,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 394.96835316263014,
+      "coverage_probability": 0.18,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Premium grout (1 pcs)",
+      "t_lo": 11.3,
+      "t_hi": 11.64,
+      "our_charge": 11.95,
+      "our_limit_bracket": [
+        0.0,
+        3.58
+      ],
+      "estimate_median": 22.9128784747792,
+      "coverage_probability": 0.22,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 22.320000000000004,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.22 so the Limit collapsed, but the item is worth at least 11."
+    },
+    {
+      "index": 10,
+      "name": "Premium silicone sealant (12 m)",
+      "t_lo": 0.0,
+      "t_hi": 14.56,
+      "our_charge": 34.76,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 57.445626465380286,
+      "coverage_probability": 0.21000000000000002,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 81.0,
+      "t_hi": null,
+      "our_charge": 52.14,
+      "our_limit_bracket": [
+        5.24,
+        24.28
+      ],
+      "estimate_median": 72.47101972066238,
+      "coverage_probability": 0.75,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 944.535,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 12,
+      "name": "Skilled worker hours (14 hrs)",
+      "t_lo": 980.01,
+      "t_hi": null,
+      "our_charge": 766.7,
+      "our_limit_bracket": [
+        0.0,
+        338.59
+      ],
+      "estimate_median": 1084.8985233882877,
+      "coverage_probability": 0.96,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 15217.244999999999,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "The log predates the `proposals` section (schema 1), so only the winner's numbers exist. Nothing to compare \u2014 this is not evidence that the other strategies stayed silent.",
+    "winner": null,
+    "strategies": {},
+    "drivers": [],
+    "reconstructs": true,
+    "actual_net": -3930.3250000000007,
+    "replayed_actual_net": -3930.324999999997,
+    "oracle_net": 12706.59,
+    "oracle_exact_net": 13745.86,
+    "line_items": 12
+  },
+  "estimate": {
+    "n_scorable": 7,
+    "median_log_error": 0.5005401593073862,
+    "rmsle": 0.6980749870732955
+  },
+  "cost_by_stage": {
+    "ok": 21156.059999999998,
+    "charge-above-t": 2114.4,
+    "charge-far-below-t": 748.365,
+    "coverage-too-low": 22.320000000000004
+  }
+}

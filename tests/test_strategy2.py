@@ -5,10 +5,12 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.data.models import CaseData, LineItem
-from src.pricing.engine import Evidence
+from src.pricing.engine import Evidence, price_item
 from src.strategies.strategy2.blend import blend as _blend, combine as _combine
+from src.strategies.strategy2.channels import aggregate_class_discount
 from src.strategies.strategy2.constants import (
     LLM_TIMEOUT_SECONDS,
+    SETTLED_MEDIAN,
     STRATEGY_NAME,
     SUBMISSION_RESERVE_SECONDS,
 )
@@ -200,8 +202,13 @@ class BlendTests(unittest.TestCase):
 
     def test_the_two_framings_differ_only_in_the_distribution_hint(self) -> None:
         self.assertEqual(ENSEMBLE_PROMPTS, (PROMPT, PROMPT_UNANCHORED))
-        self.assertIn("the median is around 59 EUR", PROMPT)
-        self.assertNotIn("the median is around", PROMPT_UNANCHORED)
+        # Assert the invariant, not the figure. This test used to pin the literal string
+        # "the median is around 59 EUR", which is how a statistic measured over 148 Line
+        # Items stayed in the prompt unchallenged until Game 41, by which point the true
+        # median over 457 Line Items was 97 and every number in the hint was low.
+        self.assertIn(f"median {SETTLED_MEDIAN:.0f} EUR", PROMPT)
+        self.assertIn("settled distribution", PROMPT)
+        self.assertNotIn("settled distribution", PROMPT_UNANCHORED)
 
 
 class UncorrectedLevelTests(unittest.TestCase):
@@ -366,3 +373,58 @@ class ProposeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AggregateClassSubLimit(unittest.TestCase):
+    """Channel D: two valuables in one Case share one pot, so only the dearest keeps cover.
+
+    Game 44 is the whole case for it -- watch `t >= 9,361` paid, ring `t < 884` and necklace
+    `t < 663` both zero, and the model gave all three an identical coverage of 0.925.
+    """
+
+    def _case(self, *names: str) -> CaseData:
+        return CaseData(
+            game_id=99,
+            case_dir=None,
+            policy_text="",
+            description_text="",
+            line_items=tuple(LineItem(i, n) for i, n in enumerate(names, start=1)),
+            image_paths=(),
+        )
+
+    def _evidence(self, *medians: float) -> dict[int, Evidence]:
+        return {
+            i: Evidence(index=i, coverage_probability=0.925, price_low=m * 0.5,
+                        price_median=m, price_high=m * 2.0)
+            for i, m in enumerate(medians, start=1)
+        }
+
+    def test_only_the_dearest_member_keeps_its_coverage(self) -> None:
+        case = self._case("Compensation for stolen watch", "Compensation for stolen ring")
+        out = aggregate_class_discount(case, self._evidence(6800.0, 2300.0))
+
+        self.assertEqual(out[1].coverage_probability, 0.925)
+        self.assertLess(out[2].coverage_probability, 1 / 3)
+
+    def test_it_moves_the_limit_and_never_the_charge(self) -> None:
+        """An uncovered item is worth `t = 0`, so a rejected Charge on it costs nothing
+        (R6c). Only the Limit should collapse."""
+        case = self._case("Compensation for stolen watch", "Compensation for stolen ring")
+        evidence = self._evidence(6800.0, 2300.0)
+        out = aggregate_class_discount(case, evidence)
+
+        self.assertEqual(price_item(out[2]).charge, price_item(evidence[2]).charge)
+        self.assertEqual(price_item(out[2]).limit, 0.0)
+
+    def test_a_single_valuables_item_is_untouched(self) -> None:
+        """The safety case. 43 of 44 settled Cases have at most one valuables item."""
+        case = self._case("Compensation for stolen watch", "Replace kitchen worktop")
+        evidence = self._evidence(6800.0, 2300.0)
+
+        self.assertEqual(aggregate_class_discount(case, evidence), evidence)
+
+    def test_a_case_with_no_valuables_at_all_is_untouched(self) -> None:
+        case = self._case("Skilled worker hours", "Replace kitchen worktop")
+        evidence = self._evidence(400.0, 2300.0)
+
+        self.assertEqual(aggregate_class_discount(case, evidence), evidence)

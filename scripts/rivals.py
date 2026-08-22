@@ -451,21 +451,23 @@ def measure(book: Book, team: str, stat: Stat) -> None:
         if row["reviewer"] == team:
             a = book.charge[index].get(row["issuer"], INF)
             fair = a != INF and book.status[index][row["issuer"]] != "capped" and a <= t
-            seen += 1
-            acc += 1 if row["accepted"] else 0
             if fair:
                 stat.seen_fair += 1
+                game_acc[1] += 1
                 if row["accepted"]:
                     stat.acc_fair += 1
+                    game_acc[0] += 1
                     stat.pay_fair += row["amount"]
                 else:
                     stat.penalty += 1.5 * row["amount"]
             else:
                 stat.seen_over += 1
+                game_acc[3] += 1
                 if row["accepted"]:
                     stat.acc_over += 1
+                    game_acc[2] += 1
                     stat.pay_over += row["amount"]
-    stat.per_game_accept[book.game_id] = (acc, seen)
+    stat.per_game_accept[book.game_id] = tuple(game_acc)
     net = identity_net(book.rows[team], team)
     stat.net += net
     stat.per_game[book.game_id] = net
@@ -731,7 +733,7 @@ def breaks_report(stats: dict[str, Stat], order: list[str], title: str) -> None:
         series = {
             "median a/t": [(g, q(s.per_game_a_over_t.get(g, []), 0.5)) for g in gids],
             "accept%": [
-                (g, (s.per_game_accept[g][0] / s.per_game_accept[g][1] if s.per_game_accept[g][1] else float("nan")))
+                (g, _accept_rate(s.per_game_accept.get(g)))
                 for g in gids
             ],
             "charge CV": [(g, _cv(s.per_game_charges.get(g, []))) for g in gids],
@@ -746,6 +748,15 @@ def breaks_report(stats: dict[str, Stat], order: list[str], title: str) -> None:
     print("  `gap/sd` >= 1.0 is where the two halves differ by more than the series' own noise.")
     print("  `charge CV` = stdev/mean of the Charges submitted in a Game: a collapse toward 0 is")
     print("  a team that stopped pricing items individually (a constant or a template).")
+
+
+def _accept_rate(counts: tuple[int, int, int, int] | None) -> float:
+    """Overall accept rate for one Game from `(acc fair, seen fair, acc over, seen over)`."""
+    if not counts:
+        return float("nan")
+    acc_fair, seen_fair, acc_over, seen_over = counts
+    seen = seen_fair + seen_over
+    return (acc_fair + acc_over) / seen if seen else float("nan")
 
 
 def _cv(values: list[float]) -> float:

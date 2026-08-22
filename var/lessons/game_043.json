@@ -1,0 +1,192 @@
+{
+  "game_id": 43,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 12272.539999999999,
+    "paid_on_accepts": 2872.68,
+    "penalties": 3598.77,
+    "net": 5801.089999999998,
+    "saved_by_rejecting": 428.55,
+    "lawyer_waste": 1199.59,
+    "fraud_let_through": 0.0,
+    "strictness_net": -771.04
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Laptop screen crack repair (1 pcs)",
+      "t_lo": 434.94,
+      "t_hi": null,
+      "our_charge": 434.94,
+      "our_limit_bracket": [
+        271.95,
+        297.01
+      ],
+      "estimate_median": 636.8673331236266,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2529.165,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Lower-right corner and housing repair (1 pcs)",
+      "t_lo": 229.29,
+      "t_hi": null,
+      "our_charge": 229.29,
+      "our_limit_bracket": [
+        149.08,
+        157.96
+      ],
+      "estimate_median": 339.41125496954277,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 498.9,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Polish of pre-existing lid scuff (surface only, does not",
+      "t_lo": 0.0,
+      "t_hi": 8.0,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Diagnostic inspection (1 pcs)",
+      "t_lo": 111.99,
+      "t_hi": null,
+      "our_charge": 98.8,
+      "our_limit_bracket": [
+        62.06,
+        66.2
+      ],
+      "estimate_median": 139.99999999999994,
+      "coverage_probability": 0.975,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 570.705,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -1804.79,
+        "income": 6078.0,
+        "cost": 7882.79,
+        "items_priced": 4,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 5801.089999999996,
+        "income": 12272.539999999995,
+        "cost": 6471.45,
+        "items_priced": 4,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": -1804.79,
+        "income": 6078.0,
+        "cost": 7882.79,
+        "items_priced": 4,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 1,
+        "name": "Laptop screen crack repair (1 pcs)",
+        "delta": -4111.884999999997,
+        "winner_net": 3068.184999999997,
+        "alternative_net": -1043.6999999999998,
+        "t_hat": 636.8673331236266,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 434.94,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Lower-right corner and housing repair (1 pcs)",
+        "delta": -1818.4499999999996,
+        "winner_net": 2020.1199999999997,
+        "alternative_net": 201.67000000000007,
+        "t_hat": 339.41125496954277,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 229.29,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Diagnostic inspection (1 pcs)",
+        "delta": -1761.4849999999997,
+        "winner_net": 648.7249999999995,
+        "alternative_net": -1112.7600000000002,
+        "t_hat": 139.99999999999994,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 111.99,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Polish of pre-existing lid scuff (surface only, does not",
+        "delta": 85.94,
+        "winner_net": 64.06,
+        "alternative_net": 150.0,
+        "t_hat": 97.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 8.0,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 5801.089999999999,
+    "replayed_actual_net": 5801.089999999996,
+    "oracle_net": 7211.659999999996,
+    "oracle_exact_net": 7322.659999999996,
+    "line_items": 4,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": -7605.879999999996
+  },
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "ok": 3598.77
+  }
+}

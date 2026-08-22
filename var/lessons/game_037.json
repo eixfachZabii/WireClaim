@@ -1,0 +1,620 @@
+{
+  "game_id": 37,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 51316.32,
+    "paid_on_accepts": 2331.74,
+    "penalties": 47045.955,
+    "net": 1938.625
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Indoor leak detection (1 pcs)",
+      "t_lo": 557.08,
+      "t_hi": null,
+      "our_charge": 337.43,
+      "our_limit_bracket": [
+        203.63,
+        256.0
+      ],
+      "estimate_median": 487.11379771880485,
+      "coverage_probability": 0.965,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 6320.1900000000005,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Room drying 30 m\u00b2 (basement) (1 pcs)",
+      "t_lo": 454.85,
+      "t_hi": 518.09,
+      "our_charge": 309.41,
+      "our_limit_bracket": [
+        92.75,
+        238.0
+      ],
+      "estimate_median": 446.6560432155458,
+      "coverage_probability": 0.965,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 4909.695,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Room dryer unit (1 pcs)",
+      "t_lo": 472.77,
+      "t_hi": null,
+      "our_charge": 189.11,
+      "our_limit_bracket": [
+        81.0,
+        211.65
+      ],
+      "estimate_median": 272.99248293066614,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 4477.8,
+      "stage": "charge-far-below-t",
+      "why": "Charged 189 against t >= 473; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 4,
+      "name": "Wet insulation wool from basement (1 pcs)",
+      "t_lo": 201.7,
+      "t_hi": 259.45,
+      "our_charge": 121.82,
+      "our_limit_bracket": [
+        43.72,
+        89.58
+      ],
+      "estimate_median": 175.86122532218326,
+      "coverage_probability": 0.915,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2136.48,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Room drying 50 m\u00b2 in the adjoining ground-floor room (1 pcs)",
+      "t_lo": 353.46,
+      "t_hi": 360.0,
+      "our_charge": 457.63,
+      "our_limit_bracket": [
+        92.75,
+        295.57
+      ],
+      "estimate_median": 652.3802572120039,
+      "coverage_probability": 0.9299999999999999,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1935.945,
+      "stage": "charge-above-t",
+      "why": "Charged 458 against t < 360, so every opponent owed us nothing."
+    },
+    {
+      "index": 6,
+      "name": "Room dryer unit (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 43.72,
+      "our_charge": 189.11,
+      "our_limit_bracket": [
+        81.0,
+        Infinity
+      ],
+      "estimate_median": 272.99248293066614,
+      "coverage_probability": 0.89,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.89 but the item is worth about nothing (t < 44)."
+    },
+    {
+      "index": 7,
+      "name": "Drying fan (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 20.89,
+      "our_charge": 61.64,
+      "our_limit_bracket": [
+        39.3,
+        Infinity
+      ],
+      "estimate_median": 88.97583245539694,
+      "coverage_probability": 0.845,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.84 but the item is worth about nothing (t < 21)."
+    },
+    {
+      "index": 8,
+      "name": "Room drying in a first-floor bedroom",
+      "t_lo": 0.0,
+      "t_hi": 38.96,
+      "our_charge": 38.96,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 59.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Profipress elbow 90\u00b0 copper 28mm model 01 (5 pcs)",
+      "t_lo": 111.1,
+      "t_hi": 152.13,
+      "our_charge": 48.66,
+      "our_limit_bracket": [
+        26.0,
+        36.71
+      ],
+      "estimate_median": 70.23962507831612,
+      "coverage_probability": 0.92,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1358.7749999999999,
+      "stage": "charge-far-below-t",
+      "why": "Charged 49 against t >= 111; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 10,
+      "name": "Profipress elbow 45\u00b0 copper 28mm model 02 (5 pcs)",
+      "t_lo": 111.1,
+      "t_hi": 131.17,
+      "our_charge": 46.51,
+      "our_limit_bracket": [
+        26.0,
+        33.01
+      ],
+      "estimate_median": 67.13878560502981,
+      "coverage_probability": 0.92,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1313.28,
+      "stage": "charge-far-below-t",
+      "why": "Charged 47 against t >= 111; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 11,
+      "name": "Transition piece 15x19mm (3 pcs)",
+      "t_lo": 75.0,
+      "t_hi": 156.57,
+      "our_charge": 35.71,
+      "our_limit_bracket": [
+        9.0,
+        23.54
+      ],
+      "estimate_median": 51.555405953680165,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 776.61,
+      "stage": "charge-far-below-t",
+      "why": "Charged 36 against t >= 75; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 12,
+      "name": "Skilled worker hours (10.5 hrs)",
+      "t_lo": 620.87,
+      "t_hi": 711.38,
+      "our_charge": 614.09,
+      "our_limit_bracket": [
+        87.45,
+        496.62
+      ],
+      "estimate_median": 886.4933759667401,
+      "coverage_probability": 0.965,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2571.735,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 13,
+      "name": "Vehicle costs (2 pcs)",
+      "t_lo": 165.62,
+      "t_hi": null,
+      "our_charge": 60.07,
+      "our_limit_bracket": [
+        0.0,
+        45.49
+      ],
+      "estimate_median": 86.72021167171336,
+      "coverage_probability": 0.835,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2080.86,
+      "stage": "charge-far-below-t",
+      "why": "Charged 60 against t >= 166; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 14,
+      "name": "Skilled worker hours 14 \u2013",
+      "t_lo": 1008.79,
+      "t_hi": null,
+      "our_charge": 938.23,
+      "our_limit_bracket": [
+        483.7,
+        751.06
+      ],
+      "estimate_median": 1239.3546707863734,
+      "coverage_probability": 0.95,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 14366.19,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 15,
+      "name": "Premium large-format designer floor tiles (upgrade (5 pcs)",
+      "t_lo": 488.69,
+      "t_hi": 675.0,
+      "our_charge": 152.31,
+      "our_limit_bracket": [
+        0.0,
+        43.72
+      ],
+      "estimate_median": 220.00000000000009,
+      "coverage_probability": 0.11499999999999999,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 3753.795,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.11 so the Limit collapsed, but the item is worth at least 489."
+    },
+    {
+      "index": 16,
+      "name": "Standard tiling material (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 30.5,
+      "our_charge": 30.5,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 47.434164902525694,
+      "coverage_probability": 0.915,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.92 but the item is worth about nothing (t < 30)."
+    },
+    {
+      "index": 17,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 81.79,
+      "t_hi": null,
+      "our_charge": 51.45,
+      "our_limit_bracket": [
+        26.57,
+        44.0
+      ],
+      "estimate_median": 74.26698769134543,
+      "coverage_probability": 0.8400000000000001,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1044.6000000000001,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -38675.5,
+        "income": 11178.0,
+        "cost": 49853.5,
+        "items_priced": 17,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 1938.6249999999927,
+        "income": 51316.31999999999,
+        "cost": 49377.695,
+        "items_priced": 17,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": -36771.38,
+        "income": 13052.5,
+        "cost": 49823.88,
+        "items_priced": 17,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 14,
+        "name": "Skilled worker hours 14 \u2013",
+        "delta": -15362.839999999995,
+        "winner_net": -70.6400000000067,
+        "alternative_net": -15433.480000000001,
+        "t_hat": 1239.3546707863734,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 1008.79,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 12,
+        "name": "Skilled worker hours (10.5 hrs)",
+        "delta": -9869.165,
+        "winner_net": 7166.255,
+        "alternative_net": -2702.91,
+        "t_hat": 886.4933759667401,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 620.87,
+        "t_hi": 711.38,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Room drying 30 m\u00b2 (basement) (1 pcs)",
+        "delta": -4996.9349999999995,
+        "winner_net": -67.86499999999978,
+        "alternative_net": -5064.799999999999,
+        "t_hat": 446.6560432155458,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 454.85,
+        "t_hi": 518.09,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Room drying 50 m\u00b2 in the adjoining ground-floor room (1 pcs)",
+        "delta": -2792.155,
+        "winner_net": 699.9850000000001,
+        "alternative_net": -2092.17,
+        "t_hat": 652.3802572120039,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 353.46,
+        "t_hi": 360.0,
+        "rule": "priced"
+      },
+      {
+        "index": 15,
+        "name": "Premium large-format designer floor tiles (upgrade (5 pcs)",
+        "delta": -2436.9599999999996,
+        "winner_net": -1316.8350000000005,
+        "alternative_net": -3753.795,
+        "t_hat": 220.00000000000009,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 488.69,
+        "t_hi": 675.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 3,
+        "name": "Room dryer unit (1 pcs)",
+        "delta": 1851.619999999999,
+        "winner_net": -1777.2799999999988,
+        "alternative_net": 74.34000000000015,
+        "t_hat": 272.99248293066614,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 472.77,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Wet insulation wool from basement (1 pcs)",
+        "delta": -973.4799999999984,
+        "winner_net": -231.08000000000106,
+        "alternative_net": -1204.5599999999995,
+        "t_hat": 175.86122532218326,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 201.7,
+        "t_hi": 259.45,
+        "rule": "priced"
+      },
+      {
+        "index": 13,
+        "name": "Vehicle costs (2 pcs)",
+        "delta": -961.1200000000003,
+        "winner_net": -1119.7399999999993,
+        "alternative_net": -2080.8599999999997,
+        "t_hat": 86.72021167171336,
+        "bucket": "t_hat < 100",
+        "t_lo": 165.62,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 17,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -823.2000000000003,
+        "winner_net": -273.9699999999998,
+        "alternative_net": -1097.17,
+        "t_hat": 74.26698769134543,
+        "bucket": "t_hat < 100",
+        "t_lo": 81.79,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 9,
+        "name": "Profipress elbow 90\u00b0 copper 28mm model 01 (5 pcs)",
+        "delta": -778.5599999999997,
+        "winner_net": -606.2150000000004,
+        "alternative_net": -1384.775,
+        "t_hat": 70.23962507831612,
+        "bucket": "t_hat < 100",
+        "t_lo": 111.1,
+        "t_hi": 152.13,
+        "rule": "priced"
+      },
+      {
+        "index": 10,
+        "name": "Profipress elbow 45\u00b0 copper 28mm model 02 (5 pcs)",
+        "delta": -727.6549999999999,
+        "winner_net": -595.12,
+        "alternative_net": -1322.7749999999999,
+        "t_hat": 67.13878560502981,
+        "bucket": "t_hat < 100",
+        "t_lo": 111.1,
+        "t_hi": 131.17,
+        "rule": "priced"
+      },
+      {
+        "index": 11,
+        "name": "Transition piece 15x19mm (3 pcs)",
+        "delta": -513.57,
+        "winner_net": -214.25,
+        "alternative_net": -727.82,
+        "t_hat": 51.555405953680165,
+        "bucket": "t_hat < 100",
+        "t_lo": 75.0,
+        "t_hi": 156.57,
+        "rule": "priced"
+      },
+      {
+        "index": 16,
+        "name": "Standard tiling material (1 pcs)",
+        "delta": -427.0,
+        "winner_net": 427.0,
+        "alternative_net": 0.0,
+        "t_hat": 47.434164902525694,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 30.5,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Indoor leak detection (1 pcs)",
+        "delta": -297.0550000000012,
+        "winner_net": -1357.6599999999999,
+        "alternative_net": -1654.715000000001,
+        "t_hat": 487.11379771880485,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 557.08,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 7,
+        "name": "Drying fan (1 pcs)",
+        "delta": 175.80000000000007,
+        "winner_net": 403.30999999999995,
+        "alternative_net": 579.11,
+        "t_hat": 88.97583245539694,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 20.89,
+        "rule": "priced"
+      },
+      {
+        "index": 6,
+        "name": "Room dryer unit (1 pcs)",
+        "delta": 111.2299999999999,
+        "winner_net": 833.7700000000001,
+        "alternative_net": 945.0,
+        "t_hat": 272.99248293066614,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 43.72,
+        "rule": "priced"
+      },
+      {
+        "index": 8,
+        "name": "Room drying in a first-floor bedroom",
+        "delta": 111.03999999999999,
+        "winner_net": 38.96,
+        "alternative_net": 150.0,
+        "t_hat": 59.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 38.96,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 1938.625,
+    "replayed_actual_net": 1938.6249999999927,
+    "oracle_net": 47388.83000000002,
+    "oracle_exact_net": 49669.48000000002,
+    "line_items": 17,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": -38710.00499999999
+  },
+  "estimate": {
+    "n_scorable": 8,
+    "median_log_error": -0.43051235992626186,
+    "rmsle": 0.59894328401408
+  },
+  "cost_by_stage": {
+    "ok": 31348.89,
+    "charge-far-below-t": 10007.324999999999,
+    "coverage-too-low": 3753.795,
+    "charge-above-t": 1935.945,
+    "coverage-too-high": 0.0
+  }
+}

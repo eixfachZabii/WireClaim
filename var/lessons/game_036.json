@@ -1,0 +1,363 @@
+{
+  "game_id": 36,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 2307.35,
+    "paid_on_accepts": 0.0,
+    "penalties": 0.0,
+    "net": 2307.35,
+    "saved_by_rejecting": 14512.610000000004,
+    "lawyer_waste": 0.0,
+    "fraud_let_through": 0.0,
+    "strictness_net": 14512.610000000004
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Disassembly and assembly service (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 87.61,
+      "our_charge": 118.87,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 180.0,
+      "coverage_probability": 0.11499999999999999,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Construction dryer (7 days)",
+      "t_lo": 0.0,
+      "t_hi": 75.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 724.5688373094717,
+      "coverage_probability": 0.5,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Rock wool pipe insulation (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 46.68713442566234,
+      "coverage_probability": 0.44999999999999996,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Construction waste disposal (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 33.0,
+      "our_charge": 60.26,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 86.99186698112699,
+      "coverage_probability": 0.39,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Wall tile covering (2.78 m\u00b2)",
+      "t_lo": 0.0,
+      "t_hi": 50.0,
+      "our_charge": 174.34,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 259.99999999999994,
+      "coverage_probability": 0.04,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Wall levelling material (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 13.0,
+      "our_charge": 22.38,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 34.99999999999999,
+      "coverage_probability": 0.04,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Rough renovation (2.78 m\u00b2)",
+      "t_lo": 0.0,
+      "t_hi": 50.0,
+      "our_charge": 158.49,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 239.99999999999997,
+      "coverage_probability": 0.04,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Silicone joints 3.6 linear m",
+      "t_lo": 0.0,
+      "t_hi": 19.0,
+      "our_charge": 44.75,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 70.00000000000003,
+      "coverage_probability": 0.04,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 24.08,
+      "our_charge": 53.43,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 77.1364914887112,
+      "coverage_probability": 0.16499999999999998,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 10,
+      "name": "Skilled worker hours (14 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 404.54,
+      "our_charge": 736.66,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 1063.433576387514,
+      "coverage_probability": 0.15000000000000002,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": 0.0,
+        "income": 0.0,
+        "cost": 0.0,
+        "items_priced": 10,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 2307.35,
+        "income": 2307.35,
+        "cost": 0.0,
+        "items_priced": 10,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": 2067.0,
+        "income": 2100.0,
+        "cost": 33.0,
+        "items_priced": 10,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 10,
+        "name": "Skilled worker hours (14 hrs)",
+        "delta": 326.68000000000006,
+        "winner_net": 1473.32,
+        "alternative_net": 1800.0,
+        "t_hat": 1063.433576387514,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 0.0,
+        "t_hi": 404.54,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 1,
+        "name": "Disassembly and assembly service (1 pcs)",
+        "delta": -237.74,
+        "winner_net": 237.74,
+        "alternative_net": 0.0,
+        "t_hat": 180.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 87.61,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 4,
+        "name": "Construction waste disposal (1 flat rate)",
+        "delta": -153.51999999999998,
+        "winner_net": 120.52,
+        "alternative_net": -33.0,
+        "t_hat": 86.99186698112699,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 33.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 9,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -53.43,
+        "winner_net": 53.43,
+        "alternative_net": 0.0,
+        "t_hat": 77.1364914887112,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 24.08,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 6,
+        "name": "Wall levelling material (1 pcs)",
+        "delta": -44.76,
+        "winner_net": 44.76,
+        "alternative_net": 0.0,
+        "t_hat": 34.99999999999999,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 13.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 8,
+        "name": "Silicone joints 3.6 linear m",
+        "delta": -44.75,
+        "winner_net": 44.75,
+        "alternative_net": 0.0,
+        "t_hat": 70.00000000000003,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 19.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 5,
+        "name": "Wall tile covering (2.78 m\u00b2)",
+        "delta": -24.340000000000003,
+        "winner_net": 174.34,
+        "alternative_net": 150.0,
+        "t_hat": 259.99999999999994,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 50.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 7,
+        "name": "Rough renovation (2.78 m\u00b2)",
+        "delta": -8.490000000000009,
+        "winner_net": 158.49,
+        "alternative_net": 150.0,
+        "t_hat": 239.99999999999997,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 50.0,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 2307.35,
+    "replayed_actual_net": 2307.35,
+    "oracle_net": 6049.84,
+    "oracle_exact_net": 6051.42,
+    "line_items": 10,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": -240.3499999999999
+  },
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "ok": 0.0
+  }
+}

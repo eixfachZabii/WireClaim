@@ -1,0 +1,555 @@
+{
+  "game_id": 45,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 220.68,
+      "coverage_probability": 0.915,
+      "index": 1,
+      "limit": 144.0,
+      "name": "Clean / dry carpet (1 pcs)",
+      "price_high": 575.099381908874,
+      "price_low": 178.0561816291876,
+      "price_median": 319.99999999999994,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3563658773077105
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 237.58,
+      "coverage_probability": 0.735,
+      "index": 2,
+      "limit": 156.92,
+      "name": "Inspect electrical systems (1 pcs)",
+      "price_high": 646.0701974393295,
+      "price_low": 188.21484179576197,
+      "price_median": 348.711915483254,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.374870540053906
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 387.62,
+      "coverage_probability": 0.915,
+      "index": 3,
+      "limit": 257.09,
+      "name": "Inspect pool technology (1 pcs)",
+      "price_high": 1069.5254589093474,
+      "price_low": 305.1820761077043,
+      "price_median": 571.3142742834278,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.38117378826742376
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 565.22,
+      "coverage_probability": 0.065,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Upgrade to high-quality natural stone floor (12 m\u00b2)",
+      "price_high": 1449.9590035916588,
+      "price_low": 459.1597419767967,
+      "price_median": 815.9428913631635,
+      "quantity": 12.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 239.64,
+      "coverage_probability": 0.5,
+      "index": 5,
+      "limit": 0.0,
+      "name": "Pool filter system maintenance (1 pcs)",
+      "price_high": 751.4257542452831,
+      "price_low": 178.85998615390616,
+      "price_median": 366.60605559646694,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.43628240366601
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 550.63,
+      "coverage_probability": 0.91,
+      "index": 6,
+      "limit": 550.63,
+      "name": "Restore wall surfaces (10 m\u00b2)",
+      "price_high": 1412.5260021180416,
+      "price_low": 447.3058017926482,
+      "price_median": 794.8780258192917,
+      "quantity": 10.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 95.41,
+      "coverage_probability": 0.955,
+      "index": 7,
+      "limit": 95.41,
+      "name": "Final site cleaning (1 pcs)",
+      "price_high": 244.7648737328951,
+      "price_low": 77.50989923838551,
+      "price_median": 137.7377969191204,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 51.46,
+      "coverage_probability": 0.15,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 132.01095695742998,
+      "price_low": 41.80402120648776,
+      "price_median": 74.28720511728211,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 326.69,
+      "coverage_probability": 0.9,
+      "index": 9,
+      "limit": 326.69,
+      "name": "Leak detection pool pipeline (1 pcs)",
+      "price_high": 838.0671938766695,
+      "price_low": 265.39144592808077,
+      "price_median": 471.6098645785715,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568053
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 469.76,
+      "coverage_probability": 0.91,
+      "index": 10,
+      "limit": 347.99,
+      "name": "Repair pool supply pipe connection (1 pcs)",
+      "price_high": 1876.6544934419348,
+      "price_low": 318.65215578559736,
+      "price_median": 773.3045971672486,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.5389501090319541
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 287.52,
+      "coverage_probability": 0.265,
+      "index": 11,
+      "limit": 0.0,
+      "name": "Skilled worker hours (5 hrs)",
+      "price_high": 737.5772751812955,
+      "price_low": 233.56921852362134,
+      "price_median": 415.06065552504157,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 47.84,
+      "coverage_probability": 0.47500000000000003,
+      "index": 12,
+      "limit": 0.0,
+      "name": "Material for pool pipe repair (1 pcs)",
+      "price_high": 241.58181713838184,
+      "price_low": 29.803567525430623,
+      "price_median": 84.85281374238568,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.6360425839134224
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 169.77,
+      "coverage_probability": 0.9,
+      "index": 13,
+      "limit": 169.77,
+      "name": "Moisture measurement (1 pcs)",
+      "price_high": 435.50690697289826,
+      "price_low": 137.9123399623401,
+      "price_median": 245.07504281422368,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 102.13,
+      "coverage_probability": 0.95,
+      "index": 14,
+      "limit": 102.13,
+      "name": "Vacuum water (1 pcs)",
+      "price_high": 261.99931418345153,
+      "price_low": 82.96754404819737,
+      "price_median": 147.43622227971326,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 385.99,
+      "coverage_probability": 0.955,
+      "index": 15,
+      "limit": 385.99,
+      "name": "Room drying (pool/conservatory) (1 pcs)",
+      "price_high": 990.1810449436282,
+      "price_low": 313.5614675866183,
+      "price_median": 557.2096747445931,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 83.02,
+      "coverage_probability": 0.94,
+      "index": 16,
+      "limit": 83.02,
+      "name": "Condensation dryer (2 pcs)",
+      "price_high": 212.98331345667665,
+      "price_low": 67.44560571015406,
+      "price_median": 119.85319596173129,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 89.48,
+      "coverage_probability": 0.94,
+      "index": 17,
+      "limit": 89.48,
+      "name": "Drying fan (3 pcs)",
+      "price_high": 229.5454942049726,
+      "price_low": 72.69036547241164,
+      "price_median": 129.1733171607233,
+      "quantity": 3.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 930.7,
+      "coverage_probability": 0.8200000000000001,
+      "index": 18,
+      "limit": 930.7,
+      "name": "Replace skirting boards (15 m)",
+      "price_high": 2387.530752790318,
+      "price_low": 756.0613794578709,
+      "price_median": 1343.547466393628,
+      "quantity": 15.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    }
+  ],
+  "memory_items": 12,
+  "model_draws": 2,
+  "model_items": 18,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        220.5,
+        35.0
+      ],
+      "10": [
+        245.0,
+        35.0
+      ],
+      "11": [
+        750.0,
+        35.0
+      ],
+      "12": [
+        150.0,
+        35.0
+      ],
+      "13": [
+        150.0,
+        35.0
+      ],
+      "14": [
+        168.0,
+        35.0
+      ],
+      "15": [
+        542.5,
+        35.0
+      ],
+      "16": [
+        300.0,
+        35.0
+      ],
+      "17": [
+        450.0,
+        35.0
+      ],
+      "18": [
+        2250.0,
+        0.0
+      ],
+      "2": [
+        154.0,
+        35.0
+      ],
+      "3": [
+        210.0,
+        35.0
+      ],
+      "4": [
+        1800.0,
+        0.0
+      ],
+      "5": [
+        304.5,
+        0.0
+      ],
+      "6": [
+        1500.0,
+        35.0
+      ],
+      "7": [
+        150.0,
+        35.0
+      ],
+      "8": [
+        150.0,
+        0.0
+      ],
+      "9": [
+        315.0,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        220.68,
+        144.0
+      ],
+      "10": [
+        469.76,
+        347.99
+      ],
+      "11": [
+        287.52,
+        0.0
+      ],
+      "12": [
+        47.84,
+        0.0
+      ],
+      "13": [
+        169.77,
+        169.77
+      ],
+      "14": [
+        102.13,
+        102.13
+      ],
+      "15": [
+        385.99,
+        385.99
+      ],
+      "16": [
+        83.02,
+        83.02
+      ],
+      "17": [
+        89.48,
+        89.48
+      ],
+      "18": [
+        930.7,
+        930.7
+      ],
+      "2": [
+        237.58,
+        156.92
+      ],
+      "3": [
+        387.62,
+        257.09
+      ],
+      "4": [
+        565.22,
+        0.0
+      ],
+      "5": [
+        239.64,
+        0.0
+      ],
+      "6": [
+        550.63,
+        550.63
+      ],
+      "7": [
+        95.41,
+        95.41
+      ],
+      "8": [
+        51.46,
+        0.0
+      ],
+      "9": [
+        326.69,
+        326.69
+      ]
+    },
+    "strategy3": {
+      "1": [
+        192.5,
+        35.0
+      ],
+      "10": [
+        332.5,
+        35.0
+      ],
+      "11": [
+        750.0,
+        35.0
+      ],
+      "12": [
+        175.0,
+        35.0
+      ],
+      "13": [
+        150.0,
+        35.0
+      ],
+      "14": [
+        332.5,
+        35.0
+      ],
+      "15": [
+        665.0,
+        35.0
+      ],
+      "16": [
+        420.0,
+        35.0
+      ],
+      "17": [
+        450.0,
+        35.0
+      ],
+      "18": [
+        2250.0,
+        35.0
+      ],
+      "2": [
+        332.5,
+        35.0
+      ],
+      "3": [
+        280.0,
+        35.0
+      ],
+      "4": [
+        1800.0,
+        35.0
+      ],
+      "5": [
+        210.0,
+        0.0
+      ],
+      "6": [
+        1500.0,
+        35.0
+      ],
+      "7": [
+        297.5,
+        35.0
+      ],
+      "8": [
+        150.0,
+        33.33
+      ],
+      "9": [
+        385.0,
+        35.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787436992.927917,
+  "recorded_at": 1787436946.909846,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

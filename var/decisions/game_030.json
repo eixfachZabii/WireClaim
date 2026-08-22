@@ -1,0 +1,146 @@
+{
+  "game_id": 30,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 478.96,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 216.33,
+      "name": "Disassembly/reassembly, construction dryer for the (1 flat rate)",
+      "price_high": 1422.2370868408839,
+      "price_low": 365.621178642613,
+      "price_median": 721.1102550927981,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.4128840601355999
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 57.24,
+      "coverage_probability": 0.9199999999999999,
+      "index": 2,
+      "limit": 24.79,
+      "name": "Construction waste disposal (1 flat rate)",
+      "price_high": 146.83668532287564,
+      "price_low": 46.498897126450814,
+      "price_median": 82.63016353134867,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 229.89,
+      "coverage_probability": 0.965,
+      "index": 3,
+      "limit": 105.0,
+      "name": "Wall preparation, rough repair and mounting opening (1 flat rate)",
+      "price_high": 709.1366844009249,
+      "price_low": 172.74525869929758,
+      "price_median": 349.9999999999999,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.42924932415602146
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 171.66,
+      "coverage_probability": 0.935,
+      "index": 4,
+      "limit": 80.94,
+      "name": "Standard wall tiling incl. standard silicone sealant (1 flat rate)",
+      "price_high": 589.4945471413774,
+      "price_low": 123.49562918440431,
+      "price_median": 269.8147512646406,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.47509413548330603
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 52.71,
+      "coverage_probability": 0.4,
+      "index": 5,
+      "limit": 0.0,
+      "name": "Vehicle costs (1 flat rate)",
+      "price_high": 135.2253013012249,
+      "price_low": 42.82191034394995,
+      "price_median": 76.09602965040077,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    }
+  ],
+  "memory_items": 2,
+  "model_draws": 2,
+  "model_items": 5,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        437.5,
+        35.0
+      ],
+      "2": [
+        150.0,
+        35.0
+      ],
+      "3": [
+        245.0,
+        0.0
+      ],
+      "4": [
+        175.0,
+        35.0
+      ],
+      "5": [
+        150.0,
+        25.29
+      ]
+    },
+    "strategy2": {
+      "1": [
+        478.96,
+        216.33
+      ],
+      "2": [
+        57.24,
+        24.79
+      ],
+      "3": [
+        229.89,
+        105.0
+      ],
+      "4": [
+        171.66,
+        80.94
+      ],
+      "5": [
+        52.71,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787425587.331393,
+  "recorded_at": 1787425587.329191,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

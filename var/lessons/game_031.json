@@ -1,0 +1,635 @@
+{
+  "game_id": 31,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 19203.04,
+    "paid_on_accepts": 1435.92,
+    "penalties": 17076.72,
+    "net": 690.4000000000015
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Leak detection call-out and pinpointing of the sink (1 pcs)",
+      "t_lo": 432.0,
+      "t_hi": null,
+      "our_charge": 133.05,
+      "our_limit_bracket": [
+        49.5,
+        137.21
+      ],
+      "estimate_median": 180.0,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 4677.945,
+      "stage": "charge-far-below-t",
+      "why": "Charged 133 against t >= 432; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 2,
+      "name": "Moisture measurement of the kitchen floor and wall (1 pcs)",
+      "t_lo": 154.68,
+      "t_hi": null,
+      "our_charge": 110.33,
+      "our_limit_bracket": [
+        49.5,
+        80.0
+      ],
+      "estimate_median": 158.7450786638754,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2182.92,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Service technician hours (14 hrs)",
+      "t_lo": 576.0,
+      "t_hi": 680.36,
+      "our_charge": 680.36,
+      "our_limit_bracket": [
+        0.0,
+        481.24
+      ],
+      "estimate_median": 982.1577703938716,
+      "coverage_probability": 0.925,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 3179.295,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 24.28,
+      "t_hi": 36.0,
+      "our_charge": 39.17,
+      "our_limit_bracket": [
+        0.0,
+        24.28
+      ],
+      "estimate_median": 56.5386659605383,
+      "coverage_probability": 0.35,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 36.42,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.35 so the Limit collapsed, but the item is worth at least 24."
+    },
+    {
+      "index": 5,
+      "name": "Freeing the affected pipe run beneath the kitchen sink1 pcs",
+      "t_lo": 115.49,
+      "t_hi": 147.83,
+      "our_charge": 115.49,
+      "our_limit_bracket": [
+        49.5,
+        99.0
+      ],
+      "estimate_median": 169.70562748477138,
+      "coverage_probability": 0.91,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 310.5,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Removal and disposal of damaged insulation (2 pcs)",
+      "t_lo": 146.66,
+      "t_hi": null,
+      "our_charge": 23.61,
+      "our_limit_bracket": [
+        0.0,
+        16.0
+      ],
+      "estimate_median": 34.0812415461412,
+      "coverage_probability": 0.91,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1408.5,
+      "stage": "charge-far-below-t",
+      "why": "Charged 24 against t >= 147; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 7,
+      "name": "Repair of the confirmed leak (1 pcs)",
+      "t_lo": 114.0,
+      "t_hi": 144.0,
+      "our_charge": 251.64,
+      "our_limit_bracket": [
+        144.0,
+        Infinity
+      ],
+      "estimate_median": 366.60605559646694,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 252 against t < 144, so every opponent owed us nothing."
+    },
+    {
+      "index": 8,
+      "name": "Replacement copper pipe section and standard (1 flat rate)",
+      "t_lo": 61.74,
+      "t_hi": 144.53,
+      "our_charge": 61.74,
+      "our_limit_bracket": [
+        0.0,
+        49.0
+      ],
+      "estimate_median": 105.83005244258368,
+      "coverage_probability": 0.905,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 317.53499999999997,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Room drying line item for the roof space (Dachstuhl)1 pcs",
+      "t_lo": 0.0,
+      "t_hi": 39.62,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.18,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 10,
+      "name": "Condensation dryer (kitchen) (1 pcs)",
+      "t_lo": 52.73,
+      "t_hi": 90.69,
+      "our_charge": 103.13,
+      "our_limit_bracket": [
+        52.73,
+        Infinity
+      ],
+      "estimate_median": 148.87648369463486,
+      "coverage_probability": 0.9299999999999999,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 103 against t < 91, so every opponent owed us nothing."
+    },
+    {
+      "index": 11,
+      "name": "Room drying of the kitchen floor and wall base (1 pcs)",
+      "t_lo": 49.5,
+      "t_hi": 193.35,
+      "our_charge": 431.8,
+      "our_limit_bracket": [
+        265.85,
+        Infinity
+      ],
+      "estimate_median": 636.8673331236266,
+      "coverage_probability": 0.96,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 432 against t < 193, so every opponent owed us nothing."
+    },
+    {
+      "index": 12,
+      "name": "Drying fan (roof space) (2 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 39.62,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.2,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 13,
+      "name": "Final site cleaning of the covered work area (1 pcs)",
+      "t_lo": 78.46,
+      "t_hi": 86.64,
+      "our_charge": 57.98,
+      "our_limit_bracket": [
+        0.0,
+        42.0
+      ],
+      "estimate_median": 90.0,
+      "coverage_probability": 0.45,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 471.09,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.45 so the Limit collapsed, but the item is worth at least 78."
+    },
+    {
+      "index": 14,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 81.0,
+      "t_hi": null,
+      "our_charge": 36.31,
+      "our_limit_bracket": [
+        0.0,
+        24.28
+      ],
+      "estimate_median": 52.41568253814028,
+      "coverage_probability": 0.275,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 826.26,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.28 so the Limit collapsed, but the item is worth at least 81."
+    },
+    {
+      "index": 15,
+      "name": "Cleaning of entire apartment",
+      "t_lo": 0.0,
+      "t_hi": 39.62,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 16,
+      "name": "Removal, transport and disposal of the water-damaged (3 pcs)",
+      "t_lo": 139.1,
+      "t_hi": 158.52,
+      "our_charge": 168.57,
+      "our_limit_bracket": [
+        108.0,
+        121.3
+      ],
+      "estimate_median": 243.34213203652348,
+      "coverage_probability": 0.865,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1176.45,
+      "stage": "charge-above-t",
+      "why": "Charged 169 against t < 159, so every opponent owed us nothing."
+    },
+    {
+      "index": 17,
+      "name": "Delivery and assembly of the replacement table (1 flat rate)",
+      "t_lo": 315.0,
+      "t_hi": null,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        49.5
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.3,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 2489.8050000000003,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.30 so the Limit collapsed, but the item is worth at least 315."
+    },
+    {
+      "index": 18,
+      "name": "Inspection of further furniture items stored in the (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 19.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 159.99999999999994,
+      "coverage_probability": 0.425,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -2611.0200000000004,
+        "income": 15667.5,
+        "cost": 18278.52,
+        "items_priced": 18,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 690.3999999999942,
+        "income": 19203.039999999994,
+        "cost": 18512.64,
+        "items_priced": 18,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": -6728.52,
+        "income": 11550.0,
+        "cost": 18278.52,
+        "items_priced": 18,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 3,
+        "name": "Service technician hours (14 hrs)",
+        "delta": -5442.88,
+        "winner_net": 2263.585,
+        "alternative_net": -3179.295,
+        "t_hat": 982.1577703938716,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 576.0,
+        "t_hi": 680.36,
+        "rule": "priced"
+      },
+      {
+        "index": 17,
+        "name": "Delivery and assembly of the replacement table (1 flat rate)",
+        "delta": 1766.08,
+        "winner_net": -1855.8850000000002,
+        "alternative_net": -89.80500000000029,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 315.0,
+        "t_hi": null,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 5,
+        "name": "Freeing the affected pipe run beneath the kitchen sink1 pcs",
+        "delta": -1242.59,
+        "winner_net": 1487.84,
+        "alternative_net": 245.25,
+        "t_hat": 169.70562748477138,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 115.49,
+        "t_hi": 147.83,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Leak detection call-out and pinpointing of the sink (1 pcs)",
+        "delta": 1206.4500000000003,
+        "winner_net": -2598.645000000001,
+        "alternative_net": -1392.1950000000006,
+        "t_hat": 180.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 432.0,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 11,
+        "name": "Room drying of the kitchen floor and wall base (1 pcs)",
+        "delta": 807.25,
+        "winner_net": 1218.5,
+        "alternative_net": 2025.75,
+        "t_hat": 636.8673331236266,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 49.5,
+        "t_hi": 193.35,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Moisture measurement of the kitchen floor and wall (1 pcs)",
+        "delta": 673.9700000000003,
+        "winner_net": -467.1400000000003,
+        "alternative_net": 206.82999999999993,
+        "t_hat": 158.7450786638754,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 154.68,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 14,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -553.8199999999999,
+        "winner_net": -245.30000000000007,
+        "alternative_net": -799.12,
+        "t_hat": 52.41568253814028,
+        "bucket": "t_hat < 100",
+        "t_lo": 81.0,
+        "t_hi": null,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 6,
+        "name": "Removal and disposal of damaged insulation (2 pcs)",
+        "delta": -369.7600000000002,
+        "winner_net": -1030.7399999999998,
+        "alternative_net": -1400.5,
+        "t_hat": 34.0812415461412,
+        "bucket": "t_hat < 100",
+        "t_lo": 146.66,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -340.3900000000001,
+        "winner_net": 316.11000000000007,
+        "alternative_net": -24.28,
+        "t_hat": 56.5386659605383,
+        "bucket": "t_hat < 100",
+        "t_lo": 24.28,
+        "t_hi": 36.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 13,
+        "name": "Final site cleaning of the covered work area (1 pcs)",
+        "delta": -327.6800000000002,
+        "winner_net": 456.5900000000002,
+        "alternative_net": 128.91000000000003,
+        "t_hat": 90.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 78.46,
+        "t_hi": 86.64,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 9,
+        "name": "Room drying line item for the roof space (Dachstuhl)1 pcs",
+        "delta": 270.76,
+        "winner_net": 79.24,
+        "alternative_net": 350.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 39.62,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 16,
+        "name": "Removal, transport and disposal of the water-damaged (3 pcs)",
+        "delta": 228.36499999999978,
+        "winner_net": -1208.3000000000002,
+        "alternative_net": -979.9350000000004,
+        "t_hat": 243.34213203652348,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 139.1,
+        "t_hi": 158.52,
+        "rule": "priced"
+      },
+      {
+        "index": 10,
+        "name": "Condensation dryer (kitchen) (1 pcs)",
+        "delta": 70.71500000000003,
+        "winner_net": 825.9399999999999,
+        "alternative_net": 896.655,
+        "t_hat": 148.87648369463486,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 52.73,
+        "t_hi": 90.69,
+        "rule": "priced"
+      },
+      {
+        "index": 8,
+        "name": "Replacement copper pipe section and standard (1 flat rate)",
+        "delta": 62.15999999999997,
+        "winner_net": 670.3050000000001,
+        "alternative_net": 732.465,
+        "t_hat": 105.83005244258368,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 61.74,
+        "t_hi": 144.53,
+        "rule": "priced"
+      },
+      {
+        "index": 12,
+        "name": "Drying fan (roof space) (2 pcs)",
+        "delta": -39.62,
+        "winner_net": 39.62,
+        "alternative_net": 0.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 39.62,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 15,
+        "name": "Cleaning of entire apartment",
+        "delta": -39.62,
+        "winner_net": 39.62,
+        "alternative_net": 0.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 39.62,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 7,
+        "name": "Repair of the confirmed leak (1 pcs)",
+        "delta": -30.809999999999945,
+        "winner_net": 699.06,
+        "alternative_net": 668.25,
+        "t_hat": 366.60605559646694,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 114.0,
+        "t_hi": 144.0,
+        "rule": "priced"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 690.4000000000015,
+    "replayed_actual_net": 690.3999999999942,
+    "oracle_net": 30100.88,
+    "oracle_exact_net": 30756.99,
+    "line_items": 18,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": -3301.4199999999946
+  },
+  "estimate": {
+    "n_scorable": 9,
+    "median_log_error": 0.49179807943285153,
+    "rmsle": 0.7660121592365333
+  },
+  "cost_by_stage": {
+    "charge-far-below-t": 6086.445,
+    "ok": 5990.25,
+    "coverage-too-low": 3823.5750000000003,
+    "charge-above-t": 1176.45
+  }
+}

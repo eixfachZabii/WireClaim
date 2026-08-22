@@ -1,0 +1,527 @@
+{
+  "game_id": 37,
+  "items": [
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 337.43,
+      "coverage_probability": 0.965,
+      "index": 1,
+      "limit": 219.2,
+      "name": "Indoor leak detection (1 pcs)",
+      "price_high": 865.6182243295581,
+      "price_low": 274.1160540050039,
+      "price_median": 487.11379771880485,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568053
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 309.41,
+      "coverage_probability": 0.965,
+      "index": 2,
+      "limit": 201.0,
+      "name": "Room drying 30 m\u00b2 (basement) (1 pcs)",
+      "price_high": 793.7233821438543,
+      "price_low": 251.34905362383526,
+      "price_median": 446.6560432155458,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 189.11,
+      "coverage_probability": 0.9,
+      "index": 3,
+      "limit": 122.85,
+      "name": "Room dryer unit (1 pcs)",
+      "price_high": 485.1171726943629,
+      "price_low": 153.62246469803443,
+      "price_median": 272.99248293066614,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 121.82,
+      "coverage_probability": 0.915,
+      "index": 4,
+      "limit": 79.14,
+      "name": "Wet insulation wool from basement (1 pcs)",
+      "price_high": 312.5115369441563,
+      "price_low": 98.96329228109803,
+      "price_median": 175.86122532218326,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 457.63,
+      "coverage_probability": 0.9299999999999999,
+      "index": 5,
+      "limit": 293.57,
+      "name": "Room drying 50 m\u00b2 in the adjoining ground-floor room (1 pcs)",
+      "price_high": 1122.761667175236,
+      "price_low": 379.0653105131122,
+      "price_median": 652.3802572120039,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3300420030484572
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 189.11,
+      "coverage_probability": 0.89,
+      "index": 6,
+      "limit": 122.85,
+      "name": "Room dryer unit (1 pcs)",
+      "price_high": 485.1171726943629,
+      "price_low": 153.62246469803443,
+      "price_median": 272.99248293066614,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 61.64,
+      "coverage_probability": 0.845,
+      "index": 7,
+      "limit": 40.04,
+      "name": "Drying fan (1 pcs)",
+      "price_high": 158.11316053655622,
+      "price_low": 50.06982805394308,
+      "price_median": 88.97583245539694,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 38.96,
+      "coverage_probability": 0.0,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Room drying in a first-floor bedroom",
+      "price_high": 118.0,
+      "price_low": 29.5,
+      "price_median": 59.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 48.66,
+      "coverage_probability": 0.92,
+      "index": 9,
+      "limit": 31.61,
+      "name": "Profipress elbow 90\u00b0 copper 28mm model 01 (5 pcs)",
+      "price_high": 124.81826592184561,
+      "price_low": 39.52630566291931,
+      "price_median": 70.23962507831612,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 46.51,
+      "coverage_probability": 0.92,
+      "index": 10,
+      "limit": 30.21,
+      "name": "Profipress elbow 45\u00b0 copper 28mm model 02 (5 pcs)",
+      "price_high": 119.30796592343216,
+      "price_low": 37.781354309661054,
+      "price_median": 67.13878560502981,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 35.71,
+      "coverage_probability": 0.9,
+      "index": 11,
+      "limit": 23.2,
+      "name": "Transition piece 15x19mm (3 pcs)",
+      "price_high": 91.61575624670779,
+      "price_low": 29.012038888717615,
+      "price_median": 51.555405953680165,
+      "quantity": 3.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 614.09,
+      "coverage_probability": 0.965,
+      "index": 12,
+      "limit": 398.92,
+      "name": "Skilled worker hours (10.5 hrs)",
+      "price_high": 1575.329677742407,
+      "price_low": 498.86097922000243,
+      "price_median": 886.4933759667401,
+      "quantity": 10.5,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 60.07,
+      "coverage_probability": 0.835,
+      "index": 13,
+      "limit": 39.02,
+      "name": "Vehicle costs (2 pcs)",
+      "price_high": 154.10484365726273,
+      "price_low": 48.80051096325384,
+      "price_median": 86.72021167171336,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 938.23,
+      "coverage_probability": 0.95,
+      "index": 14,
+      "limit": 557.71,
+      "name": "Skilled worker hours 14 \u2013",
+      "price_high": 1740.9655587815214,
+      "price_low": 882.269032981345,
+      "price_median": 1239.3546707863734,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.2065951737344248
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 152.31,
+      "coverage_probability": 0.11499999999999999,
+      "index": 15,
+      "limit": 0.0,
+      "name": "Premium large-format designer floor tiles (upgrade (5 pcs)",
+      "price_high": 391.4928692411482,
+      "price_low": 123.62932712878366,
+      "price_median": 220.00000000000009,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.35035851365908366
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 30.5,
+      "coverage_probability": 0.915,
+      "index": 16,
+      "limit": 21.35,
+      "name": "Standard tiling material (1 pcs)",
+      "price_high": 101.12505634999212,
+      "price_low": 22.249678578301978,
+      "price_median": 47.434164902525694,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.46019160182999347
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 51.45,
+      "coverage_probability": 0.8400000000000001,
+      "index": 17,
+      "limit": 33.42,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 131.9750298857236,
+      "price_low": 41.79264415035456,
+      "price_median": 74.26698769134543,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568053
+    }
+  ],
+  "memory_items": 13,
+  "model_draws": 2,
+  "model_items": 17,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        220.5,
+        35.0
+      ],
+      "10": [
+        750.0,
+        35.0
+      ],
+      "11": [
+        450.0,
+        35.0
+      ],
+      "12": [
+        1575.0,
+        35.0
+      ],
+      "13": [
+        300.0,
+        35.0
+      ],
+      "14": [
+        150.0,
+        35.0
+      ],
+      "15": [
+        750.0,
+        35.0
+      ],
+      "16": [
+        150.0,
+        35.0
+      ],
+      "17": [
+        150.0,
+        35.0
+      ],
+      "2": [
+        735.0,
+        35.0
+      ],
+      "3": [
+        1575.0,
+        35.0
+      ],
+      "4": [
+        2100.0,
+        35.0
+      ],
+      "5": [
+        150.0,
+        35.0
+      ],
+      "6": [
+        150.0,
+        35.0
+      ],
+      "7": [
+        150.0,
+        35.0
+      ],
+      "8": [
+        150.0,
+        35.0
+      ],
+      "9": [
+        750.0,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        337.43,
+        219.2
+      ],
+      "10": [
+        46.51,
+        30.21
+      ],
+      "11": [
+        35.71,
+        23.2
+      ],
+      "12": [
+        614.09,
+        398.92
+      ],
+      "13": [
+        60.07,
+        39.02
+      ],
+      "14": [
+        938.23,
+        557.71
+      ],
+      "15": [
+        152.31,
+        0.0
+      ],
+      "16": [
+        30.5,
+        21.35
+      ],
+      "17": [
+        51.45,
+        33.42
+      ],
+      "2": [
+        309.41,
+        201.0
+      ],
+      "3": [
+        189.11,
+        122.85
+      ],
+      "4": [
+        121.82,
+        79.14
+      ],
+      "5": [
+        457.63,
+        293.57
+      ],
+      "6": [
+        189.11,
+        122.85
+      ],
+      "7": [
+        61.64,
+        40.04
+      ],
+      "8": [
+        38.96,
+        0.0
+      ],
+      "9": [
+        48.66,
+        31.61
+      ]
+    },
+    "strategy3": {
+      "1": [
+        332.5,
+        35.0
+      ],
+      "10": [
+        750.0,
+        35.0
+      ],
+      "11": [
+        450.0,
+        35.0
+      ],
+      "12": [
+        1575.0,
+        35.0
+      ],
+      "13": [
+        300.0,
+        35.0
+      ],
+      "14": [
+        2100.0,
+        35.0
+      ],
+      "15": [
+        750.0,
+        35.0
+      ],
+      "16": [
+        332.5,
+        35.0
+      ],
+      "17": [
+        150.0,
+        35.0
+      ],
+      "2": [
+        4500.0,
+        35.0
+      ],
+      "3": [
+        315.0,
+        35.0
+      ],
+      "4": [
+        332.5,
+        35.0
+      ],
+      "5": [
+        7500.0,
+        35.0
+      ],
+      "6": [
+        315.0,
+        35.0
+      ],
+      "7": [
+        150.0,
+        26.67
+      ],
+      "8": [
+        150.0,
+        0.0
+      ],
+      "9": [
+        750.0,
+        35.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787430911.184386,
+  "recorded_at": 1787430884.47729,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

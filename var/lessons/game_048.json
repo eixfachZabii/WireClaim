@@ -1,0 +1,913 @@
+{
+  "game_id": 48,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 47343.83,
+    "paid_on_accepts": 15153.8,
+    "penalties": 31512.54,
+    "net": 677.4900000000016,
+    "saved_by_rejecting": 44552.6,
+    "lawyer_waste": 10504.18,
+    "fraud_let_through": 2865.41,
+    "strictness_net": 31183.01
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Clean / dry conservatory rug (1 pcs)",
+      "t_lo": 224.68,
+      "t_hi": null,
+      "our_charge": 140.46,
+      "our_limit_bracket": [
+        0.0,
+        67.5
+      ],
+      "estimate_median": 202.76921495401234,
+      "coverage_probability": 0.425,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 3495.015,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.42 so the Limit collapsed, but the item is worth at least 225."
+    },
+    {
+      "index": 2,
+      "name": "Inspect plant-room electrical systems (1 pcs)",
+      "t_lo": 261.17,
+      "t_hi": null,
+      "our_charge": 204.55,
+      "our_limit_bracket": [
+        202.02,
+        207.0
+      ],
+      "estimate_median": 295.2924210205597,
+      "coverage_probability": 0.96,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2424.42,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Replace plant-room electrical components confirmed (1 flat rate)",
+      "t_lo": 536.25,
+      "t_hi": 609.16,
+      "our_charge": 643.06,
+      "our_limit_bracket": [
+        382.0,
+        507.89
+      ],
+      "estimate_median": 1022.2524150130431,
+      "coverage_probability": 0.985,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1566.21,
+      "stage": "charge-above-t",
+      "why": "Charged 643 against t < 609, so every opponent owed us nothing."
+    },
+    {
+      "index": 4,
+      "name": "Preventive replacement of adjacent electrical",
+      "t_lo": 0.0,
+      "t_hi": 8.0,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Inspect pool technology (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 38.02,
+      "our_charge": 283.51,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 409.27602107748226,
+      "coverage_probability": 0.5,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Pool filter system maintenance (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 45.0,
+      "our_charge": 226.33,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 326.7206554204525,
+      "coverage_probability": 0.475,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Upgrade to high-quality natural stone floor (12 m\u00b2)",
+      "t_lo": 0.0,
+      "t_hi": 217.86,
+      "our_charge": 567.38,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 819.0598880968181,
+      "coverage_probability": 0.35000000000000003,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Restore wall surfaces (10 m\u00b2)",
+      "t_lo": 596.12,
+      "t_hi": 675.0,
+      "our_charge": 513.2,
+      "our_limit_bracket": [
+        511.65,
+        522.5
+      ],
+      "estimate_median": 740.848291115789,
+      "coverage_probability": 0.975,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 5771.535,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Final site cleaning (1 pcs)",
+      "t_lo": 177.07,
+      "t_hi": null,
+      "our_charge": 106.76,
+      "our_limit_bracket": [
+        105.9,
+        135.0
+      ],
+      "estimate_median": 154.12026528937093,
+      "coverage_probability": 0.98,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2124.18,
+      "stage": "estimate-too-low",
+      "why": "Estimated 154 against a proven floor of t >= 177; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 10,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 15.3,
+      "t_hi": 28.1,
+      "our_charge": 62.19,
+      "our_limit_bracket": [
+        57.97,
+        Infinity
+      ],
+      "estimate_median": 89.77432883767435,
+      "coverage_probability": 0.935,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 62 against t < 28, so every opponent owed us nothing."
+    },
+    {
+      "index": 11,
+      "name": "Catering for work crew",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 12,
+      "name": "Leak detection pool pipeline (1 pcs)",
+      "t_lo": 456.0,
+      "t_hi": null,
+      "our_charge": 342.56,
+      "our_limit_bracket": [
+        339.98,
+        350.24
+      ],
+      "estimate_median": 494.5158446697212,
+      "coverage_probability": 0.99,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 6578.76,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 13,
+      "name": "Repair pool supply pipe connection (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 38.61,
+      "our_charge": 309.75,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 447.1566615796596,
+      "coverage_probability": 0.5,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 14,
+      "name": "Skilled worker hours (5 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 70.12,
+      "our_charge": 273.99,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 395.5214419725292,
+      "coverage_probability": 0.5,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 15,
+      "name": "Material for pool pipe repair (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 6.83,
+      "our_charge": 84.26,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 121.63134970898014,
+      "coverage_probability": 0.5,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 16,
+      "name": "Moisture measurement (1 pcs)",
+      "t_lo": 218.0,
+      "t_hi": 244.04,
+      "our_charge": 195.69,
+      "our_limit_bracket": [
+        195.2,
+        207.0
+      ],
+      "estimate_median": 282.48995611616175,
+      "coverage_probability": 0.99,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1583.6100000000001,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 17,
+      "name": "Vehicle costs \u2013 return visit",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 18,
+      "name": "Construction waste disposal (1 pcs)",
+      "t_lo": 51.0,
+      "t_hi": 55.91,
+      "our_charge": 61.42,
+      "our_limit_bracket": [
+        56.54,
+        Infinity
+      ],
+      "estimate_median": 88.66963426056874,
+      "coverage_probability": 0.955,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 61 against t < 56, so every opponent owed us nothing."
+    },
+    {
+      "index": 19,
+      "name": "Vacuum water (1 pcs)",
+      "t_lo": 275.03,
+      "t_hi": 299.82,
+      "our_charge": 170.18,
+      "our_limit_bracket": [
+        148.5,
+        204.0
+      ],
+      "estimate_median": 245.6701884594843,
+      "coverage_probability": 0.99,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 3180.495,
+      "stage": "estimate-too-low",
+      "why": "Estimated 246 against a proven floor of t >= 275; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 20,
+      "name": "Room drying (pool/conservatory) (1 pcs)",
+      "t_lo": 616.5,
+      "t_hi": 663.0,
+      "our_charge": 448.7,
+      "our_limit_bracket": [
+        442.0,
+        450.0
+      ],
+      "estimate_median": 647.7328778169652,
+      "coverage_probability": 0.99,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 4788.315,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 21,
+      "name": "Condensation dryer (2 pcs)",
+      "t_lo": 108.57,
+      "t_hi": 162.85,
+      "our_charge": 108.57,
+      "our_limit_bracket": [
+        104.38,
+        Infinity
+      ],
+      "estimate_median": 156.7350554893692,
+      "coverage_probability": 0.99,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 22,
+      "name": "Drying fan (3 pcs)",
+      "t_lo": 65.71,
+      "t_hi": 78.23,
+      "our_charge": 78.23,
+      "our_limit_bracket": [
+        65.71,
+        Infinity
+      ],
+      "estimate_median": 112.9362722942308,
+      "coverage_probability": 0.99,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 23,
+      "name": "Replace skirting boards (15 m)",
+      "t_lo": 318.75,
+      "t_hi": 337.5,
+      "our_charge": null,
+      "our_limit_bracket": [
+        688.78,
+        Infinity
+      ],
+      "estimate_median": 1351.864717280328,
+      "coverage_probability": 0.975,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0,
+      "stage": "estimate-too-high",
+      "why": "Estimated 1352 against t < 338."
+    },
+    {
+      "index": 24,
+      "name": "Replace inflatable pool float (drifted and damaged)",
+      "t_lo": 0.0,
+      "t_hi": 19.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 25,
+      "name": "Replace and refill knocked-over plant pots",
+      "t_lo": 0.0,
+      "t_hi": 24.0,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 26,
+      "name": "Repaint garage (adjacent, not water-affected) (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 1296.1481396815714,
+      "coverage_probability": 0.0,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 27,
+      "name": "Construction waste disposal",
+      "t_lo": 0.0,
+      "t_hi": 11.7,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -26897.929999999993,
+        "income": 23271.0,
+        "cost": 50168.92999999999,
+        "items_priced": 27,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 677.4900000000052,
+        "income": 47343.83,
+        "cost": 46666.34,
+        "items_priced": 27,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 8,
+        "name": "Restore wall surfaces (10 m\u00b2)",
+        "delta": -9283.59,
+        "winner_net": 294.8849999999984,
+        "alternative_net": -8988.705000000002,
+        "t_hat": 740.848291115789,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 596.12,
+        "t_hi": 675.0,
+        "rule": "priced"
+      },
+      {
+        "index": 7,
+        "name": "Upgrade to high-quality natural stone floor (12 m\u00b2)",
+        "delta": -4539.04,
+        "winner_net": 4539.04,
+        "alternative_net": 0.0,
+        "t_hat": 819.0598880968181,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 217.86,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 3,
+        "name": "Replace plant-room electrical components confirmed (1 flat rate)",
+        "delta": -3723.5099999999993,
+        "winner_net": -1296.5100000000002,
+        "alternative_net": -5020.0199999999995,
+        "t_hat": 1022.2524150130431,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 536.25,
+        "t_hi": 609.16,
+        "rule": "priced"
+      },
+      {
+        "index": 19,
+        "name": "Vacuum water (1 pcs)",
+        "delta": -2963.33,
+        "winner_net": -938.5149999999999,
+        "alternative_net": -3901.845,
+        "t_hat": 245.6701884594843,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 275.03,
+        "t_hi": 299.82,
+        "rule": "priced"
+      },
+      {
+        "index": 9,
+        "name": "Final site cleaning (1 pcs)",
+        "delta": -1958.6849999999997,
+        "winner_net": -917.0700000000004,
+        "alternative_net": -2875.755,
+        "t_hat": 154.12026528937093,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 177.07,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 21,
+        "name": "Condensation dryer (2 pcs)",
+        "delta": -1848.3799999999992,
+        "winner_net": 1514.5999999999992,
+        "alternative_net": -333.78,
+        "t_hat": 156.7350554893692,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 108.57,
+        "t_hi": 162.85,
+        "rule": "priced"
+      },
+      {
+        "index": 20,
+        "name": "Room drying (pool/conservatory) (1 pcs)",
+        "delta": -1594.7949999999983,
+        "winner_net": 1589.694999999998,
+        "alternative_net": -5.100000000000364,
+        "t_hat": 647.7328778169652,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 616.5,
+        "t_hi": 663.0,
+        "rule": "priced"
+      },
+      {
+        "index": 23,
+        "name": "Replace skirting boards (15 m)",
+        "delta": 1460.0400000000009,
+        "winner_net": -4717.950000000001,
+        "alternative_net": -3257.91,
+        "t_hat": 1351.864717280328,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 318.75,
+        "t_hi": 337.5,
+        "rule": "priced"
+      },
+      {
+        "index": 16,
+        "name": "Moisture measurement (1 pcs)",
+        "delta": -1297.1250000000014,
+        "winner_net": 287.2600000000007,
+        "alternative_net": -1009.8650000000007,
+        "t_hat": 282.48995611616175,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 218.0,
+        "t_hi": 244.04,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Clean / dry conservatory rug (1 pcs)",
+        "delta": 1280.6399999999999,
+        "winner_net": -1247.6550000000002,
+        "alternative_net": 32.98499999999967,
+        "t_hat": 202.76921495401234,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 224.68,
+        "t_hi": null,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 22,
+        "name": "Drying fan (3 pcs)",
+        "delta": -1074.845,
+        "winner_net": 901.2800000000001,
+        "alternative_net": -173.565,
+        "t_hat": 112.9362722942308,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 65.71,
+        "t_hi": 78.23,
+        "rule": "priced"
+      },
+      {
+        "index": 14,
+        "name": "Skilled worker hours (5 hrs)",
+        "delta": -821.97,
+        "winner_net": 821.97,
+        "alternative_net": 0.0,
+        "t_hat": 395.5214419725292,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 70.12,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 12,
+        "name": "Leak detection pool pipeline (1 pcs)",
+        "delta": 680.2649999999967,
+        "winner_net": -2215.3499999999976,
+        "alternative_net": -1535.085000000001,
+        "t_hat": 494.5158446697212,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 456.0,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 18,
+        "name": "Construction waste disposal (1 pcs)",
+        "delta": -588.6700000000001,
+        "winner_net": 482.92,
+        "alternative_net": -105.75,
+        "t_hat": 88.66963426056874,
+        "bucket": "t_hat < 100",
+        "t_lo": 51.0,
+        "t_hi": 55.91,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Inspect plant-room electrical systems (1 pcs)",
+        "delta": -450.0450000000005,
+        "winner_net": -226.10999999999922,
+        "alternative_net": -676.1549999999997,
+        "t_hat": 295.2924210205597,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 261.17,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 10,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -256.48,
+        "winner_net": 213.07999999999998,
+        "alternative_net": -43.400000000000006,
+        "t_hat": 89.77432883767435,
+        "bucket": "t_hat < 100",
+        "t_lo": 15.3,
+        "t_hi": 28.1,
+        "rule": "priced"
+      },
+      {
+        "index": 27,
+        "name": "Construction waste disposal",
+        "delta": -229.38,
+        "winner_net": 192.18,
+        "alternative_net": -37.2,
+        "t_hat": 97.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 11.7,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 5,
+        "name": "Inspect pool technology (1 pcs)",
+        "delta": -196.01999999999998,
+        "winner_net": 567.02,
+        "alternative_net": 371.0,
+        "t_hat": 409.27602107748226,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 38.02,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 15,
+        "name": "Material for pool pipe repair (1 pcs)",
+        "delta": -175.35000000000002,
+        "winner_net": 168.52,
+        "alternative_net": -6.83,
+        "t_hat": 121.63134970898014,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 6.83,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 13,
+        "name": "Repair pool supply pipe connection (1 pcs)",
+        "delta": 145.25,
+        "winner_net": 309.75,
+        "alternative_net": 455.0,
+        "t_hat": 447.1566615796596,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 38.61,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 24,
+        "name": "Replace inflatable pool float (drifted and damaged)",
+        "delta": -141.95,
+        "winner_net": 0.0,
+        "alternative_net": -141.95,
+        "t_hat": 97.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 19.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 25,
+        "name": "Replace and refill knocked-over plant pots",
+        "delta": -88.06,
+        "winner_net": 64.06,
+        "alternative_net": -24.0,
+        "t_hat": 97.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 24.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 4,
+        "name": "Preventive replacement of adjacent electrical",
+        "delta": 77.94,
+        "winner_net": 64.06,
+        "alternative_net": 142.0,
+        "t_hat": 97.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 8.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 6,
+        "name": "Pool filter system maintenance (1 pcs)",
+        "delta": 11.669999999999987,
+        "winner_net": 226.33,
+        "alternative_net": 238.0,
+        "t_hat": 326.7206554204525,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 45.0,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 677.489999999998,
+    "replayed_actual_net": 677.4900000000052,
+    "oracle_net": 36077.81,
+    "oracle_exact_net": 42889.859999999986,
+    "line_items": 27,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": -27575.42
+  },
+  "estimate": {
+    "n_scorable": 10,
+    "median_log_error": 0.3258565208155484,
+    "rmsle": 0.7018050866178137
+  },
+  "cost_by_stage": {
+    "ok": 21146.64,
+    "estimate-too-low": 5304.674999999999,
+    "coverage-too-low": 3495.015,
+    "charge-above-t": 1566.21,
+    "estimate-too-high": 0.0
+  }
+}

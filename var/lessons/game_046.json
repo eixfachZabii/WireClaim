@@ -1,0 +1,1027 @@
+{
+  "game_id": 46,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 79440.6,
+    "paid_on_accepts": 16425.16,
+    "penalties": 46706.37,
+    "net": 16309.07,
+    "saved_by_rejecting": 37626.16,
+    "lawyer_waste": 15568.789999999999,
+    "fraud_let_through": 489.65999999999997,
+    "strictness_net": 21567.710000000003
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Remove and transport rug (1 pcs)",
+      "t_lo": 56.15,
+      "t_hi": 63.51,
+      "our_charge": 41.38,
+      "our_limit_bracket": [
+        40.12,
+        45.0
+      ],
+      "estimate_median": 56.5,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 298.65,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Premium smart LED lighting system above billiard (1 pcs)",
+      "t_lo": 765.0,
+      "t_hi": null,
+      "our_charge": 300.0,
+      "our_limit_bracket": [
+        28.8,
+        45.0
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": [],
+      "rule": "uninformed-constants",
+      "penalties_here": 6453.045,
+      "stage": "no-evidence",
+      "why": "No channel priced this item; the fitted constants were used."
+    },
+    {
+      "index": 3,
+      "name": "Specialist rug cleaning (1 pcs)",
+      "t_lo": 198.0,
+      "t_hi": 223.72,
+      "our_charge": 146.59,
+      "our_limit_bracket": [
+        145.35,
+        148.78
+      ],
+      "estimate_median": 200.16,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 970.3050000000001,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Electrical inspection of robot vacuum cleaner (1 pcs)",
+      "t_lo": 116.66,
+      "t_hi": 136.16,
+      "our_charge": 91.45,
+      "our_limit_bracket": [
+        81.96,
+        105.27
+      ],
+      "estimate_median": 124.8625,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 651.27,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Replacement robot vacuum cleaner (total loss) (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 45.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": [],
+      "rule": "uninformed-constants",
+      "penalties_here": 0.0,
+      "stage": "no-evidence",
+      "why": "No channel priced this item; the fitted constants were used."
+    },
+    {
+      "index": 6,
+      "name": "Disassemble billiard table (1 pcs)",
+      "t_lo": 352.91,
+      "t_hi": 389.51,
+      "our_charge": 269.2,
+      "our_limit_bracket": [
+        257.06,
+        297.0
+      ],
+      "estimate_median": 367.575,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 1928.79,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Inspect billiard table for moisture damage (1 pcs)",
+      "t_lo": 228.91,
+      "t_hi": 275.53,
+      "our_charge": 146.47,
+      "our_limit_bracket": [
+        135.88,
+        166.0
+      ],
+      "estimate_median": 200.0,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 1419.945,
+      "stage": "estimate-too-low",
+      "why": "Estimated 200 against a proven floor of t >= 229; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 8,
+      "name": "Replace billiard cloth with premium tournament-grade (1 pcs)",
+      "t_lo": 546.39,
+      "t_hi": 585.0,
+      "our_charge": 300.0,
+      "our_limit_bracket": [
+        0.0,
+        45.0
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": [],
+      "rule": "uninformed-constants",
+      "penalties_here": 7056.885,
+      "stage": "no-evidence",
+      "why": "No channel priced this item; the fitted constants were used."
+    },
+    {
+      "index": 9,
+      "name": "Replace old cue sets with premium hand-crafted cues (1 pcs)",
+      "t_lo": 45.0,
+      "t_hi": 108.0,
+      "our_charge": 300.0,
+      "our_limit_bracket": [
+        23.04,
+        45.0
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": [],
+      "rule": "uninformed-constants",
+      "penalties_here": 67.5,
+      "stage": "no-evidence",
+      "why": "No channel priced this item; the fitted constants were used."
+    },
+    {
+      "index": 10,
+      "name": "Align and reassemble billiard table (1 pcs)",
+      "t_lo": 410.14,
+      "t_hi": null,
+      "our_charge": 313.89,
+      "our_limit_bracket": [
+        297.0,
+        368.23
+      ],
+      "estimate_median": 428.59,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 2343.3,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Restore plasterboard ceiling (8 m\u00b2)",
+      "t_lo": 570.23,
+      "t_hi": 576.0,
+      "our_charge": 428.67,
+      "our_limit_bracket": [
+        0.0,
+        432.0
+      ],
+      "estimate_median": 585.32,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 6106.185,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 12,
+      "name": "Fill ceiling and wall surfaces (15 m\u00b2)",
+      "t_lo": 317.87,
+      "t_hi": 370.11,
+      "our_charge": 260.81,
+      "our_limit_bracket": [
+        95.04,
+        273.0
+      ],
+      "estimate_median": 356.115,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 2253.555,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 13,
+      "name": "Final site cleaning (1 pcs)",
+      "t_lo": 88.99,
+      "t_hi": 94.5,
+      "our_charge": 105.28,
+      "our_limit_bracket": [
+        96.0,
+        Infinity
+      ],
+      "estimate_median": 144.015,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 105 against t < 94, so every opponent owed us nothing."
+    },
+    {
+      "index": 14,
+      "name": "Drying fan (3 pcs)",
+      "t_lo": 62.7,
+      "t_hi": 76.5,
+      "our_charge": 51.8,
+      "our_limit_bracket": [
+        0.0,
+        56.0
+      ],
+      "estimate_median": 70.72999999999999,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 178.05,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 15,
+      "name": "Control measurement during drying (2 pcs)",
+      "t_lo": 173.41,
+      "t_hi": 203.67,
+      "our_charge": 148.81,
+      "our_limit_bracket": [
+        142.56,
+        151.0
+      ],
+      "estimate_median": 203.185,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 975.03,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 16,
+      "name": "Final measurement (1 pcs)",
+      "t_lo": 114.26,
+      "t_hi": null,
+      "our_charge": 85.47,
+      "our_limit_bracket": [
+        83.0,
+        93.5
+      ],
+      "estimate_median": 116.7025,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 608.085,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 17,
+      "name": "Remove floor covering in guest WC (5 m\u00b2)",
+      "t_lo": 148.78,
+      "t_hi": 177.64,
+      "our_charge": 115.37,
+      "our_limit_bracket": [
+        112.5,
+        124.0
+      ],
+      "estimate_median": 157.525,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 817.905,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 18,
+      "name": "Remove skirting boards (12 m)",
+      "t_lo": 125.26,
+      "t_hi": 132.31,
+      "our_charge": 89.09,
+      "our_limit_bracket": [
+        86.06,
+        91.98
+      ],
+      "estimate_median": 121.6452,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 955.32,
+      "stage": "estimate-too-low",
+      "why": "Estimated 122 against a proven floor of t >= 125; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 19,
+      "name": "Insulation layer drying (1 pcs)",
+      "t_lo": 544.0,
+      "t_hi": 592.15,
+      "our_charge": 467.27,
+      "our_limit_bracket": [
+        450.0,
+        481.0
+      ],
+      "estimate_median": 638.02,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 1537.5,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 20,
+      "name": "Condensation dryer (2 pcs)",
+      "t_lo": 114.75,
+      "t_hi": 139.09,
+      "our_charge": 63.66,
+      "our_limit_bracket": [
+        41.8,
+        93.0
+      ],
+      "estimate_median": 86.92,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 311.625,
+      "stage": "estimate-too-low",
+      "why": "Estimated 87 against a proven floor of t >= 115; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 21,
+      "name": "Side channel compressor (1 pcs)",
+      "t_lo": 85.0,
+      "t_hi": 108.0,
+      "our_charge": 71.23,
+      "our_limit_bracket": [
+        70.0,
+        85.0
+      ],
+      "estimate_median": 97.26,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 127.5,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 22,
+      "name": "Remove damaged parquet (5 m\u00b2)",
+      "t_lo": 144.5,
+      "t_hi": 231.44,
+      "our_charge": 124.87,
+      "our_limit_bracket": [
+        112.5,
+        135.0
+      ],
+      "estimate_median": 170.49499999999998,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 829.08,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 23,
+      "name": "Supply and install premium solid oak parquet (upgrade (12 m)",
+      "t_lo": 108.0,
+      "t_hi": 193.05,
+      "our_charge": 300.0,
+      "our_limit_bracket": [
+        0.0,
+        108.0
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": [],
+      "rule": "uninformed-constants",
+      "penalties_here": 162.0,
+      "stage": "no-evidence",
+      "why": "No channel priced this item; the fitted constants were used."
+    },
+    {
+      "index": 24,
+      "name": "Supply and install skirting boards (premium solid oak, (1 pcs)",
+      "t_lo": 378.82,
+      "t_hi": null,
+      "our_charge": 300.0,
+      "our_limit_bracket": [
+        32.26,
+        45.0
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": [],
+      "rule": "uninformed-constants",
+      "penalties_here": 3798.195,
+      "stage": "no-evidence",
+      "why": "No channel priced this item; the fitted constants were used."
+    },
+    {
+      "index": 25,
+      "name": "Open water-damaged ceiling surface (2 pcs)",
+      "t_lo": 102.0,
+      "t_hi": 123.75,
+      "our_charge": 90.89,
+      "our_limit_bracket": [
+        45.0,
+        102.0
+      ],
+      "estimate_median": 124.11,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 153.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 26,
+      "name": "Leak detection / cause investigation (1 pcs)",
+      "t_lo": 372.0,
+      "t_hi": 437.28,
+      "our_charge": 301.5,
+      "our_limit_bracket": [
+        296.87,
+        304.0
+      ],
+      "estimate_median": 411.675,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 2071.215,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 27,
+      "name": "Moisture measurement of multiple rooms (1 pcs)",
+      "t_lo": 225.0,
+      "t_hi": null,
+      "our_charge": 184.37,
+      "our_limit_bracket": [
+        164.0,
+        194.78
+      ],
+      "estimate_median": 251.745,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 1564.17,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 28,
+      "name": "Inspect and disassemble toilet cistern (1 pcs)",
+      "t_lo": 112.39,
+      "t_hi": 164.71,
+      "our_charge": 90.15,
+      "our_limit_bracket": [
+        87.33,
+        94.0
+      ],
+      "estimate_median": 123.095,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 764.07,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 29,
+      "name": "Replace fill valve in toilet cistern (1 pcs)",
+      "t_lo": 108.0,
+      "t_hi": 117.5,
+      "our_charge": 131.28,
+      "our_limit_bracket": [
+        117.5,
+        Infinity
+      ],
+      "estimate_median": 179.25,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 131 against t < 118, so every opponent owed us nothing."
+    },
+    {
+      "index": 30,
+      "name": "Skilled worker hours (3 hrs)",
+      "t_lo": 214.19,
+      "t_hi": 219.24,
+      "our_charge": 162.59,
+      "our_limit_bracket": [
+        108.0,
+        170.0
+      ],
+      "estimate_median": 222.00900000000001,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 2304.195,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 31,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 36.0,
+      "t_hi": 42.53,
+      "our_charge": 48.66,
+      "our_limit_bracket": [
+        47.38,
+        Infinity
+      ],
+      "estimate_median": 81.45,
+      "coverage_probability": 0.9,
+      "channels": [
+        "B:memory"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 49 against t < 43, so every opponent owed us nothing."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -28806.214999999997,
+        "income": 41730.0,
+        "cost": 70536.215,
+        "items_priced": 31,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 16309.06999999997,
+        "income": 79440.59999999999,
+        "cost": 63131.53000000002,
+        "items_priced": 31,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 11,
+        "name": "Restore plasterboard ceiling (8 m\u00b2)",
+        "delta": -6858.72,
+        "winner_net": 752.5349999999999,
+        "alternative_net": -6106.185,
+        "t_hat": 585.32,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 570.23,
+        "t_hi": 576.0,
+        "rule": "priced"
+      },
+      {
+        "index": 24,
+        "name": "Supply and install skirting boards (premium solid oak, (1 pcs)",
+        "delta": -4816.13,
+        "winner_net": 969.5450000000001,
+        "alternative_net": -3846.585,
+        "t_hat": null,
+        "bucket": "no estimate",
+        "t_lo": 378.82,
+        "t_hi": null,
+        "rule": "uninformed-constants"
+      },
+      {
+        "index": 12,
+        "name": "Fill ceiling and wall surfaces (15 m\u00b2)",
+        "delta": -4220.48,
+        "winner_net": 1824.3649999999998,
+        "alternative_net": -2396.115,
+        "t_hat": 356.115,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 317.87,
+        "t_hi": 370.11,
+        "rule": "priced"
+      },
+      {
+        "index": 15,
+        "name": "Control measurement during drying (2 pcs)",
+        "delta": -2732.3449999999993,
+        "winner_net": 703.1599999999994,
+        "alternative_net": -2029.185,
+        "t_hat": 203.185,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 173.41,
+        "t_hi": 203.67,
+        "rule": "priced"
+      },
+      {
+        "index": 30,
+        "name": "Skilled worker hours (3 hrs)",
+        "delta": -2655.44,
+        "winner_net": 189.2449999999999,
+        "alternative_net": -2466.195,
+        "t_hat": 222.00900000000001,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 214.19,
+        "t_hi": 219.24,
+        "rule": "priced"
+      },
+      {
+        "index": 22,
+        "name": "Remove damaged parquet (5 m\u00b2)",
+        "delta": -2230.0899999999992,
+        "winner_net": 704.4999999999991,
+        "alternative_net": -1525.5900000000001,
+        "t_hat": 170.49499999999998,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 144.5,
+        "t_hi": 231.44,
+        "rule": "priced"
+      },
+      {
+        "index": 17,
+        "name": "Remove floor covering in guest WC (5 m\u00b2)",
+        "delta": -2159.3649999999993,
+        "winner_net": 401.1249999999991,
+        "alternative_net": -1758.2400000000002,
+        "t_hat": 157.525,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 148.78,
+        "t_hi": 177.64,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Premium smart LED lighting system above billiard (1 pcs)",
+        "delta": -1720.0,
+        "winner_net": -1681.8450000000003,
+        "alternative_net": -3401.8450000000003,
+        "t_hat": null,
+        "bucket": "no estimate",
+        "t_lo": 765.0,
+        "t_hi": null,
+        "rule": "uninformed-constants"
+      },
+      {
+        "index": 16,
+        "name": "Final measurement (1 pcs)",
+        "delta": -1635.065,
+        "winner_net": 224.34500000000003,
+        "alternative_net": -1410.72,
+        "t_hat": 116.7025,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 114.26,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 18,
+        "name": "Remove skirting boards (12 m)",
+        "delta": -1539.9099999999999,
+        "winner_net": 241.17999999999984,
+        "alternative_net": -1298.73,
+        "t_hat": 121.6452,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 125.26,
+        "t_hi": 132.31,
+        "rule": "priced"
+      },
+      {
+        "index": 23,
+        "name": "Supply and install premium solid oak parquet (upgrade (12 m)",
+        "delta": -1500.0,
+        "winner_net": 2838.0,
+        "alternative_net": 1338.0,
+        "t_hat": null,
+        "bucket": "no estimate",
+        "t_lo": 108.0,
+        "t_hi": 193.05,
+        "rule": "uninformed-constants"
+      },
+      {
+        "index": 25,
+        "name": "Open water-damaged ceiling surface (2 pcs)",
+        "delta": -1476.7400000000005,
+        "winner_net": 1256.2400000000005,
+        "alternative_net": -220.5,
+        "t_hat": 124.11,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 102.0,
+        "t_hi": 123.75,
+        "rule": "priced"
+      },
+      {
+        "index": 21,
+        "name": "Side channel compressor (1 pcs)",
+        "delta": -1228.3450000000003,
+        "winner_net": 834.8500000000001,
+        "alternative_net": -393.495,
+        "t_hat": 97.26,
+        "bucket": "t_hat < 100",
+        "t_lo": 85.0,
+        "t_hi": 108.0,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Electrical inspection of robot vacuum cleaner (1 pcs)",
+        "delta": -1218.7850000000003,
+        "winner_net": 400.76000000000045,
+        "alternative_net": -818.0249999999999,
+        "t_hat": 124.8625,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 116.66,
+        "t_hi": 136.16,
+        "rule": "priced"
+      },
+      {
+        "index": 28,
+        "name": "Inspect and disassemble toilet cistern (1 pcs)",
+        "delta": -1207.8150000000003,
+        "winner_net": 247.50000000000023,
+        "alternative_net": -960.315,
+        "t_hat": 123.095,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 112.39,
+        "t_hi": 164.71,
+        "rule": "priced"
+      },
+      {
+        "index": 27,
+        "name": "Moisture measurement of multiple rooms (1 pcs)",
+        "delta": -1077.0299999999993,
+        "winner_net": 331.5299999999993,
+        "alternative_net": -745.5,
+        "t_hat": 251.745,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 225.0,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 20,
+        "name": "Condensation dryer (2 pcs)",
+        "delta": -1039.4599999999996,
+        "winner_net": 665.1349999999995,
+        "alternative_net": -374.325,
+        "t_hat": 86.92,
+        "bucket": "t_hat < 100",
+        "t_lo": 114.75,
+        "t_hi": 139.09,
+        "rule": "priced"
+      },
+      {
+        "index": 14,
+        "name": "Drying fan (3 pcs)",
+        "delta": -828.7999999999997,
+        "winner_net": 650.7499999999998,
+        "alternative_net": -178.05,
+        "t_hat": 70.72999999999999,
+        "bucket": "t_hat < 100",
+        "t_lo": 62.7,
+        "t_hi": 76.5,
+        "rule": "priced"
+      },
+      {
+        "index": 10,
+        "name": "Align and reassemble billiard table (1 pcs)",
+        "delta": -803.71,
+        "winner_net": 476.0,
+        "alternative_net": -327.71000000000004,
+        "t_hat": 428.59,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 410.14,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 26,
+        "name": "Leak detection / cause investigation (1 pcs)",
+        "delta": -751.7300000000005,
+        "winner_net": 1377.3249999999998,
+        "alternative_net": 625.5949999999993,
+        "t_hat": 411.675,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 372.0,
+        "t_hi": 437.28,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Remove and transport rug (1 pcs)",
+        "delta": -736.4200000000001,
+        "winner_net": 214.75,
+        "alternative_net": -521.6700000000001,
+        "t_hat": 56.5,
+        "bucket": "t_hat < 100",
+        "t_lo": 56.15,
+        "t_hi": 63.51,
+        "rule": "priced"
+      },
+      {
+        "index": 29,
+        "name": "Replace fill valve in toilet cistern (1 pcs)",
+        "delta": -700.1149999999999,
+        "winner_net": -571.2099999999999,
+        "alternative_net": -1271.3249999999998,
+        "t_hat": 179.25,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 108.0,
+        "t_hi": 117.5,
+        "rule": "priced"
+      },
+      {
+        "index": 6,
+        "name": "Disassemble billiard table (1 pcs)",
+        "delta": -686.8899999999994,
+        "winner_net": 659.0299999999988,
+        "alternative_net": -27.860000000000582,
+        "t_hat": 367.575,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 352.91,
+        "t_hi": 389.51,
+        "rule": "priced"
+      },
+      {
+        "index": 13,
+        "name": "Final site cleaning (1 pcs)",
+        "delta": -575.9499999999999,
+        "winner_net": 160.41999999999996,
+        "alternative_net": -415.53,
+        "t_hat": 144.015,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 88.99,
+        "t_hi": 94.5,
+        "rule": "priced"
+      },
+      {
+        "index": 9,
+        "name": "Replace old cue sets with premium hand-crafted cues (1 pcs)",
+        "delta": 450.0,
+        "winner_net": 509.46000000000004,
+        "alternative_net": 959.46,
+        "t_hat": null,
+        "bucket": "no estimate",
+        "t_lo": 45.0,
+        "t_hi": 108.0,
+        "rule": "uninformed-constants"
+      },
+      {
+        "index": 3,
+        "name": "Specialist rug cleaning (1 pcs)",
+        "delta": -384.8449999999996,
+        "winner_net": 496.32500000000005,
+        "alternative_net": 111.48000000000047,
+        "t_hat": 200.16,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 198.0,
+        "t_hi": 223.72,
+        "rule": "priced"
+      },
+      {
+        "index": 31,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -322.93999999999994,
+        "winner_net": 185.18999999999994,
+        "alternative_net": -137.75,
+        "t_hat": 81.45,
+        "bucket": "t_hat < 100",
+        "t_lo": 36.0,
+        "t_hi": 42.53,
+        "rule": "priced"
+      },
+      {
+        "index": 7,
+        "name": "Inspect billiard table for moisture damage (1 pcs)",
+        "delta": -273.88499999999976,
+        "winner_net": 262.8449999999998,
+        "alternative_net": -11.039999999999964,
+        "t_hat": 200.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 228.91,
+        "t_hi": 275.53,
+        "rule": "priced"
+      },
+      {
+        "index": 19,
+        "name": "Insulation layer drying (1 pcs)",
+        "delta": -144.28000000000338,
+        "winner_net": 3242.9000000000033,
+        "alternative_net": 3098.62,
+        "t_hat": 638.02,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 544.0,
+        "t_hi": 592.15,
+        "rule": "priced"
+      },
+      {
+        "index": 8,
+        "name": "Replace billiard cloth with premium tournament-grade (1 pcs)",
+        "delta": -40.0,
+        "winner_net": -2256.885,
+        "alternative_net": -2296.885,
+        "t_hat": null,
+        "bucket": "no estimate",
+        "t_lo": 546.39,
+        "t_hi": 585.0,
+        "rule": "uninformed-constants"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 16309.070000000007,
+    "replayed_actual_net": 16309.06999999997,
+    "oracle_net": 69602.36000000002,
+    "oracle_exact_net": 71088.5,
+    "line_items": 31,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": -45115.28499999997
+  },
+  "estimate": {
+    "n_scorable": 22,
+    "median_log_error": 0.011975020169112019,
+    "rmsle": 0.23480782295113592
+  },
+  "cost_by_stage": {
+    "ok": 26481.855000000003,
+    "no-evidence": 17537.625,
+    "estimate-too-low": 2686.89,
+    "charge-above-t": 0.0
+  }
+}

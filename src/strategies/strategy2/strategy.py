@@ -80,7 +80,7 @@ from src.pricing.engine import Evidence, price_item
 from src.runtime.decisions import GameDecisions, ItemDecision, record
 from src.strategies.fast_path import STANDARD_CHARGE, STANDARD_LIMIT
 from src.strategies.strategy2.blend import blend, combine
-from src.strategies.strategy2.channels import local_evidence
+from src.strategies.strategy2.channels import aggregate_class_discount, local_evidence
 from src.strategies.strategy2.constants import (
     LLM_TIMEOUT_SECONDS,
     STRATEGY_NAME,
@@ -126,6 +126,12 @@ def build_proposal(
     stage* was wrong rather than only that we lost money.
     """
     prices: list[ItemPrice] = []
+    # Channel D. A Line Item sharing an aggregate Policy sub-limit with another Line Item in
+    # the same Case has its coverage discounted unless it is the class's dearest member, so
+    # its Limit collapses while its Charge is left alone. A no-op on every Case with fewer
+    # than two matched members -- which is every Case in the corpus except Game 44.
+    model_evidence = aggregate_class_discount(case, model_evidence)
+
     for line_item in case.line_items:
         from_model = model_evidence.get(line_item.index)
         from_memory = memory_evidence.get(line_item.index)
@@ -145,7 +151,14 @@ def build_proposal(
             rule = "uninformed-constants"
             priced = None
         else:
-            price = price_item(evidence, confirmed_uncovered=uncovered)
+            price = price_item(
+                evidence,
+                confirmed_uncovered=uncovered,
+                # Exactly the condition that puts "B:memory" in `channels` above, so the
+                # decision log and the pricing agree about which items got the looser
+                # ceiling. Any drift between these two is a stage attribution that lies.
+                memory_backed=from_memory is not None and not uncovered,
+            )
             item_price = ItemPrice(
                 index=line_item.index,
                 charge_price=price.charge,

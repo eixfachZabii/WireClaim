@@ -13,7 +13,13 @@ from src.data.case_loader import load_case
 from src.data.models import CaseData, FraudDecision, ItemPrice, Proposal
 from src.evidence.fraud_detection import detect_fraud
 from src.strategies.router import STRATEGY_PRIORITIES, StrategyRouter
-from src.strategies.fast_path import LLM_TIMEOUT_SECONDS, llm_values, standard_values
+from src.strategies.fast_path import (
+    LLM_TIMEOUT_SECONDS,
+    STANDARD_CHARGE,
+    STANDARD_LIMIT,
+    llm_values,
+    standard_values,
+)
 from src.runtime.submission_coordinator import SubmissionCoordinator
 from src.runtime.timing import format_error_card, log_timing, start_timer
 
@@ -106,6 +112,43 @@ class RunManager:
         )
 
 
+#: How many Line Items the blind floor covers. Invoices in the settled record run to 39
+#: positions, so this is the observed maximum plus one. An index past the real Line Item
+#: count creates no Transaction and costs nothing; a *missing* index is what costs.
+BLIND_LINE_ITEMS = 40
+
+
+def blind_floor() -> tuple[ItemPrice, ...]:
+    """Something to submit before we know anything at all -- even the Line Item count.
+
+    Published before the key fetch, so the window is never empty. If the Case then loads,
+    the real prices overwrite these within a second and this costs exactly nothing
+    (submission is an upsert, last write wins). If the Case does *not* load, this is the
+    difference between a bad submission and no submission.
+
+    That difference is not small. The API handbook is explicit: "Omitted line items use the
+    game defaults of charge_price = 0 and acceptance_limit = 0. They still participate in
+    transactions; omitting a line does not opt the team out of it." So silence is not
+    abstention -- it is `a = 0, b = 0`, which earns nothing and wrongfully rejects every
+    fair claim at 1.5x (CLAUDE.md rule 1, README R7). Games 10-12 paid a combined 139,904
+    to establish this, which is why `b5ba5dc` added this function.
+
+    It was then deleted by `9b5ee55`, a 112-line refactor whose message does not mention it
+    -- collateral, not a decision. Two tests were written in the same commit to match the new
+    behaviour, so nothing recorded that a safety net had been removed, and it stayed gone for
+    twenty Games until a documentation audit noticed the docs still described it.
+    """
+    return tuple(
+        ItemPrice(
+            index=index,
+            charge_price=STANDARD_CHARGE,
+            acceptance_limit=STANDARD_LIMIT,
+            source="blind_floor",
+        )
+        for index in range(1, BLIND_LINE_ITEMS + 1)
+    )
+
+
 def dry_run_submit(game_id: int, submissions: list[dict[str, float | int]], timeout: float) -> list[dict]:
     return []
 
@@ -120,6 +163,8 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
         else SubmissionCoordinator(game_id, deadline)
     )
     await coordinator.start()
+    # Before the key fetch, so that a Case which never loads still submits something.
+    coordinator.publish(blind_floor())
 
     case_load_started_at = start_timer()
     try:
@@ -129,7 +174,7 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
             return
         case = await asyncio.wait_for(load_case(game_id, deadline), timeout=remaining)
     except Exception as error:
-        logger.error("Game %s could not be loaded: %s - no submission was sent.", game_id, error)
+        logger.error("Game %s could not be loaded: %s - blind floor stands.", game_id, error)
         log_timing(logger, "case_load", case_load_started_at, "failed", game=game_id)
         with suppress(TimeoutError):
             await asyncio.wait_for(coordinator.wait_until_idle(), timeout=max(deadline - loop.time(), 0.0))

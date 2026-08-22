@@ -1,0 +1,605 @@
+{
+  "game_id": 47,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 41387.340000000004,
+    "paid_on_accepts": 6667.43,
+    "penalties": 25233.105,
+    "net": 9486.805000000004,
+    "saved_by_rejecting": 7078.42,
+    "lawyer_waste": 8411.035000000003,
+    "fraud_let_through": 499.85,
+    "strictness_net": -1832.4650000000033
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Vehicle costs (1 flat rate)",
+      "t_lo": 78.85,
+      "t_hi": null,
+      "our_charge": 61.5,
+      "our_limit_bracket": [
+        56.21,
+        62.0
+      ],
+      "estimate_median": 88.78066521302144,
+      "coverage_probability": 0.96,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 531.93,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Sealing material (1 pcs)",
+      "t_lo": 18.76,
+      "t_hi": 27.0,
+      "our_charge": 15.26,
+      "our_limit_bracket": [
+        9.0,
+        12.49
+      ],
+      "estimate_median": 24.49489742783178,
+      "coverage_probability": 0.935,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 226.92,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Stainless steel pipe (1 m)",
+      "t_lo": 42.75,
+      "t_hi": null,
+      "our_charge": 25.62,
+      "our_limit_bracket": [
+        0.0,
+        14.31
+      ],
+      "estimate_median": 38.987177379235845,
+      "coverage_probability": 0.575,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 602.58,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.57 so the Limit collapsed, but the item is worth at least 43."
+    },
+    {
+      "index": 4,
+      "name": "Rock wool pipe insulation (1 m)",
+      "t_lo": 33.15,
+      "t_hi": 38.0,
+      "our_charge": 27.58,
+      "our_limit_bracket": [
+        26.49,
+        33.15
+      ],
+      "estimate_median": 39.81302413861045,
+      "coverage_probability": 0.925,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 49.724999999999994,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Installation (1 m)",
+      "t_lo": 206.66,
+      "t_hi": null,
+      "our_charge": 206.66,
+      "our_limit_bracket": [
+        180.5,
+        Infinity
+      ],
+      "estimate_median": 298.33181957748155,
+      "coverage_probability": 0.945,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Measuring device (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 8.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 103.92304845413258,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Service technician hours 9 labor units",
+      "t_lo": 837.9,
+      "t_hi": 868.42,
+      "our_charge": 641.61,
+      "our_limit_bracket": [
+        336.3,
+        515.59
+      ],
+      "estimate_median": 816.6394553289718,
+      "coverage_probability": 0.935,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 9345.075,
+      "stage": "estimate-too-low",
+      "why": "Estimated 817 against a proven floor of t >= 838; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 8,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 21.25,
+      "our_charge": 61.5,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 88.78066521302144,
+      "coverage_probability": 0.01,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Construction dryer flat-rate charge (1 flat rate)",
+      "t_lo": 585.0,
+      "t_hi": null,
+      "our_charge": 304.69,
+      "our_limit_bracket": [
+        184.09,
+        210.0
+      ],
+      "estimate_median": 425.00000000000017,
+      "coverage_probability": 0.945,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2026.5,
+      "stage": "estimate-too-low",
+      "why": "Estimated 425 against a proven floor of t >= 585; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 10,
+      "name": "Short saw blade (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 7.65,
+      "our_charge": 11.01,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 18.708286933869704,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Gunmetal (2 pcs)",
+      "t_lo": 82.29,
+      "t_hi": null,
+      "our_charge": 31.74,
+      "our_limit_bracket": [
+        21.53,
+        24.0
+      ],
+      "estimate_median": 49.749371855331,
+      "coverage_probability": 0.94,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 613.125,
+      "stage": "charge-far-below-t",
+      "why": "Charged 32 against t >= 82; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 12,
+      "name": "Service technician hours 9 labor units",
+      "t_lo": 837.9,
+      "t_hi": null,
+      "our_charge": 641.61,
+      "our_limit_bracket": [
+        327.44,
+        379.44
+      ],
+      "estimate_median": 816.6394553289718,
+      "coverage_probability": 0.855,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 8397.914999999999,
+      "stage": "estimate-too-low",
+      "why": "Estimated 817 against a proven floor of t >= 838; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 13,
+      "name": "Painting the disturbed wall area and closing the wall (1 pcs)",
+      "t_lo": 595.0,
+      "t_hi": null,
+      "our_charge": 450.5,
+      "our_limit_bracket": [
+        266.46,
+        316.16
+      ],
+      "estimate_median": 631.6644678941506,
+      "coverage_probability": 0.955,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 3242.055,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 14,
+      "name": "Re-tiling of the disturbed wall section around the (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 66.5,
+      "our_charge": 364.08,
+      "our_limit_bracket": [
+        213.79,
+        Infinity
+      ],
+      "estimate_median": 525.3570214625482,
+      "coverage_probability": 0.935,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.94 but the item is worth about nothing (t < 66)."
+    },
+    {
+      "index": 15,
+      "name": "Re-tiling of the entire bathroom to match",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 16,
+      "name": "Construction dryer flat-rate charge (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 42.75,
+      "our_charge": 304.69,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 425.00000000000017,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 17,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 69.52,
+      "t_hi": null,
+      "our_charge": 61.5,
+      "our_limit_bracket": [
+        58.5,
+        62.0
+      ],
+      "estimate_median": 88.78066521302144,
+      "coverage_probability": 0.94,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 197.28,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -19756.205,
+        "income": 14510.0,
+        "cost": 34266.205,
+        "items_priced": 17,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 9486.805000000008,
+        "income": 41387.340000000004,
+        "cost": 31900.534999999996,
+        "items_priced": 17,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": -21595.385000000002,
+        "income": 12741.0,
+        "cost": 34336.385,
+        "items_priced": 17,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 7,
+        "name": "Service technician hours 9 labor units",
+        "delta": -10637.410000000003,
+        "winner_net": 177.38500000000022,
+        "alternative_net": -10460.025000000003,
+        "t_hat": 816.6394553289718,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 837.9,
+        "t_hi": 868.42,
+        "rule": "priced"
+      },
+      {
+        "index": 12,
+        "name": "Service technician hours 9 labor units",
+        "delta": -8215.23,
+        "winner_net": 1168.9050000000007,
+        "alternative_net": -7046.324999999999,
+        "t_hat": 816.6394553289718,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 837.9,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 9,
+        "name": "Construction dryer flat-rate charge (1 flat rate)",
+        "delta": -3118.214999999999,
+        "winner_net": 1562.1899999999987,
+        "alternative_net": -1556.025,
+        "t_hat": 425.00000000000017,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 585.0,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 13,
+        "name": "Painting the disturbed wall area and closing the wall (1 pcs)",
+        "delta": -2057.0099999999993,
+        "winner_net": 2507.925,
+        "alternative_net": 450.9150000000009,
+        "t_hat": 631.6644678941506,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 595.0,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Installation (1 m)",
+        "delta": -1367.0299999999993,
+        "winner_net": 2385.6199999999994,
+        "alternative_net": 1018.5900000000001,
+        "t_hat": 298.33181957748155,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 206.66,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 17,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -1141.72,
+        "winner_net": 339.78999999999996,
+        "alternative_net": -801.9300000000001,
+        "t_hat": 88.78066521302144,
+        "bucket": "t_hat < 100",
+        "t_lo": 69.52,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Vehicle costs (1 flat rate)",
+        "delta": -1137.4299999999998,
+        "winner_net": 62.65999999999997,
+        "alternative_net": -1074.77,
+        "t_hat": 88.78066521302144,
+        "bucket": "t_hat < 100",
+        "t_lo": 78.85,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Rock wool pipe insulation (1 m)",
+        "delta": -454.5249999999998,
+        "winner_net": 232.94499999999982,
+        "alternative_net": -221.57999999999998,
+        "t_hat": 39.81302413861045,
+        "bucket": "t_hat < 100",
+        "t_lo": 33.15,
+        "t_hi": 38.0,
+        "rule": "priced"
+      },
+      {
+        "index": 11,
+        "name": "Gunmetal (2 pcs)",
+        "delta": -448.8500000000001,
+        "winner_net": -161.36499999999984,
+        "alternative_net": -610.2149999999999,
+        "t_hat": 49.749371855331,
+        "bucket": "t_hat < 100",
+        "t_lo": 82.29,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Stainless steel pipe (1 m)",
+        "delta": -268.34999999999997,
+        "winner_net": -192.66000000000003,
+        "alternative_net": -461.01,
+        "t_hat": 38.987177379235845,
+        "bucket": "t_hat < 100",
+        "t_lo": 42.75,
+        "t_hi": null,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 8,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -239.77,
+        "winner_net": 123.0,
+        "alternative_net": -116.77000000000001,
+        "t_hat": 88.78066521302144,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 21.25,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 2,
+        "name": "Sealing material (1 pcs)",
+        "delta": -168.51999999999992,
+        "winner_net": 8.239999999999924,
+        "alternative_net": -160.28,
+        "t_hat": 24.49489742783178,
+        "bucket": "t_hat < 100",
+        "t_lo": 18.76,
+        "t_hi": 27.0,
+        "rule": "priced"
+      },
+      {
+        "index": 16,
+        "name": "Construction dryer flat-rate charge (1 flat rate)",
+        "delta": 145.31,
+        "winner_net": 304.69,
+        "alternative_net": 450.0,
+        "t_hat": 425.00000000000017,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 42.75,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 6,
+        "name": "Measuring device (1 pcs)",
+        "delta": -99.66,
+        "winner_net": 0.0,
+        "alternative_net": -99.66,
+        "t_hat": 103.92304845413258,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 8.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 10,
+        "name": "Short saw blade (1 pcs)",
+        "delta": -58.13,
+        "winner_net": 11.01,
+        "alternative_net": -47.120000000000005,
+        "t_hat": 18.708286933869704,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 7.65,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 14,
+        "name": "Re-tiling of the disturbed wall section around the (1 flat rate)",
+        "delta": 23.530000000000086,
+        "winner_net": 956.4699999999999,
+        "alternative_net": 980.0,
+        "t_hat": 525.3570214625482,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 66.5,
+        "rule": "priced"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 9486.805000000004,
+    "replayed_actual_net": 9486.805000000008,
+    "oracle_net": 32732.91,
+    "oracle_exact_net": 35375.91,
+    "line_items": 17,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": -29243.01000000001
+  },
+  "estimate": {
+    "n_scorable": 3,
+    "median_log_error": 0.06820166109647591,
+    "rmsle": 0.0800691257581866
+  },
+  "cost_by_stage": {
+    "estimate-too-low": 19769.489999999998,
+    "ok": 4247.91,
+    "charge-far-below-t": 613.125,
+    "coverage-too-low": 602.58,
+    "coverage-too-high": 0.0
+  }
+}

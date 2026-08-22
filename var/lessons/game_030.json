@@ -1,0 +1,216 @@
+{
+  "game_id": 30,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 11536.72,
+    "paid_on_accepts": 636.69,
+    "penalties": 14363.07,
+    "net": -3463.040000000001
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Disassembly/reassembly, construction dryer for the (1 flat rate)",
+      "t_lo": 432.0,
+      "t_hi": 478.96,
+      "our_charge": 478.96,
+      "our_limit_bracket": [
+        162.0,
+        323.0
+      ],
+      "estimate_median": 721.1102550927981,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2315.6549999999997,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Construction waste disposal (1 flat rate)",
+      "t_lo": 57.3,
+      "t_hi": 72.56,
+      "our_charge": 57.24,
+      "our_limit_bracket": [
+        0.0,
+        41.44
+      ],
+      "estimate_median": 82.63016353134867,
+      "coverage_probability": 0.9199999999999999,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 360.135,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Wall preparation, rough repair and mounting opening (1 flat rate)",
+      "t_lo": 378.0,
+      "t_hi": 404.14,
+      "our_charge": 229.89,
+      "our_limit_bracket": [
+        100.0,
+        205.0
+      ],
+      "estimate_median": 349.9999999999999,
+      "coverage_probability": 0.965,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 5122.335,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Standard wall tiling incl. standard silicone sealant (1 flat rate)",
+      "t_lo": 449.99,
+      "t_hi": null,
+      "our_charge": 171.66,
+      "our_limit_bracket": [
+        57.3,
+        100.0
+      ],
+      "estimate_median": 269.8147512646406,
+      "coverage_probability": 0.935,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 5101.305,
+      "stage": "charge-far-below-t",
+      "why": "Charged 172 against t >= 450; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 5,
+      "name": "Vehicle costs (1 flat rate)",
+      "t_lo": 100.0,
+      "t_hi": null,
+      "our_charge": 52.71,
+      "our_limit_bracket": [
+        0.0,
+        40.5
+      ],
+      "estimate_median": 76.09602965040077,
+      "coverage_probability": 0.4,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 1463.6399999999999,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.40 so the Limit collapsed, but the item is worth at least 100."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -998.1049999999977,
+        "income": 14320.0,
+        "cost": 15318.104999999998,
+        "items_priced": 5,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": -3463.040000000001,
+        "income": 11536.719999999998,
+        "cost": 14999.759999999998,
+        "items_priced": 5,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 1,
+        "name": "Disassembly/reassembly, construction dryer for the (1 flat rate)",
+        "delta": 3436.235,
+        "winner_net": 614.9749999999999,
+        "alternative_net": 4051.21,
+        "t_hat": 721.1102550927981,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 432.0,
+        "t_hi": 478.96,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Vehicle costs (1 flat rate)",
+        "delta": -843.3600000000001,
+        "winner_net": -620.28,
+        "alternative_net": -1463.64,
+        "t_hat": 76.09602965040077,
+        "bucket": "t_hat < 100",
+        "t_lo": 100.0,
+        "t_hi": null,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 2,
+        "name": "Construction waste disposal (1 flat rate)",
+        "delta": -315.84000000000003,
+        "winner_net": 555.705,
+        "alternative_net": 239.865,
+        "t_hat": 82.63016353134867,
+        "bucket": "t_hat < 100",
+        "t_lo": 57.3,
+        "t_hi": 72.56,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Wall preparation, rough repair and mounting opening (1 flat rate)",
+        "delta": 163.11000000000195,
+        "winner_net": -1601.3950000000018,
+        "alternative_net": -1438.2849999999999,
+        "t_hat": 349.9999999999999,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 378.0,
+        "t_hi": 404.14,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Standard wall tiling incl. standard silicone sealant (1 flat rate)",
+        "delta": 24.79000000000042,
+        "winner_net": -2412.0449999999996,
+        "alternative_net": -2387.254999999999,
+        "t_hat": 269.8147512646406,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 449.99,
+        "t_hi": null,
+        "rule": "priced"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": -3463.040000000001,
+    "replayed_actual_net": -3463.040000000001,
+    "oracle_net": 13171.449999999992,
+    "oracle_exact_net": 13171.449999999992,
+    "line_items": 5,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": 2464.935000000003
+  },
+  "estimate": {
+    "n_scorable": 3,
+    "median_log_error": 0.24106502327035514,
+    "rmsle": 0.3063268069712952
+  },
+  "cost_by_stage": {
+    "ok": 7798.125,
+    "charge-far-below-t": 5101.305,
+    "coverage-too-low": 1463.6399999999999
+  }
+}

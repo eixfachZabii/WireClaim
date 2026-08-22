@@ -10,12 +10,28 @@ from __future__ import annotations
 
 from src.strategies.strategy2.constants import SETTLED_MEDIAN
 
+#: Every figure here is measured over the 457 settled Line Items whose Fair Value we have
+#: recovered, and every one of them used to be too low. The hint previously said the median
+#: was 59 (it is 97), that a quarter fall under 20 (it is 25), and that the top decile "runs
+#: past 400 EUR to several thousand" -- when p90 is 616, p99 is 2,345 and the largest settled
+#: position we have seen is 11,131. Understating a distribution to a model is not a neutral
+#: act: it anchors low, and it anchors hardest exactly where we are already measurably worst,
+#: which is the expensive tail. On Game 41 a watch declared on a valuables schedule settled
+#: at `t >= 11,131` and we priced it at 5,524.
 _DISTRIBUTION_HINT = (
-    "\nFor reference, the settled distribution of these positions is wide and skewed: a "
-    f"quarter are under 20 EUR, the median is around {SETTLED_MEDIAN:.0f} EUR, and the top "
-    "decile runs past 400 EUR to several thousand. Use it as a sanity check on the shape, "
-    "never as an anchor for an individual position -- an expensive item priced like the "
-    "median is the single most expensive mistake you can make here.\n"
+    "\nFor reference, here is the settled distribution of these positions, measured over 457 "
+    "positions whose true value is known. It is wide and very skewed:\n"
+    "  25% under 25 EUR   median "
+    f"{SETTLED_MEDIAN:.0f} EUR"
+    "   75% under 330 EUR   90% under 616 EUR   99% under 2,345 EUR\n"
+    "The remaining 1% runs into five figures; the largest settled position seen so far is "
+    "11,131 EUR. Expensive positions are rarer than they look but they are not bounded by a "
+    "few thousand, and they are typically declared valuables, specialist restoration, or a "
+    "whole-system replacement rather than a labour line.\n"
+    "Use this as a sanity check on the shape, never as an anchor for an individual position. "
+    "Pricing an expensive item like the median is the single most expensive mistake you can "
+    "make here, and it is the one we actually make: on the positions we have got wrong, we "
+    "are far more often too low than too high.\n"
 )
 
 _TEMPLATE = """Read this insurance Case and return evidence for every invoice Line Item.

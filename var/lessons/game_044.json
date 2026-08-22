@@ -1,0 +1,411 @@
+{
+  "game_id": 44,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 115984.36,
+    "paid_on_accepts": 23181.45,
+    "penalties": 63900.090000000004,
+    "net": 28902.82,
+    "saved_by_rejecting": 44488.88000000001,
+    "lawyer_waste": 21300.030000000002,
+    "fraud_let_through": 2026.8899999999999,
+    "strictness_net": 21161.96000000001
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Compensation for stolen watch (1 pcs)",
+      "t_lo": 9361.36,
+      "t_hi": null,
+      "our_charge": 4738.18,
+      "our_limit_bracket": [
+        4500.0,
+        5285.0
+      ],
+      "estimate_median": 6839.961661581986,
+      "coverage_probability": 0.925,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 54534.840000000004,
+      "stage": "estimate-too-low",
+      "why": "Estimated 6840 against a proven floor of t >= 9361; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 2,
+      "name": "Compensation for stolen diamond ring (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 883.86,
+      "our_charge": 2000.0,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 4183.3001326703825,
+      "coverage_probability": 0.925,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.93 but the item is worth about nothing (t < 884)."
+    },
+    {
+      "index": 3,
+      "name": "Compensation for stolen gold necklace (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 662.89,
+      "our_charge": 1150.57,
+      "our_limit_bracket": [
+        694.0,
+        Infinity
+      ],
+      "estimate_median": 2121.3203435596424,
+      "coverage_probability": 0.925,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.93 but the item is worth about nothing (t < 663)."
+    },
+    {
+      "index": 4,
+      "name": "Compensation for cash taken in robbery (1 pcs)",
+      "t_lo": 557.12,
+      "t_hi": null,
+      "our_charge": 300.91,
+      "our_limit_bracket": [
+        0.0,
+        14.0
+      ],
+      "estimate_median": 434.38760562913507,
+      "coverage_probability": 0.475,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 7440.69,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.47 so the Limit collapsed, but the item is worth at least 557."
+    },
+    {
+      "index": 5,
+      "name": "Compensation for stolen mobile phone (1 pcs)",
+      "t_lo": 442.75,
+      "t_hi": 510.0,
+      "our_charge": 411.67,
+      "our_limit_bracket": [
+        223.0,
+        404.69
+      ],
+      "estimate_median": 674.5368781616022,
+      "coverage_probability": 0.92,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1924.56,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Replacement travel and extra hotel nights after the",
+      "t_lo": 0.0,
+      "t_hi": 1.0,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Shipping (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 1.0,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Translation from Spanish to English (2 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 39.62,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Notary certification of translated documents",
+      "t_lo": 0.0,
+      "t_hi": 37.0,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 10,
+      "name": "Material costs (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 1.0,
+      "our_charge": 66.41,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 90.675,
+      "coverage_probability": 0.0,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Administrative and claim-processing fee (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 1.0,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -88474.93,
+        "income": 7150.0,
+        "cost": 95624.93,
+        "items_priced": 11,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 10902.820000000007,
+        "income": 97984.36,
+        "cost": 87081.54,
+        "items_priced": 11,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": 7804.570000000007,
+        "income": 103470.0,
+        "cost": 95665.43,
+        "items_priced": 11,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 1,
+        "name": "Compensation for stolen watch (1 pcs)",
+        "delta": 11723.339999999997,
+        "winner_net": 344.4800000000105,
+        "alternative_net": 12067.820000000007,
+        "t_hat": 6839.961661581986,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 9361.36,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Compensation for stolen gold necklace (1 pcs)",
+        "delta": -8328.24,
+        "winner_net": 8328.24,
+        "alternative_net": 0.0,
+        "t_hat": 2121.3203435596424,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 0.0,
+        "t_hi": 662.89,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Compensation for cash taken in robbery (1 pcs)",
+        "delta": -4807.5599999999995,
+        "winner_net": -2626.13,
+        "alternative_net": -7433.69,
+        "t_hat": 434.38760562913507,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 557.12,
+        "t_hi": null,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 5,
+        "name": "Compensation for stolen mobile phone (1 pcs)",
+        "delta": -1378.2199999999998,
+        "winner_net": 4439.16,
+        "alternative_net": 3060.94,
+        "t_hat": 674.5368781616022,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 442.75,
+        "t_hi": 510.0,
+        "rule": "priced"
+      },
+      {
+        "index": 9,
+        "name": "Notary certification of translated documents",
+        "delta": -128.12,
+        "winner_net": 128.12,
+        "alternative_net": 0.0,
+        "t_hat": 97.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 37.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 8,
+        "name": "Translation from Spanish to English (2 hrs)",
+        "delta": -79.24,
+        "winner_net": 79.24,
+        "alternative_net": 0.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 39.62,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 11,
+        "name": "Administrative and claim-processing fee (1 flat rate)",
+        "delta": 71.88,
+        "winner_net": 39.62,
+        "alternative_net": 111.5,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 1.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 10,
+        "name": "Material costs (1 pcs)",
+        "delta": -67.41,
+        "winner_net": 66.41,
+        "alternative_net": -1.0,
+        "t_hat": 90.675,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 1.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 6,
+        "name": "Replacement travel and extra hotel nights after the",
+        "delta": -65.06,
+        "winner_net": 64.06,
+        "alternative_net": -1.0,
+        "t_hat": 97.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 1.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 7,
+        "name": "Shipping (1 pcs)",
+        "delta": -39.62,
+        "winner_net": 39.62,
+        "alternative_net": 0.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 1.0,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 28902.819999999992,
+    "replayed_actual_net": 28902.820000000007,
+    "oracle_net": 115582.02000000002,
+    "oracle_exact_net": 132386.90000000002,
+    "line_items": 11,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": -3098.25
+  },
+  "estimate": {
+    "n_scorable": 1,
+    "median_log_error": 0.3478209897725197,
+    "rmsle": 0.3478209897725197
+  },
+  "cost_by_stage": {
+    "estimate-too-low": 54534.840000000004,
+    "coverage-too-low": 7440.69,
+    "ok": 1924.56,
+    "coverage-too-high": 0.0
+  }
+}

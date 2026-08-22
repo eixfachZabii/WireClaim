@@ -594,6 +594,53 @@ LIMIT_QUANTILE = 1.0 / 3.0
 # settled Games instead of carrying a literal range that went five Games stale.
 LIMIT_CEILING = 0.45
 
+# The same ceiling for Line Items Channel B priced — a wording seen in a settled Case, whose
+# Fair Value we recovered exactly rather than estimated.
+#
+# This is the first thing measured all night that survived every test we could put it to, and
+# it is *not* a loosening of the ceiling. A flat 0.75 for every item was swept directly and
+# fails exactly where the standing guardrail says it should (Games 19-32, odd fold -2,749,
+# late fold -2,274). What pays is loosening it only where the estimate is measurably better:
+# Price Memory's leave-one-out log error is 0.39-0.48 against the model's 0.76-0.78, and the
+# split reproduces on zero-look-ahead live decisions rather than only on reconstructed data.
+# Trusting the better channel further on the accept side is therefore priced, not hoped.
+#
+# Measured against the real Field through `replay_payoffs.replay`, model-only items held at
+# `LIMIT_CEILING`, cap and quantile untouched:
+#
+#     window            delta   odd      even     early    late
+#     all 37 Games    +40,791  +16,935  +23,856  +20,261  +20,530
+#     Games 19-32     +12,598   +4,981   +7,617   +6,996   +5,602
+#
+# **Eight fold cells, eight positive.** No other candidate in the family managed that:
+# conditioning on band width flips sign on the odd fold, and conditioning on coverage
+# probability is not an independent signal (59-64% of those items are already memory-backed)
+# and splits 12:1 across folds where this splits near 1:1. The aggregate only just clears the
+# +/-38,170 noise floor at n=37, so it is the fold consistency carrying this, not the total.
+#
+# The mechanism is visible in what the extra accepts actually buy: 618 newly-accepted fair
+# Charges saving 47,042 (at `0.5a` each -- accepting a fair Charge still costs `a`, only the
+# lawyer's half is saved) against 54 newly-accepted Overcharges costing 6,251. **7.53:1.**
+#
+# The strongest evidence it is about the channel rather than about which wordings happened to
+# be in the store: splitting the items by whether Price Memory could reach them *before*
+# tonight's rebuild, the already-reachable ones score 5.85:1 and the newly-reachable ones
+# **14.63:1**. A wider net normally catches worse matches; this one caught better ones, which
+# is the same thing the rebuild's leave-one-out sigma said (0.659 -> 0.581 while recall went
+# 22% -> 53%).
+#
+# 0.75 is where it saturates -- 0.85, 1.00, 1.25 and 1.50 all score identically -- and the
+# reason is the `b <= a` clamp at the end of `price_item`, not the ceiling. Above roughly the
+# Charge factor the Charge sets the Limit and this constant stops binding. So 0.75 is the
+# natural stopping point rather than an arbitrary one, and raising it further is not a
+# decision this constant can express.
+#
+# What would falsify it: the Field's Limits stop clustering, or Price Memory's measured error
+# stops beating the model's. Re-run `scripts/experiments/cap_ceiling_sweep.py` and
+# `fair_vs_overcharge_split.py`; if the fair-to-Overcharge ratio falls toward 1:1, revert to
+# `LIMIT_CEILING`.
+LIMIT_CEILING_MEMORY = 0.75
+
 #: An absolute ceiling on the Limit, in EUR, independent of the estimate.
 #:
 #: This is the one thing a multiplicative ceiling cannot do. 2,000.00 is the most common
@@ -625,6 +672,37 @@ LIMIT_CEILING = 0.45
 #: Falsifier: if the estimator stops exploding on cheap items -- median `t_hat / t` on
 #: rejected items reaching ~1.0 -- this cap starts costing money on genuinely expensive Line
 #: Items and should rise or go. Re-run `penalty_audit.py robust` after any evidence change.
+# **Applies to model-only items only.** Game 41 is why. A watch declared on a valuables
+# schedule settled at `t >= 11,131`; the field Charged us 11,131 / 9,585 / 8,910 / 8,571 /
+# 6,703 / 4,771 / 2,284 / 1,329 / 1,165 / 72, *every one of them fair*, and this cap held our
+# Limit at 708 so we rejected nine of the ten and paid 1.5x on all of them. An absolute euro
+# wall derived from `12 x SETTLED_MEDIAN` cannot see an item worth eleven thousand, and it
+# binds there even with a perfect estimate -- `0.45 x 11,131 = 5,009` is still capped to 708.
+#
+# But it cannot simply be removed. Swept through the real `price_item` over Games 26-41,
+# lifting it everywhere costs **+21,503** and admits 26,967 of fresh Overcharges, almost all
+# from one Line Item: Game 29's "Renew the water-damaged boiler", which we estimated at 7,139
+# with coverage 0.94 and which settled at `t < 57`. The cap was doing nothing about large
+# items and everything about our own worst coverage miss.
+#
+# The discriminator is the channel. A memory-backed item has been *seen settle* -- the wording
+# appeared in an earlier Game and `invert_fair_values` recovered what it was worth -- so an
+# absolute guard against a hallucinated estimate is redundant there. The boilers were
+# `C:model` alone; the watch was `B:memory` + `C:model`. Lifting the cap only for
+# memory-backed items, over Games 26-41:
+#
+#     configuration                    cost      vs shipped   Overcharges   odd/even/early/late
+#     cap 708 everywhere            379,190             +0         8,127    -    -    -    -
+#     no cap on memory-backed       374,086         -5,104         8,127  +2,389 +2,715 +738 +4,366
+#     no cap anywhere               400,693        +21,503        35,094  -24,218 +2,715 -25,869 +4,366
+#
+# **Zero additional Overcharges admitted, positive on all four folds, and strengthening** as
+# Price Memory's coverage grows (+4,366 on the late half against +738 on the early half),
+# which is what you would expect from a rule whose reach is the memory's recall -- 22% when
+# the store was stale this evening, 58% now.
+#
+# What would falsify it: a memory-backed wording that settles far below its stored value, the
+# way the boilers did for the model. Re-run `scripts/experiments/cap_ceiling_sweep.py`.
 LIMIT_CAP = 12.0 * 59.0
 
 # Below this, the bottom third of the posterior is zero anyway; naming it makes the
@@ -796,7 +874,12 @@ def _normal_quantile(p: float) -> float:
            (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1)
 
 
-def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Price:
+def price_item(
+    evidence: Evidence,
+    *,
+    confirmed_uncovered: bool = False,
+    memory_backed: bool = False,
+) -> Price:
     """The whole pricing decision for one Line Item.
 
     `confirmed_uncovered` is for a proven exclusion — a policy clause quoted verbatim.
@@ -805,6 +888,11 @@ def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Pric
     Charge a free option (README R6c). Game 3 is the proof: every Line Item was
     uncovered, two teams Charged ~100 and were paid by 2 of 16, and the rest of the field
     scored zero.
+
+    `memory_backed` says Channel B priced this item — a wording seen in a *settled* Case,
+    whose Fair Value we recovered exactly. It selects `LIMIT_CEILING_MEMORY` over
+    `LIMIT_CEILING`; see that constant for why the Limit, and only the Limit, is allowed to
+    trust one channel more than the other.
     """
     filled = evidence.with_defaults()
     sigma = implied_sigma(filled.price_low, filled.price_median, filled.price_high)
@@ -823,11 +911,18 @@ def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Pric
     else:
         # Strip the zero mass, then take the quantile that leaves 1/3 of the total below.
         conditional = (LIMIT_QUANTILE - (1.0 - covered)) / covered
-        limit = min(
+        ceiling = LIMIT_CEILING_MEMORY if memory_backed else LIMIT_CEILING
+        # The absolute cap is a guard against an estimate we cannot check. On a memory-backed
+        # item we *can* check it -- the wording settled in an earlier Game and
+        # `invert_fair_values` recovered what it was worth -- so the cap comes off and the
+        # ceiling does the work. See `LIMIT_CAP`.
+        candidates = [
             _lognormal_quantile(filled.price_median, sigma, conditional),
-            LIMIT_CEILING * filled.price_median,
-            LIMIT_CAP,
-        )
+            ceiling * filled.price_median,
+        ]
+        if not memory_backed:
+            candidates.append(LIMIT_CAP)
+        limit = min(candidates)
 
     # b < a always: the Limit is a lower quantile of the same posterior than the Charge.
     #

@@ -1,0 +1,660 @@
+{
+  "game_id": 34,
+  "items": [
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 37.28,
+      "coverage_probability": 0.9199999999999999,
+      "index": 1,
+      "limit": 24.22,
+      "name": "Profipress elbow 90\u00b0 copper 15mm (4 pcs)",
+      "price_high": 95.6351925747816,
+      "price_low": 30.28487718464111,
+      "price_median": 53.81728404199493,
+      "quantity": 4.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 80.86,
+      "coverage_probability": 0.75,
+      "index": 2,
+      "limit": 52.53,
+      "name": "Profipress elbow 90\u00b0 copper 28mm (5 pcs)",
+      "price_high": 207.41950941004757,
+      "price_low": 65.68371118476985,
+      "price_median": 116.72224788006876,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568053
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 16.76,
+      "coverage_probability": 0.75,
+      "index": 3,
+      "limit": 10.89,
+      "name": "Profipress elbow 45\u00b0 copper 28mm (1 pcs)",
+      "price_high": 42.99321518668386,
+      "price_low": 13.614697755571923,
+      "price_median": 24.19379321865353,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 6.88,
+      "coverage_probability": 0.9,
+      "index": 4,
+      "limit": 4.47,
+      "name": "Grub screw (8 pcs)",
+      "price_high": 17.64769639208945,
+      "price_low": 5.588510917760167,
+      "price_median": 9.930979003124948,
+      "quantity": 8.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 11.22,
+      "coverage_probability": 0.89,
+      "index": 5,
+      "limit": 7.53,
+      "name": "Two-screw pipe clamp 10 mm (4 pcs)",
+      "price_high": 32.27766037086662,
+      "price_low": 8.674730348570248,
+      "price_median": 16.733200530681508,
+      "quantity": 4.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3993802796189125
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 88.11,
+      "coverage_probability": 0.825,
+      "index": 6,
+      "limit": 57.24,
+      "name": "Two-screw pipe clamp 25 mm (4 pcs)",
+      "price_high": 226.03395594245507,
+      "price_low": 71.57836368576439,
+      "price_median": 127.19725116440642,
+      "quantity": 4.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 66.93,
+      "coverage_probability": 0.9450000000000001,
+      "index": 7,
+      "limit": 43.48,
+      "name": "Copper pipe 15x1 (6.4 m)",
+      "price_high": 171.69470856419545,
+      "price_low": 54.37070833577795,
+      "price_median": 96.61864686560388,
+      "quantity": 6.4,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 357.4,
+      "coverage_probability": 0.955,
+      "index": 8,
+      "limit": 232.17,
+      "name": "Service technician hours (6.75 hrs)",
+      "price_high": 916.8329712337786,
+      "price_low": 290.33427115162567,
+      "price_median": 515.9341357876395,
+      "quantity": 6.75,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 233.45,
+      "coverage_probability": 0.915,
+      "index": 9,
+      "limit": 151.65,
+      "name": "Helper hours (5.75 hrs)",
+      "price_high": 598.8613336865889,
+      "price_low": 189.64192420219152,
+      "price_median": 337.0003199562508,
+      "quantity": 5.75,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 39.26,
+      "coverage_probability": 0.915,
+      "index": 10,
+      "limit": 25.51,
+      "name": "Rock wool pipe insulation (6 pcs)",
+      "price_high": 100.72153542419214,
+      "price_low": 31.895573669545715,
+      "price_median": 56.6795479272028,
+      "quantity": 6.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 57.09,
+      "coverage_probability": 0.8,
+      "index": 11,
+      "limit": 39.74,
+      "name": "Rock wool mat (6 pcs)",
+      "price_high": 185.88354190157054,
+      "price_low": 41.96175691622161,
+      "price_median": 88.31760866327845,
+      "quantity": 6.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.45238957597043256
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 13.96,
+      "coverage_probability": 0.815,
+      "index": 12,
+      "limit": 9.07,
+      "name": "Binding wire (2 kg)",
+      "price_high": 35.806899492707466,
+      "price_low": 11.339001096813654,
+      "price_median": 20.149800808477146,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 49.85,
+      "coverage_probability": 0.8999999999999999,
+      "index": 13,
+      "limit": 32.38,
+      "name": "Small parts and consumables (1 pcs)",
+      "price_high": 127.87931409219112,
+      "price_low": 40.495650371695795,
+      "price_median": 71.96218446691041,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 56.11,
+      "coverage_probability": 0.95,
+      "index": 14,
+      "limit": 36.45,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 143.9307097248749,
+      "price_low": 45.578659380098195,
+      "price_median": 80.99486892937021,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 56.11,
+      "coverage_probability": 0.015,
+      "index": 15,
+      "limit": 0.0,
+      "name": "Vehicle costs \u2013 return visit (1 pcs)",
+      "price_high": 143.9307097248749,
+      "price_low": 45.578659380098195,
+      "price_median": 80.99486892937021,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 59.92,
+      "coverage_probability": 0.91,
+      "index": 16,
+      "limit": 38.92,
+      "name": "Construction waste disposal (1 pcs)",
+      "price_high": 153.70096796186598,
+      "price_low": 48.67261530576993,
+      "price_median": 86.49293662335886,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 51.7,
+      "coverage_probability": 0.01,
+      "index": 17,
+      "limit": 0.0,
+      "name": "Catering for work crew (1 pcs)",
+      "price_high": 148.7869798178964,
+      "price_low": 39.990058318828325,
+      "price_median": 77.13624310270762,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.39935706266071913
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 31.22,
+      "coverage_probability": 0.01,
+      "index": 18,
+      "limit": 0.0,
+      "name": "Processing flat fee (1 pcs)",
+      "price_high": 95.60269023308456,
+      "price_low": 23.534902569314504,
+      "price_median": 47.434164902525694,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4260536246660319
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 289.99,
+      "coverage_probability": 0.97,
+      "index": 19,
+      "limit": 177.85,
+      "name": "Removal of water-damaged floor tiles around leak (8 m\u00b2)",
+      "price_high": 604.528686442903,
+      "price_low": 258.3831065471744,
+      "price_median": 395.22145690739006,
+      "quantity": 8.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.258360404596967
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 733.7,
+      "coverage_probability": 0.96,
+      "index": 20,
+      "limit": 429.74,
+      "name": "Supply and lay replacement floor tiles (water-damaged (8 m\u00b2)",
+      "price_high": 1287.4549681408184,
+      "price_low": 708.3742908049016,
+      "price_median": 954.9869109050654,
+      "quantity": 8.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.1815957575663645
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 108.09,
+      "coverage_probability": 0.96,
+      "index": 21,
+      "limit": 69.17,
+      "name": "Tile adhesive and grout (1 flat rate)",
+      "price_high": 262.85536833113827,
+      "price_low": 89.87832415215443,
+      "price_median": 153.70426148939396,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3261845437263288
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 423.97,
+      "coverage_probability": 0.96,
+      "index": 22,
+      "limit": 243.0,
+      "name": "Installation hours \u2013 tiler (6 hrs)",
+      "price_high": 684.490415249111,
+      "price_low": 426.01034799570766,
+      "price_median": 540.0000000000002,
+      "quantity": 6.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.14413708359528088
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 343.48,
+      "coverage_probability": 0.01,
+      "index": 23,
+      "limit": 0.0,
+      "name": "Cleaning, disinfection and re-coating of surrounding (5 hrs)",
+      "price_high": 615.5324206011347,
+      "price_low": 328.3336396848553,
+      "price_median": 449.5553358597802,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.19102046573981216
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 61.24,
+      "coverage_probability": 0.89,
+      "index": 24,
+      "limit": 39.78,
+      "name": "Construction waste disposal (1 pcs)",
+      "price_high": 157.1076985121503,
+      "price_low": 49.751427545687264,
+      "price_median": 88.41002363644591,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 56.11,
+      "coverage_probability": 0.95,
+      "index": 25,
+      "limit": 36.45,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 143.9307097248749,
+      "price_low": 45.578659380098195,
+      "price_median": 80.99486892937021,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    }
+  ],
+  "memory_items": 16,
+  "model_draws": 2,
+  "model_items": 25,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        600.0,
+        21.85
+      ],
+      "10": [
+        900.0,
+        35.0
+      ],
+      "11": [
+        900.0,
+        11.67
+      ],
+      "12": [
+        300.0,
+        3.33
+      ],
+      "13": [
+        150.0,
+        20.78
+      ],
+      "14": [
+        150.0,
+        35.0
+      ],
+      "15": [
+        150.0,
+        35.0
+      ],
+      "16": [
+        150.0,
+        35.0
+      ],
+      "17": [
+        150.0,
+        35.0
+      ],
+      "18": [
+        150.0,
+        35.0
+      ],
+      "19": [
+        1200.0,
+        35.0
+      ],
+      "2": [
+        750.0,
+        35.0
+      ],
+      "20": [
+        1200.0,
+        35.0
+      ],
+      "21": [
+        150.0,
+        35.0
+      ],
+      "22": [
+        900.0,
+        0.0
+      ],
+      "23": [
+        750.0,
+        0.0
+      ],
+      "24": [
+        150.0,
+        35.0
+      ],
+      "25": [
+        150.0,
+        35.0
+      ],
+      "3": [
+        150.0,
+        13.19
+      ],
+      "4": [
+        1200.0,
+        1.0
+      ],
+      "5": [
+        600.0,
+        8.89
+      ],
+      "6": [
+        600.0,
+        11.04
+      ],
+      "7": [
+        960.0,
+        35.0
+      ],
+      "8": [
+        1012.5,
+        0.0
+      ],
+      "9": [
+        862.5,
+        35.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        37.28,
+        24.22
+      ],
+      "10": [
+        39.26,
+        25.51
+      ],
+      "11": [
+        57.09,
+        39.74
+      ],
+      "12": [
+        13.96,
+        9.07
+      ],
+      "13": [
+        49.85,
+        32.38
+      ],
+      "14": [
+        56.11,
+        36.45
+      ],
+      "15": [
+        56.11,
+        0.0
+      ],
+      "16": [
+        59.92,
+        38.92
+      ],
+      "17": [
+        51.7,
+        0.0
+      ],
+      "18": [
+        31.22,
+        0.0
+      ],
+      "19": [
+        289.99,
+        177.85
+      ],
+      "2": [
+        80.86,
+        52.53
+      ],
+      "20": [
+        733.7,
+        429.74
+      ],
+      "21": [
+        108.09,
+        69.17
+      ],
+      "22": [
+        423.97,
+        243.0
+      ],
+      "23": [
+        343.48,
+        0.0
+      ],
+      "24": [
+        61.24,
+        39.78
+      ],
+      "25": [
+        56.11,
+        36.45
+      ],
+      "3": [
+        16.76,
+        10.89
+      ],
+      "4": [
+        6.88,
+        4.47
+      ],
+      "5": [
+        11.22,
+        7.53
+      ],
+      "6": [
+        88.11,
+        57.24
+      ],
+      "7": [
+        66.93,
+        43.48
+      ],
+      "8": [
+        357.4,
+        232.17
+      ],
+      "9": [
+        233.45,
+        151.65
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787428646.2424262,
+  "recorded_at": 1787428633.9891279,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

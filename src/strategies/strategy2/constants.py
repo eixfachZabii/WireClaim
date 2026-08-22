@@ -33,9 +33,18 @@ LLM_TIMEOUT_SECONDS = 55.0
 #: Leave this much of the window for the final PUT after the last draw returns.
 SUBMISSION_RESERVE_SECONDS = 3.0
 
-#: Median Fair Value over the 148 settled Line Items with a bounded bracket. Used as a
-#: prior in the prompt and as the last-resort price when no channel has anything to say.
-SETTLED_MEDIAN = 59.0
+#: Median settled Fair Value. Used as the reference distribution in the prompt and as the
+#: band for an item we cannot price at all (`channels.worthless_evidence`).
+#:
+#: Re-measured at Game 41 over **457** settled Line Items, against the 148 the old value of
+#: 59.0 was taken from. The true median is **97** -- the old figure understated it by 65%,
+#: and it had been telling the model so in every prompt since.
+#:
+#: `LIMIT_CAP` is written as `12.0 * 59.0` in literals rather than in terms of this constant,
+#: so it does not move with it. That is deliberate: the cap is a Field measurement about
+#: large Charges, not a multiple of the median, and coupling them would make one measurement
+#: silently move the other.
+SETTLED_MEDIAN = 97.0
 
 #: Assumed log error of the model's own band, used to weight it against Price Memory and as
 #: the fallback width when a band is missing or incoherent. **This is a prior, not a
