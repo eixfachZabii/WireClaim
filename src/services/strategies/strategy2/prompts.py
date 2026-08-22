@@ -35,7 +35,11 @@ Price the actual work at real German market rates, and get the LEVEL right. Both
 Anchors, since gross totals for a whole Line Item are easy to get wrong by an order of magnitude:
 - Tradesman labour runs roughly 60-110 EUR per hour, so an hourly Line Item is that rate multiplied by the hours: 6.75 technician hours is several hundred EUR, not tens.
 - Small parts, fittings, screws and consumables are genuinely cheap: tens of EUR for the whole position.
-- Equipment hire, drying, leak detection and disposal are typically 50-400 EUR per position.
+- Leak detection, leak pinpointing and moisture surveys settle around 430 EUR and reach 850. They are NOT a small call-out fee: seven in ten are above 400.
+- Drying (room, cavity, insulation-layer) settles around 425 EUR; large-area or borehole drying reaches 1,400-2,600.
+- Damage assessment, inspection and surveys settle around 490 EUR and reach 920.
+- Disposal, strip-out and removal are cheaper, around 130 EUR, but a full strip-out reaches 1,000+.
+- Equipment and machinery hire runs 50-700 EUR per position.
 - Appliances, electronics, restoration and structural work reach the low thousands.
 
 {distribution}
