@@ -106,8 +106,6 @@ For each Line Item return:
 - coverage_probability: the probability from 0 to 1 that this Policy indemnifies this position at all. This is the most valuable number you produce. Roughly 40% of positions are worth nothing.
 - price_low, price_median, price_high: a realistic GROSS TOTAL band in EUR for the WHOLE Line Item at German market prices. Never a net amount, never a per-unit price. Make the band honest: wide when you are unsure, narrow when you are confident.
 - clause: the Policy sentence that decides coverage, quoted verbatim.
-- magnitude: one of "trivial", "tens", "hundreds", "low_thousands". Judge the ORDER OF MAGNITUDE independently, before and separately from the numbers above. A class is far easier to get right than a price, so where the two disagree the class wins.
-- unit_rate_low, unit_rate_median, unit_rate_high: for a position billed per hour, per m, per m2 or per kg, the rate for ONE unit. Deterministic code multiplies by the printed quantity, so do not do that arithmetic yourself. Leave these at 0 for a position billed as a lump sum or per piece.
 
 Price the actual work at real German market rates, and get the LEVEL right. Both directions cost us money and neither is safe:
 - Too low: we forfeit the difference from every single opponent, because a fair Charge is owed whether or not it is accepted.
@@ -128,7 +126,7 @@ How to judge coverage:
 - An implausible quantity means the position is priced for the plausible quantity, not that it is excluded.
 
 Return JSON only:
-{{"items":[{{"line_item":1,"coverage_probability":0.9,"price_low":0.0,"price_median":0.0,"price_high":0.0,"clause":"","magnitude":"hundreds","unit_rate_low":0.0,"unit_rate_median":0.0,"unit_rate_high":0.0}}]}}"""
+{{"items":[{{"line_item":1,"coverage_probability":0.9,"price_low":0.0,"price_median":0.0,"price_high":0.0,"clause":""}}]}}"""
 
 PROMPT = _PROMPT_TEMPLATE.format(distribution=_DISTRIBUTION_HINT)
 
@@ -343,10 +341,10 @@ def _apply_magnitude(
 def _band_of(item: dict[str, Any], quantity: float) -> tuple[float, float, float]:
     """The gross-total band for one Line Item, from a per-unit rate or given outright.
 
-    A rate multiplied by a printed quantity is a different question from a gross total, and
-    the invoice asks it that way: "Service technician hours (6.75 hrs)" is a rate the model
-    knows times a number it can read. Both schemas are accepted so a prompt variant can be
-    swapped in without touching the parser.
+    Neither of the alternative schemas is in `ENSEMBLE_PROMPTS`, because both were measured
+    and both lost money -- see the module docstring. The parser keeps them so the experiment
+    is one flag away (`scripts/tail_prompts.py --variant rate|mag`) and so a model that
+    volunteers a rate is not silently read as a gross total of a few tens of euros.
     """
     rates = [
         _number(item.get(key)) for key in ("unit_rate_low", "unit_rate_median", "unit_rate_high")

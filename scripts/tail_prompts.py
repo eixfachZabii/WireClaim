@@ -53,8 +53,10 @@ Anchors, since gross totals for a whole Line Item are easy to get wrong by an or
 - Appliances, electronics, restoration and structural work reach the low thousands.
 """
 
-# The variant currently shipping: the distribution hint is present.
+# The two variants that ship, taken from the Strategy itself so a cached tag cannot drift
+# away from the prompt it was generated with.
 BASELINE = s2.PROMPT
+UNANCHORED = s2.PROMPT_UNANCHORED
 
 # Ablation 1 -- the same prompt with the settled-distribution paragraph deleted. An earlier,
 # stronger version of that hint produced a systematic undershoot; this asks whether the
@@ -100,6 +102,9 @@ Return JSON only:
 
 VARIANTS = {
     "baseline": BASELINE,
+    "unanchored": UNANCHORED,
+    # `nohint` predates `PROMPT_UNANCHORED` and differs from it by one blank line; the
+    # cached evidence under that tag is what the +28,625 ensemble measurement was made on.
     "nohint": NOHINT,
     "nohint2": NOHINT,  # same prompt, second sample: the run-to-run noise floor
     "rate": RATE,
