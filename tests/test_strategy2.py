@@ -13,6 +13,7 @@ from src.services.strategies.strategy2.constants import (
     SUBMISSION_RESERVE_SECONDS,
 )
 from src.services.strategies.strategy2.model import parse_items
+from src.services.strategies.strategy2.constants import SETTLED_MEDIAN
 from src.services.strategies.strategy2.prompts import (
     ENSEMBLE_PROMPTS,
     PROMPT,
@@ -200,8 +201,13 @@ class BlendTests(unittest.TestCase):
 
     def test_the_two_framings_differ_only_in_the_distribution_hint(self) -> None:
         self.assertEqual(ENSEMBLE_PROMPTS, (PROMPT, PROMPT_UNANCHORED))
-        self.assertIn("the median is around 59 EUR", PROMPT)
-        self.assertNotIn("the median is around", PROMPT_UNANCHORED)
+        # Assert the invariant, not the figure. This test used to pin the literal string
+        # "the median is around 59 EUR", which is how a statistic measured over 148 Line
+        # Items stayed in the prompt unchallenged until Game 41, by which point the true
+        # median over 457 Line Items was 97 and every number in the hint was low.
+        self.assertIn(f"median {SETTLED_MEDIAN:.0f} EUR", PROMPT)
+        self.assertIn("settled distribution", PROMPT)
+        self.assertNotIn("settled distribution", PROMPT_UNANCHORED)
 
 
 class UncorrectedLevelTests(unittest.TestCase):
