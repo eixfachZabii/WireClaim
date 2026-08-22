@@ -64,7 +64,14 @@ __all__ = [
     "normalise_unit",
 ]
 
-DEFAULT_PATH = Path("var/price_memory.json")
+# The store has to be *committed*, not merely generated. `var/` is gitignored, so a
+# memory that lives only there is silently empty on whichever machine actually runs the
+# tournament -- the channel looks wired, reports no error, and contributes nothing.
+# `data/` is tracked; `var/` still wins when present so a freshly rebuilt store overrides
+# the committed one without a flag.
+TRACKED_PATH = Path("data/price_memory.json")
+GENERATED_PATH = Path("var/price_memory.json")
+DEFAULT_PATH = GENERATED_PATH if GENERATED_PATH.exists() else TRACKED_PATH
 
 #: Units priced per unit of quantity. Everything else is priced as a gross total.
 PER_UNIT_UNITS = frozenset({"hrs", "hr", "h", "hours", "m", "m2", "m3", "kg", "l", "km"})

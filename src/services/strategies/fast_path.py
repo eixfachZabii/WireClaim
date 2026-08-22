@@ -162,8 +162,13 @@ def _proposal_from_evidence(case: CaseData, payload: dict[str, Any]) -> Proposal
             low, high = fallback * 0.75, fallback * 1.25
         median = (low + high) / 2
         charge = max(fallback, round(CHARGE_FACTOR * median, 2))
-        covered_probability = max(_probability(raw_item.get("coverage_probability")), DEFAULT_COVERAGE_PROBABILITY)
-        relatedness_probability = max(_probability(raw_item.get("relatedness_probability")), DEFAULT_COVERAGE_PROBABILITY)
+        # Default when the model said nothing; never *floor* what it did say. As `max(...)`
+        # this was the Game 17 bug verbatim: a verdict of "5% likely covered" became 90%,
+        # so the Limit could not collapse and we paid full price on items worth nothing.
+        # That cost 70,736 in one Game from strategy1; this copy is layer 2 of the merge
+        # and still live wherever a Strategy has not priced an index.
+        covered_probability = _probability(raw_item.get("coverage_probability")) or DEFAULT_COVERAGE_PROBABILITY
+        relatedness_probability = _probability(raw_item.get("relatedness_probability")) or DEFAULT_COVERAGE_PROBABILITY
         probability = covered_probability * relatedness_probability
         zero_mass = 1 - probability
         if LIMIT_QUANTILE <= zero_mass:
