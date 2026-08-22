@@ -25,6 +25,7 @@ STEPS = [
     ["balance.py"],
     ["teams.py"],
     ["tvalues.py"],
+    ["activity.py"],
     ["diagnose.py"],
 ]
 
