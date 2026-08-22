@@ -1,5 +1,8 @@
 import unittest
+from datetime import datetime, timezone
+from unittest.mock import AsyncMock, patch
 
+import main
 from main import RunManager
 from src.data.models import FraudDecision, ItemPrice, Proposal
 
@@ -43,6 +46,53 @@ class RunManagerTests(unittest.TestCase):
 
         self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (120.0, 90.0))
         self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (200.0, 150.0))
+
+
+class RetryDryTests(unittest.IsolatedAsyncioTestCase):
+    async def test_retries_expired_games_in_order_and_stops_before_future_game(self) -> None:
+        now = datetime(2026, 8, 22, 12, 0, tzinfo=timezone.utc)
+        games = [
+            {"id": 2, "start_time": "2026-08-22T11:58:00Z"},
+            {"id": 1, "start_time": "2026-08-22T11:50:00Z"},
+            {"id": 3, "start_time": "2026-08-22T12:30:00Z"},
+        ]
+        run_game = AsyncMock()
+        with patch.object(main, "list_games", return_value=games), patch.object(
+            main, "run_game", run_game
+        ):
+            await main.retry_expired_games(now=now)
+
+        self.assertEqual(run_game.await_count, 2)
+        self.assertEqual(run_game.await_args_list[0].args, (1,))
+        self.assertEqual(run_game.await_args_list[1].args, (2,))
+        self.assertTrue(run_game.await_args_list[0].kwargs["dry_run"])
+        self.assertTrue(run_game.await_args_list[1].kwargs["dry_run"])
+
+    async def test_stops_before_a_still_active_game(self) -> None:
+        now = datetime(2026, 8, 22, 12, 0, tzinfo=timezone.utc)
+        games = [
+            {"id": 1, "start_time": "2026-08-22T11:50:00Z"},
+            {"id": 2, "start_time": "2026-08-22T11:59:30Z"},
+            {"id": 3, "start_time": "2026-08-22T12:30:00Z"},
+        ]
+        run_game = AsyncMock()
+        with patch.object(main, "list_games", return_value=games), patch.object(
+            main, "run_game", run_game
+        ):
+            await main.retry_expired_games(now=now)
+
+        self.assertEqual(run_game.await_count, 1)
+        self.assertEqual(run_game.await_args.args, (1,))
+
+    def test_dry_submit_logs_payload_without_api_call(self) -> None:
+        submissions = [{"index": 1, "charge_price": 150.0, "acceptance_limit": 75.0}]
+
+        with self.assertLogs("main", level="INFO") as logs:
+            result = main.dry_run_submit(7, submissions, timeout=1.0)
+
+        self.assertEqual(result, [])
+        self.assertIn("DRY RUN PUT /api/games/7/submissions", logs.output[0])
+        self.assertIn('"charge_price": 150.0', logs.output[0])
 
 
 if __name__ == "__main__":

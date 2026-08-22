@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import logging
 from collections.abc import Awaitable
 from dataclasses import dataclass
@@ -67,7 +68,16 @@ class RunManager:
         )
 
 
-async def run_game(game_id: int) -> None:
+def dry_run_submit(game_id: int, submissions: list[dict[str, float | int]], timeout: float) -> list[dict]:
+    logger.info(
+        "DRY RUN PUT /api/games/%s/submissions payload=%s",
+        game_id,
+        json.dumps(submissions, ensure_ascii=False),
+    )
+    return []
+
+
+async def run_game(game_id: int, dry_run: bool = False) -> None:
     loop = asyncio.get_running_loop()
     deadline = loop.time() + RUN_SECONDS
     try:
@@ -83,7 +93,11 @@ async def run_game(game_id: int) -> None:
         return
 
     manager = RunManager(standard_values(case))
-    coordinator = SubmissionCoordinator(game_id, deadline)
+    coordinator = (
+        SubmissionCoordinator(game_id, deadline, submitter=dry_run_submit)
+        if dry_run
+        else SubmissionCoordinator(game_id, deadline)
+    )
     events: asyncio.Queue[RunEvent] = asyncio.Queue()
     router = StrategyRouter()
     await coordinator.start()
@@ -158,6 +172,21 @@ def parse_time(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
 
 
+async def retry_expired_games(now: datetime | None = None) -> None:
+    games = sorted(
+        await asyncio.to_thread(list_games),
+        key=lambda game: parse_time(str(game["start_time"])),
+    )
+    reference_time = now or datetime.now(timezone.utc)
+    for game in games:
+        start_time = parse_time(str(game["start_time"]))
+        if start_time + timedelta(seconds=RUN_SECONDS) > reference_time:
+            logger.info("Stopping dry retry before Game %s at %s.", game["id"], start_time.isoformat())
+            return
+        logger.info("Dry retry for expired Game %s.", game["id"])
+        await run_game(int(game["id"]), dry_run=True)
+
+
 async def watch_games() -> None:
     games = sorted(
         await asyncio.to_thread(list_games),
@@ -180,9 +209,20 @@ async def watch_games() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="WireClaim Game runner")
     parser.add_argument("--game-id", type=int, help="Process one Game immediately.")
+    parser.add_argument(
+        "--retry-dry",
+        "--retry_dry",
+        dest="retry_dry",
+        action="store_true",
+        help="Run expired Games in order and print submissions without posting them.",
+    )
     args = parser.parse_args()
+    if args.game_id is not None and args.retry_dry:
+        parser.error("--game-id and --retry_dry cannot be used together.")
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    if args.game_id is None:
+    if args.retry_dry:
+        asyncio.run(retry_expired_games())
+    elif args.game_id is None:
         asyncio.run(watch_games())
     else:
         asyncio.run(run_game(args.game_id))
