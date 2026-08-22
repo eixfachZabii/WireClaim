@@ -17,15 +17,19 @@ FRAUD_CONFIDENCE = 0.85
 # A circuit breaker for the failure mode that cost us Game 10: the gate flagging every
 # Line Item, which zeroes every Limit and turns each fair claim into a 1.5a penalty.
 #
-# It is deliberately a count and not a share. Settled Games 1-13 carry only 2-4 Line
-# Items each (max index 4), so any percentage threshold is hostage to rounding: at 35%
-# of 4 items a single legitimate second flag would be thrown away. Only the extreme
-# case -- *every* item excluded -- is implausible enough to overrule.
+# Cases are large -- settled Games carry 2 to 39 Line Items, median 15 -- so a share is
+# the right denominator, and the measured rate of genuinely uncovered items is low: in
+# Game 8, 3 of 39 items drew a Charge of 0 from every team in the field.
 #
-# It stays off for Cases of 2, because a genuinely whole-uncovered Case exists (Game 3,
-# 2 items, t = 0 on both). Tripping it is also cheap: discarding the verdict falls back
-# to the Strategy's own posterior Limit, not to an unbounded one.
-MIN_ITEMS_FOR_ALL_FLAGGED_BREAKER = 3
+# The allowance floor matters as much as the share. Small Cases exist (Games 3 and 6
+# have 2 Line Items each) and Game 3 was genuinely uncovered end to end, so a share
+# alone would overrule a correct verdict on a 2-item Case. Below the floor we never
+# second-guess the gate.
+#
+# Tripping the breaker is cheap: it discards the mask and falls back to the Strategy's
+# own posterior Limit, never to an unbounded one.
+MAX_FLAGGED_SHARE = 0.35
+MIN_FLAGGED_ALLOWANCE = 2
 
 SYSTEM_PROMPT = """Review one invoice Line Item for a confirmed coverage or relatedness violation.
 
@@ -109,11 +113,12 @@ async def detect_fraud(case: CaseData) -> FraudDecision:
             indices.add(line_item.index)
     total = len(case.line_items)
     logger.info("Fraud gate flagged %s/%s Line Items for Game %s.", len(indices), total, case.game_id)
-    if total >= MIN_ITEMS_FOR_ALL_FLAGGED_BREAKER and len(indices) == total:
+    allowance = max(MIN_FLAGGED_ALLOWANCE, MAX_FLAGGED_SHARE * total)
+    if len(indices) > allowance:
         logger.error(
-            "Fraud gate flagged every one of %s Line Items for Game %s - discarding the whole "
-            "verdict rather than zeroing every Limit.",
-            total, case.game_id,
+            "Fraud gate flagged %s of %s Line Items for Game %s, over the allowance of %.1f - "
+            "discarding the whole verdict rather than zeroing that many Limits.",
+            len(indices), total, case.game_id, allowance,
         )
         indices.clear()
     decision = FraudDecision(fraud_indices=frozenset(indices))

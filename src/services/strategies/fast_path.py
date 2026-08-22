@@ -14,8 +14,30 @@ from src.data.models import CaseData, ItemPrice, Proposal
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
-STANDARD_CHARGE = 100.0
-STANDARD_LIMIT = 75.0
+# Fitted against the reconstructed Fair Values of all 192 settled Line Items in Games
+# 1-14. The reconstruction is exact where it is used: a rejected Transaction that still
+# carries a non-zero `amount` is a wrongful rejection, which reveals the issuer's Charge
+# and proves `a <= t`; a rejected Transaction at 0 proves `a > t`. Replaying the payoff
+# table over the result reproduces all 238 published team-Game nets.
+#
+# The settled distribution of `t` is far lower and far more skewed than it looks from
+# the Charges the field submits: median `t` is ~45-95 with a maximum of 7,225.
+#
+# STANDARD_CHARGE: income is `a` whenever `a <= t` -- collected from *every* opponent,
+# since a wrongful rejection still owes us `a` -- and collapses to almost nothing above
+# `t`. Maximising `a * P(t >= a)` over the settled distribution is flat across 200-500
+# and peaks near 339; the heavy tail means a blind Charge earns on the few expensive
+# items and is nearly free on the rest, because an overcharge is simply rejected.
+#
+# STANDARD_LIMIT: measured over all 2,992 Charges whose side of `t` is known, avoidable
+# cost is 32.38 at b=0, 32.30 at b=30, 34.10 at b=100 and 44.99 at b=300 -- flat below
+# 30 and monotonically worse above. Against this field, generosity is strictly punished.
+#
+# Read the flatness for what it is: no *constant* Limit beats rejecting everything by
+# more than a rounding error. All this number has to do is never be 0 and never be
+# unbounded. Every euro of real improvement is in the per-item estimate, not here.
+STANDARD_CHARGE = 300.0
+STANDARD_LIMIT = 35.0
 FALLBACK_ESTIMATE = 150.0
 CHARGE_FACTOR = 0.7
 LIMIT_QUANTILE = 1 / 3
@@ -38,13 +60,21 @@ Use the game rule that all values are gross totals for whole Line Items. Read al
 
 
 def standard_values(case: CaseData) -> Proposal:
+    """The base layer: a flat gross total per Line Item, deliberately not scaled.
+
+    These used to be multiplied by the parsed quantity, which measurably made them
+    worse. Across the 109 settled Line Items we can price, `corr(log quantity, log
+    field charge)` is +0.12 -- no signal -- and scaling raised the log error from 1.12
+    to 1.32. The invoice quantity says how many grub screws, not how much the Line Item
+    is worth, and 8 grub screws are not 8 times a technician hour.
+    """
     return Proposal(
         source="standard",
         prices=tuple(
             ItemPrice(
                 index=line_item.index,
-                charge_price=STANDARD_CHARGE * max(line_item.quantity, 1.0),
-                acceptance_limit=STANDARD_LIMIT * max(line_item.quantity, 1.0),
+                charge_price=STANDARD_CHARGE,
+                acceptance_limit=STANDARD_LIMIT,
                 source="standard",
             )
             for line_item in case.line_items
