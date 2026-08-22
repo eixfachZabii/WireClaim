@@ -74,7 +74,9 @@ class Strategy1Tests(unittest.TestCase):
         self.assertGreater(proposal.prices[0].acceptance_limit, 0.0)
 
     def test_quoted_exclusion_sets_limit_to_zero_but_keeps_plausible_charge(self) -> None:
-        exclusion = "Losses caused by excluded events are not covered."
+        exclusion = (
+            "Damage caused by storm surge is not covered under this section of the policy."
+        )
         case = CaseData(
             game_id=self.case.game_id,
             case_dir=self.case.case_dir,
