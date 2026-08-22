@@ -82,9 +82,10 @@ class RunManager:
 #
 # We cannot know the Line Item count before the Case loads, so we cover a fixed range.
 # Settled Games 1-14 carry 2, 2, 6, 6, 7, 12, 13, 15, 16, 17, 17, 18, 23 and 39 Line
-# Items, so 40 covers every Case seen so far. Indices past the real count create no
-# Transactions and are accepted by the API (verified against the test Game: a PUT of
-# indices 1-8 returned 200), and RunManager.snapshot() drops them once the Case loads.
+# Items, so 40 covers every Case seen so far with a slot of headroom. Indices past the
+# real count create no Transactions and are accepted by the API (verified against the
+# test Game: a PUT of indices 1-8 returned 200), and RunManager.snapshot() drops them
+# once the Case loads.
 #
 # This was 8 for one commit, on the false reading that Games had 2-4 Line Items. That
 # came from the leaderboard's /transactions endpoint, which paginates at 100 rows: page
@@ -174,7 +175,7 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
         warm_llm_resources()
     except Exception as error:
         logger.warning("Could not warm OpenAI resources: %s", error)
-    coordinator.publish(manager.snapshot())
+    coordinator.publish(manager.snapshot(), reason="case_loaded", force=dry_run)
     tasks = [
         asyncio.create_task(_emit_result(events, "fast_path", llm_values(case), game_id)),
         asyncio.create_task(_emit_result(events, "fraud", detect_fraud(case), game_id)),
@@ -195,8 +196,17 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
                 event = await asyncio.wait_for(events.get(), timeout=deadline - loop.time())
             except TimeoutError:
                 break
-            if _apply_event(manager, event):
-                coordinator.publish(manager.snapshot())
+            changed = _apply_event(manager, event)
+            reason = f"{event.kind}:{event.value.source}" if isinstance(event.value, Proposal) else event.kind
+            logger.info(
+                "event_received game=%s kind=%s reason=%s changed=%s",
+                game_id,
+                event.kind,
+                reason,
+                changed,
+            )
+            if changed or dry_run:
+                coordinator.publish(manager.snapshot(), reason=reason, force=dry_run)
     finally:
         for task in tasks:
             if not task.done():
@@ -303,12 +313,15 @@ def main() -> None:
     if args.game_id is not None and args.retry_dry:
         parser.error("--game-id and --retry_dry cannot be used together.")
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    if args.retry_dry:
-        asyncio.run(retry_expired_games())
-    elif args.game_id is None:
-        asyncio.run(watch_games())
-    else:
-        asyncio.run(run_game(args.game_id))
+    try:
+        if args.retry_dry:
+            asyncio.run(retry_expired_games())
+        elif args.game_id is None:
+            asyncio.run(watch_games())
+        else:
+            asyncio.run(run_game(args.game_id))
+    except KeyboardInterrupt:
+        logger.info("Stopping WireClaim runner.")
 
 
 if __name__ == "__main__":
