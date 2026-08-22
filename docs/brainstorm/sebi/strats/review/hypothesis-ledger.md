@@ -129,7 +129,61 @@ i.e. too low, while on charged items `a/t` is 0.99, i.e. too high. **The estimat
 scattered, not biased**, which is precisely why a global multiplier cannot win and why 0.75
 lands in a trough.
 
-## H4 🔬 Coverage is the highest-value single bit — and the two estimators trade differently
+## H4 ❌ Coverage is **not** the lever, and my own case for it was arithmetic I got wrong
+
+**A perfect coverage oracle is worth +10,557 over 30 Games**, inside the ±34,369 noise floor at
+that sample size. Nothing about coverage can pay at today's constants. `coverage.py` stays
+unwired, and that is now a decision rather than an omission.
+
+**The parked detector does not reproduce out of sample.** Its advertised 61.8 % / 1.7 % / 0.122
+was Games 1-14. Over all 30 settled Games, at the 2/3 threshold `src/pricing.py` actually uses:
+
+| estimator | recall of worthless | false pos | Brier |
+| --- | ---: | ---: | ---: |
+| **Channel C (shipped)** | **69.6 %** | 9.8 % | **0.145** |
+| `coverage.py` | 59.1 % | 7.1 % | 0.151 |
+| mean of the two | 71.3 % | 10.7 % | 0.125 |
+| min | 75.7 % | 16.1 % | 0.140 |
+| max | 53.0 % | 0.9 % | 0.157 |
+
+Channel C is better on recall *and* Brier. Where the two disagree, `coverage.py`'s unique flags
+are right **7 of 21** — worse than a coin flip. In euros every variant lands within ±800 over
+30 Games and **every one loses on Games 21-27**; `min`'s +341 is a single Game against five
+losses. The blend with the best Brier has the worst euros.
+
+### Where my reasoning failed, because the mistake is the reusable part
+
+I measured that 24 falsely collapsed items carried **83,577 of penalties** and treated that as
+the prize. It is not. **Un-collapsing those items recovers almost none of it**, because the
+Limit that replaces the zero is still `min(0.45 x median, 708)` — which sits *below* the
+Field's Charges on exactly those items:
+
+- Game 10 item 5: Limit 0 → 708 against **61,302** of penalty. Recovers **282**.
+- Game 30 item 5, the one I quoted at you: Limit 0 → **34**. Recovers **exactly nothing**.
+
+Handing all 22 real-money collapsed items a *perfect* coverage probability costs **477 more**
+than shipping. I had conflated "penalties paid on items with a false collapse" with "penalties
+recoverable by fixing the collapse". They are different quantities and only the second is a
+prize. **A cost attributed to a cause is not a cost the cause can return.**
+
+The oracle's +10,557 comes from the *opposite* direction — declining to pay on worthless items
+we call covered — and Channel C already catches 70 % of those.
+
+**So the binding constraint on the Reviewer side is the Limit's level, not the coverage verdict**
+— and `LIMIT_CEILING`'s own note records that every loosening measured so far loses more on
+accepted Overcharges than it saves. Both halves are blocked, which leaves H3.
+
+Timing, for the record, since it would otherwise look like the reason: `assess_coverage` fits
+comfortably — Case 8's 39 Line Items in 8.0 s, slowest of thirty 13.1 s, concurrent with the
+existing draws rather than added to them. It fits; it just is not worth the tokens.
+
+**Operational trap for anyone re-running this:** `assess_coverage` degrades silently to 0.9 on a
+failed chunk, which is right for a Submission and fatal for a measurement. A 16-way concurrent
+dump was ~40 % rate-limited into files of pure 0.9 that graded exactly like a flat prior.
+`scripts/coverage_dump.py` now refuses to write a degraded file. Keep that guard.
+
+### Original entry, kept because its measurements are sound and its conclusion was not
+
 
 **Graded head to head on 334 settled Line Items**, ground truth `t_lo == 0`, a verdict counted
 as "kills the Limit" when `p_covered <= 2/3` (which is what `src/pricing.py` actually does):

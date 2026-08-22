@@ -54,6 +54,14 @@ Usage
     PYTHONPATH=. python scripts/strat_bakeoff.py --games 20-28 --draws 2 --strategies strategy1,strategy2
     PYTHONPATH=. python scripts/strat_bakeoff.py --games 20-28 --offline      # cache only, no calls
     PYTHONPATH=. python scripts/strat_bakeoff.py --games 20-28 --report-only  # re-score the cache
+    PYTHONPATH=. python scripts/strat_bakeoff.py --games 20- --draws 2 --limit-rule lo
+
+`--limit-rule` picks the representative point inside each opponent's reconstructed Limit
+bracket. Use `mid` (the default) or `lo`; **do not quote `hi`**. `limit_point(..., "hi")` returns
+`nextafter(b_hi, 0)`, which falls *below* `b_lo` on a degenerate bracket (`b_lo == b_hi`), and
+Game 29 has nine opponents who accepted our Charge of exactly 2,000 -- so under `hi` the replay
+of our own real submission misses the published net by 18,000. `mid` and `lo` reproduce all
+eleven published nets to the cent. See `docs/brainstorm/sebi/strats/review/strategy-bakeoff.md`.
 """
 
 from __future__ import annotations
@@ -480,12 +488,6 @@ async def run_game(
 # --------------------------------------------------------------------------------- reports
 
 
-def _fmt(value: float | None, width: int = 11) -> str:
-    if value is None:
-        return "n/a".rjust(width)
-    return f"{value:,.0f}".rjust(width)
-
-
 def per_game_table(results: Sequence[GameResult], labels: Sequence[str]) -> str:
     head = "| Game | " + " | ".join(labels) + " |"
     rule = "|---" * (len(labels) + 1) + "|"
@@ -778,7 +780,13 @@ async def amain() -> None:
         return
 
     labels = list(sources) + ["merged", "actual"]
-    labels += [name for name, _, _ in HYBRIDS]
+    # A hybrid whose parents were not both asked for is not a missing measurement, it is a
+    # variant that was never defined; printing it as `0` invites someone to average it in.
+    labels += [
+        name
+        for name, charge_src, limit_src in HYBRIDS
+        if charge_src in sources and limit_src in sources
+    ]
     labels += ["oracle_bracket", "oracle_exact"]
     n = len(results)
     floor = noise_floor(n)
@@ -795,7 +803,7 @@ async def amain() -> None:
     print("|---" * (args.draws + 4) + "|")
     pooled: dict[str, float] = {}
     for label in labels:
-        row = [v for v, _ in by_draw.get(label, [])]
+        row = [v for v, count in by_draw.get(label, []) if count]
         if not row:
             continue
         pooled[label] = statistics.fmean(row)
@@ -807,6 +815,24 @@ async def amain() -> None:
             f"| {label} | {cells} | **{statistics.fmean(row):,.0f}** | "
             f"{statistics.fmean(row) / n:,.0f} | {max(row) - min(row):,.0f} |"
         )
+
+    # Income and cost separately, because the two are controlled by different numbers: income
+    # only by our Charge, cost only by our Limit. A pooled net hides which of the two is wrong.
+    print("\n## Pooled income (Charge side) and cost (Limit side), mean over draws\n")
+    print("| variant | income | cost | net |")
+    print("|---|---|---|---|")
+    for label in labels:
+        pairs = [
+            (s.income, s.cost)
+            for r in results
+            for k in range(args.draws)
+            if (s := r.by_draw.get(k, {}).get(label)) is not None
+        ]
+        if not pairs:
+            continue
+        inc = sum(p[0] for p in pairs) / args.draws
+        cost = sum(p[1] for p in pairs) / args.draws
+        print(f"| {label} | {inc:,.0f} | {cost:,.0f} | {inc - cost:,.0f} |")
 
     print(
         f"\nGames pooled: {n}. Noise floor 26,622*sqrt({n}/18) = **{floor:,.0f} EUR**. "
