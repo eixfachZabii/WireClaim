@@ -270,23 +270,58 @@ def _bucket(t_hat: float | None) -> str:
 
 
 def _oracle_submissions(snap) -> tuple[dict[int, tuple[float, float]], dict[int, tuple[float, float]]]:
-    """Two ceilings: the one asked for (`a = t_lo`, `b = t_hi`) and the exact one.
+    """Two ceilings: `a = t` (the honest fair-play bound) and the true best play.
 
-    `b = t_hi` is not quite optimal inside the replay's own model, which tests acceptance
-    against the fair *point* — a Limit at `t_hi` accepts opponent Charges in `(t, t_hi)` and
-    pays for them. And where `t_hi` is unbounded (nobody rightfully rejected the item, 44 of
-    192 in Games 1-14) it is not a number at all. So the second ceiling uses `b = t`, the
-    fair point, which is the largest Limit that never buys an Overcharge. Both are printed:
-    the first is the requested reference, the second is the real bound on what was reachable.
+    **`a = t_lo` is not a ceiling and printing it as one was a bug.** On a Line Item worth
+    nothing `t_lo` is 0, so that "oracle" charges nothing, earns nothing, and loses to
+    whatever we actually did. Game 28 made it obvious: all ten items had `t = 0`, we scored
+    +5,298 by charging anyway, and the "oracle" came out at −760 with a "gap to perfect" of
+    −5,298. A ceiling you can beat is a broken measurement, not a triumph.
+
+    So the first reference is `a = t, b = t`: charge the Fair Value exactly, which every
+    opponent owes whether they accept or wrongfully reject, and accept exactly the fair
+    Charges. That is the bound on honest play.
+
+    The second is the **true optimum against this specific Field**, which is higher, because
+    an Overcharge is a free option (R6c): a rejected Overcharge costs the issuer nothing, so
+    on an item worth little the best Charge is the largest one a generous opponent will still
+    pay. Income is separable per Line Item, so it can be maximised exactly:
+
+        a <= t   ->  income = a x (every opponent, all of whom owe it)
+        a >  t   ->  income = a x (opponents whose Limit still accepts it)
+
+    The candidates are therefore `t` and each opponent's Limit. This is what "perfect" really
+    means here, and it is a fact about *these sixteen opponents* — it is a yardstick, never a
+    strategy, because R9 says their Limits will not survive their next recalibration.
     """
-    requested: dict[int, tuple[float, float]] = {}
-    exact: dict[int, tuple[float, float]] = {}
+    fair_play: dict[int, tuple[float, float]] = {}
+    best_play: dict[int, tuple[float, float]] = {}
+    n_opponents = max(len(snap.opponents), 1)
     for index in snap.line_items:
-        t_lo, t_hi = snap.fair_brackets[index]
         point = snap.fair_point(index)
-        requested[index] = (t_lo, t_hi if t_hi != math.inf else point)
-        exact[index] = (t_lo, point)
-    return requested, exact
+        fair_play[index] = (point, point)
+
+        # Guaranteed-acceptance thresholds: a Charge at or below `b_lo` is certainly accepted.
+        thresholds = sorted(
+            {
+                low
+                for low, _high in snap.limit_brackets.get(index, {}).values()
+                if low > 0
+            }
+        )
+        best_charge, best_income = point, point * n_opponents
+        for candidate in thresholds:
+            if candidate <= point:
+                continue  # already covered by charging `point`, which everybody owes
+            takers = sum(
+                1
+                for low, _high in snap.limit_brackets.get(index, {}).values()
+                if candidate <= low
+            )
+            if candidate * takers > best_income:
+                best_charge, best_income = candidate, candidate * takers
+        best_play[index] = (best_charge, point)
+    return fair_play, best_play
 
 
 def _item_nets(result) -> dict[int, float]:
@@ -487,8 +522,9 @@ def _counterfactual_lines(cf: dict) -> list[str]:
             f"  vs actual {data['net'] - actual:+,.0f}{flag}"
         )
     lines.append(
-        f"- **oracle** (a = t_lo, b = t_hi) {cf['oracle_net']:+,.0f}; exact ceiling "
-        f"(b = t) {cf['oracle_exact_net']:+,.0f} — gap to perfect {cf['oracle_exact_net'] - actual:+,.0f}"
+        f"- **honest ceiling** (a = b = t) {cf['oracle_net']:+,.0f}; **best play against this "
+        f"Field** {cf['oracle_exact_net']:+,.0f} — gap to perfect "
+        f"{cf['oracle_exact_net'] - actual:+,.0f}"
     )
     if cf.get("note"):
         lines += ["", f"_{cf['note']}_"]

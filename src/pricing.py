@@ -126,6 +126,177 @@ from dataclasses import dataclass
 # +49,980 at 1.1, Game 7 falls monotonically to -16,044) because the Field's Limits are
 # clustered, so the total jumps whenever our Charge crosses a cluster. Any peak found there
 # is a fact about sixteen specific opponents, not about pricing.
+#
+# ## Is the over-charging *conditional*? Measured at Game 27, and the answer is no
+#
+# The standing complaint against these two constants is that 19 of 46 Charges in Games 21-27
+# sat above the Fair Value, that median `a/t` is 0.99 against eyay's 0.68, and that the
+# unrecoverable share is ~41-51% in every window and therefore structural. A global
+# multiplier is already ruled out (the note above; the replay surface over our own Charge is
+# non-monotone). So the remaining question was whether the unrecoverable Charges concentrate
+# in a bucket observable *at decision time*, which is something no multiplier could imitate.
+# `scripts/charge_buckets.py` asks it over all 27 Games: one row per Line Item, carrying the
+# evidence we had, joined to the recovered Fair Value bracket. Games 26-27 come from the
+# decision log; Games 1-25 are reconstructed from the cached model evidence plus the cached
+# Price Memory channel through `blend.combine` and `price_item`, i.e. what today's pricing
+# would have done. 320 rows.
+#
+# **First, the headline number is two populations added together, and one of them is free.**
+# 103 of the 320 Line Items have `t_lo = 0` -- nobody was ever owed money on them. A Charge
+# there is above `t` by construction, and a rejected Overcharge costs exactly nothing, so it
+# is the free option README R6c tells us to take. It accounts for **98 of the 135
+# unrecoverable Charges** and, replayed, for **zero euros** of forgone income. On the 217
+# Line Items that are actually worth something, this pricing over-charges **37 times (17%)
+# with median `a/t` 0.68** -- the same 0.68 the comparison holds up as the target. Every
+# charging team in the Field is "over" on all ten worthless items of Games 21-27, eyay
+# included, and eyay's 7-of-316 "unrecoverable" is the *harness* sense of the word (rejected
+# by all sixteen), where our own Games 21-27 figure is 2 of 48. `charge_buckets.py field`
+# prints the whole Field both ways. Our real gap to eyay on real-money items is 0.72 against
+# 0.61 over the record and 0.78 against 0.70 over Games 21-27 -- mid-field, next to Teamers
+# at 1.00 and harissa eagles at 0.94, not the 0.99-against-0.68 outlier.
+#
+# **Second, the residual loss does concentrate, and not where `CHARGE_SLOPE` assumes.**
+# Per bucket, over the 217 real-money rows: euros the oracle Charge `a = t_lo` would have
+# earned and we did not, on the rows where `a > t`, and the same as a share of that bucket's
+# oracle income (which controls for big items carrying big euros):
+#
+#     bucket                     n   a>t   share   med a/t   forgone   of oracle
+#     sigma narrow < 0.35       59    12     20%      0.78    44,862         12%
+#     sigma wide  >= 0.35      158    25     16%      0.65    31,781          4%
+#     model only                71    16     23%      0.75    53,768         11%
+#     model + memory           146    21     14%      0.68    22,874          3%
+#     t_hat < 50                19     2     11%      0.58       226          2%
+#     t_hat 50-500             155    24     15%      0.66    18,461          4%
+#     t_hat >= 500              43    11     26%      0.80    57,955          8%
+#     coverage <= 2/3           20     6     30%      0.57     9,284          5%
+#     coverage 2/3-0.9          28     5     18%      0.66    10,367         15%
+#     coverage >= 0.9          169    26     15%      0.70    56,991          6%
+#     metered (hr/m2/day)       48     8     17%      0.72    17,905          7%
+#     pcs / flat rate          158    27     17%      0.66    30,284          4%
+#     quantity <= 1            144    26     18%      0.70    55,029          7%
+#     quantity > 1              73    11     15%      0.64    21,613          6%
+#
+# Invoice unit and quantity are flat -- no signal, and that is a clean negative. Magnitude
+# is weak once normalised (8% against 4%). The two real signals are the channel (model-only
+# items forfeit 11% of their recoverable income, memory-backed ones 3%) and **sigma, with
+# the sign inverted**: the *narrow* third over-charges more often and forfeits three times
+# the share of the wide third. That is the same backwards ordering the module docstring
+# reports for RMSLE (0.847 narrow against 0.733 wide), now visible in euros. `CHARGE_SLOPE`
+# is discounting on noise.
+#
+# That is testable directly, holding the *level* fixed so it cannot be confused with the
+# multiplier surface: compare a flat factor `L` against the line `(L + 0.17) - 0.45 * sigma`,
+# which has the same value at the median observed sigma of 0.375 and differs only in how it
+# orders the items. Deltas against the shipped constants:
+#
+#     L      flat L      matched line       flat, G21-27     line, G21-27
+#     0.60   -18,449     -25,452                 +11,628           -7,890
+#     0.64    +2,401     -29,843                 +15,718           -1,976
+#     0.66   +19,434     -20,612                 +19,013           -3,502
+#     0.69   +38,922        -811                 +16,749           +2,452
+#     0.72   +24,863     +8,780                  +16,728           -7,278
+#     0.75   +34,955     +7,134                   +8,754          -14,628
+#     0.80    +6,764    +12,805                  -17,696           -9,538
+#
+# Flat beats the matched line in six of seven pairs on the record and six of seven on Games
+# 21-27, which is the cleanest single result in this measurement: **the sigma ordering is
+# not merely uninformative, it is costly.** It still is not shippable, for two reasons. The
+# flat column is jagged in its own parameter (-18,449, +2,401, +19,434, +38,922, +24,863,
+# +34,955, +6,764) -- it is the forbidden level surface with the sigma dispersion removed,
+# not a new curve -- and it fails the held-out split (-8,363 odd->even). Nor is flipping the
+# sign the answer: `0.55 + 0.45 * sigma`, which discounts the narrow bands the buckets blame,
+# scores +18,657 on the record and **-10,830 on Games 21-27**. Sigma carries no usable
+# ordering in either direction, which is a fact about the band and belongs to whoever fixes
+# it, not to a constant here.
+#
+# **Third -- and this is why nothing changes here -- none of it converts into euros.** Every
+# candidate below is the shipped rule times one conditional factor, replayed by
+# `scripts/replay_payoffs.replay` over all 27 Games against the real Field, as a delta
+# against this file's own constants on the same reconstructed evidence (+171,298 over all 27,
+# +26,784 over Games 21-27 -- a counterfactual baseline, not the published nets of -315,174
+# and +38,997, which were produced by older constants and, in Games 21-24, by `STANDARD_LIMIT`
+# when Strategy 2 did not land; every delta below is against the counterfactual, which is the
+# only comparison that isolates the rule):
+#
+#     rule                          all 27    G21-27      rule                  all 27    G21-27
+#     model-only x0.6              -79,924   -22,882      metered x0.6         -60,010    -9,239
+#     model-only x0.8              -18,407    -7,705      metered x0.9         -10,009    -2,789
+#     model-only x0.9               +5,809    -2,331      qty>1 x0.6           -90,480   -20,534
+#     t_hat>=500 x0.6             -144,502   -26,870      qty>1 x0.9           -13,640    -2,491
+#     t_hat>=500 x0.9                 -102    -3,048      coverage<0.9 x0.6    -49,562    -3,792
+#     t_hat<50 x0.6                 -2,299      -273      coverage<0.9 x0.9       -863      -363
+#     model-only & big x0.8         -6,004    -7,263      model-only & big x0.9 +12,051    -1,145
+#
+# Every *downward* conditional multiplier loses money, in both windows, in every bucket the
+# concentration points at. The reason is arithmetic rather than bad luck: 373,980 of the
+# 450,622-euro gap to an oracle Charge is the **deliberate discount on the items we price
+# correctly**, and any bucket wide enough to catch the 37 Overcharges also contains the
+# ~180 items where `a <= t` and every euro shaved off is income given away. The 76,642 of
+# forgone income is real and it is not reachable by shading a bucket.
+#
+# The only direction that pays in sample is *upward*, on the memory-backed items, which is
+# also what the measured log errors argue for (memory 0.43 against the model's 0.80):
+#
+#     memory x   model x    all 27    G21-27          memory x   model x    all 27    G21-27
+#       1.05        0.90   +24,464      -754            1.15        0.80   +17,980    -4,318
+#       1.10        0.90   +33,519      -883            1.15        0.90   +42,197    +1,056
+#       1.15        0.90   +42,197    +1,056            1.15        0.95   +26,466    +2,305
+#       1.20        0.90   +27,157    +2,972            1.15        1.00   +36,387    +3,387
+#       1.25        0.90   +29,916    +4,300            1.30        1.00   +13,553    +8,481
+#       1.30        0.90   +19,362    +6,149            1.40        1.00   -17,977    -6,794
+#       1.35        0.90    -7,833   -10,391
+#
+# It fails both remaining bars. It is **not monotone in its own parameter** -- the all-27
+# column runs +33,519, +42,197, +27,157, +29,916, +19,362, -7,833 -- and the two windows
+# want opposite corners (1.15 on the record, 1.30 on Games 21-27). Per Game, the +42,197
+# peak is two Games crossing a Limit cluster: Game 7 alone is +20,037 of it and Game 1
+# +8,129, both measured against the neighbouring 1.20, while Game 6 falls from +7,723 to
+# -20. That is precisely the artefact the note above forbids fitting to.
+#
+# And it does not hold out. Fitting each family's parameter on one half of the Games and
+# scoring it on the other (delta against these constants; the noise floor is 26,622 *
+# sqrt(n/18), i.e. +/-22,624 on half the record and +/-16,602 on Games 21-27):
+#
+#     family                       odd->even   even->odd   1-20->21-27   21-27->1-20
+#     sigma slope                     -8,813      +4,545       -17,696            +0
+#     flat level (slope = 0)          -8,363      +4,545        +8,754          +421
+#     line level (slope = 0.45)          -64      +2,267        -9,538        -3,262
+#     model-only                      -7,652          +0        -2,331            +0
+#     t_hat >= 500                   -24,891          +0        -3,048            +0
+#     unit / quantity / coverage          +0        -498            +0          -419
+#     memory & model, joint fit      +11,239     -19,092        +1,056        +5,072
+#
+# The joint memory/model fit -- the honest version, fitting both coordinates on the training
+# half rather than freezing one at the full-sample argmax -- gives up 19,092 in one fold and
+# the two positive cells are inside the noise floor. Summed over every family, the held-out
+# delta is -15,354 (odd->even) and -29,279 (1-20->21-27): conditioning loses money out of
+# sample in the split that matters.
+#
+# **So: over-charging is conditional, on the channel and inversely on sigma, and neither
+# conditioning is worth a euro. Nothing is shipped.** The concentration on model-only items
+# and the inverted sigma ordering are both statements about the *evidence*, not about these
+# constants -- a band that does not measure its own error, and a channel whose error we know
+# is twice the other's. That is the evidence layer's problem, and it is where the docstring
+# already says the money is.
+#
+# What would falsify this and put a conditional rule back on the table: a band whose width
+# actually orders the error (re-run `charge_buckets.py buckets` -- if the narrow tercile
+# stops forfeiting 3x the share of the wide one, `CHARGE_SLOPE` is measuring something and
+# its sign can be trusted); a memory channel covering enough items that the memory/model
+# split stops being 71 rows against 146 (its held-out fold turns on a handful of Games); a
+# Field whose Limits stop clustering, which would show up as the multiplier surface in the
+# note above becoming monotone; or a level for a flat factor derived from something other
+# than this surface -- a calibrated band would supply one, and then `CHARGE_SLOPE = 0` is the
+# change the paired table above already argues for. Any of those, re-run
+# `charge_buckets.py all`.
+#
+# One caveat on the sample, stated because it cuts the other way from the conclusion: 304 of
+# the 320 rows are reconstructed from cached evidence rather than logged, only Games 26-27
+# have decision logs, and the reconstruction blends a single cached model draw where the live
+# path blends two prompts. The *logged* rows over-charge more often than the reconstructed
+# ones (5 of 11 real-money items against 32 of 206), so the concentration measured here may
+# be optimistic. It is the same sample every constant in this file was fitted on, and the
+# fix is a decision log per Game rather than a different statistic.
 CHARGE_INTERCEPT = 0.85
 CHARGE_SLOPE = 0.45
 CHARGE_BOUNDS = (0.30, 0.80)

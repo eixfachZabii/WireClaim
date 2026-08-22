@@ -393,5 +393,102 @@ class ImpliedSigmaTests(unittest.TestCase):
         self.assertAlmostEqual(measured_rmsle / observed_median_sigma, 2.1, places=1)
 
 
+class TheChargeIsUnconditional(unittest.TestCase):
+    """Guard the negative result behind `CHARGE_INTERCEPT`: no conditional Charge shipped.
+
+    `scripts/charge_buckets.py` joined the evidence available at decision time -- sigma, the
+    channels that spoke, the coverage probability, the magnitude of the estimate, the invoice
+    unit and the quantity -- to the recovered Fair Value over all 27 settled Games, and asked
+    whether the unrecoverable Charges concentrate anywhere a rule could see. They do (the
+    channel, and sigma with the *wrong* sign), and no conditioning on it earns a euro: every
+    downward multiplier loses on both windows, the one that pays in sample is jagged in its
+    own parameter, and the honest held-out split gives up 19,092 in a fold. The full table is
+    in the note above these constants.
+
+    The tests below are the machine-checkable half of that. They exist because the *next*
+    person to read the complaint "our median a/t is 0.99" will reach for exactly one of these
+    conditionings, and a failing test with the measurement in its docstring is the cheapest
+    way to hand them the answer.
+    """
+
+    def band(self, median: float, *, width: float = 1.25, coverage: float = 1.0) -> Evidence:
+        return Evidence(
+            index=1,
+            coverage_probability=coverage,
+            price_low=median / width,
+            price_median=median,
+            price_high=median * width,
+        )
+
+    def test_the_charge_is_scale_free_in_the_estimate(self) -> None:
+        """No `t_hat` bucket. Conditioning on magnitude was measured and it loses money.
+
+        `t_hat >= 500` carries 57,955 of the 76,642 euros of forgone income, which is the
+        most tempting cell in the whole bucket table -- and only 8% of that bucket's
+        recoverable income against 4% for the middle bucket, i.e. mostly a statement that
+        expensive items carry more euros. Discounting it scores -144,502 (x0.6), -43,584
+        (x0.8) and -102 (x0.9) over 27 Games and is negative on Games 21-27 at every value.
+        Doubling the estimate must therefore double both numbers exactly.
+        """
+        for median in (10.0, 49.0, 51.0, 499.0, 501.0, 5000.0):
+            one = price_item(self.band(median))
+            two = price_item(self.band(median * 2))
+            # delta rather than places: both numbers are rounded to the cent.
+            self.assertAlmostEqual(two.charge, one.charge * 2, delta=0.02, msg=str(median))
+            self.assertAlmostEqual(two.limit, one.limit * 2, delta=0.02, msg=str(median))
+
+    def test_the_charge_reads_only_the_band(self) -> None:
+        """The Charge is a function of the band alone -- not of coverage, not of a channel.
+
+        Coverage moves the Limit and must not move the Charge: an uncovered item has `t = 0`,
+        so a rejected Overcharge costs nothing and shading for doubt forfeits guaranteed
+        income (R6c). Measured as well as derived: discounting the items the model calls less
+        than 90% covered scores -49,562 (x0.6) to -863 (x0.9) over 27 Games, negative in both
+        windows. 98 of our 135 unrecoverable Charges are on Line Items nobody was ever owed
+        money for, and all 98 are free.
+        """
+        charges = {
+            price_item(self.band(300.0, coverage=coverage)).charge
+            for coverage in (0.05, 0.2, 0.5, 0.66, 0.7, 0.9, 1.0)
+        }
+
+        self.assertEqual(len(charges), 1, charges)
+
+    def test_the_sigma_slope_still_points_the_way_it_was_fitted(self) -> None:
+        """A wider band still charges less -- deliberately, and now against a measurement.
+
+        This is the constant the measurement argues with rather than for. On the 217 Line
+        Items with a recoverable positive Fair Value, the *narrow* sigma tercile over-charges
+        on 20% of items and forfeits 12% of its recoverable income, against 16% and 4% for
+        the wide tercile: the ordering `CHARGE_SLOPE` assumes is backwards, which is the euro
+        version of the RMSLE result above (0.847 narrow, 0.733 wide).
+
+        Removing the ordering pays in sample -- a flat factor beats the level-matched line
+        `(L + 0.17) - 0.45 * sigma` in six of seven pairs on the record and six of seven on
+        Games 21-27 -- but the flat level has to be chosen on the non-monotone Field surface
+        (-18,449 at 0.60, +38,922 at 0.69, +6,764 at 0.80) and it fails the held-out split by
+        8,363. Inverting the sign is worse: `0.55 + 0.45 * sigma` scores -10,830 on Games
+        21-27. So the slope stays, and this test records why it is not evidence of anything
+        except that nobody has fixed the band yet.
+        """
+        self.assertEqual(CHARGE_SLOPE, 0.45)
+        self.assertGreater(charge_factor(0.2), charge_factor(0.6))
+
+    def test_a_negative_slope_could_not_even_be_measured_here(self) -> None:
+        """Why the sweep over `CHARGE_SLOPE` reads flat below zero rather than falling.
+
+        `CHARGE_BOUNDS` caps the factor at 0.80, and `CHARGE_INTERCEPT` is 0.85, so every
+        negative slope collapses onto `slope = 0` on the sigmas we actually see. The replay
+        agrees to the euro: slope -0.45, -0.225 and 0.0 all score +178,063 over 27 Games.
+        Anyone testing "discount the narrow bands" has to move the intercept too -- see the
+        `inverted` rows in `charge_buckets.py rules`.
+        """
+        low, high = CHARGE_BOUNDS
+        for slope in (-0.45, -0.225, 0.0):
+            for sigma in (0.0, 0.1, 0.2, 0.35, 0.5, 1.0):
+                clamped = min(max(CHARGE_INTERCEPT - slope * sigma, low), high)
+                self.assertEqual(clamped, high, (slope, sigma))
+
+
 if __name__ == "__main__":
     unittest.main()

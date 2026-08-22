@@ -46,7 +46,48 @@ the number we already have. Charging and accepting at `t` outright would be 811,
 Open question: which *evidence* closes it — a better coverage read, a second opinion on the
 expensive items only, or Price Memory reaching further than 22% of items.
 
-## H5b 🔬 41% of our Charges are unrecoverable, and that part is not noise
+## H5b ❌ "41% of our Charges are unrecoverable" — mostly an artefact, and the fix loses money
+
+**The headline was mine and it was wrong.** `scripts/charge_buckets.py` split the 320 scored
+Line Items by whether the item was worth anything at all:
+
+- **103 of 320 have `t_lo = 0`.** Nobody was ever owed money on them, so a Charge there is
+  above `t` *by construction* — and a rejected Overcharge on a worthless item costs exactly
+  nothing (R6c). That is the free option we take **deliberately**. Those items supply **98 of
+  the 135 unrecoverable Charges and 0 euros of forgone income.**
+- On the **217 items actually worth something** we over-charge **37 times (17%)**, at median
+  `a/t` **0.68** — which is the very number the ledger was holding up as eyay's target.
+- Every charging team in the Field, eyay included, is "over" on **all ten** worthless items of
+  Games 21-27. Our real gap on real-money items is **0.78 vs eyay's 0.70** over Games 21-27 —
+  mid-field, next to Teamers at 1.00 and harissa eagles at 0.94.
+- The "7 of 316 versus our 19 of 46" comparison was apples to oranges: eyay's figure counted
+  Charges rejected by all sixteen reviewers. Ours in the same sense is **2 of 48**.
+
+So the Issuer side is roughly *at* the field's level, not an outlier, and there is no headline
+defect to fix. The original entry follows, kept because its measurements are correct even
+though its framing was not.
+
+### What the conditional search did find
+
+Two real signals on the 217 real-money items, by share of that bucket's reachable income
+forgone: **the channel** — model-only forfeits **11%** against memory-backed **3%** — and
+**σ with its sign inverted**: the *narrow* third over-charges more often and forfeits **3×**
+the share of the wide third. `CHARGE_SLOPE` is discounting on a width that does not order the
+error, in euros as well as in log space.
+
+**Nothing shipped, and every candidate failed the bar.** Downward multipliers on any bucket
+lose, because 373,980 of the 450,622 oracle gap is the deliberate discount on *correctly*
+priced items, and any bucket wide enough to catch the 37 Overcharges also holds ~180 items
+where `a <= t`. The two in-sample winners — a flat factor (`slope = 0`) and memory ×1.15 with
+model ×0.9 — are jagged in their own parameter, want opposite corners in the two windows, and
+held out sum to **−15,354** (odd→even) and **−29,279** (1-20→21-27). The +42,197 peak is Games
+7 and 1 crossing a Limit cluster.
+
+**The one thing worth acting on later:** if the band is ever calibrated, `CHARGE_SLOPE = 0` is
+what the paired comparison already argues for — 6 of 7 pairs on both windows.
+
+### Original entry (measurements sound, framing wrong)
+
 
 **Measured, on-policy.** Over the Strategy 2 era (Games 21-27), **19 of 46 Charges sat above
 the Fair Value**, so not one of sixteen reviewers could owe us anything on them. Median `a/t`
