@@ -79,13 +79,14 @@ Read the leaderboard at the rate a browser would. Do not enumerate endpoints tha
 
 ## Status
 
-The repository now contains a tested Python ingestion scaffold under `src/wireclaim/`.
-It provides `wireclaim doctor`, `games`, `watch`, `ingest`, `process`, and `status`
-commands for scheduled case retrieval, archive validation, publication, and a
-downstream processing hook. The game analysis, glossary, five strategy pitches
-(~4,150 lines) under `docs/brainstorm/sebi/`, and one ADR remain the source of
-strategy and domain decisions.
+The repository now contains a tested Python case-ingestion runner in `main.py`
+with a small read-only API client in `src/api.py`. `pixi run start` watches the
+published schedule; `pixi run case-0` processes the permanent test game. The
+game analysis, glossary, five strategy pitches (~4,150 lines) under
+`docs/brainstorm/sebi/`, and one ADR remain the source of strategy and domain
+decisions.
 
 **Still unimplemented:** invoice parsing, policy analysis, pricing, and submission;
-the boundary is marked with `TODO(api-submission)`. Running the scaffold requires
-`TEAM_API_KEY`, the case archives, and the Pixi environment described in `README.md`.
+the boundary is marked with `TODO(api-submission)` in `src/api.py`. Running the
+runner requires `TEAM_API_KEY`, the case archives, and the Pixi environment
+described in `README.md`.
