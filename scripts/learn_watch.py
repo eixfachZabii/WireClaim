@@ -20,6 +20,7 @@ a Game once, and never touches the runner or the submission path.
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 import time
@@ -51,8 +52,24 @@ def _analysed() -> set[int]:
     return {int(path.stem.split("_")[1]) for path in LESSONS.glob("game_*.json")}
 
 
+def _child_env() -> dict[str, str]:
+    """The repo root on `PYTHONPATH`, so a child can `import src`.
+
+    Without this the child dies on `ModuleNotFoundError: No module named 'src'`, but only
+    when it is spawned — which is exactly the path nobody exercises by hand, because a human
+    running the script directly usually has `PYTHONPATH=.` set already.
+    """
+    root = str(Path(__file__).resolve().parents[1])
+    env = dict(os.environ)
+    existing = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = f"{root}{os.pathsep}{existing}" if existing else root
+    return env
+
+
 def _run(command: list[str]) -> None:
-    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    result = subprocess.run(
+        command, capture_output=True, text=True, check=False, env=_child_env()
+    )
     output = (result.stdout or "") + (result.stderr or "")
     if output.strip():
         print(output.rstrip())
