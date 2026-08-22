@@ -6,7 +6,7 @@ and Channel B reaches 22% of items, so roughly 78% of every invoice is priced he
 One call per framing for the **whole** Case, not per Line Item, so the model sees
 neighbouring positions — that is what lets it notice a duplicate, an inflated quantity, or
 a sub-limit that aggregates several lines. The Policy is sliced to its operative Parts
-first (`src/policy_slice.py`), which halves the prompt and removes the blocking ~20 s LLM
+first (`src.services.policy.slice`), which halves the prompt and removes the blocking ~20 s LLM
 digest that used to sit on the critical path.
 
 The parser reads **only** `coverage_probability` and the three price fields. Two richer
@@ -26,8 +26,8 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name, get_service_tier
 from src.data.models import CaseData
-from src.policy_slice import slice_policy
-from src.pricing import Evidence
+from src.services.policy.slice import slice_policy
+from src.domain.pricing.engine import Evidence
 from src.services.strategies.strategy2.constants import LLM_TIMEOUT_SECONDS
 from src.services.strategies.strategy2.prompts import PROMPT
 

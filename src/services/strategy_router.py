@@ -6,7 +6,7 @@ not outrank the incumbent. Until now that discard was total: only the winner's n
 reached disk, so "would Strategy 3 have scored better on Game 26?" was unanswerable even
 though the answer is exactly computable from the settled Transactions. `results()` is the
 one place that sees every Proposal, so it writes all of them to the Game's decision log
-(`src.decision_log.record_proposals`) alongside the source that is currently winning;
+(`src.observability.decisions.record_proposals`) alongside the source that is currently winning;
 `scripts/learn_from_game.py` then replays each one against the real Field.
 
 The logging is strictly subordinate to the Submission: it happens after `register`, it
@@ -25,12 +25,12 @@ import logging
 from collections.abc import AsyncIterator, Awaitable, Callable
 
 from src.data.models import CaseData, Proposal
-from src.decision_log import record_proposals
+from src.observability.decisions import record_proposals
 from src.services.strategies import STRATEGY_PRIORITIES
 from src.services.strategies.strategy1 import propose as strategy1
 from src.services.strategies.strategy2 import propose as strategy2
 from src.services.strategies.strategy3 import propose as strategy3
-from src.timing import format_error_card, format_skipped_strategy_card, log_timing, start_timer
+from src.observability.timing import format_error_card, format_skipped_strategy_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[..., Awaitable[Proposal | None]]

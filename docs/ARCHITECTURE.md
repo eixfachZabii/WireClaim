@@ -66,7 +66,7 @@ Charge at or below `t` is collected from **every single opponent**, guaranteed, 
 times. One euro above `t` and both cells in the right column pay `H` nothing unless some
 opponent's Limit happens to be loose enough to buy the overcharge. That is not a smooth
 trade-off; it is a cliff, and we have measured how tall it is on our own settled Charges
-(module docstring of [`src/pricing.py`](../src/pricing.py), and §0 of the
+(module docstring of [`src/domain/pricing/engine.py`](../src/domain/pricing/engine.py), and §0 of the
 [strategy plan](brainstorm/sebi/strats/review/strategy2-plan.md)):
 
 | our `a / t` | opponents who pay | expected income |
@@ -92,7 +92,7 @@ a  <  1.5a · P(the Charge is fair)      ⟺      P(fair) > 2/3
 Our Limit is therefore the value below which we still believe with two-thirds confidence
 that the Charge is fair: the **one-third quantile of our posterior over `t`**. That is
 README's "bottom third" with a proof attached rather than a heuristic, and it is why
-[`src/pricing.py`](../src/pricing.py) has `LIMIT_QUANTILE = 1.0 / 3.0` and no tuning knob
+[`src/domain/pricing/engine.py`](../src/domain/pricing/engine.py) has `LIMIT_QUANTILE = 1.0 / 3.0` and no tuning knob
 next to it.
 
 The two facts pull in opposite directions and that is the whole game: the Charge wants to
@@ -255,7 +255,7 @@ free deterministic shortcut; the middle is the memory lookup; everything converg
 single `Evidence` record, and the fork near the bottom is the only place where the Charge
 and the Limit part company. Both are read off the same distribution.
 
-[`src/pricing.py`](../src/pricing.py) is the **only** module in the repo that decides a
+[`src/domain/pricing/engine.py`](../src/domain/pricing/engine.py) is the **only** module in the repo that decides a
 number we are scored on. Nothing that talks to a model is allowed to emit a Charge, a Limit
 or a Fair Value — models emit `Evidence` (a coverage probability, a price band, a quoted
 clause) and this module prices it. That is
@@ -361,7 +361,7 @@ price band, because the Charge on a worthless item is free. The same channel own
 slicer and the rule that the index is the printed POS number.
 
 **Channel B — Price Memory, an anchor and not an answer.**
-[`src/price_memory.py`](../src/price_memory.py) holds the Fair Values reconstructed from
+[`src/domain/pricing/memory.py`](../src/domain/pricing/memory.py) holds the Fair Values reconstructed from
 settled Games, keyed on the normalised Line Item wording. Measured leave-one-out over Cases
 1–14 (each Case scored against a store built from the other thirteen) it reaches **22 %** of
 the items with a known non-zero Fair Value at **σ = 0.43**. That is good enough to narrow a
@@ -567,15 +567,14 @@ estimated in one is worthless in the next.
 
 ## 9. Legacy and known weaknesses
 
-**Legacy, being retired.** `strategies/strategy1`, `strategies/strategy3`,
-`fast_path.llm_values` and `services/t_calc.py` are the previous generation: two more
-whole-Case estimators, an early LLM fast path, and a Fair Value helper. They still run —
-`strategy1` and `strategy3` as a free ensemble and disagreement signal, `llm_values` as
-merge layer 2 — but Strategy 2 outranks all of them and none of their constants are fitted to
-reconstructed Fair Values. They are documented nowhere else in this file on purpose. Two
-things must be untangled before they can be deleted: `strategy2` still imports
-`build_input_content` from `strategy1`, and `main.run_game` still imports and launches
-`llm_values` directly.
+**Legacy, being retired.** `strategies/strategy1`, `strategies/strategy3` and
+`fast_path.llm_values` are the previous generation: two more whole-Case estimators and an
+early LLM fast path. They still run — `strategy1` and `strategy3` as a free ensemble and
+disagreement signal, `llm_values` as merge layer 2 — but Strategy 2 outranks all of them and
+none of their constants are fitted to reconstructed Fair Values. They are documented nowhere
+else in this file on purpose. Two things must be untangled before they can be deleted:
+`strategy2` still imports `build_input_content` from `strategy1`, and `main.run_game` still
+imports and launches `llm_values` directly.
 
 **Known weaknesses, honestly stated.**
 

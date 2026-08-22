@@ -4,9 +4,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from src import decision_log
+from src.observability import decisions as decision_log
 from src.data.models import CaseData, ItemPrice, Proposal
-from src.decision_log import load, proposals
+from src.observability.decisions import load, proposals
 from src.services import strategy_router
 from src.services.strategy_router import StrategyRouter
 

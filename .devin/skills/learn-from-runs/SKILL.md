@@ -83,7 +83,7 @@ A change is only shipped if it wins over **all** settled Games or clears the noi
 a held-out split. Then:
 
 ```bash
-git show HEAD:src/pricing.py | grep -E "^LIMIT_CEILING|^COVERAGE_FLOOR"
+git show HEAD:src/domain/pricing/engine.py | grep -E "^LIMIT_CEILING|^COVERAGE_FLOOR"
 ```
 
 **Verify `git show HEAD:`, not the working tree.** A revert that lived only locally once let a

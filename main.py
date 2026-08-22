@@ -15,7 +15,7 @@ from src.services.fraud_detection import detect_fraud
 from src.services.strategy_router import STRATEGY_PRIORITIES, StrategyRouter
 from src.services.strategies.fast_path import LLM_TIMEOUT_SECONDS, llm_values, standard_values
 from src.services.submission_coordinator import SubmissionCoordinator
-from src.timing import format_error_card, log_timing, start_timer
+from src.observability.timing import format_error_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 RUN_SECONDS = 60.0
