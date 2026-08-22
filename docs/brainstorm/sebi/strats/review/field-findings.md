@@ -178,3 +178,40 @@ correct Limit is exactly **0**. The same verdict should push `a` **up**, not dow
 | covered | ~`t̂` (raise it — we still undercharge) | bottom third of the posterior |
 | **not covered** | **high** — free option, toward the Cap floor (R6c) | **0** |
 | unsure | mid | low, and never above `t̂` |
+
+### Correction — those zero-Charge items were COVERED
+
+The table above was built from **our own** Transaction rows, which only bracket `t` where
+*we* were a counterparty. Pulling five teams' rows for Game 5 (2,380 unique Transactions)
+gives real two-sided brackets, and it overturns the reading:
+
+| item | true `t` | our Charge | we accepted up to |
+| ---: | --- | ---: | ---: |
+| 3 | **[497.94, 773.50)** | **0.00** | 1,121.40 |
+| 14 | **≥ 360.00** | **0.00** | 360.00 |
+| 7 | **[130.50, 180.00)** | **0.00** | 522.23 |
+| 4 | `< 38.25` — genuinely uncovered | 31.88 | 67.00 |
+| 16 | `< 42.50` — genuinely uncovered | 112.50 | 42.50 |
+
+**Only 2 of 17 Line Items were actually uncovered.** The ones we charged nothing for were
+worth hundreds. So this is not "we detected `t = 0` and failed to exploit it" — **the
+coverage gate emitted false *uncovered* verdicts on covered items**, and we then paid the
+Field's Charges on those same items. Both errors, same Line Item, same Submission.
+
+**And the Charge is no longer biased low — it is high-variance.** In the same Case we
+overshot badly: item 1 `t < 875` (charged 875), item 2 `t < 199.25` (charged 450), item 5
+`t < 130.50` (charged 600), item 13 `t < 400` (charged 400).
+
+> **Qualifies `actnow.md` item 2.** A flat global multiplier is the right instrument for a
+> measured *bias* and the wrong one for *variance*. The 2.5× was fitted on Games 1–2,
+> where we were uniformly the Field minimum. Game 5 shows zeros and overshoots in the
+> same Case. **Stop tuning a global constant; fix the per-item verdict.**
+
+**Revised root-cause ranking after Game 5:**
+
+1. **Coverage gate accuracy** — false "uncovered" on covered items costs the Charge *and*
+   invites the Limit failure. 2 of 17 items were truly uncovered; we behaved as if many
+   more were.
+2. **Limit is unbounded** — 99 % of costs from accepting; we paid 1,121.40 on an item
+   whose `t` was under 773.50.
+3. **Charge variance**, not Charge bias. Global multipliers cannot fix this.

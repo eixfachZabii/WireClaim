@@ -44,6 +44,9 @@ His shape is right and two details are wrong.
       third of the posterior. Owner: ______
 - [ ] **Invert the "not covered ⇒ a = 0" rule.** Not covered ⇒ charge **high** (toward
       the Cap floor), because it is free (R6c). Owner: ______
+- [ ] **Audit the coverage gate — it is emitting false "uncovered" on covered items.**
+      Only 2 of 17 Game 5 Line Items were truly uncovered; we charged 0 on ones worth
+      500+. This is now the #1 root cause. Owner: ______
 - [ ] **Never submit `a = 0`** on any Line Item, for any reason. Owner: ______
 - [ ] **Verify on the next settled Game**: paid-on-ACCEPT should fall below paid-on-REJECT.
 
@@ -67,7 +70,9 @@ His shape is right and two details are wrong.
       failing before the storm", "no diagnostic report provided"). Owner: ______
 - [ ] **Few-shot from past Cases.** All played Cases stay decryptable; pair them with
       settled brackets. Owner: ______
-- [ ] **Raise the Charge on covered items** toward `t̂` — measured 2.5× low. Owner: ______
+- [ ] **Stop tuning the global multiplier.** After Game 5 the Charge is high-*variance*,
+      not low-*bias*: zeros on covered items and 2× overshoots in the same Case. A global
+      constant cannot fix that. Owner: ______
 
 ## P3 — resilience and the pitch (do not skip; half the prize)
 
