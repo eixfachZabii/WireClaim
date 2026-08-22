@@ -12,6 +12,7 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, ItemPrice, Proposal
+from src.policy_quote import is_policy_quote
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
@@ -20,12 +21,6 @@ FALLBACK_ESTIMATE = 150.0
 CHARGE_FACTOR = 0.7
 LIMIT_QUANTILE = 1 / 3
 DEFAULT_COVERAGE_PROBABILITY = 0.9
-MIN_QUOTE_LENGTH = 60
-EXCLUSION_MARKERS = (
-    "not covered", "no cover", "excluded", "exclusion", "does not cover",
-    "is not insured", "no indemnity", "not indemnified", "does not extend",
-    "not apply", "shall not",
-)
 LLM_TIMEOUT_SECONDS = 35.0
 
 PROMPT = """Read this insurance Case and return structured evidence for every invoice Line Item.
@@ -88,25 +83,6 @@ def _number(value: Any) -> float:
 
 def _probability(value: Any) -> float:
     return min(_number(value), 1.0)
-
-
-def _normalize(text: str) -> str:
-    return " ".join(text.casefold().split())
-
-
-def _is_policy_quote(quote: str, policy_text: str) -> bool:
-    """A quote proves an exclusion only if it is specific, says so, and is verbatim.
-
-    The length and marker tests exist because a 12-character substring of a 63,000
-    character Policy is trivially satisfiable -- "the schedule" passed, and every
-    Line Item in Games 10 and 11 was flagged as a result.
-    """
-    normalized_quote = _normalize(quote)
-    if len(normalized_quote) < MIN_QUOTE_LENGTH:
-        return False
-    if not any(marker in normalized_quote for marker in EXCLUSION_MARKERS):
-        return False
-    return normalized_quote in _normalize(policy_text)
 
 
 def _extract_json(text: str) -> dict[str, Any]:
@@ -210,7 +186,7 @@ def estimate_fair_values(case: CaseData, evidence: tuple[Evidence, ...]) -> tupl
         fallback = FALLBACK_ESTIMATE * max(item.quantity, 1.0)
         fallback_used = item.price_high <= 0
         low, high = (fallback * 0.75, fallback * 1.25) if fallback_used else (item.price_low, item.price_high)
-        exclusion_proven = _is_policy_quote(item.exclusion_quote, case.policy_text)
+        exclusion_proven = is_policy_quote(item.exclusion_quote, case.policy_text)
         confirmed_uncovered = exclusion_proven and (
             item.coverage_probability < 0.5 or item.relatedness_probability < 0.5
         )

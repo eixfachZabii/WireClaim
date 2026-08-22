@@ -7,23 +7,12 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, FraudDecision, LineItem
+from src.policy_quote import is_policy_quote
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 FRAUD_TIMEOUT_SECONDS = 15.0
 FRAUD_CONFIDENCE = 0.85
-
-# A quote only proves an exclusion if it is long enough to be specific and actually
-# contains exclusion language. At 12 characters against a ~63,000 character Policy,
-# "the schedule" and "the policyholder" both passed -- which is how Games 10 and 11
-# came to flag 100% of Line Items and pay 65,806 and 36,017 in wrongful-rejection
-# penalties.
-MIN_QUOTE_LENGTH = 60
-EXCLUSION_MARKERS = (
-    "not covered", "no cover", "excluded", "exclusion", "does not cover",
-    "is not insured", "no indemnity", "not indemnified", "does not extend",
-    "not apply", "shall not",
-)
 
 # A circuit breaker for the failure mode that cost us Game 10: the gate flagging every
 # Line Item, which zeroes every Limit and turns each fair claim into a 1.5a penalty.
@@ -70,19 +59,6 @@ def _confidence(value: Any) -> float:
         return 0.0
 
 
-def _normalize(text: str) -> str:
-    return " ".join(text.casefold().split())
-
-
-def _is_policy_quote(quote: str, policy_text: str) -> bool:
-    normalized_quote = _normalize(quote)
-    if len(normalized_quote) < MIN_QUOTE_LENGTH:
-        return False
-    if not any(marker in normalized_quote for marker in EXCLUSION_MARKERS):
-        return False
-    return normalized_quote in _normalize(policy_text)
-
-
 def _check_item(line_item: LineItem, case: CaseData) -> bool:
     prompt = (
         f"=== POLICY ===\n{case.policy_text}\n\n"
@@ -103,7 +79,7 @@ def _check_item(line_item: LineItem, case: CaseData) -> bool:
     return (
         violation
         and _confidence(payload.get("confidence")) >= FRAUD_CONFIDENCE
-        and _is_policy_quote(str(payload.get("exclusion_quote", "")), case.policy_text)
+        and is_policy_quote(str(payload.get("exclusion_quote", "")), case.policy_text)
     )
 
 
