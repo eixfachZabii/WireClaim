@@ -1,0 +1,511 @@
+"""Per-Line-Item coverage probability -- "does the Policy indemnify this position at all?"
+
+This replaces the binary gate in `services/fraud_detection.py`. The reason it is a
+probability and not a boolean is arithmetic, not taste:
+
+The Limit is the bottom-third quantile of the posterior over `t` (`src/pricing.py`), and
+a coverage doubt enters that posterior as probability mass at zero. Below
+`p_covered = 1/3` the bottom third *is* zero, so the Limit collapses on its own, with no
+threshold anywhere in the code. A boolean destroys exactly the middle of that range --
+0.4 to 0.8 -- which is the only region where the decision is live. Game 17 is the proof
+in the other direction: a bug floored every coverage probability at 0.9, the Limit could
+never collapse, and we paid in full on the 40% of positions that are worth nothing.
+
+## What this module decides, and what it must not touch
+
+* It decides `p_covered` = P(the Policy indemnifies this position at all), i.e. P(t > 0).
+  It does **not** decide whether the price is inflated; that is the pricing engine's job.
+* It never lowers the Charge. An uncovered item has `t = 0`, so a rejected Charge costs
+  nothing -- charging is a free option (README R6c, Game 3).
+* It never blocks or fails the submission. Every error path returns defaults, and
+  `assess_coverage` does not raise.
+
+## Why there is no global prior
+
+Measured over the 192 settled Line Items, 76 are worth exactly zero -- but the share per
+Case runs from **0% (Case 12) to 67% (Case 10)**. A detector that always finds something
+is wrong on a whole Case at a time. So the prompt is told explicitly that a Case may have
+no uncovered items at all, the default when nothing is found is 0.9, and nothing in this
+module renormalises towards a target rate.
+
+## The three failure modes the prompt is written against
+
+1. **Judge the billed SERVICE, not the object.** Case 8 POS 4: the robot vacuum itself is
+   not indemnified, but §7.1.7(i) pays for its *inspection* "even where the property
+   investigated turns out not to be indemnified". Case 12 POS 2 repeats it with a washing
+   machine (§7.1.7(e)).
+2. **Cross-references restore cover.** An exclusion closing with "the head of cost under
+   5.2.6 remains unaffected" is a pointer, not an exclusion -- Case 12 excludes works of
+   art and then indemnifies their restoration through §5.2.6.
+3. **A suspicious detail in the Damage Description is not an exclusion.** Case 7 dangles
+   an air-conditioning unit "a couple of metres from the hob" while the Policy says
+   proximity to another appliance does not remove cover. Only a Policy clause counts,
+   which is why a low probability without a verified quote is pulled back up.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import math
+import re
+from dataclasses import dataclass
+from typing import Any, Iterable, Sequence
+
+from src.api import get_llm_client, get_model_name
+from src.data.models import CaseData, LineItem
+from src.policy_quote import is_policy_quote, normalize
+from src.policy_slice import slice_policy
+from src.timing import log_timing, start_timer
+
+logger = logging.getLogger(__name__)
+
+#: Default when the model finds nothing, or when anything at all goes wrong. Coverage is
+#: the normal case and over-flagging costs twice: we forfeit the Charge on a covered item
+#: and then fund the field on the same item through the 1.5a wrongful-rejection penalty.
+DEFAULT_P_COVERED = 0.9
+
+#: Below this the bottom-third quantile of the posterior is zero, so this is the value at
+#: which a verdict actually starts to move money. Named here so the tests and the
+#: calibration read the same constant as `src.pricing.COVERAGE_FLOOR`.
+LIMIT_COLLAPSE = 1.0 / 3.0
+
+#: An unquoted doubt is still information -- the model is right more often than not -- but
+#: it is not proof, and Case 7 shows the Damage Description manufacturing false doubt. So
+#: an unverified verdict is shrunk towards the default instead of being either trusted or
+#: thrown away. At 0.5 a model saying 0.05 lands at ~0.48, above the collapse point, so no
+#: Limit is zeroed on a story alone.
+UNVERIFIED_SHRINK = 0.5
+
+#: `quantity_missing` is the dash in the amount/unit columns. 20 of 20 such positions in
+#: the settled Games are worth exactly zero, against a 40% base rate. That is strong
+#: enough to stand without a quote, so it gets its own (smaller) shrink and a ceiling.
+QUANTITY_MISSING_SHRINK = 0.85
+QUANTITY_MISSING_CEILING = 0.35
+
+#: Items per LLM call. One call per Case would let a single failure blind a 39-item
+#: invoice; one call per item repeats a ~20k-character Policy 39 times and loses the
+#: cross-item view that keeps the model from flagging a uniform Case. Chunks give both
+#: parallelism and independent failure.
+CHUNK_SIZE = 8
+
+#: Per-call ceiling. `assess_coverage` also honours the Game deadline when it is given.
+COVERAGE_TIMEOUT_SECONDS = 40.0
+
+#: Never let the coverage pass eat the submission window.
+SUBMISSION_RESERVE_SECONDS = 5.0
+
+
+@dataclass(frozen=True)
+class CoverageVerdict:
+    """One coverage judgement, in the form `src.pricing.Evidence` can consume."""
+
+    index: int
+    """The POS number printed on the invoice, gaps preserved. Case 11 has no POS 12 and
+    the tournament has no index 12 for that Game, so never renumber by row ordinal."""
+
+    p_covered: float
+    """0..1, the probability the Policy indemnifies this position at all (P(t > 0))."""
+
+    clause: str
+    """The supporting Policy sentence, verbatim."""
+
+    quote_verified: bool
+    """Whether `src.policy_quote.is_policy_quote` accepted `clause` against the Policy."""
+
+    reasoning: str = ""
+
+    @property
+    def collapses_limit(self) -> bool:
+        """True when this verdict alone drives the Limit to zero."""
+        return self.p_covered <= LIMIT_COLLAPSE
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "index": self.index,
+            "p_covered": self.p_covered,
+            "clause": self.clause,
+            "quote_verified": self.quote_verified,
+            "reasoning": self.reasoning,
+        }
+
+
+SYSTEM_PROMPT = """You are an insurance coverage examiner. For each invoice Line Item, output the probability that the Policy indemnifies that position AT ALL.
+
+You are NOT judging whether the price is too high. Price is somebody else's job. You judge only: if this position were priced perfectly fairly, would the Policy pay anything for it, or exactly zero?
+
+Output `p_covered` in [0, 1]:
+  1.00-0.85  the Policy plainly indemnifies this head of cost
+  0.85-0.50  a clause raises a real doubt but does not settle it
+  0.50-0.34  probably not indemnified, but the clause is not decisive
+  0.33-0.00  an exclusion or a scope limit in the Policy settles it: this position is worth zero
+Below 0.34 the position is treated as worth nothing, so put a value there only when you can quote the clause that proves it.
+
+HOW TO DECIDE
+
+1. Judge the BILLED SERVICE, not the object it concerns. The Line Item is a head of cost, not a thing. Investigation, leak detection, drying, assessment, expert reports, disposal and making-good are frequently indemnified in their own right EVEN WHERE THE OBJECT INVESTIGATED IS NOT INSURED - many policies say exactly that, in terms. An uninsured appliance whose *inspection* is billed is a COVERED Line Item. Look for the clause that indemnifies the service before you reject it because of the object.
+
+2. Read cross-references to the end. An exclusion that closes with "the head of cost under 5.2.6 remains unaffected", "without prejudice to", "save as provided in", "this does not apply to" or any other pointer to another clause is a POINTER, NOT AN EXCLUSION. Before you say "not covered", find the referenced clause number in the Policy text and read whether it restores cover. If it does, the position is covered.
+
+3. Only the POLICY can exclude. A suspicious, careless or unlucky detail in the Damage Description is not an exclusion. Proximity to a heat source, an old appliance, a self-installed part, a missing receipt - none of these remove cover unless a Policy clause says so. If your reason lives in the description rather than in a quotable clause, `p_covered` stays high.
+
+4. A LIMIT ON THE AMOUNT IS NOT AN EXCLUSION. This is the single most expensive mistake you can make. A deductible, a sub-limit, an "up to [amount]" ceiling, depreciation, a new-for-old restriction, and above all "no improvement on the pre-loss standard" / betterment all REDUCE what is paid. They do not make the position worth zero. A premium solid-oak replacement for a damaged table, or premium hardwood skirting where softwood was destroyed, is a COVERED position that will be paid down to the pre-loss standard: `p_covered` stays at 0.8 or above. The one exception is a line that bills ONLY the difference - "Upgrade to natural stone floor", "surcharge for premium finish" - which is the uninsured part on its own and is worth zero.
+
+5. READ THE PROVISO. Exclusions carry qualifiers: "save where", "save within 7.1.7(g)", "except where", "unless", "other than", "this does not apply to". The proviso is part of the rule. If the position could plausibly fall inside the saved subset, cover survives and `p_covered` stays at 0.5 or above. Only when the position is clearly outside the proviso does it drop below 0.34.
+
+6. LABOUR AND ATTENDANCE FOLLOW THE WORK. Skilled hours, apprentice hours, call-out, vehicle and travel charges, assembly and materials consumed are indemnified as part of the work they were spent on - if that work is indemnifiable. They are worth zero when the underlying work is not indemnifiable, or when the Policy says only the first such charge is paid and this is a repeat. Exclusions aimed at "the contractor's own business operation" target the trade's own tools, plant, software, licences and administrative overhead, NOT the hours actually worked on this repair.
+
+7. DUPLICATES: where the Policy indemnifies only the first charge for the same head of cost, the FIRST occurrence on the invoice keeps its cover and the later repeats of the same head - "return visit", "already billed by", a second identical line - are the ones worth zero. Do not zero the whole group.
+
+8. There is no quota. The share of worthless positions per invoice ranges from 0% to 67% in the measured record. Many invoices contain NOTHING excluded; some contain a majority. Judge each position on its own clause. Never flag a position because it "feels like" the invoice should contain some. If you have found nothing for a position, return 0.9.
+
+9. Go below 0.34 only when the position gets NOTHING AT ALL. If your reason would merely shrink the amount, or if the position is a plausible part of indemnifiable work, use the middle of the scale (0.5-0.8) - that band is read as a real probability downstream and it is the honest answer.
+
+10. `quantity_missing: true` means the invoice printed a dash instead of an amount and a unit for that position. Every one of the 20 such positions in the settled record was worth exactly zero. Treat it as strong evidence, and still cite the clause that says so.
+
+11. If a section titled "LOSS DESCRIPTION AND OPERATIVE PROVISIONS FOR THIS CLAIM" is present, it enumerates the clauses that decide this very claim. Use it first.
+
+THE QUOTE - a verdict below 0.34 is DISCARDED unless the quote passes an automatic check
+
+`clause` is checked by a program, not by a human. The check is literal and it has three conditions, all of which must hold, or your verdict is thrown away and the position is paid in full:
+
+  (a) VERBATIM. The text must appear in the Policy above as one CONTIGUOUS run of characters. Copy it, do not retype it. No ellipsis, no "[...]", no paraphrase, no summary, no joining of two passages that are not adjacent, no correcting of spelling or punctuation. Line breaks and indentation inside the span are fine - only the words are compared.
+  (b) AT LEAST 60 CHARACTERS.
+  (c) THE QUOTED SPAN ITSELF must contain wording that says something is not paid: "not covered", "not indemnified", "excluded", "does not cover", "does not extend", "no indemnity", "shall not", "no cover", "not reimbursed".
+
+Condition (c) is the one that fails most often, and here is why. Policies list exclusions as a lead-in sentence followed by lettered sub-paragraphs:
+
+    7.1.8 Outlay that is not an indemnity for property
+    The following are not indemnified, however they may be described [...]:
+      (a) measures directed at the general condition [...];
+      (b) carriage, freight, delivery, dispatch, packaging, postage [...];
+
+Quoting only "(b) carriage, freight, delivery..." FAILS: that fragment nowhere says it is not paid. You must start the quote at the lead-in that carries the exclusionary words and run UNBROKEN to the end of the sub-paragraph you rely on - copying every intervening sub-paragraph as well, even if that makes the quote long. Long is fine. There is no upper length limit.
+
+For a high `p_covered` the quote is not checked: give the clause that grants the cover, or leave it empty.
+
+BEFORE YOU RETURN a `p_covered` below 0.34, re-read your own `clause` and confirm all three conditions. If you cannot produce a passing quote, you may still return the low number, but say so in `reasoning`.
+
+Return one entry per Line Item given to you, using the same `index` values."""
+
+
+RESPONSE_SCHEMA: dict[str, Any] = {
+    "name": "coverage_assessment",
+    "strict": True,
+    "schema": {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "index": {"type": "integer"},
+                        "p_covered": {"type": "number"},
+                        "clause": {"type": "string"},
+                        "reasoning": {"type": "string"},
+                    },
+                    "required": ["index", "p_covered", "clause", "reasoning"],
+                },
+            }
+        },
+        "required": ["items"],
+    },
+}
+
+
+#: How far back a repaired quote may reach for the sentence that carries the exclusion.
+#: A list exclusion ("The following are not indemnified: (a) ... (b) ...") puts the words
+#: that fail `is_policy_quote` in the lead-in, sometimes two sub-paragraphs above the one
+#: the model cited, and the longest such gap measured over the 14 policies is ~1,600
+#: characters. Beyond that the window stops being about the cited clause.
+QUOTE_REPAIR_LOOKBACK = (0, 150, 300, 600, 1200, 2000)
+
+#: A citation shorter than this is not specific enough to anchor a repair.
+MIN_ANCHOR_WORDS = 6
+
+
+def _clamp(value: Any, default: float = DEFAULT_P_COVERED) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return default
+    if math.isnan(number) or math.isinf(number):
+        return default
+    return min(max(number, 0.0), 1.0)
+
+
+def default_verdict(line_item: LineItem) -> CoverageVerdict:
+    """What we say about a Line Item we could not assess. Coverage is the normal case."""
+    return CoverageVerdict(
+        index=line_item.index,
+        p_covered=DEFAULT_P_COVERED,
+        clause="",
+        quote_verified=False,
+        reasoning="No coverage assessment available; defaulting to covered.",
+    )
+
+
+def _longest_anchor(quote: str, policy_text: str) -> list[str]:
+    """The longest run of words from `quote` that occurs verbatim in the Policy.
+
+    Measured over the settled Cases, the model's citation is almost never invented -- it
+    is *assembled*. It prefixes a sub-paragraph with its clause number ("7.1.8 (d) call-out,
+    travel, ...") although the number sits two paragraphs above, or it welds a lead-in onto
+    sub-paragraph (b) while skipping (a). Both produce a string that is nowhere in the
+    Policy while pointing squarely at real text, so the run that *does* match is a reliable
+    anchor for finding what the model meant.
+    """
+    words = normalize(quote).split()
+    policy = normalize(policy_text)
+    best: list[str] = []
+    for start in range(len(words)):
+        length = len(best) + 1
+        if start + length > len(words):
+            break
+        if " ".join(words[start : start + length]) not in policy:
+            continue
+        while start + length < len(words) and " ".join(words[start : start + length + 1]) in policy:
+            length += 1
+        best = words[start : start + length]
+    return best
+
+
+def _anchor_span(anchor: Sequence[str], policy_text: str) -> tuple[int, int] | None:
+    """Where the anchor sits in the *original* Policy text, tolerating line wrapping."""
+    if len(anchor) < MIN_ANCHOR_WORDS:
+        return None
+    pattern = re.compile(r"\s+".join(re.escape(word) for word in anchor), re.IGNORECASE)
+    match = pattern.search(policy_text)
+    return (match.start(), match.end()) if match else None
+
+
+def repair_quote(clause: str, policy_text: str) -> str:
+    """Return a quote that `is_policy_quote` accepts, or "" if none can be built.
+
+    The gate in `src.policy_quote` is deliberately unforgiving and we do not touch it --
+    it decides whether a Limit goes to zero. What we can do is stop throwing away correct
+    verdicts over citation *formatting*: anchor on the longest run of the model's quote
+    that really is in the Policy, then widen the span backwards through the actual Policy
+    text until the exclusionary lead-in is inside it, and hand *that* to the same gate.
+
+    Everything returned is a contiguous verbatim slice of `policy_text`; nothing is
+    synthesised. If no window up to `QUOTE_REPAIR_LOOKBACK[-1]` characters back passes,
+    the quote stays rejected.
+    """
+    if not clause or not policy_text:
+        return ""
+    if is_policy_quote(clause, policy_text):
+        return clause
+    span = _anchor_span(_longest_anchor(clause, policy_text), policy_text)
+    if span is None:
+        return ""
+    start, end = span
+    for lookback in QUOTE_REPAIR_LOOKBACK:
+        begin = max(start - lookback, 0)
+        if begin and (newline := policy_text.find("\n", begin, start)) >= 0:
+            begin = newline + 1  # start on a line boundary, never mid-word
+        candidate = policy_text[begin:end]
+        if is_policy_quote(candidate, policy_text):
+            return candidate
+    return ""
+
+
+def calibrate(
+    raw_p: float,
+    clause: str,
+    policy_text: str,
+    *,
+    quantity_missing: bool = False,
+) -> tuple[float, bool, str]:
+    """Turn a raw model probability plus its quote into the probability we act on.
+
+    The model's number is evidence, the quote is proof, and the two are combined rather
+    than one overriding the other:
+
+    * A verdict above the collapse point is taken as given -- it costs nothing to hold.
+    * A verdict below it that carries a verified Policy quote is taken as given too.
+    * A verdict below it with no verified quote is shrunk towards the default. This is the
+      Case 7 guard: the Damage Description manufactures doubt that no clause supports, and
+      an unquoted doubt must not zero a Limit on its own.
+    * `quantity_missing` is itself evidence (20 of 20 in the settled record), so it shrinks
+      far less and is capped below the collapse point.
+
+    Returns `(p_covered, quote_verified, clause)`, where `clause` is the model's quote
+    when the gate accepted it and the repaired verbatim Policy span when it did not.
+    """
+    probability = _clamp(raw_p)
+    if probability > LIMIT_COLLAPSE:
+        # Nothing is at stake above the collapse point, so do not spend the repair.
+        return probability, is_policy_quote(clause, policy_text), clause
+    repaired = repair_quote(clause, policy_text)
+    if repaired:
+        return probability, True, repaired
+    if quantity_missing:
+        shrunk = DEFAULT_P_COVERED - QUANTITY_MISSING_SHRINK * (DEFAULT_P_COVERED - probability)
+        return min(shrunk, QUANTITY_MISSING_CEILING), False, clause
+    return DEFAULT_P_COVERED - UNVERIFIED_SHRINK * (DEFAULT_P_COVERED - probability), False, clause
+
+
+def build_prompt(case: CaseData, line_items: Sequence[LineItem], policy_text: str) -> str:
+    return (
+        f"=== POLICY (sliced to the operative parts) ===\n{policy_text}\n\n"
+        f"=== DAMAGE DESCRIPTION ===\n{case.description_text}\n\n"
+        "=== INVOICE LINE ITEMS TO ASSESS ===\n"
+        f"{json.dumps([item.to_dict() for item in line_items], ensure_ascii=False, indent=1)}\n\n"
+        f"Return exactly {len(line_items)} entries, one per index above."
+    )
+
+
+def _assess_chunk(
+    case: CaseData,
+    line_items: Sequence[LineItem],
+    policy_text: str,
+    timeout: float,
+) -> tuple[CoverageVerdict, ...]:
+    response = get_llm_client().chat.completions.create(
+        model=get_model_name(),
+        timeout=timeout,
+        response_format={"type": "json_schema", "json_schema": RESPONSE_SCHEMA},
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": build_prompt(case, line_items, policy_text)},
+        ],
+    )
+    payload = json.loads(response.choices[0].message.content or "{}")
+    return _verdicts_from_payload(payload, line_items, case.policy_text)
+
+
+def _verdicts_from_payload(
+    payload: Any,
+    line_items: Sequence[LineItem],
+    policy_text: str,
+) -> tuple[CoverageVerdict, ...]:
+    """Map a model payload onto the requested indices, defaulting anything it skipped."""
+    entries: dict[int, dict[str, Any]] = {}
+    raw_items = payload.get("items") if isinstance(payload, dict) else None
+    for entry in raw_items or ():
+        if not isinstance(entry, dict):
+            continue
+        try:
+            entries[int(entry.get("index"))] = entry
+        except (TypeError, ValueError):
+            continue
+
+    verdicts: list[CoverageVerdict] = []
+    for line_item in line_items:
+        entry = entries.get(line_item.index)
+        if entry is None:
+            verdicts.append(default_verdict(line_item))
+            continue
+        probability, verified, clause = calibrate(
+            entry.get("p_covered"),
+            str(entry.get("clause") or ""),
+            policy_text,
+            quantity_missing=line_item.quantity_missing,
+        )
+        verdicts.append(
+            CoverageVerdict(
+                index=line_item.index,
+                p_covered=probability,
+                clause=clause,
+                quote_verified=verified,
+                reasoning=str(entry.get("reasoning") or ""),
+            )
+        )
+    return tuple(verdicts)
+
+
+def _chunks(line_items: Sequence[LineItem], size: int = CHUNK_SIZE) -> list[tuple[LineItem, ...]]:
+    return [tuple(line_items[start : start + size]) for start in range(0, len(line_items), size)]
+
+
+def _remaining_seconds(deadline: float | None) -> float:
+    if deadline is None:
+        return COVERAGE_TIMEOUT_SECONDS
+    try:
+        now = asyncio.get_running_loop().time()
+    except RuntimeError:  # pragma: no cover - only outside a loop
+        return COVERAGE_TIMEOUT_SECONDS
+    return max(min(COVERAGE_TIMEOUT_SECONDS, deadline - now - SUBMISSION_RESERVE_SECONDS), 1.0)
+
+
+async def _timed_chunk(
+    case: CaseData,
+    line_items: Sequence[LineItem],
+    policy_text: str,
+    timeout: float,
+) -> tuple[CoverageVerdict, ...]:
+    started_at = start_timer()
+    try:
+        verdicts = await asyncio.wait_for(
+            asyncio.to_thread(_assess_chunk, case, line_items, policy_text, timeout),
+            timeout=timeout,
+        )
+    except Exception as error:
+        log_timing(
+            logger, "coverage_chunk", started_at, "failed",
+            game=case.game_id, first_index=line_items[0].index if line_items else None,
+        )
+        logger.warning("Coverage chunk failed for Game %s: %s", case.game_id, error)
+        return tuple(default_verdict(item) for item in line_items)
+    log_timing(
+        logger, "coverage_chunk", started_at,
+        game=case.game_id, items=len(line_items),
+        collapsed=sum(1 for verdict in verdicts if verdict.collapses_limit),
+    )
+    return verdicts
+
+
+async def assess_coverage(
+    case: CaseData,
+    deadline: float | None = None,
+) -> tuple[CoverageVerdict, ...]:
+    """A coverage probability for every Line Item of `case`, in invoice order.
+
+    Never raises and never blocks the submission: a failed chunk degrades to
+    `DEFAULT_P_COVERED` for its own items only, and a Case with no Line Items -- or an
+    unexpected failure of the whole pass -- yields an empty tuple.
+    """
+    started_at = start_timer()
+    if not case.line_items:
+        return ()
+    try:
+        policy_text = slice_policy(case.policy_text)
+        timeout = _remaining_seconds(deadline)
+        results = await asyncio.gather(
+            *(
+                _timed_chunk(case, chunk, policy_text, timeout)
+                for chunk in _chunks(case.line_items)
+            ),
+            return_exceptions=True,
+        )
+    except Exception as error:  # pragma: no cover - defence in depth, must never raise
+        logger.error("Coverage assessment failed for Game %s: %s", case.game_id, error)
+        return tuple(default_verdict(item) for item in case.line_items)
+
+    verdicts: dict[int, CoverageVerdict] = {}
+    for chunk, result in zip(_chunks(case.line_items), results):
+        if isinstance(result, BaseException):
+            logger.warning("Coverage chunk raised for Game %s: %s", case.game_id, result)
+            result = tuple(default_verdict(item) for item in chunk)
+        for verdict in result:
+            verdicts[verdict.index] = verdict
+
+    ordered = tuple(
+        verdicts.get(item.index) or default_verdict(item) for item in case.line_items
+    )
+    log_timing(
+        logger, "coverage", started_at,
+        game=case.game_id, items=len(ordered),
+        collapsed=sum(1 for verdict in ordered if verdict.collapses_limit),
+    )
+    return ordered
+
+
+def coverage_probabilities(verdicts: Iterable[CoverageVerdict]) -> dict[int, float]:
+    """`{index: p_covered}`, the shape `src.pricing.Evidence` wants."""
+    return {verdict.index: verdict.p_covered for verdict in verdicts}
