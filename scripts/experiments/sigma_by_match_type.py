@@ -50,11 +50,19 @@ def evaluate_by_bucket(records: list[dict], games: list[int], per_unit: bool = T
             err = math.log(hit.median / record["t_point"])
             pooled.append(err)
             buckets.setdefault((hit.match, hit.basis), []).append(err)
+    basis_only: dict[str, list[float]] = {}
+    for (_match, basis), errs in buckets.items():
+        basis_only.setdefault(basis, []).extend(errs)
+    match_only: dict[str, list[float]] = {}
+    for (match, _basis), errs in buckets.items():
+        match_only.setdefault(match, []).extend(errs)
     return {
         "n_scorable": n_scorable,
         "n_hit": n_hit,
         "pooled": pooled,
         "buckets": buckets,
+        "basis_only": basis_only,
+        "match_only": match_only,
     }
 
 
@@ -93,6 +101,16 @@ def main() -> None:
             errs = result["buckets"][key]
             n_b, bias_b, sigma_b, rmsle_b = _stats(errs)
             print(f"{str(key):<28}{n_b:>5}{bias_b:>+9.3f}{sigma_b:>9.3f}{rmsle_b:>9.3f}")
+        print(f"\n{'bucket (basis only, match pooled)':<34}{'n':>5}{'bias':>9}{'sigma':>9}{'RMSLE':>9}")
+        for key in sorted(result["basis_only"], key=lambda k: -len(result["basis_only"][k])):
+            errs = result["basis_only"][key]
+            n_b, bias_b, sigma_b, rmsle_b = _stats(errs)
+            print(f"{key:<34}{n_b:>5}{bias_b:>+9.3f}{sigma_b:>9.3f}{rmsle_b:>9.3f}")
+        print(f"\n{'bucket (match only, basis pooled)':<34}{'n':>5}{'bias':>9}{'sigma':>9}{'RMSLE':>9}")
+        for key in sorted(result["match_only"], key=lambda k: -len(result["match_only"][k])):
+            errs = result["match_only"][key]
+            n_b, bias_b, sigma_b, rmsle_b = _stats(errs)
+            print(f"{key:<34}{n_b:>5}{bias_b:>+9.3f}{sigma_b:>9.3f}{rmsle_b:>9.3f}")
 
     print(f"\nCurrent shipped constants: SIGMA_LOG (memory.py) = 0.43, "
           f"measured_leave_one_out_sigma_log (build_price_memory.py payload) = 0.43 (hardcoded)")
