@@ -20,9 +20,14 @@ loss. The negative results are recorded in
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
+import time
+from pathlib import Path
 from typing import Any
+
+import logging
 
 from src.api import get_llm_client, get_model_name, get_service_tier
 from src.data.models import CaseData
@@ -30,6 +35,8 @@ from src.services.policy.slice import slice_policy
 from src.domain.pricing.engine import Evidence
 from src.services.strategies.strategy2.constants import LLM_TIMEOUT_SECONDS
 from src.services.strategies.strategy2.prompts import PROMPT
+
+logger = logging.getLogger(__name__)
 
 
 def number(value: Any) -> float:
@@ -83,6 +90,48 @@ def parse_items(payload: dict[str, Any]) -> dict[int, Evidence]:
     return found
 
 
+#: Where a live draw's raw reply is kept. Gitignored working data, one file per draw.
+RAW_REPLY_DIR = Path("var/ai_log")
+
+
+def _log_raw_reply(game_id: int, prompt: str, raw: str, elapsed: float) -> None:
+    """Keep what the model actually said, for the Game we cannot re-run.
+
+    Evidence is cached for backtests but never for live Games, so when Strategy 2 produced
+    nothing on Game 46 -- both draws gone, 31 Line Items, `model_draws=0` -- there was no way
+    to tell a timeout from a refusal from a reply we failed to parse. The runner log said
+    `draw unavailable` with an empty reason and that was the entire record. An hour went into
+    inferring what one file would have said outright.
+
+    Deliberately after the call and before the parse, so a reply that *fails* to parse is the
+    one case most certainly kept. Never raises: a Game is worth more than its own diagnosis.
+    """
+    try:
+        RAW_REPLY_DIR.mkdir(parents=True, exist_ok=True)
+        # The framing is one of two fixed prompts, so a short digest of it names the draw
+        # stably across Games without storing the prompt itself in every file.
+        draw = hashlib.sha1(prompt.encode("utf-8")).hexdigest()[:8]
+        path = RAW_REPLY_DIR / f"game_{game_id:03d}_{draw}.json"
+        path.write_text(
+            json.dumps(
+                {
+                    "game_id": game_id,
+                    "draw": draw,
+                    "model": get_model_name(),
+                    "service_tier": get_service_tier(),
+                    "elapsed_seconds": round(elapsed, 2),
+                    "recorded_at": time.time(),
+                    "reply_characters": len(raw),
+                    "reply": raw,
+                },
+                indent=1,
+                ensure_ascii=False,
+            )
+        )
+    except Exception as error:  # pragma: no cover - never worth a Game
+        logger.warning("Could not log the raw reply for Game %s: %s", game_id, error)
+
+
 def build_request_text(case: CaseData, prompt: str) -> str:
     """The prompt plus the operative Policy, the damage description and the Line Items."""
     line_items = json.dumps([item.to_dict() for item in case.line_items], ensure_ascii=False)
@@ -120,13 +169,16 @@ def request_evidence(
     # prompt last. Replace that final text block with ours, keeping the attachments.
     content[-1] = {"type": "input_text", "text": build_request_text(case, prompt or PROMPT)}
 
+    started_at = time.time()
     response = get_llm_client().responses.create(
         model=get_model_name(),
         service_tier=get_service_tier(),
         timeout=timeout,
         input=[{"role": "user", "content": content}],
     )
-    return parse_items(extract_json(str(response.output_text or "")))
+    raw = str(response.output_text or "")
+    _log_raw_reply(case.game_id, prompt or PROMPT, raw, time.time() - started_at)
+    return parse_items(extract_json(raw))
 
 
 __all__ = [

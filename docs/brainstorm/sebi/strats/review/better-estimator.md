@@ -20,7 +20,14 @@ which is itself the finding: the prompt was re-tested end to end and is not wher
 | model draws | `var/experiments/model_bakeoff_retest/` — **re-drawn tonight under the current prompt** |
 | Price Memory | `var/price_memory.json`, 198 entries, Games 1–45, read live |
 | noise floor | 26,622 · √(n/18) — quoted beside every delta |
-| harnesses | `scripts/experiments/{retest_score,band_width_fix,charge_line_joint,hierarchical_memory,estimator_scoreboard,vision_ablation,grade_prompt}.py` |
+| harnesses | `scripts/experiments/{retest_score,band_width_fix,charge_line_joint,hierarchical_memory,estimator_scoreboard,grade_prompt}.py` |
+
+`scripts/experiments/` was being edited by another agent the same night, and `vision_ablation.py`
+was rewritten under this work mid-session. §5's numbers therefore come from the **cache**, not
+from whatever that file now contains: the 14 draws this report scores are the ones carrying
+`"source": "vision-ablation"` in `var/experiments/vision_ablation/`, each recording its model,
+its 55 s budget and its latency. `estimator_scoreboard.py` discovers them from disk rather than
+importing a peer's game list, for the same reason.
 
 **Live-tournament discipline.** Every LLM call went through
 `scripts/experiments/live_window.wait_for_safe_window`, which refuses to *start* a call within
@@ -247,12 +254,18 @@ do not discount so steeply for width — is confirmed in euros.
 naive sweep cell "raise the Charge to 0.80" scores +63,643, and that number is two effects
 added together:
 
+(mini, calibrated band, 44 Games — the four cells share every other constant, so the rows are
+directly differenceable.)
+
 | configuration | net | income | cost | delta |
 | --- | ---: | ---: | ---: | ---: |
 | A shipped line, shipped clamp | 355,582 | 1,429,132 | 1,073,550 | — |
 | B Charge 0.80, **clamp held at shipped** | 393,340 | 1,466,890 | 1,073,550 | +37,758 |
 | C Charge shipped, **clamp released** | 381,467 | 1,429,132 | 1,047,665 | +25,885 |
 | D both (the naive sweep cell) | 419,225 | 1,466,890 | 1,047,665 | +63,643 |
+
+B moves income only, C moves cost only, and D is exactly their sum — which is the point: the
+two effects are separable and the naive cell is not one finding.
 
 C is §2 — a Limit-side effect that has nothing to do with the Charge. Isolating the Charge side
 (B) gives +37,758, **inside the 44-Game floor**, and it fails two of five folds
