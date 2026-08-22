@@ -155,7 +155,7 @@ Below 0.34 the position is treated as worth nothing, so put a value there only w
 
 HOW TO DECIDE
 
-1. Judge the BILLED SERVICE, not the object it concerns. The Line Item is a head of cost, not a thing. Investigation, leak detection, drying, assessment, expert reports, disposal and making-good are frequently indemnified in their own right EVEN WHERE THE OBJECT INVESTIGATED IS NOT INSURED - many policies say exactly that, in terms. An uninsured appliance whose *inspection* is billed is a COVERED Line Item. Look for the clause that indemnifies the service before you reject it because of the object.
+1. Judge the BILLED SERVICE, not the object it concerns. The Line Item is a head of cost, not a thing. Investigation, leak detection, drying, assessment, expert reports, disposal, making-good, and recovery, salvage, securing and emergency measures are frequently indemnified in their own right EVEN WHERE THE OBJECT CONCERNED IS NOT INSURED - many policies say exactly that, in terms. An uninsured appliance whose *inspection* is billed is a COVERED Line Item, and a locksmith called out to release a recovered but uninsured object is a COVERED Line Item, while the repair of that same object is not. Look for the clause that indemnifies the service before you reject it because of the object.
 
 2. Read cross-references to the end. An exclusion that closes with "the head of cost under 5.2.6 remains unaffected", "without prejudice to", "save as provided in", "this does not apply to" or any other pointer to another clause is a POINTER, NOT AN EXCLUSION. Before you say "not covered", find the referenced clause number in the Policy text and read whether it restores cover. If it does, the position is covered.
 

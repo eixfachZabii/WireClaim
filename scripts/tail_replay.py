@@ -112,6 +112,15 @@ def inflate(snap: GameSnapshot, factor: float) -> GameSnapshot:
     )
 
 
+def parse_games(spec: str) -> list[int]:
+    """`1-14`, `10`, or `1-15,17-19` -- Game 16's Transactions do not reconstruct."""
+    games: list[int] = []
+    for part in spec.split(","):
+        start, _, end = part.strip().partition("-")
+        games += list(range(int(start), int(end or start) + 1))
+    return games
+
+
 def _fmt(value: float) -> str:
     return "inf" if value == INF else f"{value:,.0f}"
 
@@ -171,10 +180,10 @@ def main() -> None:
         import src.pricing
 
         src.pricing.LIMIT_CEILING = args.limit_ceiling
-    start, _, end = args.games.partition("-")
-    game_ids = list(range(int(start), int(end or start) + 1))
+    game_ids = parse_games(args.games)
 
     total_new = total_actual = 0.0
+    deltas: list[float] = []
     rows: list[tuple[float, str]] = []
     print(f"{'game':>5} {'items':>6} {'actual':>12} {'strategy2':>12} {'delta':>12}")
     for game_id in game_ids:
@@ -193,6 +202,7 @@ def main() -> None:
         actual = replay(snap, our_actual_submission(snap)).net
         total_new += new
         total_actual += actual
+        deltas.append(new - actual)
         print(
             f"{game_id:5d} {len(snap.line_items):6d} {actual:12,.0f} {new:12,.0f} "
             f"{new - actual:12,.0f}"
@@ -203,6 +213,14 @@ def main() -> None:
         f"{'TOTAL':>5} {'':>6} {total_actual:12,.0f} {total_new:12,.0f} "
         f"{total_new - total_actual:12,.0f}"
     )
+    if deltas:
+        ordered = sorted(deltas)
+        # The total is dominated by one or two Games (Game 10's stolen watch alone swings
+        # it by 70k), so the median Game is reported next to it as a robustness check.
+        print(
+            f"{'MEDIAN':>5} {'':>6} {'':>12} {'':>12} {ordered[len(ordered) // 2]:12,.0f}"
+            f"   over {len(ordered)} Games"
+        )
 
     if args.worst:
         print(f"\nworst {args.worst} Line Items by money left on the table:")
