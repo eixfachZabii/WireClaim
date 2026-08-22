@@ -22,6 +22,7 @@ STEPS = [
     ["dashboard.py", "--save"],
     ["report.py"],
     ["money.py"],
+    ["balance.py"],
     ["diagnose.py"],
 ]
 
