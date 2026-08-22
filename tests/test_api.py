@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from src import api
-from src.api.llm import DEFAULT_MODEL, get_model_name
+from src.api.llm import DEFAULT_MODEL, get_model_name, warm_llm_resources
 
 
 class Response(io.BytesIO):
@@ -24,6 +24,9 @@ class APITests(unittest.TestCase):
     def test_model_environment_override_wins(self) -> None:
         with patch.dict(os.environ, {"AZURE_OPENAI_MODEL": "custom-deployment"}, clear=True):
             self.assertEqual(get_model_name(), "custom-deployment")
+
+    def test_warm_llm_resources(self) -> None:
+        warm_llm_resources()
 
     def test_list_games(self) -> None:
         response = Response(b'[{"id": 1, "start_time": "2026-08-22T12:00:00Z"}]')

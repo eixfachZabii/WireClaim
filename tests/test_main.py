@@ -100,9 +100,9 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
             with self.assertLogs("main", level="INFO") as logs:
                 await main.run_game(99, dry_run=True)
 
-        payloads = [line for line in logs.output if "DRY RUN PUT" in line]
+        payloads = [line for line in logs.output if "DRY RUN SUBMISSION" in line]
         self.assertTrue(payloads, "a failed Case load must still publish a Submission")
-        self.assertIn("/api/games/99/submissions", payloads[0])
+        self.assertIn("PUT /api/games/99/submissions", payloads[0])
         self.assertNotIn('"charge_price": 0.0', payloads[0])
         self.assertNotIn('"acceptance_limit": 0.0', payloads[0])
 
@@ -121,7 +121,10 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
             result = main.dry_run_submit(7, submissions, timeout=1.0)
 
         self.assertEqual(result, [])
-        self.assertIn("DRY RUN PUT /api/games/7/submissions", logs.output[0])
+        self.assertIn("DRY RUN SUBMISSION", logs.output[0])
+        self.assertIn("PUT /api/games/7/submissions", logs.output[0])
+        self.assertIn("tournament API was not called", logs.output[0])
+        self.assertIn("1 |       150.00 |        75.00", logs.output[0])
         self.assertIn('"charge_price": 150.0', logs.output[0])
 
 

@@ -9,7 +9,7 @@ from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
-from src.api import list_games
+from src.api import list_games, warm_llm_resources
 from src.data.case_loader import load_case
 from src.data.models import CaseData, FraudDecision, ItemPrice, Proposal
 from src.services.fraud_detection import detect_fraud
@@ -21,6 +21,7 @@ from src.services.strategies.fast_path import (
     standard_values,
 )
 from src.services.submission_coordinator import SubmissionCoordinator
+from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 RUN_SECONDS = 60.0
@@ -99,16 +100,36 @@ def blind_floor() -> tuple[ItemPrice, ...]:
     )
 
 
+def format_dry_run_submission(game_id: int, submissions: list[dict[str, float | int]]) -> str:
+    rows = [
+        (
+            int(submission["index"]),
+            float(submission["charge_price"]),
+            float(submission["acceptance_limit"]),
+        )
+        for submission in sorted(submissions, key=lambda item: int(item["index"]))
+    ]
+    lines = [
+        "DRY RUN SUBMISSION",
+        f"  at_utc: {datetime.now(timezone.utc).isoformat()}",
+        f"  request: PUT /api/games/{game_id}/submissions",
+        "  mode: simulated; tournament API was not called",
+        f"  line_items: {len(rows)}",
+        "  line |       charge |        limit",
+        "  -----+--------------+--------------",
+    ]
+    lines.extend(f"  {index:>4} | {charge:>12.2f} | {limit:>12.2f}" for index, charge, limit in rows)
+    lines.append(f"  payload: {json.dumps(submissions, ensure_ascii=False)}")
+    return "\n".join(lines)
+
+
 def dry_run_submit(game_id: int, submissions: list[dict[str, float | int]], timeout: float) -> list[dict]:
-    logger.info(
-        "DRY RUN PUT /api/games/%s/submissions payload=%s",
-        game_id,
-        json.dumps(submissions, ensure_ascii=False),
-    )
+    logger.info("%s", format_dry_run_submission(game_id, submissions))
     return []
 
 
 async def run_game(game_id: int, dry_run: bool = False) -> None:
+    run_started_at = start_timer()
     loop = asyncio.get_running_loop()
     deadline = loop.time() + RUN_SECONDS
     coordinator = (
@@ -119,6 +140,7 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
     await coordinator.start()
     coordinator.publish(blind_floor())
 
+    case_load_started_at = start_timer()
     try:
         remaining = deadline - loop.time()
         if remaining <= 0:
@@ -127,18 +149,26 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
         case = await asyncio.wait_for(load_case(game_id, deadline), timeout=remaining)
     except Exception as error:
         logger.error("Game %s could not be loaded: %s - blind floor stands.", game_id, error)
+        log_timing(logger, "case_load", case_load_started_at, "failed", game=game_id)
         with suppress(TimeoutError):
             await asyncio.wait_for(coordinator.wait_until_idle(), timeout=max(deadline - loop.time(), 0.0))
         await coordinator.close()
+        log_timing(logger, "game", run_started_at, "failed", game=game_id, dry_run=dry_run)
         return
+    log_timing(logger, "case_load", case_load_started_at, game=game_id)
     if loop.time() >= deadline:
         logger.error("Game %s finished loading after its submission window.", game_id)
         await coordinator.close()
+        log_timing(logger, "game", run_started_at, "expired", game=game_id, dry_run=dry_run)
         return
 
     manager = RunManager(standard_values(case))
     events: asyncio.Queue[RunEvent] = asyncio.Queue()
     router = StrategyRouter()
+    try:
+        warm_llm_resources()
+    except Exception as error:
+        logger.warning("Could not warm OpenAI resources: %s", error)
     coordinator.publish(manager.snapshot())
     tasks = [
         asyncio.create_task(_emit_result(events, "fast_path", llm_values(case), game_id)),
@@ -168,6 +198,7 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
                 task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
         await coordinator.close()
+        log_timing(logger, "game", run_started_at, game=game_id, dry_run=dry_run)
 
 
 async def _emit_result(
@@ -176,13 +207,17 @@ async def _emit_result(
     operation: Awaitable[Proposal | FraudDecision | None],
     game_id: int,
 ) -> None:
+    started_at = start_timer()
     try:
         result = await operation
     except asyncio.CancelledError:
+        log_timing(logger, kind, started_at, "cancelled", game=game_id)
         raise
     except Exception:
         logger.exception("%s failed for Game %s.", kind, game_id)
+        log_timing(logger, kind, started_at, "failed", game=game_id)
         return
+    log_timing(logger, kind, started_at, game=game_id, produced=result is not None)
     if result is not None:
         await events.put(RunEvent(kind, result))
 
@@ -192,8 +227,13 @@ async def _forward_strategies(
     router: StrategyRouter,
     case: CaseData,
 ) -> None:
-    async for proposal in router.start_strategies(case):
-        await events.put(RunEvent("strategy", proposal))
+    started_at = start_timer()
+    try:
+        async for proposal in router.start_strategies(case):
+            log_timing(logger, "strategy_result", started_at, game=case.game_id, source=proposal.source)
+            await events.put(RunEvent("strategy", proposal))
+    finally:
+        log_timing(logger, "strategy_manager", started_at, game=case.game_id)
 
 
 def _apply_event(manager: RunManager, event: RunEvent) -> bool:

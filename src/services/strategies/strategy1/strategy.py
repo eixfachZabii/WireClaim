@@ -12,6 +12,7 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, ItemPrice, Proposal
+from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 STRATEGY_NAME = "strategy1"
@@ -268,6 +269,10 @@ def proposal_from_estimates(estimates: tuple[Estimate, ...]) -> Proposal | None:
 
 
 async def propose(case: CaseData) -> Proposal | None:
-    evidence = await asyncio.to_thread(_request_evidence, case)
-    estimates = estimate_fair_values(case, evidence)
-    return proposal_from_estimates(estimates)
+    started_at = start_timer()
+    try:
+        evidence = await asyncio.to_thread(_request_evidence, case)
+        estimates = estimate_fair_values(case, evidence)
+        return proposal_from_estimates(estimates)
+    finally:
+        log_timing(logger, "strategy1", started_at, game=case.game_id)
