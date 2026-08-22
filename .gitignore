@@ -64,6 +64,9 @@ var/cases/*
 # and `cases/` is 106 MB of decrypted Case material, which must never be committed -- it is
 # derivable from the archives plus a released key and is not ours to publish.
 !var/decisions/
+# ...but not test artefacts. A real Game id is three digits; the suite's fixtures use four
+# so they can never collide with a settled Game's record (see tests/test_strategy2.py).
+var/decisions/game_[0-9][0-9][0-9][0-9].json
 !var/lessons/
 !var/reviews/
 !var/ai_log/
