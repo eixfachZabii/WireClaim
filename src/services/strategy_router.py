@@ -12,7 +12,11 @@ from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[..., Awaitable[Proposal | None]]
-STRATEGY_PRIORITIES = {"strategy1": 1, "strategy2": 2, "strategy3": 3}
+# Strategy 2 outranks the others: it is the only one whose constants are fitted to the
+# reconstructed Fair Values, and the only one that cannot return nothing (its
+# deterministic channel is a complete answer on its own). 1 and 3 stay running as a free
+# ensemble and a disagreement signal until Strategy 2 has a measured sigma.
+STRATEGY_PRIORITIES = {"strategy1": 1, "strategy3": 2, "strategy2": 3}
 
 
 class StrategyRouter:
