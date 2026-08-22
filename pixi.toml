@@ -27,6 +27,7 @@ case-0 = { cmd = "python main.py --game-id 0", depends-on = ["cases"] }
 # What a settled Game taught us: joins the decision log against the reconstructed Fair Value
 # and names the stage that was wrong, rather than only the amount that was lost.
 learn = { cmd = "python scripts/learn_from_game.py", env = { PYTHONPATH = "." } }
+calibrate-strategy5 = { cmd = "python scripts/calibrate_strategy5.py", env = { PYTHONPATH = "." } }
 
 # The same thing, unattended. `start` plays the Games; this analyses each one as it settles,
 # which cannot happen in the same process because the Transactions that reveal the Fair Value

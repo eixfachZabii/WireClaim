@@ -1,10 +1,17 @@
 import io
 import os
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from src import api
-from src.api.llm import DEFAULT_MODEL, DEFAULT_SERVICE_TIER, get_model_name, get_service_tier, warm_llm_resources
+from src.api.llm import (
+    DEFAULT_MODEL,
+    DEFAULT_SERVICE_TIER,
+    get_model_name,
+    get_service_tier,
+    query_llm,
+    warm_llm_resources,
+)
 
 
 class Response(io.BytesIO):
@@ -25,14 +32,37 @@ class APITests(unittest.TestCase):
         with patch.dict(os.environ, {"AZURE_OPENAI_MODEL": "custom-deployment"}, clear=True):
             self.assertEqual(get_model_name(), "custom-deployment")
 
-    def test_default_service_tier_is_fast(self) -> None:
+    def test_default_service_tier_is_priority(self) -> None:
         with patch.dict(os.environ, {}, clear=True):
-            self.assertEqual(get_service_tier(), "fast")
-            self.assertEqual(DEFAULT_SERVICE_TIER, "fast")
+            self.assertEqual(get_service_tier(), "priority")
+            self.assertEqual(DEFAULT_SERVICE_TIER, "priority")
 
     def test_service_tier_environment_override_wins(self) -> None:
         with patch.dict(os.environ, {"AZURE_OPENAI_SERVICE_TIER": "priority"}, clear=True):
             self.assertEqual(get_service_tier(), "priority")
+
+    def test_query_llm_forwards_priority_tier_to_responses_api(self) -> None:
+        client = MagicMock()
+        client.responses.create.return_value.output_text = "response"
+        with patch.dict(os.environ, {}, clear=True), patch("src.api.llm.get_llm_client", return_value=client):
+            self.assertEqual(query_llm("prompt"), "response")
+        client.responses.create.assert_called_once_with(
+            model=DEFAULT_MODEL,
+            service_tier="priority",
+            input="prompt",
+        )
+
+    def test_query_llm_forwards_priority_tier_to_chat_api(self) -> None:
+        client = MagicMock()
+        client.responses = None
+        client.chat.completions.create.return_value.choices[0].message.content = "response"
+        with patch.dict(os.environ, {}, clear=True), patch("src.api.llm.get_llm_client", return_value=client):
+            self.assertEqual(query_llm("prompt"), "response")
+        client.chat.completions.create.assert_called_once_with(
+            model=DEFAULT_MODEL,
+            service_tier="priority",
+            messages=[{"role": "user", "content": "prompt"}],
+        )
 
     def test_warm_llm_resources(self) -> None:
         warm_llm_resources()

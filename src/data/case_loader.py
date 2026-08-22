@@ -10,7 +10,7 @@ from src.data.models import CaseData, LineItem
 
 ARCHIVE_DIR = Path("[PUBLIC] EHL Cases/cases")
 OUTPUT_DIR = Path("var/cases")
-_NUMBERED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s*(?:[.)]|[-–])\s*(?P<name>\S.*)$")
+_NUMBERED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s*(?:\.(?!\d)|\)|[-–])\s*(?P<name>\S.*)$")
 _SPACED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s+(?P<name>\S.*)$")
 _TRAILING_QUANTITY = re.compile(
     r"\s+(?P<quantity>\d+(?:[.,]\d+)?)\s+(?P<unit>pcs|hrs?|m2|m²|m|kg|days?|units?|flat rate)\s*$",

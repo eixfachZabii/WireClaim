@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 DEFAULT_MODEL = "gpt-5.6-terra"
-DEFAULT_SERVICE_TIER = "fast"
+DEFAULT_SERVICE_TIER = "priority"
 SERVICE_TIERS = frozenset({"fast", "priority"})
 
 # Optional dotenv loading with stdlib fallback
@@ -111,12 +111,14 @@ def query_llm(
     """Send a prompt to the LLM and return the generated text response."""
     client = get_llm_client(api_key=api_key, endpoint=endpoint)
     target_model = get_model_name(model)
+    target_service_tier = get_service_tier()
 
     # Try responses.create first (if using Azure / OpenAI Responses API)
     try:
         if hasattr(client, "responses") and callable(getattr(client.responses, "create", None)):
             response = client.responses.create(
                 model=target_model,
+                service_tier=target_service_tier,
                 input=prompt,
             )
             if hasattr(response, "output_text") and response.output_text:
@@ -129,6 +131,7 @@ def query_llm(
     # Standard Chat Completions API fallback
     chat_response = client.chat.completions.create(
         model=target_model,
+        service_tier=target_service_tier,
         messages=[{"role": "user", "content": prompt}],
     )
     return str(chat_response.choices[0].message.content or "").strip()

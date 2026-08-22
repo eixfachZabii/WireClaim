@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import logging
+import math
 from collections.abc import Awaitable
 from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from src.api import list_games, warm_llm_resources
 from src.data.case_loader import load_case
@@ -15,10 +18,55 @@ from src.services.fraud_detection import detect_fraud
 from src.services.strategy_router import STRATEGY_PRIORITIES, StrategyRouter
 from src.services.strategies.fast_path import LLM_TIMEOUT_SECONDS, llm_values, standard_values
 from src.services.submission_coordinator import SubmissionCoordinator
-from src.observability.timing import format_error_card, log_timing, start_timer
+from src.observability.timing import FairValueReference, format_error_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 RUN_SECONDS = 60.0
+FAIR_VALUE_STUDY_PATH = Path(__file__).resolve().parent / "case_analysis" / "data" / "fair_value_study.json"
+
+
+def load_fair_value_references(game_id: int) -> dict[int, FairValueReference]:
+    try:
+        payload = json.loads(FAIR_VALUE_STUDY_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    except (OSError, ValueError) as error:
+        logger.warning("Could not load Fair Value Study for dry run: %s", error)
+        return {}
+    games = payload.get("games") if isinstance(payload, dict) else None
+    if not isinstance(games, list):
+        logger.warning("Fair Value Study has no Games list; dry run will omit reference columns.")
+        return {}
+    game = next((entry for entry in games if isinstance(entry, dict) and entry.get("game_id") == game_id), None)
+    if not isinstance(game, dict):
+        return {}
+    line_items = game.get("line_items")
+    if not isinstance(line_items, list):
+        logger.warning("Fair Value Study Game %s has no Line Items list.", game_id)
+        return {}
+    references: dict[int, FairValueReference] = {}
+    for item in line_items:
+        try:
+            index = int(item["index"])
+            fair_value = item["fair_value"]
+            lower = float(fair_value["lower"])
+            upper_data = fair_value["upper"]
+            upper = upper_data["value"]
+            relation = upper_data["relation"]
+            if index <= 0 or lower < 0 or not math.isfinite(lower):
+                continue
+            if upper is None:
+                if relation is not None:
+                    continue
+                references[index] = FairValueReference(lower, None, None)
+                continue
+            upper_value = float(upper)
+            if not math.isfinite(upper_value) or relation not in {"lt", "le"}:
+                continue
+            references[index] = FairValueReference(lower, upper_value, relation)
+        except (KeyError, TypeError, ValueError, OverflowError):
+            continue
+    return references
 
 
 def _recovery_action(kind: str) -> str:
@@ -114,8 +162,14 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
     run_started_at = start_timer()
     loop = asyncio.get_running_loop()
     deadline = loop.time() + RUN_SECONDS
+    fair_value_references = load_fair_value_references(game_id) if dry_run else {}
     coordinator = (
-        SubmissionCoordinator(game_id, deadline, submitter=dry_run_submit)
+        SubmissionCoordinator(
+            game_id,
+            deadline,
+            submitter=dry_run_submit,
+            fair_value_references=fair_value_references,
+        )
         if dry_run
         else SubmissionCoordinator(game_id, deadline)
     )
@@ -145,7 +199,7 @@ async def run_game(game_id: int, dry_run: bool = False) -> None:
 
     manager = RunManager(standard_values(case))
     events: asyncio.Queue[RunEvent] = asyncio.Queue()
-    router = StrategyRouter()
+    router = StrategyRouter(fair_value_references=fair_value_references)
     try:
         warm_llm_resources()
     except Exception as error:

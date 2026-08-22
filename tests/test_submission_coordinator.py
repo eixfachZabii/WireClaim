@@ -4,6 +4,7 @@ import threading
 import unittest
 
 from src.data.models import ItemPrice
+from src.observability.timing import FairValueReference
 from src.services.submission_coordinator import SubmissionCoordinator, format_submission_update
 
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
@@ -50,6 +51,26 @@ class SubmissionCoordinatorTests(unittest.IsolatedAsyncioTestCase):
             plain_update,
         )
         self.assertTrue(plain_update.endswith("-" * 72))
+
+    def test_formats_fair_value_reference_columns_when_provided(self) -> None:
+        update = format_submission_update(
+            game_id=19,
+            sequence=1,
+            reason="case_loaded",
+            force=False,
+            before=None,
+            after=(ItemPrice(1, 300.0, 35.0), ItemPrice(2, 400.0, 0.0)),
+            fair_value_references={
+                1: FairValueReference(122.94, None, None),
+                2: FairValueReference(200.0, 300.0, "lt"),
+            },
+        )
+        plain_update = strip_ansi(update)
+
+        self.assertIn("REFERENCE (settled Fair Value)", plain_update)
+        self.assertIn("fair value lower | Fair Value interval", plain_update)
+        self.assertIn("122.94 | [122.94, ∞)", plain_update)
+        self.assertIn("200.00 | [200.00, 300.00)", plain_update)
 
     def test_formats_an_unchanged_forced_repost(self) -> None:
         prices = (ItemPrice(1, 300.0, 35.0),)

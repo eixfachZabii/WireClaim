@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from time import perf_counter
 from typing import Any
 
@@ -11,6 +12,19 @@ DIM = "\033[2m"
 RED = "\033[91m"
 YELLOW = "\033[93m"
 GRAY = "\033[90m"
+
+
+@dataclass(frozen=True)
+class FairValueReference:
+    lower: float
+    upper: float | None
+    upper_relation: str | None
+
+    def interval(self) -> str:
+        if self.upper is None:
+            return f"[{self.lower:.2f}, ∞)"
+        bracket = ")" if self.upper_relation == "lt" else "]"
+        return f"[{self.lower:.2f}, {self.upper:.2f}{bracket}"
 
 
 def _paint(value: object, *styles: str) -> str:
@@ -74,9 +88,13 @@ def format_skipped_strategy_card(
     active_priority: int,
     elapsed_s: float,
     prices: Sequence[tuple[int, float, float]],
+    fair_value_references: Mapping[int, FairValueReference] | None = None,
 ) -> str:
     title = f"{'#' * 16} {candidate_source.upper()} COMPARISON ONLY {'#' * 16}"
     style = (DIM, GRAY)
+    references = fair_value_references or {}
+    reference_columns = " || fair value lower | Fair Value interval" if references else ""
+    reference_rule = " || ------------------+--------------------" if references else ""
     lines = [
         f"\n\n{_paint(title, *style)}",
         "",
@@ -87,13 +105,17 @@ def format_skipped_strategy_card(
         _paint(f"candidate: {candidate_source} (priority {candidate_priority})", *style),
         _paint(f"active: {active_source} (priority {active_priority})", *style),
         "",
-        _paint("line |       charge |        limit", *style),
-        _paint("-----+--------------+--------------", *style),
+        _paint("line |       charge |        limit" + reference_columns, *style),
+        _paint("-----+--------------+--------------" + reference_rule, *style),
     ]
-    lines.extend(
-        _paint(f"{index:>4} | {charge:>12.2f} | {limit_:>12.2f}", *style)
-        for index, charge, limit_ in sorted(prices)
-    )
+    for index, charge, limit_ in sorted(prices):
+        row = f"{index:>4} | {charge:>12.2f} | {limit_:>12.2f}"
+        if references:
+            reference = references.get(index)
+            lower = "—" if reference is None else f"{reference.lower:.2f}"
+            interval = "—" if reference is None else reference.interval()
+            row += f" || {lower:>16} | {interval}"
+        lines.append(_paint(row, *style))
     lines.extend(("", _paint("#" * len(title), *style)))
     return "\n".join(lines)
 

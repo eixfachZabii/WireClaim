@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
@@ -15,6 +16,39 @@ def proposal(source: str, prices: list[tuple[int, float, float]]) -> Proposal:
         source=source,
         prices=tuple(ItemPrice(index, charge, limit_, source) for index, charge, limit_ in prices),
     )
+
+
+class FairValueReferenceTests(unittest.TestCase):
+    def test_loads_the_matching_game_and_preserves_its_identified_sets(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            study = Path(directory) / "fair_value_study.json"
+            study.write_text(
+                """{
+                  "games": [
+                    {"game_id": 18, "line_items": [{"index": 1, "fair_value": {"lower": 10, "upper": {"value": null, "relation": null}}}]},
+                    {"game_id": 19, "line_items": [
+                      {"index": 1, "fair_value": {"lower": 122.94, "upper": {"value": null, "relation": null}}},
+                      {"index": 2, "fair_value": {"lower": 200, "upper": {"value": 300, "relation": "lt"}}}
+                    ]}
+                  ]
+                }""",
+                encoding="utf-8",
+            )
+            with patch.object(main, "FAIR_VALUE_STUDY_PATH", study):
+                references = main.load_fair_value_references(19)
+
+        self.assertEqual(references[1].lower, 122.94)
+        self.assertEqual(references[1].interval(), "[122.94, ∞)")
+        self.assertEqual(references[2].interval(), "[200.00, 300.00)")
+
+    def test_returns_no_references_when_the_study_has_no_matching_game(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            study = Path(directory) / "fair_value_study.json"
+            study.write_text('{"games": [{"game_id": 18, "line_items": []}]}', encoding="utf-8")
+            with patch.object(main, "FAIR_VALUE_STUDY_PATH", study):
+                references = main.load_fair_value_references(19)
+
+        self.assertEqual(references, {})
 
 
 class RunManagerTests(unittest.TestCase):

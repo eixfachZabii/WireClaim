@@ -2,6 +2,7 @@ import logging
 import unittest
 
 from src.observability.timing import (
+    FairValueReference,
     format_error_card,
     format_fraud_lock_card,
     format_skipped_strategy_card,
@@ -60,6 +61,10 @@ class TimingTests(unittest.TestCase):
             active_priority=3,
             elapsed_s=32.99,
             prices=((1, 1200.0, 35.0), (2, 150.0, 35.0)),
+            fair_value_references={
+                1: FairValueReference(122.94, None, None),
+                2: FairValueReference(200.0, 300.0, "le"),
+            },
         )
 
         self.assertIn("\033[90m", card)
@@ -68,6 +73,9 @@ class TimingTests(unittest.TestCase):
         self.assertIn("candidate: strategy1 (priority 1)", card)
         self.assertIn("active: strategy2 (priority 3)", card)
         self.assertIn("   1 |      1200.00 |        35.00", card)
+        self.assertIn("fair value lower | Fair Value interval", card)
+        self.assertIn("122.94 | [122.94, ∞)", card)
+        self.assertIn("200.00 | [200.00, 300.00]", card)
         self.assertNotIn("BEFORE", card)
         self.assertNotIn("AFTER", card)
 

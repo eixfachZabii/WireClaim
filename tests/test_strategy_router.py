@@ -7,6 +7,7 @@ from unittest.mock import patch
 from src.observability import decisions as decision_log
 from src.data.models import CaseData, ItemPrice, Proposal
 from src.observability.decisions import load, proposals
+from src.observability.timing import FairValueReference
 from src.services import strategy_router
 from src.services.strategy_router import StrategyRouter
 
@@ -33,6 +34,20 @@ class StrategyRouterTests(unittest.TestCase):
 
         self.assertEqual(router.register(proposal("strategy2", 200.0)).source, "strategy2")
         self.assertIsNone(router.register(proposal("strategy3", 300.0)))
+        self.assertEqual(router.current.source, "strategy2")
+
+    def test_strategy4_stays_below_the_measured_strategy2_track(self) -> None:
+        router = StrategyRouter(strategies=())
+
+        self.assertEqual(router.register(proposal("strategy4", 300.0)).source, "strategy4")
+        self.assertEqual(router.register(proposal("strategy2", 200.0)).source, "strategy2")
+        self.assertEqual(router.current.source, "strategy2")
+
+    def test_strategy5_stays_below_the_measured_strategy2_track(self) -> None:
+        router = StrategyRouter(strategies=())
+
+        self.assertEqual(router.register(proposal("strategy5", 300.0)).source, "strategy5")
+        self.assertEqual(router.register(proposal("strategy2", 200.0)).source, "strategy2")
         self.assertEqual(router.current.source, "strategy2")
 
     def test_an_unknown_source_loses_to_every_known_strategy(self) -> None:
@@ -122,7 +137,10 @@ class StrategyRouterConcurrencyTests(unittest.IsolatedAsyncioTestCase):
             )
 
         case = CaseData(game_id=1, case_dir=Path("var/cases/case_01"))
-        router = StrategyRouter(strategies=(strategy2, strategy1))
+        router = StrategyRouter(
+            strategies=(strategy2, strategy1),
+            fair_value_references={1: FairValueReference(122.94, None, None)},
+        )
         results = router.results(case, deadline=1.0)
 
         self.assertEqual((await anext(results)).source, "strategy2")
@@ -137,6 +155,8 @@ class StrategyRouterConcurrencyTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("candidate: strategy1 (priority 1)", comparison)
         self.assertIn("active: strategy2 (priority 3)", comparison)
         self.assertIn("NOT POSTED", comparison)
+        self.assertIn("fair value lower | Fair Value interval", comparison)
+        self.assertIn("122.94 | [122.94, ∞)", comparison)
 
     async def test_starts_strategies_concurrently_and_keeps_the_highest_complete_batch(self) -> None:
         started: set[str] = set()

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 
 from src.api import submit_prices
 from src.data.models import ItemPrice
 from src.services.strategies import STRATEGY_PRIORITIES
-from src.observability.timing import log_timing, start_timer
+from src.observability.timing import FairValueReference, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Submitter = Callable[..., object]
@@ -32,18 +32,28 @@ def _format_field(label: str, value: object, color: str = WHITE) -> str:
 
 
 def _format_price_comparison(
-    before: Sequence[ItemPrice] | None, after: Sequence[ItemPrice]
+    before: Sequence[ItemPrice] | None,
+    after: Sequence[ItemPrice],
+    fair_value_references: Mapping[int, FairValueReference] | None = None,
 ) -> list[str]:
     before_by_index = {} if before is None else {price.index: price for price in before}
     after_by_index = {price.index: price for price in after}
     before_count = "none" if before is None else str(len(before))
     divider = _paint("||", BOLD, WHITE)
+    references = fair_value_references or {}
+    reference_header = (
+        f" {divider} {_paint('REFERENCE (settled Fair Value)', BOLD, CYAN)}" if references else ""
+    )
+    reference_columns = (
+        f" {divider} {_paint('fair value lower | Fair Value interval', CYAN)}" if references else ""
+    )
+    reference_rule = " || ------------------+--------------------" if references else ""
     lines = [
         f"{_paint(f'BEFORE (last successful post; line_items: {before_count})', BOLD, YELLOW)} "
-        f"{divider} {_paint(f'AFTER (posting now; line_items: {len(after)})', BOLD, GREEN)}",
+        f"{divider} {_paint(f'AFTER (posting now; line_items: {len(after)})', BOLD, GREEN)}{reference_header}",
         f"{_paint('line |       charge |        limit', YELLOW)} {divider} "
-        f"{_paint('line |       charge |        limit', GREEN)}",
-        _paint("-----+--------------+-------------- || -----+--------------+--------------", DIM),
+        f"{_paint('line |       charge |        limit', GREEN)}{reference_columns}",
+        _paint("-----+--------------+-------------- || -----+--------------+--------------" + reference_rule, DIM),
     ]
     for index in sorted(before_by_index.keys() | after_by_index.keys()):
         before_price = before_by_index.get(index)
@@ -60,7 +70,13 @@ def _format_price_comparison(
             else f"{after_price.index:>4} | {after_price.charge_price:>12.2f} | "
             f"{after_price.acceptance_limit:>12.2f}"
         )
-        lines.append(f"{_paint(before_row, YELLOW)} {divider} {_paint(after_row, GREEN)}")
+        row = f"{_paint(before_row, YELLOW)} {divider} {_paint(after_row, GREEN)}"
+        if references:
+            reference = references.get(index)
+            lower = "—" if reference is None else f"{reference.lower:.2f}"
+            interval = "—" if reference is None else reference.interval()
+            row += f" {divider} {_paint(f'{lower:>16} | {interval}', CYAN)}"
+        lines.append(row)
     return lines
 
 
@@ -122,6 +138,7 @@ def format_submission_update(
     elapsed_s: float = 0.0,
     remaining_s: float = 0.0,
     fraud_indices: frozenset[int] = frozenset(),
+    fair_value_references: Mapping[int, FairValueReference] | None = None,
 ) -> str:
     kind, separator, source = reason.partition(":")
     if kind == "strategy" and separator:
@@ -161,16 +178,23 @@ def format_submission_update(
             _format_field("fraud_locks", f"{sorted(fraud_indices)} -> Limit=0.00 enforced", RED)
         )
     lines.extend(("", ""))
-    lines.extend(_format_price_comparison(before, after))
+    lines.extend(_format_price_comparison(before, after, fair_value_references))
     lines.extend(("", _paint("-" * 72, DIM)))
     return "\n".join(lines)
 
 
 class SubmissionCoordinator:
-    def __init__(self, game_id: int, deadline: float, submitter: Submitter = submit_prices) -> None:
+    def __init__(
+        self,
+        game_id: int,
+        deadline: float,
+        submitter: Submitter = submit_prices,
+        fair_value_references: Mapping[int, FairValueReference] | None = None,
+    ) -> None:
         self._game_id = game_id
         self._deadline = deadline
         self._submitter = submitter
+        self._fair_value_references = dict(fair_value_references or {})
         self._changed = asyncio.Event()
         self._idle = asyncio.Event()
         self._idle.set()
@@ -265,6 +289,7 @@ class SubmissionCoordinator:
                     elapsed_s,
                     remaining,
                     fraud_indices,
+                    self._fair_value_references,
                 ),
             )
             try:

@@ -14,6 +14,12 @@ above it, so our own submission logs labelled the winning track with the wrong p
 #: reconstructed Fair Values, and the only one that always answers. 1 and 3 keep running as
 #: a free ensemble and a disagreement signal until Strategy 2 has a measured sigma of its
 #: own; see `docs/brainstorm/sebi/strats/review/strategy2-plan.md`.
-STRATEGY_PRIORITIES = {"strategy1": 1, "strategy3": 2, "strategy2": 3}
+STRATEGY_PRIORITIES = {
+    "strategy1": 1,
+    "strategy3": 2,
+    "strategy4": 2,
+    "strategy5": 2,
+    "strategy2": 3,
+}
 
 __all__ = ["STRATEGY_PRIORITIES"]

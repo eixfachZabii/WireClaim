@@ -1,0 +1,17 @@
+{
+  "models": [
+    "gpt-5.6-luna",
+    "gpt-5.6-terra",
+    "gpt-5.4-mini"
+  ],
+  "coverage_model": "gpt-5.6-terra",
+  "zero_limit_violation_threshold": 0.3333333333333333,
+  "default_policy_violation_probability": 0.1,
+  "ALPHA_FAC": 1.0,
+  "BETA_FAC": 1.0,
+  "factor_step": 0.1,
+  "factor_min": 0.5,
+  "factor_max": 1.5,
+  "minimum_calibration_games": 8,
+  "noise_floor_18_games": 26622.0
+}

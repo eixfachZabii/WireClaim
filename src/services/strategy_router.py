@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 
 from src.data.models import CaseData, Proposal
 from src.observability.decisions import record_proposals
@@ -30,7 +30,15 @@ from src.services.strategies import STRATEGY_PRIORITIES
 from src.services.strategies.strategy1 import propose as strategy1
 from src.services.strategies.strategy2 import propose as strategy2
 from src.services.strategies.strategy3 import propose as strategy3
-from src.observability.timing import format_error_card, format_skipped_strategy_card, log_timing, start_timer
+from src.services.strategies.strategy4 import propose as strategy4
+from src.services.strategies.strategy5 import propose as strategy5
+from src.observability.timing import (
+    FairValueReference,
+    format_error_card,
+    format_skipped_strategy_card,
+    log_timing,
+    start_timer,
+)
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[..., Awaitable[Proposal | None]]
@@ -41,8 +49,19 @@ __all__ = ["STRATEGY_PRIORITIES", "StrategyRouter"]
 
 
 class StrategyRouter:
-    def __init__(self, strategies: tuple[Strategy, ...] | None = None) -> None:
-        self._strategies = (strategy1, strategy2, strategy3) if strategies is None else strategies
+    def __init__(
+        self,
+        strategies: tuple[Strategy, ...] | None = None,
+        fair_value_references: Mapping[int, FairValueReference] | None = None,
+    ) -> None:
+        self._strategies = (
+            # strategy1,
+            strategy2,
+            # strategy3,
+            # strategy4,
+            strategy5,
+        ) if strategies is None else strategies
+        self._fair_value_references = dict(fair_value_references or {})
         self._current: Proposal | None = None
         self._current_priority = -1
         #: Every Proposal seen this run, winners and losers alike: source -> {index: (a, b)}.
@@ -144,6 +163,7 @@ class StrategyRouter:
                                     (price.index, price.charge_price, price.acceptance_limit)
                                     for price in proposal.prices
                                 ),
+                                self._fair_value_references,
                             ),
                         )
                     active = self.register(proposal)

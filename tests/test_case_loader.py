@@ -68,6 +68,17 @@ class CaseLoaderTests(unittest.TestCase):
         self.assertFalse(by_index[4].quantity_missing)
         self.assertEqual(by_index[4].quantity, 12.0)
 
+    def test_decimal_quantity_continuation_is_not_an_item_index(self) -> None:
+        line_items = parse_invoice_text(
+            "POS. DESCRIPTION AMOUNT UNIT TOTAL\n"
+            "8 Floor covering removal\n"
+            "82.8 m²\n"
+            "9 Surface preparation\n"
+        )
+
+        self.assertEqual([item.index for item in line_items], [8, 9])
+        self.assertNotIn(82, [item.index for item in line_items])
+
     def test_a_hyphenated_name_is_not_mistaken_for_a_missing_quantity(self) -> None:
         line_items = parse_invoice_text(
             "POS. DESCRIPTION AMOUNT UNIT TOTAL\n"
