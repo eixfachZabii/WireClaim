@@ -19,7 +19,8 @@ def load_env() -> None:
     for line in path.read_text(encoding="utf-8").splitlines():
         if line.strip() and not line.lstrip().startswith("#") and "=" in line:
             name, value = line.split("=", 1)
-            os.environ.setdefault(name.strip(), value.strip().strip('"\''))
+            if name.strip():
+                os.environ.setdefault(name.strip(), value.strip().strip('"\''))
 
 
 load_env()
