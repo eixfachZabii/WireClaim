@@ -129,7 +129,59 @@ i.e. too low, while on charged items `a/t` is 0.99, i.e. too high. **The estimat
 scattered, not biased**, which is precisely why a global multiplier cannot win and why 0.75
 lands in a trough.
 
-## H4 🔬 Coverage is the highest-value single bit, and ours is not yet good enough
+## H4 🔬 Coverage is the highest-value single bit — and the two estimators trade differently
+
+**Graded head to head on 334 settled Line Items**, ground truth `t_lo == 0`, a verdict counted
+as "kills the Limit" when `p_covered <= 2/3` (which is what `src/pricing.py` actually does):
+
+| | recall of worthless | false positives | Brier |
+| --- | ---: | ---: | ---: |
+| **Channel C (live)** | 67.6 % (75/111) | **10.8 % (24/223)** | 0.155 |
+| **`coverage.py` (parked)** | 61.8 % | **1.7 %** | **0.122** |
+| a flat 0.9 | 0 % | 0 % | 0.276 |
+
+Channel C catches slightly *more* worthless items and wrongly collapses **six times as many
+covered ones**. Priced over every settled Game:
+
+- **24 false collapses cost 83,577** in wrongful-rejection penalties.
+- **36 missed worthless items cost 37,298** in payments.
+
+**But the first number is one item.** Game 10 item 3 — coverage **0.22** on an item worth
+**≥ 7,225** — carries **61,302** of the 83,577 by itself. Excluding it, false collapses cost
+**22,275** against 37,298 for the misses, which points the *other* way. Anyone quoting the
+83,577 without that caveat is quoting one Line Item.
+
+What does tilt it back: **`LIMIT_CAP` now bounds the missed-worthless side.** Every payment on
+an item we wrongly call covered is capped at 708, where Game 29's Limit reached 2,142. The
+historical 37,298 could not recur at today's constants; the 22,275 of penalties can, because
+a penalty is `1.5 x` the *opponent's* Charge and nothing we set bounds it.
+
+So the direction is right and the magnitude is unsettled. **It is decided by the euro replay,
+not by the confusion matrix** — that measurement is the open item.
+
+Worst false collapses, as a list of things to check any new estimator against:
+
+| Game | item | coverage said | truly worth | penalties |
+| --- | --- | ---: | ---: | ---: |
+| 10 | 3 | 0.22 | ≥ 7,225 | 61,302 |
+| 25 | 13 | 0.00 | ≥ 1,097 | 7,405 |
+| 19 | 7 | 0.22 | ≥ 472 | 5,117 |
+| 24 | 5 | 0.15 | ≥ 240 | 3,027 |
+| 26 | 6 | 0.08 | ≥ 181 | 2,114 |
+| 30 | 5 | 0.08 | ≥ 100 | 1,464 |
+
+### The rule is right; only its input is wrong
+
+Two fixes were measured and both failed, which is what leaves the estimate as the only lever.
+**Raising the Limit**: with the cap in place, 0.45 scores −5,289 on the held-out Games 28-30,
+0.70 scores −9,034, 0.85 scores −9,618. **Moving the collapse threshold**: sweeping
+`COVERAGE_FLOOR` from 0.0 to 0.8 moves the total by **77 euros** over 29 Games, because below
+the floor the one-third quantile is already ~0 — a posterior with 60 % of its mass at zero
+genuinely has a zero bottom third. And that is the payoff table being correct: accept iff
+`P(a <= t) > 2/3`, so on an item believed 40 % covered, rejecting is right **for any** `a`.
+
+### Original entry
+
 
 76 of 192 settled Line Items are worth nothing, and `p_covered <= 2/3` is what collapses the
 Limit. The parked detector (`src/services/coverage.py`) measures **61.8%** recall at 1.7%

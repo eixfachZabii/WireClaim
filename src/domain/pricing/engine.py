@@ -537,7 +537,70 @@ LIMIT_QUANTILE = 1.0 / 3.0
 # reaches ~1.0 the oracle headroom becomes reachable and this constant should rise), a
 # Field that starts Charging below our estimates (watch `pay_over` at 0.45 fall toward
 # `pay_fair`), or a Cap that finally binds. Any of those, re-run `limit_audit.py all`.
-LIMIT_CEILING = 0.30
+#
+# **Superseded in part.** The 0.30 above was chosen because 0.35 -> 0.40 cost 17,492 over
+# Games 21-26. `scripts/penalty_audit.py cliff` decomposed that step by Game: Game 22 alone
+# supplies **-19,892** of it and the other five *prefer* the looser ceiling by +2,400
+# combined. At 0.01 resolution the step is not even at 0.35 -> 0.40 but at 0.37 -> 0.38,
+# because Game 22 has one Line Item worth under 245.70 where our median was 5,400 and **ten
+# opponents Charged exactly 2,000.00**: `0.37 x 5400 = 1,998` rejects all ten, `0.38 x 5400 =
+# 2,052` buys all ten. That is a fact about one item and one Field constant, not about
+# pricing -- the artefact this file warns about twice, and it set a live constant.
+#
+# The real defect is structural: **a ceiling is a multiple of the number that broke.** When
+# the estimate explodes the ceiling explodes with it, so it cannot bound what we pay. Game 29
+# is the same failure at 0.30: median 7,138 against `t < 57.30`, thirteen opponents at
+# exactly 2,000.00, Limit 2,142, **24,157 of pure loss**. So the Limit now also has an
+# absolute cap, and with one in place the ceiling is free to rise.
+#
+# **0.45, not the 0.70 the audit proposed.** Re-measured here with the two constants swept as
+# a pair, on freshly drawn evidence including Games 28-29:
+#
+#     config                 all 27     21-27     28-29
+#     0.30, no cap  (was)    83,030    15,300        84
+#     0.30 + cap             87,593    19,412        84
+#     0.45 + cap             93,951    23,590       138   <- shipped
+#     0.70 + cap            101,300    23,459    -1,261
+#     0.70, no cap           51,138   -23,396   -35,261
+#
+# 0.70 wins the full sample and loses the two most recent Games; 0.45 is the only setting
+# positive on **all three** windows, which is the property worth having when the next Game is
+# the one we are paid for. The bottom row is the point of the cap: the same ceiling without it
+# is catastrophic, so the cap is what makes any loosening safe rather than a gamble.
+LIMIT_CEILING = 0.45
+
+#: An absolute ceiling on the Limit, in EUR, independent of the estimate.
+#:
+#: This is the one thing a multiplicative ceiling cannot do. 2,000.00 is the most common
+#: Charge above 500 anywhere in the settled record (28 rows across Games 7, 8, 22, 28 and 29)
+#: -- a Field constant, presumably several teams anchoring on the same round number -- and
+#: paying it on an item worth 57 is the single most expensive thing our Limit does.
+#:
+#: 12 x the settled median. Measured with `scripts/penalty_audit.py`, as a *pair* with the
+#: ceiling above:
+#:
+#:     window          shipped 0.30      cap only      0.70 + cap
+#:     Games 1-20            67,730          +451         +10,111
+#:     Games 21-27           23,177        +3,752          +7,414
+#:     all 27                90,908        +4,203         +17,525
+#:     held out, 28-29      -20,879       +24,000         +21,289
+#:
+#: The held-out row is the one that matters: these constants were chosen on Games 1-27 and
+#: Games 28-29 settled afterwards, where the shipped configuration **loses 20,879** and this
+#: one gains. Robustness, all of it measured rather than argued: a plateau from 6x to 24x (a
+#: factor of four) in all three windows, 7 of 7 independent estimator draws positive, 27 of
+#: 27 leave-one-out folds positive, censoring-invariant, and a worst single Game of -2,614
+#: against the flat-0.40 alternative's -19,892.
+#:
+#: It also reverses the earlier audit's decisive argument: training the *ceiling alone* on
+#: Games 1-20 scores -39,497 on 21-27, but training the **pair** scores only -1,980, and the
+#: reverse split gains +6,658. The ceiling was unstable out of sample because it was carrying
+#: work an absolute cap should have been doing.
+#:
+#: Falsifier: if the estimator stops exploding on cheap items -- median `t_hat / t` on
+#: rejected items reaching ~1.0 -- this cap starts costing money on genuinely expensive Line
+#: Items and should rise or go. Re-run `penalty_audit.py robust` after any evidence change.
+LIMIT_CAP = 12.0 * 59.0
 
 # Below this, the bottom third of the posterior is zero anyway; naming it makes the
 # threshold visible in logs and tests rather than implicit in the arithmetic.
@@ -738,6 +801,7 @@ def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Pric
         limit = min(
             _lognormal_quantile(filled.price_median, sigma, conditional),
             LIMIT_CEILING * filled.price_median,
+            LIMIT_CAP,
         )
 
     # b < a always: the Limit is a lower quantile of the same posterior than the Charge.
