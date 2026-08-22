@@ -25,6 +25,16 @@ class RunManagerTests(unittest.TestCase):
         self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (120.0, 90.0))
         self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (250.0, 0.0))
 
+    def test_fraud_lock_survives_a_later_strategy(self) -> None:
+        self.manager.set_strategy(proposal("strategy1", [(1, 120.0, 90.0), (2, 250.0, 190.0)]))
+        self.manager.apply_fraud(FraudDecision(frozenset({2})))
+        self.manager.set_strategy(proposal("strategy2", [(1, 130.0, 95.0), (2, 300.0, 220.0)]))
+
+        prices = {price.index: price for price in self.manager.snapshot()}
+
+        self.assertEqual((prices[1].charge_price, prices[1].acceptance_limit), (130.0, 95.0))
+        self.assertEqual((prices[2].charge_price, prices[2].acceptance_limit), (300.0, 0.0))
+
     def test_strategy_has_priority_over_fast_path(self) -> None:
         self.manager.set_fast_path(proposal("fast_path_llm", [(1, 110.0, 80.0)]))
         self.manager.set_strategy(proposal("strategy1", [(1, 120.0, 90.0)]))

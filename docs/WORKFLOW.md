@@ -65,7 +65,8 @@ Published Game schedule
 | `fast_path.py` | Produces complete Standard values immediately after `CaseData` is available. | Does not post directly. |
 | `StrategyRouter` | Runs Strategy Tracks in parallel and exposes the latest valid Strategy Proposal. | Does not know Fraud Decisions, deadlines, or the API. |
 | `strategy1/strategy.py`, `strategy2/strategy.py` | Each owns its local Fair Value estimation path. Strategy 1 reads all Case documents, invoice PDF, and images before deterministically producing a Proposal. | Does not post directly. |
-| `fraud_detection.py` | Emits a `FraudDecision` containing affected Line Item indices. | Does not set Charges or post directly. |
+| `fraud_detection.py` | Runs conservative coverage-/relatedness checks and emits confirmed `FraudDecision` Limit locks. | Does not set Charges or post directly. |
+| `t_calc.py` | Builds deterministic Fair Value estimates from policy digest, price evidence, and normalized Case images. | Does not set Charges, Limits, or post directly. |
 | `SubmissionCoordinator` | Serializes `submit_prices` calls and only sends changed complete snapshots. | Does not decide which values are correct. |
 
 ## One Game
@@ -111,10 +112,11 @@ This prevents a delayed Strategy request from arriving after and overwriting a n
 
 The workflow and arbitration are active. `strategy1/strategy.py` reads every text document, the invoice PDF, and every supported image from `CaseData`; it requests structured evidence and deterministically turns that evidence into a Proposal. It is the only strategy that currently produces values after a successful model call.
 
+`fraud_detection.detect_fraud()` now performs parallel, conservative coverage-/relatedness checks and locks only high-confidence violations. `t_calc.py` provides reusable Fair Value estimation with a cached Policy digest and normalized Case images; it is intentionally not wired into `strategy1/strategy.py`, so Strategy 1's implementation remains independent.
+
 The following paths remain intentional skeletons:
 
 - `fast_path.llm_values()` returns no Proposal.
 - `strategy2/strategy.py` returns no Proposal after its local estimator call.
-- `fraud_detection.detect_fraud()` returns an empty decision.
 
 The runner always posts complete Standard values after Case loading. A successful Strategy 1 Proposal overwrites its covered Line Items, while all other Line Items retain their current valid values. No strategy may add direct API calls outside `SubmissionCoordinator`.
