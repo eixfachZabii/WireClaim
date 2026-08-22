@@ -95,15 +95,19 @@ Simulating `a = β·t̂` and `b = α·t̂` where `t̂ = t·lognormal(σ)`, again
 | 0.5 | 0.6 | 78 | 0.5 | 92 | **−14** |
 | 0.75 | 0.5 | 63 | 0.33 | 96 | **−33** |
 
-**Break-even is around σ ≈ 0.35.** Above that we lose money no matter how we tune the
-multipliers; below it the multipliers barely matter. A perfect per-item Limit costs 65.0
+**Break-even is σ ≈ 0.85**, on a validated replay of the real payoff table (see
+[`strategy2-plan.md`](strategy2-plan.md) §0): `a = 0.7·t̂` nets **+131,497** over the 14
+Games at σ = 0.35, **+89,807** at 0.5 and **+31,725** at 0.75, turning negative near 1.0.
+An earlier draft of this file said 0.35 — that came from a cruder model and was too
+pessimistic. A perfect per-item Limit costs 65.0
 per transaction against 97.5 for rejecting everything and 195.7 for accepting everything
 — so the entire prize is estimate *accuracy*, and no constant recovers any of it.
 
-This is the acceptance test for Strategy 2, and it is measurable before we ship:
-**replay it against the 148 bounded Line Items and show σ < 0.35.** For reference, a blind
-constant scores σ ≈ 1.12. R6's "bottom third" (`α ≈ 0.33`) is only optimal at σ ≈ 0.75 —
-i.e. it is a confession of a bad estimate, not a target.
+This is the acceptance test for Strategy 2 and it runs offline today:
+`python scripts/backtest.py` scores any estimator against the 148 bounded Line Items.
+Ship above σ ≈ 0.85 and we lose money; below it we make it, and the payoff roughly
+quadruples between 0.75 and 0.35. Score with **total log error, not standard deviation** —
+a stdev cannot see a bias, and our bias is the problem.
 
 ---
 

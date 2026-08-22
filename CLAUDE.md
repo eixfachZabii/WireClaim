@@ -93,6 +93,20 @@ it did — and quote the clause when you do.
 
 ---
 
+**10. Re-measure after every Game, and never tune a knob whose error you have not measured.** The Fair Value is **exactly recoverable** from settled Games: a rejected Transaction carrying a non-zero `amount` is a wrongful rejection, so it reveals the Charge *and* proves `a ≤ t`, while a rejected Transaction at `0` proves `a > t`. `scripts/invert_fair_values.py --verify` reproduces all published nets to the cent, so there is ground truth for every Line Item we have ever played.
+
+That makes one number the gate on everything: **σ, the log error of our Fair Value estimate.** Replaying the real payoff table over Games 1–14 with `a = 0.7·t̂` gives **+131,497 at σ = 0.35, +89,807 at 0.5, +31,725 at 0.75 and −20,915 at 1.0**, so **break-even is σ ≈ 0.85**. Price Memory measures 0.43 and clears it; a blind constant does not. The same sweep shows `a = 0.7·t̂` beating `a = t̂` at every σ ≥ 0.1, which is R5b confirmed on a validated harness rather than argued.
+
+Two traps in measuring it. **Use total log error (RMSLE), not standard deviation** — a stdev cannot see a level error, and our failure mode is precisely a *bias*: median `a/t` was 1.06 when it should be ~0.7. And **an earlier "break-even σ ≈ 0.35" was from a cruder model** that proxied `t` with the field's median Charge and credited nothing for Overcharges; treat 0.35 as a target and 0.85 as the crossing.
+
+So after every settled Game, recompute and record: **σ** (overall and per channel), the coverage confusion against the true `t = 0` set, income vs. the two cost sides, and the accept share. Append it to `field-findings.md`. Three specific risks stay open and must be watched rather than assumed away:
+
+- **σ is measured on a censored sample.** 44 of 192 items have no upper bracket — nobody rightfully rejected them — and those are plausibly the expensive ones. Treat every σ we quote as **optimistic**.
+- **The Cap `c` has never bound** in 52,224 settled rows, so we only know `c > max observed accepted amount`. Any plan leaning on large Charges extrapolates past the data.
+- **Regime change** (rule 9): a field measurement does not survive a phase boundary. Re-measure, do not carry it over.
+
+**And page to the end of every API list.** `/transactions` paginates at 100 rows; page one of a 544-row Game reads exactly like a 4-item Case. That single mistake produced a wrong Line Item count, a wrong fraud denominator and a wrong blind-floor range before anyone noticed.
+
 ## Fair play — the line, and which side we sit on
 
 Allowed: any tooling, LLMs, manual work, domain research, anything inside our own team. Forbidden and disqualifying: cross-team coordination, sharing or using another team's key, obtaining decryption keys before release, reading other teams' unsettled submissions, and probing or overloading the API.
