@@ -255,3 +255,27 @@ per-unit submission are the same factor in opposite directions.
 softwood), Case 5 (item 14, "premium solid-oak designer model, higher specification than
 the original"). It is always self-labelled and it is always a *partial* haircut — covered
 at the pre-loss standard, not zero.
+
+
+## Game 6 — the opposite failure, and the fallback exposed
+
+| Game | net | costs from accepting | mechanism |
+| --- | ---: | ---: | --- |
+| 4 | +3,520 | 60 % | — |
+| 5 | −10,604 | **99 %** | `b` unbounded; paid 1,121.40 on an item worth < 773.50 |
+| 6 | −3,940 | **0 %** | `b` ≈ 0; **4,975 in `1.5a` wrongful-rejection penalties** |
+
+Two losing Games by opposite mechanisms. `b` is not mis-tuned, it is *outside the
+posterior* and swinging across it.
+
+**Worse: Game 6's Charge was the fallback constant.** We submitted `a = 45.00` on both
+Line Items while item 1's true `t` was **`[765.00, 900.00)`**. The pricing pipeline did
+not run. Observed `t` lower bounds across settled Games span 42–900 with a median around
+150–230, so a fallback of 45 forfeits nearly everything — and since a Charge above `t`
+costs nothing, the fallback belongs near the middle of that distribution, not at its floor.
+
+**Uncovered items pay a realistic price, not a big one.** Game 3, all Line Items
+uncovered: `error404 ai` charged 101.32 and `Non Deterministic` 100.00; each was accepted
+by 2 of 16 and collected ~200 per item. Nobody chased the Cap. The buyers of an uncovered
+item are exactly the teams that mis-classified it as covered, so their Limit is set for a
+plausible price.

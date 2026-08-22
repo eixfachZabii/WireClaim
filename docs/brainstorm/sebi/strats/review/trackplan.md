@@ -1,39 +1,51 @@
 # Track plan — four owners, checkable tasks
 
-Live as of Game 5 (Sat ~16:00). We are **5th, 7,139**, having been 3rd. Game 5 cost us
-−10,604. ~95 Games and ~20 hours remain.
+Live as of **Game 6** (Sat ~16:10). We are **5th, 3,199**, having been 3rd. Games 5 and 6
+both lost, by *opposite* failures. ~94 Games and ~20 hours remain.
 
-**Four owners. Matthi has P0.** Tick boxes as they land. Everything in P0 is worth
-more than everything below it combined.
+**Four owners. Matthi has P0.** Tick boxes as they land. Everything in P0 is worth more
+than everything below it combined.
 
 ---
 
-## The critique first — Markus's workflow
+## Markus's design — agreed, with three gaps
 
-His shape is right and two details are wrong.
+```
+case lands -> unzip -> OUR STRATEGY (act as if no fraud) --------\
+                    -> AI fault detector (parallel) -------------> merge -> submit
+```
+Fraud items get `b = 0` but still get a realistic Charge. No fraud found ⇒ the strategy
+runs unchanged.
 
-> *Neuer Case: Fallback instant prefillen → unzip → parallel Fault-Detection (KI) +
-> Algo-`t` → Strategie. Wenn Fault: `b = 0` und `a` extra Strategie. 1-min-Limit
-> vermeiden.*
+**Agreed, and it fixes Game 5.** Three parts are right on the evidence:
 
-- ✅ **Instant fallback prefill.** Correct, and it is the Fast Path. **But the fallback
-  must be `b = 0`, not a large `b`.** A too-low Limit costs `0.5a`; a too-high one costs
-  `min(a,c)` with `c ≥ 4t`. Game 5 is the proof: 99 % of our costs were acceptances.
-- ✅ **Fault detection and `t` in parallel.** Correct — they are independent and the gate
-  matters more than the number.
-- ✅ **`b = 0` on fault.** This is *the* missing fix. It is worth more than every other
-  item on this page.
-- ❌ **"`a` extra Strategie" on fault — the direction matters.** If not covered then
-  `t = 0`, the honest branch pays exactly zero, and a rejected Overcharge costs nothing.
-  So `a` must go **up**, toward the Cap floor — not down, and never to 0. Game 3: two
-  teams charged on an all-uncovered Case and took ~400 each while the rest of us scored 0.
-- ❌ **"1-Minuten-Limit vermeiden" — not possible.** `GET /api/games/{id}/key` returns
-  **403 before `start_time`**; I verified it. The window cannot be extended. What *can*
-  be removed is everything around it: the archives are **already on disk** (all 100,
-  committed), so the only network call at T0 is the key fetch. Then decrypt locally,
-  fan out per Line Item, and use `PUT`'s last-write-wins to submit twice — cheap at
-  T+3 s, considered at T+50 s. That buys the whole minute for thinking, which is the
-  real goal.
+- **"Act as if no fraud" as the baseline.** Matches the base rate — only 2 of 17 Line
+  Items in Game 5 were genuinely uncovered. Our current gate over-flags, and a false
+  "uncovered" costs twice.
+- **Fraud ⇒ `b = 0`.** The single fix for Game 5's −10,604.
+- **Still charge a realistic `t` on fraud items.** Confirmed by Game 3, where every item
+  was uncovered: `error404 ai` charged 101.32, `Non Deterministic` 100.00, each accepted
+  by 2 of 16 for ~200. This corrects my earlier "charge high toward the Cap floor" — the
+  only buyers are teams that mis-classified the item as covered, and their Limit is set
+  for a plausible price.
+
+**Three gaps:**
+
+1. **It does not fix Game 6.** That loss was `b` too *low* on **covered** items — 4,975 in
+   wrongful-rejection penalties, 0 % of costs from accepting. The design says what `b` is
+   when fraud is found and nothing about when it is not. **`b` on covered items must be
+   `Q₁ᐟ₃(t̂)` — finite, and above zero.**
+2. **Betterment is not binary.** Cases 1 and 5 carry "upgrade from pre-loss ceramic
+   tiling", "premium solid-oak … higher specification than the original". These are
+   *covered at a reduced basis*, not fraud and not full price. A fraud/no-fraud detector
+   gets them wrong whichever way it answers. Needs a third verdict.
+3. **Quantity inflation is invisible to it.** "Technician call-out" at 3 pcs, one kitchen
+   table at 3 pcs, 14 hrs for a leak detection. The item is covered; the *quantity* is
+   not. That should reduce `t̂`, not zero `b`.
+
+**Also:** the detector must not race the submit. Send the strategy's answer early and let
+the fraud-adjusted version overwrite it (`PUT` is last-write-wins) — never block the
+Submission on the detector.
 
 ---
 
