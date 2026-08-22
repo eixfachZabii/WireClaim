@@ -7,9 +7,8 @@
 > the API's last-write-wins semantics on our side.
 >
 > **This document is the reference for modules, layer contracts, the pricing maths and the
-> merge semantics.** [`../CLAUDE.md`](../CLAUDE.md) carries the rules;
-> [`WORKFLOW.md`](WORKFLOW.md) narrates the runner; [`../README.md`](../README.md) proves
-> the tournament arithmetic (R1–R10).
+> merge semantics.** [`../CLAUDE.md`](../CLAUDE.md) carries the rules and conventions;
+> [`../README.md`](../README.md) proves the tournament arithmetic (R1–R10).
 
 ---
 
@@ -184,6 +183,13 @@ detail in the Damage Description is not an exclusion."*
 `strategy1` applies the same substring test independently, combined with
 `coverage_probability < 0.5 or relatedness_probability < 0.5`, to set
 `confirmed_uncovered`.
+
+> ⚠️ **The gate as written does not hold.** `MIN_QUOTE_LENGTH = 12` against a ~63,000-character
+> policy means `"the schedule"`, `"is not covered"` and `"the policyholder"` all pass. It
+> verifies that the quote *exists*, not that it *proves an exclusion*. In Games 10 and 11
+> every Line Item was flagged, `b` went to 0 across the board, and we paid 65,806 and 36,017
+> in wrongful-rejection penalties. See the quick wins in
+> [`brainstorm/sebi/strats/review/trackplan.md`](brainstorm/sebi/strats/review/trackplan.md).
 
 ---
 
