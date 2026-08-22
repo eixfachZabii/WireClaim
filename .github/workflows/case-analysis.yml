@@ -1,0 +1,56 @@
+name: case-analysis refresh
+
+# Re-runs the leaderboard analysis pipeline and commits the refreshed
+# case_analysis/data/analysis.json + dashboard.png, so the folder always
+# shows current results without anyone running the scripts locally.
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Games settle every ~12.6 minutes during the tournament window.
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: case-analysis-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache raw leaderboard pulls (keeps fetch incremental)
+        uses: actions/cache@v4
+        with:
+          path: case_analysis/data/raw
+          key: case-analysis-raw-${{ github.run_id }}
+          restore-keys: case-analysis-raw-
+
+      - run: pip install matplotlib
+
+      - name: Run pipeline
+        run: |
+          python3 case_analysis/fetch_data.py
+          python3 case_analysis/analyze.py
+          python3 case_analysis/dashboard.py --save
+
+      - name: Commit refreshed artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add case_analysis/data/analysis.json case_analysis/data/dashboard.png
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "case_analysis: refresh artifacts [skip ci]"
+            git push
+          fi
