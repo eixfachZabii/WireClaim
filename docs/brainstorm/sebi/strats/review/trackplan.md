@@ -1,34 +1,56 @@
 # Track plan — who does what
 
-**Live as of Game 7, Sat 16:18. We are 12th at −30,369.** Leader `error404 ai` is at
-+85,197. Games 5, 6 and 7 all lost: **−10,604, −3,940, −33,568.**
+**Live as of Game 11, Sat 17:15. We are 17th of 17 at −228,363.** Leader is at +79,705.
+Recent Games: −33,568, −80,074, −21,397, −60,506, −36,017. The bleeding is accelerating.
+
+Markus runs the strategy on `main`. Everything in the block below is worth more than
+everything under it.
 
 ---
 
-## 🔴 STOP THIS FIRST — we are submitting `a = 0, b = ∞`
+## 🔴 QUICK WINS — strategy1 is flagging every Line Item as fraud
 
-Game 7: **income 0, costs 33,568, 100 % from accepting, zero rejections.**
+**Diagnosis (Games 10 and 11).** `b = 0` on **100 % of Line Items** in both Games, so we
+reject everything and pay the `1.5a` penalty on every fair claim: **65,806** and **36,017**
+in wrongful-rejection penalties. Game 10's item 3 had `t ≥ 7,225` and we charged 150.
+Game 11 submitted `a = 0` *and* `b = 0` everywhere — the raw default.
 
-| item | true `t` | our Charge | we paid up to |
-| ---: | --- | ---: | ---: |
-| 1 | `[1232, 1756)` | **0.00** | **3,500** |
-| 2 | `< 683` | **0.00** | **2,000** |
-| 4 | `< 323` | **0.00** | **765** |
+**Root cause.** `fraud_detection._is_policy_quote` only checks that `exclusion_quote` is a
+**≥ 12-character substring of `policy.txt`**. The policies are ~63,000 characters, so
+`"the schedule"`, `"is not covered"`, `"the policyholder"` all pass. **The gate verifies
+the quote exists, not that it proves an exclusion** — so almost every item is flagged.
 
-This is **worse than going dark** — the default (`0, 0`) at least rejects everything.
-"Act as if no fraud" has been implemented as "accept everything". It does not mean that.
-It means *assume the item is covered, price it normally, and set the Limit to the bottom
-third of that price*.
+All four are **implemented and merged** (Sebi), with 40 tests green. Two were
+changed on contact with the data — the original wording is kept so the reasoning is
+auditable.
 
-**Two hard clamps, in deterministic code, ignoring whatever any model says:**
+- [x] **1. Cap fraud flags per Case.** ~~Discard the verdict above a ~35 % share.~~
+      **Superseded: a share cap is unusable here.** Settled Games 1–13 carry only **2–4
+      Line Items each** (max index 4) — the "2 of 17 in Game 5" base rate was counting
+      Transactions, not items. At 35 % of 4 items, a single legitimate *second* flag gets
+      thrown away. Shipped instead as a count: discard only when **every** item of a Case
+      with **≥ 3** items is flagged. Cases of 2 are exempt (Game 3 was genuinely uncovered
+      end to end). Tripping it falls back to the Strategy's own posterior Limit, never an
+      unbounded one.
+- [x] **2. Require the quote to look like an exclusion.** `MIN_QUOTE_LENGTH` 12 → **60**,
+      plus an `EXCLUSION_MARKERS` list, in **both** `fraud_detection` and `strategy1`.
+      60 is measured, not guessed: across all 14 extracted policies, exclusion-bearing
+      sentences have a **median length of 112**, and nearly every one under 60 is a
+      *heading* (`"3.1 general exclusions"`) that excludes nothing.
+- [x] **3. Never submit `a = 0`.** `run_game` now publishes `blind_floor()` — indices 1–8
+      at `STANDARD_CHARGE`/`STANDARD_LIMIT` — **before** it tries to load the Case, and the
+      floor stands if the load fails. Verified against the test Game that a `PUT` of
+      indices 1–8 returns `200`, so surplus indices are harmless.
+- [x] **4. Log the flag count per Case.** `detect_fraud` logs `flagged/total` at INFO and
+      the discarded verdict at ERROR.
 
-```
-b = clamp(b, 0, t̂)          # never above our own estimate. NEVER unbounded.
-a = max(a, FALLBACK)        # never 0. FALLBACK ≈ 150, fitted from settled Games.
-```
+**Verify on the next settled Game:** no Line Item at `a = 0`, wrongful-rejection penalties
+below income, and `grep "Fraud gate flagged"` showing a plausible share.
 
-Ship these before anything else on this page. They are ~4 lines and they are worth more
-than the rest of the tournament.
+> **The real lesson from Games 11–13 is uptime, not accuracy.** Games 11 and 12 scored
+> −36,017 and −43,381 — *identical to the teams that never showed up*, i.e. we submitted
+> nothing at all. Game 13, where the pipeline actually ran, cost only −2,607 on income of
+> 1,500. Fix #3 is worth more than the other three combined.
 
 ---
 

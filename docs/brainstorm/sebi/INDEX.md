@@ -1,9 +1,10 @@
 # sebi — strategy work
 
-**Start here → [`strats/review/report.md`](strats/review/report.md)** (which pitch to
-follow, ranked against real data) and
-**[`strats/review/actnow.md`](strats/review/actnow.md)** (the four changes worth
-~20,000 per Game).
+**Start here → [`strats/review/trackplan.md`](strats/review/trackplan.md)** (who does what,
+and the quick wins that stop the bleeding), then
+[`strats/review/report.md`](strats/review/report.md) (which pitch to follow) and
+[`strats/review/field-findings.md`](strats/review/field-findings.md) (what settled Games
+measured).
 
 The game itself, and the sixteen derived results, live in the root
 [`README.md`](../../../README.md). Vocabulary in [`CONTEXT.md`](../../CONTEXT.md).

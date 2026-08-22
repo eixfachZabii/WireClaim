@@ -2,7 +2,7 @@
 
 Append a block per Game. Everything here is inverted from the public leaderboard
 (confirmed allowed). Conclusions live in [`report.md`](report.md); the fixes in
-[`actnow.md`](actnow.md).
+[`trackplan.md`](trackplan.md).
 
 **Inversion rules.** `amount` is what the **Issuer receives**, in *both* branches — so
 `a = amount`, never `amount/1.5` (verified: accepted/rejected ratio exactly 1.0000 across
@@ -164,7 +164,7 @@ We identified `t = 0` for our own issuing and then paid four figures for it as R
 Forfeiting the free option (R6c) *and* funding everyone else's Overcharge, on the same
 Line Item, in the same Submission.
 
-**This reverses the priority in `report.md` and `actnow.md`.** Those were written when we
+**This reverses the priority in `report.md` and `trackplan.md`.** Those were written when we
 were losing to timidity as Issuer; the Charge was the sensitive knob and `b` looked flat.
 That was true of the *Field average*, not of a Limit this loose. R6's "spend the effort
 on the Charge" holds only once `b` is inside the posterior at all. Ours is outside it.
@@ -202,7 +202,7 @@ Field's Charges on those same items. Both errors, same Line Item, same Submissio
 overshot badly: item 1 `t < 875` (charged 875), item 2 `t < 199.25` (charged 450), item 5
 `t < 130.50` (charged 600), item 13 `t < 400` (charged 400).
 
-> **Qualifies `actnow.md` item 2.** A flat global multiplier is the right instrument for a
+> **Qualifies `trackplan.md` item 2.** A flat global multiplier is the right instrument for a
 > measured *bias* and the wrong one for *variance*. The 2.5× was fitted on Games 1–2,
 > where we were uniformly the Field minimum. Game 5 shows zeros and overshoots in the
 > same Case. **Stop tuning a global constant; fix the per-item verdict.**
