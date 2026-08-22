@@ -20,7 +20,8 @@ from pathlib import Path
 
 from src.data.case_loader import read_case
 from src.pricing import Evidence
-from src.services.strategies.strategy2.strategy import _memory_evidence, _request_evidence
+from src.services.strategies.strategy2.channels import local_evidence
+from src.services.strategies.strategy2.model import request_evidence
 
 logger = logging.getLogger(__name__)
 CACHE = Path("var/evidence")
@@ -63,13 +64,13 @@ async def dump_case(game_id: int, refresh: bool = False) -> str:
     case = await read_case(game_id, case_dir)
     lines = []
     if refresh or load(game_id) is None:
-        evidence = await asyncio.to_thread(_request_evidence, case)
+        evidence = await asyncio.to_thread(request_evidence, case)
         CACHE.mkdir(parents=True, exist_ok=True)
         _path(game_id).write_text(_dump(evidence))
         lines.append(f"model={len(evidence)}")
     else:
         lines.append("model=cached")
-    memory = _memory_evidence(case)
+    memory = local_evidence(case)
     _path(game_id, "memory").write_text(_dump(memory))
     lines.append(f"memory={len(memory)} items={len(case.line_items)}")
     return f"case {game_id:02d}: " + " ".join(lines)
