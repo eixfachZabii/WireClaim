@@ -1,0 +1,76 @@
+name: case-analysis refresh
+
+# Re-runs the leaderboard analysis pipeline and commits the refreshed
+# case_analysis/data/analysis.json + dashboard.png, so the folder always
+# shows current results without anyone running the scripts locally.
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/case-analysis.yml"
+      - "case_analysis/*.py"
+  schedule:
+    # Games settle every ~12.6 minutes during the tournament window.
+    # Offset from :00/:15/:30/:45 — on-the-hour slots are the most congested
+    # on GitHub's scheduler and get delayed or dropped the most.
+    - cron: "4,19,34,49 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: case-analysis-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache raw leaderboard pulls (keeps fetch incremental)
+        uses: actions/cache@v4
+        with:
+          path: case_analysis/data/raw
+          key: case-analysis-raw-${{ github.run_id }}
+          restore-keys: case-analysis-raw-
+
+      - run: pip install matplotlib
+
+      - name: Run pipeline
+        run: |
+          python3 case_analysis/fetch_data.py
+          python3 case_analysis/analyze.py
+          python3 case_analysis/dashboard.py --save
+          python3 case_analysis/report.py
+          python3 case_analysis/money.py
+
+      - name: Commit refreshed artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add case_analysis/data/analysis.json case_analysis/data/dashboard.png \
+                  case_analysis/data/table_binbusy.png case_analysis/data/table_binbusy.csv \
+                  case_analysis/data/table_averages.png case_analysis/data/table_averages.csv \
+                  case_analysis/data/binbusy_money.png case_analysis/data/binbusy_money.csv
+          if git diff --cached --quiet; then
+            echo "no changes"
+            exit 0
+          fi
+          git commit -m "case_analysis: refresh artifacts [skip ci]"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push rejected (attempt $attempt), rebasing on latest main"
+            git pull --rebase origin main
+          done
+          git push origin HEAD:main
