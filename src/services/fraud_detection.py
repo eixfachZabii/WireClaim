@@ -35,6 +35,8 @@ SYSTEM_PROMPT = """Review one invoice Line Item for a confirmed coverage or rela
 
 Coverage and relatedness are the default. A suspicious detail in the Damage Description is not an exclusion. Return `covered=false` or `related=false` only when `exclusion_quote` contains an exact Policy clause proving an exclusion, missing requirement, scope restriction, or that this Line Item cannot be covered. Otherwise keep both verdicts true with an appropriate confidence score.
 
+`quantity_missing: true` means the invoice printed no amount and no unit for this Line Item, only dashes. Every one of the 20 such Line Items in the settled Games had a Fair Value of exactly 0, so treat it as strong evidence the item is not indemnifiable — but still cite the Policy clause that says so.
+
 Do not judge price inflation, Charge, Limit, or Fair Value here."""
 
 RESPONSE_SCHEMA: dict[str, Any] = {
