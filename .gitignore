@@ -1,0 +1,28 @@
+# Credentials — TEAM_API_KEY lets anyone trade on our behalf. Never commit.
+.env
+.env.*
+*.key
+secrets/
+
+# Case material: encrypted archives and their decrypted contents
+cases/
+data/cases/
+*.zip
+
+# Tournament state written at runtime
+data/runs/
+data/price_memory*.json
+*.sqlite
+*.db
+
+# Tooling noise
+.playwright/
+__pycache__/
+*.py[cod]
+.venv/
+.pixi/
+.pytest_cache/
+.DS_Store
+
+# Tooling state that is not ours to track
+.impeccable/
