@@ -3,6 +3,18 @@
 All images below are regenerated automatically every 15 minutes from the settled leaderboard data
 (see `.github/workflows/case-analysis.yml`). Newest / most important first.
 
+Number-only comparison tables live in [`tables.md`](tables.md).
+
+## Who is awake? — inactive teams per game
+
+Each team classified per game from its settled transactions: active, autopilot (one
+constant fallback Charge on most items), accept-all (Limit effectively infinite),
+reject-all (Limit ~0, pays 1.5a penalties), or dark (default a=0, b=0 — a money
+fountain). Bottom: count of not-fully-active teams — when it's high, Overcharging pays.
+Full grid in `data/activity.csv`.
+
+![Team activity](data/activity.png)
+
 ## Total balance per team
 
 Cumulative net per team over all settled games (income as Issuer minus costs as Reviewer,
