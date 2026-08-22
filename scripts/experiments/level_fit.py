@@ -19,12 +19,60 @@ So this script does three separate things, in that order:
    `replay_payoffs.replay` against the real Field. `--holdout` refits/reselects on a subset
    of Games and reports the score on the Games it never saw.
 
-    pixi run python scripts/level_fit.py --games 1-15,17-20 --table
-    pixi run python scripts/level_fit.py --games 1-15,17-20 --sweep
-    pixi run python scripts/level_fit.py --games 1-15,17-20 --holdout even
-    pixi run python scripts/level_fit.py --games 1-15,17-20 --sweep --tag model,nohint2
+    pixi run python scripts/experiments/level_fit.py --games 1-24 --table
+    pixi run python scripts/experiments/level_fit.py --games 1-24 --sweep
+    pixi run python scripts/experiments/level_fit.py --games 1-24 --holdout even
+    pixi run python scripts/experiments/level_fit.py --games 1-24 --sweep --tag model,nohint2
 
 Price Memory stays off throughout: it contains the very Games this replays.
+
+## The answer: there is no such map. Do not ship one.
+
+**The diagnosis inverts with what you condition on, and the two directions contradict each
+other.** Games 1-24, 235 Line Items with a recovered `t > 0`, blended two-draw ensemble:
+
+    bucket      n (by t / by t_hat)   median t_hat/t by true t   median t_hat/t by t_hat
+    ----------  --------------------  -------------------------  -----------------------
+    < 50               42 / 21                  6.01                     0.46
+    50-150             84 / 60                  1.40                     1.04
+    150-400            53 / 80                  0.97                     1.61
+    400-1000           42 / 46                  1.03                     1.44
+    > 1000             14 / 28                  1.17                     1.95
+
+Conditioned on the truth we look 6x too *high* on cheap items; conditioned on our own
+estimate we are 2x too *low* on exactly the same kind of item. Each column is a regression
+artefact of its own conditioning variable and they point opposite ways, so **either table
+alone justifies a correction that the other calls backwards.** The euro-weighted fit
+conditioned on `t_hat` -- the only direction that can be applied at submission time -- is
+
+    log t = 0.889 + 0.849 * log t_hat      residual sigma 1.29
+
+i.e. gamma < 1, the *shrinking* direction, the opposite of "un-shrink the estimator".
+
+**Applied, that fit loses money.** In-sample over all 24 Games: 127,292 -> 72,579, a delta
+of **-54,713**, and it loses on 15 of the 24 Games (-18,107 on Game 17, -13,776 on Game 10).
+
+**The whole family is worse than doing nothing.** Sweeping `t_hat' = exp(c0) * t_hat**c1`
+over five pivots x nine exponents, the argmax of all 45 cells is `c1 = 1.00` -- the identity,
+which is the shipped code. The gradient away from it is steep (-178,105 at the corner).
+Held out three ways, and it never once wins:
+
+    fold                                      shipped    recalibrated      delta
+    train odd Games,  test even Games          44,668          30,565    -14,104
+    train even Games, test odd Games           82,624          82,624          0   (picks c1 = 1)
+    train Games 1-12, test Games 13-24        103,934         -79,114   -183,048
+
+The three folds pick exponents 0.95, 1.00 and 1.20 -- they do not even agree on the sign of
+the correction. And on a second ensemble draw (`--tag model,nohint2`) the best in-sample
+cell gains +16,346 while that same cell *loses* 11,722 on the first draw, which is what the
+26,622 noise floor looks like from the inside.
+
+So the level is left exactly as the model returns it, and the reason is not that nobody
+tried: a monotone function of `t_hat` cannot repair an error that is item-specific. Moving
+each median to its own true `t` is worth six figures; no reparameterisation of `t_hat`
+recovers any part of it. `level_units.py`, `level_width.py`, `level_blend.py`,
+`level_anchors.py`, `level_prompt_anchors.py` and `level_memory.py` close off the six
+neighbouring ideas, all measured, all negative or inside the noise.
 """
 
 from __future__ import annotations

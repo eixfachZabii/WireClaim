@@ -7,9 +7,32 @@ alone. This asks whether it is a function of something else we can observe at su
 time: the **invoice unit** and the **quantity**, both of which the parser keeps ("Remove
 skirting boards (12 m)").
 
-    pixi run python scripts/level_units.py --games 1-15,17-20 --table
-    pixi run python scripts/level_units.py --games 1-15,17-20 --sweep
-    pixi run python scripts/level_units.py --games 1-15,17-20 --decompose
+    pixi run python scripts/experiments/level_units.py --games 1-24 --table
+    pixi run python scripts/experiments/level_units.py --games 1-24 --sweep
+    pixi run python scripts/experiments/level_units.py --games 1-24 --decompose 0.64 0.90
+
+## What it found
+
+The unit is a weak predictor of the level error. Games 1-24, median `t_hat / t`: 1.40 on
+`pcs` (n=136), 1.26 on `hrs` (23), 1.20 on `m2` (14), 1.12 on flat rates (38), 1.59 on the
+unlabelled rest (17) -- and 0.72 on `m`, the one bin pointing the other way, with seven items
+in it. Every unit is over-priced except that one, which is a level statement, not a unit
+statement, and `level_fit.py` has already shown the level is at its euro optimum.
+
+`--decompose` is the durable finding here. For the euro-weighted fit
+`exp(0.889) * t_hat**0.849`, over Games 1-24:
+
+    applied to nothing (shipped)    127,292
+    applied to the Charge only       69,803
+    applied to the Limit only      *130,068*
+    applied to both                  72,579
+
+The two sides of one correction pull in opposite directions: the Charge wants the level left
+exactly where it is (-57,489 if it moves), the Limit mildly wants it shrunk (+2,776, inside
+the noise). An evidence-layer correction cannot separate them, because both numbers are
+derived from the same median. So any future level work belongs on the Limit side of
+`src/pricing.py` -- and it is worth about 2,800 euros, not the six figures the by-true-`t`
+table seems to promise.
 
 `--decompose` answers a separate question that any evidence-layer correction has to face:
 moving the median moves the Charge *and* the Limit. It prices the Charge from one Evidence

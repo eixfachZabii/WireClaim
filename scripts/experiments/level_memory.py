@@ -14,7 +14,34 @@ scored. That is what this does -- for each Game, a memory from every other Game,
 Strategy's own `_memory_evidence` / `_combine` / `price_item` path, then
 `replay_payoffs.replay`.
 
-    pixi run python scripts/level_memory.py --games 1-24
+    pixi run python scripts/experiments/level_memory.py --games 1-24
+
+## The result: the prior is roughly where it should be, and the theory was backwards
+
+Leave-one-Game-out memory over Games 1-24, 90 Line Items with a hit:
+
+    MODEL_SIGMA_PRIOR    net      delta vs shipped 0.60
+    ----------------- ---------- ----------------------
+          0.43           128,143                 +7,768
+          0.60           120,375                      0   <- shipped
+          0.80           116,776                 -3,599
+          1.00           112,388                 -7,987
+          1.30           112,269                 -8,106   <- the measured log error
+          1.60           110,554                 -9,821
+
+Monotone, and it runs the *opposite* way to the argument for changing it. Setting the prior
+to the estimator's measured error (1.30) would weight Price Memory 90/10 over the model and
+costs 8,106; the euros want the model trusted *more*, not less, and the best cell is at the
+edge of the grid where the two channels are weighted equally.
+
++7,768 is well inside the 26,622 noise floor, so 0.60 stays. What is no longer true is the
+claim in `constants.py` that this number is unmeasured: it now has a euro sweep behind it
+and a leave-one-out harness that can re-run it after any Game.
+
+One trap worth keeping: `blend.py` does `from ... constants import MODEL_SIGMA_PRIOR`, so
+rebinding `constants.MODEL_SIGMA_PRIOR` alone changes nothing. The first run of this sweep
+after the module split reported six identical totals for that reason. `level_compat.
+set_model_sigma_prior` rebinds every module that names it.
 """
 
 from __future__ import annotations
