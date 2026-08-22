@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from src import api
-from src.api.llm import DEFAULT_MODEL, get_model_name, warm_llm_resources
+from src.api.llm import DEFAULT_MODEL, DEFAULT_SERVICE_TIER, get_model_name, get_service_tier, warm_llm_resources
 
 
 class Response(io.BytesIO):
@@ -24,6 +24,15 @@ class APITests(unittest.TestCase):
     def test_model_environment_override_wins(self) -> None:
         with patch.dict(os.environ, {"AZURE_OPENAI_MODEL": "custom-deployment"}, clear=True):
             self.assertEqual(get_model_name(), "custom-deployment")
+
+    def test_default_service_tier_is_fast(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(get_service_tier(), "fast")
+            self.assertEqual(DEFAULT_SERVICE_TIER, "fast")
+
+    def test_service_tier_environment_override_wins(self) -> None:
+        with patch.dict(os.environ, {"AZURE_OPENAI_SERVICE_TIER": "priority"}, clear=True):
+            self.assertEqual(get_service_tier(), "priority")
 
     def test_warm_llm_resources(self) -> None:
         warm_llm_resources()

@@ -8,7 +8,7 @@ Modules:
 
 from urllib.request import Request, urlopen
 
-from src.api.llm import get_llm_client, get_model_name, query_llm, warm_llm_resources
+from src.api.llm import get_llm_client, get_model_name, get_service_tier, query_llm, warm_llm_resources
 from src.api.tournament import (
     APIError,
     _get,
@@ -35,6 +35,7 @@ __all__ = [
     # LLM API
     "get_llm_client",
     "get_model_name",
+    "get_service_tier",
     "warm_llm_resources",
     "query_llm",
 ]

@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 DEFAULT_MODEL = "gpt-5.6-terra"
+DEFAULT_SERVICE_TIER = "fast"
+SERVICE_TIERS = frozenset({"fast", "priority"})
 
 # Optional dotenv loading with stdlib fallback
 try:
@@ -86,6 +88,18 @@ def get_llm_client(
 
 def get_model_name(model: Optional[str] = None) -> str:
     return model or os.getenv("AZURE_OPENAI_MODEL") or os.getenv("OPENAI_MODEL") or DEFAULT_MODEL
+
+
+def get_service_tier(service_tier: Optional[str] = None) -> str:
+    resolved = (
+        service_tier
+        or os.getenv("AZURE_OPENAI_SERVICE_TIER")
+        or os.getenv("OPENAI_SERVICE_TIER")
+        or DEFAULT_SERVICE_TIER
+    ).strip().lower()
+    if resolved not in SERVICE_TIERS:
+        raise ValueError(f"Unsupported OpenAI service tier: {resolved}")
+    return resolved
 
 
 def query_llm(

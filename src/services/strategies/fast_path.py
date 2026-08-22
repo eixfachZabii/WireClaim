@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from src.api import get_llm_client, get_model_name
+from src.api import get_llm_client, get_model_name, get_service_tier
 from src.data.models import CaseData, ItemPrice, Proposal
 from src.timing import log_timing, start_timer
 
@@ -154,6 +154,7 @@ def _proposal_from_evidence(case: CaseData, payload: dict[str, Any]) -> Proposal
 def _request_proposal(case: CaseData) -> Proposal | None:
     response = get_llm_client().responses.create(
         model=get_model_name(),
+        service_tier=get_service_tier(),
         timeout=LLM_TIMEOUT_SECONDS,
         input=[{"role": "user", "content": build_input_content(case)}],
     )
