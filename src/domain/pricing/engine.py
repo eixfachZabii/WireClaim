@@ -672,6 +672,37 @@ LIMIT_CEILING_MEMORY = 0.75
 #: Falsifier: if the estimator stops exploding on cheap items -- median `t_hat / t` on
 #: rejected items reaching ~1.0 -- this cap starts costing money on genuinely expensive Line
 #: Items and should rise or go. Re-run `penalty_audit.py robust` after any evidence change.
+# **Applies to model-only items only.** Game 41 is why. A watch declared on a valuables
+# schedule settled at `t >= 11,131`; the field Charged us 11,131 / 9,585 / 8,910 / 8,571 /
+# 6,703 / 4,771 / 2,284 / 1,329 / 1,165 / 72, *every one of them fair*, and this cap held our
+# Limit at 708 so we rejected nine of the ten and paid 1.5x on all of them. An absolute euro
+# wall derived from `12 x SETTLED_MEDIAN` cannot see an item worth eleven thousand, and it
+# binds there even with a perfect estimate -- `0.45 x 11,131 = 5,009` is still capped to 708.
+#
+# But it cannot simply be removed. Swept through the real `price_item` over Games 26-41,
+# lifting it everywhere costs **+21,503** and admits 26,967 of fresh Overcharges, almost all
+# from one Line Item: Game 29's "Renew the water-damaged boiler", which we estimated at 7,139
+# with coverage 0.94 and which settled at `t < 57`. The cap was doing nothing about large
+# items and everything about our own worst coverage miss.
+#
+# The discriminator is the channel. A memory-backed item has been *seen settle* -- the wording
+# appeared in an earlier Game and `invert_fair_values` recovered what it was worth -- so an
+# absolute guard against a hallucinated estimate is redundant there. The boilers were
+# `C:model` alone; the watch was `B:memory` + `C:model`. Lifting the cap only for
+# memory-backed items, over Games 26-41:
+#
+#     configuration                    cost      vs shipped   Overcharges   odd/even/early/late
+#     cap 708 everywhere            379,190             +0         8,127    -    -    -    -
+#     no cap on memory-backed       374,086         -5,104         8,127  +2,389 +2,715 +738 +4,366
+#     no cap anywhere               400,693        +21,503        35,094  -24,218 +2,715 -25,869 +4,366
+#
+# **Zero additional Overcharges admitted, positive on all four folds, and strengthening** as
+# Price Memory's coverage grows (+4,366 on the late half against +738 on the early half),
+# which is what you would expect from a rule whose reach is the memory's recall -- 22% when
+# the store was stale this evening, 58% now.
+#
+# What would falsify it: a memory-backed wording that settles far below its stored value, the
+# way the boilers did for the model. Re-run `scripts/experiments/cap_ceiling_sweep.py`.
 LIMIT_CAP = 12.0 * 59.0
 
 # Below this, the bottom third of the posterior is zero anyway; naming it makes the
@@ -881,11 +912,17 @@ def price_item(
         # Strip the zero mass, then take the quantile that leaves 1/3 of the total below.
         conditional = (LIMIT_QUANTILE - (1.0 - covered)) / covered
         ceiling = LIMIT_CEILING_MEMORY if memory_backed else LIMIT_CEILING
-        limit = min(
+        # The absolute cap is a guard against an estimate we cannot check. On a memory-backed
+        # item we *can* check it -- the wording settled in an earlier Game and
+        # `invert_fair_values` recovered what it was worth -- so the cap comes off and the
+        # ceiling does the work. See `LIMIT_CAP`.
+        candidates = [
             _lognormal_quantile(filled.price_median, sigma, conditional),
             ceiling * filled.price_median,
-            LIMIT_CAP,
-        )
+        ]
+        if not memory_backed:
+            candidates.append(LIMIT_CAP)
+        limit = min(candidates)
 
     # b < a always: the Limit is a lower quantile of the same posterior than the Charge.
     #
