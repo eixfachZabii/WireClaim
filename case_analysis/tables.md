@@ -7,7 +7,7 @@ The number-only tables, regenerated automatically with the same workflow as
 
 For every line item: the derived t bracket/point, Bin busy's Charge and implied t-hat
 (a/0.7 — our submission isn't public, only our Charge is). All a/t values side by side
-(us then top 3), then all b/t values side by side. Last row: on average, how far (in %)
+(us, eyay, error404 ai), then all b/t values side by side. Last row: on average, how far (in %)
 our implied t-hat was off the derived t. Full data in `data/tvalues.csv`.
 
 ![t values per line item](data/tvalues.png)
