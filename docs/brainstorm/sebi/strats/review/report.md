@@ -132,7 +132,7 @@ These are the cheapest wins available and none needs a token.
 | It said | Measured reality |
 | --- | --- |
 | "We charge **~2.5× too little**" (Games 1–3) | Over all 14 Games our median `a/t` is **1.06** — we charge *above* `t`. True early, false now; the flat 150 fallback overshoots a median `t` of 59. |
-| "Field acceptance is 5.96 %, the Overcharge is worthless" | Field accept rate is **63–69 %**. The leaders' `a/t` p75 is **above 1** — they *do* overcharge on roughly a third of items and get paid. Not settled; do not act on it without measuring `p(a)` (R5c). |
+| "Field acceptance is 5.96 %, the Overcharge is worthless" | **The original conclusion was right, for a better reason.** Overall accept rate is 63–69 %, but acceptance *of a Charge above `t`* collapses to **17 % at `a/t` 1.0–1.3 and 7 % above 1.3**. Since a Charge at or below `t` is paid by *every* opponent, expected income falls from `1.00 × t` to `0.20 × t` the moment we cross. **Overcharging forfeits ~80 % of income.** The leaders' `a/t` p75 above 1 is the upper tail of their estimate noise, not an exploit. |
 | "`b` is flat in the bottom third; not what is costing us" | Half true. Limit errors cost **162,252** (100,664 + 61,588). But it is second: forfeited income is **298,379**. |
 | "Uptime is the dominant risk … we are submitting" | Then false, now true: G10–12 submitted nothing and cost **139,904**. |
 | Base rate of uncovered items ~12 % ("2 of 17 in Game 5") | **40 %** of all items (76/192) have `t = 0`, ranging **0 %–67 % per Case**. Case 12 has zero uncovered items; Case 10 has 4 of 6. **There is no safe prior.** |
@@ -152,6 +152,8 @@ Ranked by measured euros, not by elegance.
 4. **Take the free deterministic signals** (§4) before spending a token.
 5. **Measure σ every Game.** It is the one number that says whether the pipeline is worth
    running, and it is computable from settled data within minutes of a Game closing.
+
+The design that follows from all of this is in [`strategy2-plan.md`](strategy2-plan.md).
 
 Evidence: [`t-inversion.md`](t-inversion.md) (full brackets, per-team accounting,
 validation) · [`case-findings.md`](case-findings.md) (all 14 Cases read, 22 adversarial
