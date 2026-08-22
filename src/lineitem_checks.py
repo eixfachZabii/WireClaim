@@ -31,7 +31,12 @@ def check_line_items(
                     policy_path,
                     description_path,
                 ),
-                executor.submit(estimate_t, line_item),
+                executor.submit(
+                    estimate_t,
+                    line_item,
+                    policy_path,
+                    description_path,
+                ),
             )
             for line_item in line_items
         ]
