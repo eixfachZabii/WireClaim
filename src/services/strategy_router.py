@@ -7,16 +7,17 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from src.data.models import CaseData, Proposal
 from src.services.strategies.strategy1 import propose as strategy1
 from src.services.strategies.strategy2 import propose as strategy2
+from src.services.strategies.strategy3 import propose as strategy3
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[[CaseData], Awaitable[Proposal | None]]
-STRATEGY_PRIORITIES = {"strategy1": 1, "strategy2": 2}
+STRATEGY_PRIORITIES = {"strategy1": 1, "strategy2": 2, "strategy3": 3}
 
 
 class StrategyRouter:
     def __init__(self, strategies: tuple[Strategy, ...] | None = None) -> None:
-        self._strategies = (strategy1, strategy2) if strategies is None else strategies
+        self._strategies = (strategy1, strategy2, strategy3) if strategies is None else strategies
         self._current: Proposal | None = None
         self._current_priority = -1
 
