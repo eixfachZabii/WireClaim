@@ -8,7 +8,7 @@ Written Sat 15:30 CEST after Games 1–3; **standing refreshed after Game 6.**
 > **The ranking below still holds, but the problem it is ranked against has moved.**
 > When this was written we were losing to *timidity as Issuer*. We are now losing to an
 > uncontrolled *Limit* and a pricing pipeline that falls back to a constant. Read
-> [`actnow.md`](actnow.md) first; it is current through Game 6. The tier order here —
+> [`trackplan.md`](trackplan.md) first; it is current through Game 6. The tier order here —
 > flywheel and wildcard's controller first — is if anything reinforced: both are
 > self-correcting mechanisms, and the last two Games are exactly what an open-loop
 > pipeline looks like.
@@ -125,7 +125,7 @@ uncovered items, which Game 3 just paid two teams 400 each for.
 
 | When | Who | What |
 | --- | --- | --- |
-| **now → 18:00** | 2 devs | `actnow.md` — the four one-line fixes. Biggest euro-per-minute in the repo by an order of magnitude. |
+| **now → 18:00** | 2 devs | `trackplan.md` — the four one-line fixes. Biggest euro-per-minute in the repo by an order of magnitude. |
 | now → 20:00 | 1 dev | Flywheel: wire `invert.py` to run each Settlement, fit the bias, feed the multiplier |
 | now → 20:00 | 1 dev | Fair-Rate Controller + Limit Alarm (wildcard X3/X5) — the safety net if the flywheel is wrong |
 | 18:00 → 00:00 | 1 dev | Adjuster + ADK coverage gate (ADR 0001) — the root-cause fix |
