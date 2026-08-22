@@ -1,18 +1,36 @@
-# Byte-compiled / optimized / DLL files
+# Credentials — TEAM_API_KEY lets anyone trade on our behalf. Never commit.
+.env
+.env.*
+*.key
+secrets/
+
+# Case material: encrypted archives and their decrypted contents
+cases/
+data/cases/
+*.zip
+
+# Tournament state written at runtime
+data/runs/
+data/price_memory*.json
+*.sqlite
+*.db
+
+# Tooling noise
+.playwright/
 __pycache__/
 *.py[cod]
-*$py.class
+$py.class
+.venv/
+venv/
+env/
+.pixi/
+.pytest_cache/
+.DS_Store
 
 # Distribution / packaging
 build/
 dist/
 *.egg-info/
-
-# Environments
-.env
-.venv/
-venv/
-env/
 
 # IDEs
 .idea/
@@ -20,12 +38,10 @@ env/
 *.swp
 *.swo
 
+# Tooling state that is not ours to track
+.impeccable/
 # Testing
-.pytest_cache/
 .ruff_cache/
-
-# Other
-.DS_Store
 
 # Runtime state and decrypted case material must stay local.
 var/*
