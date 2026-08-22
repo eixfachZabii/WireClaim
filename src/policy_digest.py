@@ -70,8 +70,17 @@ def digest_policy(
     model: str | None = None,
     api_key: str | None = None,
 ) -> str:
-    """Return a compact pricing-relevant digest of the policy, cached by hash."""
+    """Return a compact pricing-relevant digest of the policy file, cached by hash."""
     policy_text = policy_path.read_text(encoding="utf-8", errors="replace")
+    return digest_policy_text(policy_text, model=model, api_key=api_key)
+
+
+def digest_policy_text(
+    policy_text: str,
+    model: str | None = None,
+    api_key: str | None = None,
+) -> str:
+    """Return a compact pricing-relevant digest of the policy text, cached by hash."""
     digest_key = hashlib.sha256(policy_text.encode("utf-8")).hexdigest()
 
     with _lock:
