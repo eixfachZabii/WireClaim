@@ -567,6 +567,31 @@ LIMIT_QUANTILE = 1.0 / 3.0
 # positive on **all three** windows, which is the property worth having when the next Game is
 # the one we are paid for. The bottom row is the point of the cap: the same ceiling without it
 # is catastrophic, so the cap is what makes any loosening safe rather than a gamble.
+#
+# ## Re-opened at Game 32, and the objection above got *stronger*
+#
+# Worth re-reading before anyone re-opens it a third time, because loosening looks unanimous
+# under the wrong test. Over all 32 settled Games, on reconstructed evidence, against 0.45:
+#
+#     ceiling      all       G1-19    G20-25    G26-32    G28-32
+#       0.55    +7,567      +4,008    +2,218    +1,340      -450
+#       0.60   +12,245      +7,678    +2,983    +1,583      -657
+#       0.65   +16,020     +13,106    +3,042      -128    -2,128
+#       0.70   +17,835     +17,218    +2,891    -2,274    -4,307
+#
+# **Leave-one-Game-out is positive in 32 of 32 folds for every candidate from 0.55 to 0.85**
+# (mean +7,330 at 0.55 rising to +17,278 at 0.70), and four of five held-out splits pick 0.70.
+# That looks decisive and it is not: leave-one-out cannot see a regime change, because 31 of
+# the 32 training Games are always still in the fold. The one split that *is* aligned with
+# time -- train on Games 1-25, score on 26+ -- picks 0.70 and scores **-2,274**.
+#
+# The whole gain lives in Games 1-19 (+17,218 of the +17,835). The Field there was generous;
+# README R9 says that measurement does not survive a phase boundary, and Games 28-32 say it
+# did not. Every value above 0.45 loses on the most recent five Games. Left at 0.45.
+#
+# What would change it: three or four consecutive settled Games where 0.60 beats 0.45 on that
+# window alone. Re-run `scripts/charge_buckets.py` -- its `ALL_GAMES` now discovers the
+# settled Games instead of carrying a literal range that went five Games stale.
 LIMIT_CEILING = 0.45
 
 #: An absolute ceiling on the Limit, in EUR, independent of the estimate.

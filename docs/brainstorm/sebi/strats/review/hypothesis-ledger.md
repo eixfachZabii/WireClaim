@@ -262,6 +262,95 @@ Kept for a reason independent of the euros: one framing failing costs a draw, no
 The between-draw spread does **not** predict the error (corr +0.036, thirds ordered backwards),
 so the quadrature width term in `blend` is a guard, not a signal. Do not present it as one.
 
+## H7 ✅ Coverage leaks into the *Charge* through a zero price band, and Price Memory is thrown away with it
+
+**Asked as "the penalties are coverage's fault". Coverage is not the leak; this is.**
+
+Three measurements say the coverage *estimator* is close to its ceiling, so the hypothesis as
+posed is falsified:
+
+- `price_item` never reads `coverage_probability` for the Charge — only for the Limit
+  (`src/pricing.py`). Coverage cannot move Issuer income through that path at all.
+- `scripts/coverage_bakeoff.py euros`: an **oracle** coverage read is worth **+10,557 over 30
+  Games** against a ±34,369 noise floor (+1,187 on held-out G28–30). Every practical
+  alternative — `coverage.py`, mean, min, max, flat 0.9 — *loses* against shipped Channel C.
+- The calls are directionally sound: 71% of items called `<0.33` really are worth zero,
+  against 25% of items called `>0.90`.
+
+**But the model zeroes the price band on items it judges uncovered.** All nine zero-band Line
+Items in the logged Games came back with coverage ≤ 0.30, and `prompts.py` hands the model a
+JSON example with `price_low/median/high = 0.0`. `blend.combine` then discarded the Price
+Memory anchor whenever `model.price_median <= 0` — **4 of the 9**, including both items that
+were provably worth money — so the item fell through `Evidence.with_defaults` onto
+`FALLBACK_MEDIAN = 60` and was Charged a flat **39.62 whatever it was worth**.
+
+- **G31 item 17** "Delivery and assembly of the replacement table": exact memory hit at
+  **300** (from Game 5), true `t ≥ 315`, Charged 39.62. −2,842.
+- **G29 item 4** "Vehicle costs": exact memory hit at **85.98** on 11 observations across six
+  Games, true `t ∈ [80, 86)`, Charged 39.62.
+
+This contradicts the stated design in two places: `price_item`'s docstring ("The Charge
+assumes the item is covered. That is deliberate and it is free") and
+`channels.worthless_evidence` ("The band is kept plausible rather than zero"). Channel A got
+it right; Channel C's band was allowed to overrule it.
+
+**Fix shipped:** `combine` keeps the model's coverage verdict — so the Limit still collapses
+exactly as before — and takes the anchor's band. Replayed over every logged Game: **+3,190,
+positive in all four Games it touches (27, 28, 29, 31) and neutral in the rest.** No Game is
+harmed, no constant moved, no lookahead (every anchor predates the Game it is applied to).
+Small in absolute terms, but it is a bug rather than a knob, and it is a lower bound: it fires
+only where Price Memory already has an anchor, which is 22% of items and growing.
+
+**Next evidence needed:** the other five zero-band items had no anchor. Stopping the band from
+going to zero at all is a `prompts.py` change and must be measured on cached Cases against the
+26,622 floor before it ships — do not bundle it with this.
+
+## H8 ❌ The decision rules have headroom left in them — swept at Game 32, and they do not
+
+Asked as "are there improvements to Strategy 2 now". Four candidates, all measured against the
+replay harness over every settled Game on reconstructed evidence. **All four are negatives**,
+and they are recorded because each one looks obviously right until it is measured.
+
+**The Charge factor is already at its empirical optimum.** `charge_factor` maximises
+`k · P(t ≥ k·t̂)` under a lognormal, and `pricing.py` says our error is not lognormal
+("5–6 sigma in log space"). Measuring the survival function directly on 217 real-money items,
+**censoring handled explicitly** — an item with `t_hi = inf` is `t ≥ t_lo`, and those are the
+expensive ones — gives an empirical argmax of **k = 0.70** against the shipped 0.69. The
+empirical curve tracks lognormal(0.37) to within 0.02 over `k = 0.6…1.0`. Nothing to win.
+
+**And the "+0.45 median log error" in the watcher digest is a censoring artefact.** Median
+`t/t̂` is 0.89 on two-sided brackets, 1.11 on one-sided ones, and **0.99 over both** — a
+two-sided bracket only exists where somebody rightfully rejected, which selects cheap items.
+The estimator is roughly median-unbiased, exactly as `pricing.py` already claimed. Do not fit
+a level correction to the digest's number.
+
+**`LIMIT_CEILING` should not move — and this is the one that nearly shipped.** Loosening to
+0.70 is worth +17,835 over 32 Games and is positive in **32 of 32 leave-one-out folds** for
+every candidate 0.55–0.85. It is still wrong: leave-one-out cannot see a regime change,
+because 31 training Games stay in every fold. Split on *time* instead — train on 1–25, score
+on 26+ — and 0.70 scores **−2,274**. +17,218 of the +17,835 is Games 1–19, and every value
+above 0.45 loses on Games 28–32. Full table now recorded on the constant itself.
+
+**`FALLBACK_MEDIAN` carries no signal.** The fallback fires on 40 of 364 items (11%), 4 of
+which were worth money. Sweeping 30→250 gives −218, −1,089, 0, +2,060, +952, −198, +529: the
+forbidden jagged level surface, non-monotone, spanning 3k on 197k.
+
+**A unit-rate prior has no sample.** "What does one hour settle at, pooled over every Game"
+would reach every metered item rather than Price Memory's 22% of repeated wordings. Of 364
+Line Items, 53 print a unit and **5 are metered, 2 of them gradeable**. There is nothing to
+fit. (Loosening Price Memory's *matching* is separately falsified in `price_memory.py`:
+sigma 0.43 → 0.72 at Jaccard 0.7, 1.19 at 0.25.)
+
+**So the rules are at their measured optimum and the remaining gap is estimate quality.** That
+is H3, unchanged and now better bounded: today's pricing replayed over all 32 Games nets
+**+197,716** against an oracle **+966,294**, and the best constant available anywhere in this
+sweep moves it by ~18k. The other ~750k is the estimate. Only the evidence layer reaches it.
+
+**Tooling defect found and fixed en route:** `charge_buckets.ALL_GAMES` was the literal
+`range(1, 28)` and stayed there while Games 28–32 settled, so every sweep run through that
+module was scoring five Games short — the five that matter most, since a Field measurement
+does not survive a phase boundary. It now derives from `usable_games`.
+
 ---
 
 ## Standing measurements worth not re-deriving
