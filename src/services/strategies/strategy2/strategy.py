@@ -76,6 +76,7 @@ import asyncio
 import logging
 
 from src.data.models import CaseData, ItemPrice, Proposal
+from src.decision_log import GameDecisions, ItemDecision, record
 from src.pricing import Evidence, price_item
 from src.services.strategies.fast_path import STANDARD_CHARGE, STANDARD_LIMIT
 from src.services.strategies.strategy2.blend import blend, combine
@@ -115,32 +116,66 @@ def build_proposal(
     case: CaseData,
     model_evidence: dict[int, Evidence],
     memory_evidence: dict[int, Evidence],
+    decisions: list[ItemDecision] | None = None,
 ) -> Proposal | None:
-    """Price every Line Item in the Case. Pure function, no I/O.
+    """Price every Line Item in the Case. Pure function apart from the optional log.
 
     Returns `None` only for a Case with no Line Items at all, which is not a thing that
     happens — every other path yields a number for every index.
+
+    `decisions`, when given, is filled with one `ItemDecision` per Line Item recording which
+    channels spoke and what evidence was priced. That is what lets a settled Game say *which
+    stage* was wrong rather than only that we lost money.
     """
     prices: list[ItemPrice] = []
     for line_item in case.line_items:
-        evidence = combine(
-            model_evidence.get(line_item.index), memory_evidence.get(line_item.index)
-        )
+        from_model = model_evidence.get(line_item.index)
+        from_memory = memory_evidence.get(line_item.index)
+        evidence = combine(from_model, from_memory)
+        uncovered = bool(getattr(line_item, "quantity_missing", False))
+
+        channels: list[str] = []
+        if uncovered:
+            channels.append("A:no-quantity")
+        if from_memory is not None and not uncovered:
+            channels.append("B:memory")
+        if from_model is not None:
+            channels.append("C:model")
+
         if evidence is None:
-            prices.append(_uninformed_price(line_item.index))
-            continue
-        price = price_item(
-            evidence,
-            confirmed_uncovered=getattr(line_item, "quantity_missing", False),
-        )
-        prices.append(
-            ItemPrice(
+            item_price = _uninformed_price(line_item.index)
+            rule = "uninformed-constants"
+            priced = None
+        else:
+            price = price_item(evidence, confirmed_uncovered=uncovered)
+            item_price = ItemPrice(
                 index=line_item.index,
                 charge_price=price.charge,
                 acceptance_limit=price.limit,
                 source=STRATEGY_NAME,
             )
-        )
+            rule = "uncovered-free-option" if price.limit == 0.0 else "priced"
+            priced = price
+        prices.append(item_price)
+
+        if decisions is not None:
+            decisions.append(
+                ItemDecision(
+                    index=line_item.index,
+                    name=line_item.name,
+                    quantity=line_item.quantity,
+                    quantity_missing=uncovered,
+                    channels=tuple(channels),
+                    coverage_probability=None if evidence is None else evidence.coverage_probability,
+                    price_low=None if evidence is None else evidence.price_low,
+                    price_median=None if evidence is None else evidence.price_median,
+                    price_high=None if evidence is None else evidence.price_high,
+                    sigma=None if priced is None else priced.sigma,
+                    charge=item_price.charge_price,
+                    limit=item_price.acceptance_limit,
+                    rule=rule,
+                )
+            )
     return Proposal(source=STRATEGY_NAME, prices=tuple(prices)) if prices else None
 
 
@@ -173,7 +208,19 @@ async def propose(case: CaseData, deadline: float | None = None) -> Proposal | N
     # Concurrent, so the wall clock is the slower draw rather than the sum of both.
     draws = list(await asyncio.gather(*(draw(prompt) for prompt in ENSEMBLE_PROMPTS)))
     model_evidence = blend(draws)
-    proposal = build_proposal(case, model_evidence, memory_evidence)
+    decisions: list[ItemDecision] = []
+    proposal = build_proposal(case, model_evidence, memory_evidence, decisions)
+    # After the Proposal exists, so a logging problem can never cost a Submission.
+    record(
+        GameDecisions(
+            game_id=case.game_id,
+            strategy=STRATEGY_NAME,
+            model_draws=sum(1 for result in draws if result),
+            model_items=len(model_evidence),
+            memory_items=len(memory_evidence),
+            items=decisions,
+        )
+    )
     log_timing(
         logger,
         STRATEGY_NAME,
