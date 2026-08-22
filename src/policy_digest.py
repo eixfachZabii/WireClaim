@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import hashlib
-import os
 import threading
 from pathlib import Path
 
-from src.api import get_llm_client
+from src.api import get_llm_client, get_model_name
 
 CACHE_DIR = Path("var/policy_digests")
 DIGEST_TIMEOUT_SECONDS = 20.0
@@ -23,9 +22,6 @@ Include only:
 Use compact bullet points. Do not recommend Charge, Limit, or Fair Value values."""
 
 
-def _model_name() -> str:
-    return os.environ.get("AZURE_OPENAI_MODEL") or "gpt-4o"
-
 
 def digest_policy_text(policy_text: str) -> str:
     digest_key = hashlib.sha256(policy_text.encode("utf-8")).hexdigest()
@@ -39,7 +35,7 @@ def digest_policy_text(policy_text: str) -> str:
         digest = cache_path.read_text(encoding="utf-8")
     else:
         response = get_llm_client().chat.completions.create(
-            model=_model_name(),
+            model=get_model_name(),
             temperature=0.0,
             timeout=DIGEST_TIMEOUT_SECONDS,
             messages=[

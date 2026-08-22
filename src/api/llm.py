@@ -9,7 +9,7 @@ Provides functional helpers to query Azure OpenAI / OpenAI models for:
 Environment Variables:
     AZURE_OPENAI_API_KEY: Azure OpenAI / OpenAI API Key.
     AZURE_OPENAI_ENDPOINT: Endpoint / Base URL (e.g. https://<your-resource>.openai.azure.com/v1 or custom gateway).
-    AZURE_OPENAI_MODEL: Deployment / Model name (e.g. gpt-4o, o3-mini).
+    AZURE_OPENAI_MODEL: Deployment / Model name (defaults to gpt-5.6-terra).
 """
 
 from __future__ import annotations
@@ -17,6 +17,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Any, Optional
+
+DEFAULT_MODEL = "gpt-5.6-terra"
 
 # Optional dotenv loading with stdlib fallback
 try:
@@ -76,6 +78,10 @@ def get_llm_client(
     )
 
 
+def get_model_name(model: Optional[str] = None) -> str:
+    return model or os.getenv("AZURE_OPENAI_MODEL") or os.getenv("OPENAI_MODEL") or DEFAULT_MODEL
+
+
 def query_llm(
     prompt: str,
     model: Optional[str] = None,
@@ -84,7 +90,7 @@ def query_llm(
 ) -> str:
     """Send a prompt to the LLM and return the generated text response."""
     client = get_llm_client(api_key=api_key, endpoint=endpoint)
-    target_model = model or os.getenv("AZURE_OPENAI_MODEL") or "gpt-4o"
+    target_model = get_model_name(model)
 
     # Try responses.create first (if using Azure / OpenAI Responses API)
     try:
