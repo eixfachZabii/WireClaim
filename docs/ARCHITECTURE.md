@@ -66,7 +66,7 @@ Charge at or below `t` is collected from **every single opponent**, guaranteed, 
 times. One euro above `t` and both cells in the right column pay `H` nothing unless some
 opponent's Limit happens to be loose enough to buy the overcharge. That is not a smooth
 trade-off; it is a cliff, and we have measured how tall it is on our own settled Charges
-(module docstring of [`src/domain/pricing/engine.py`](../src/domain/pricing/engine.py), and §0 of the
+(module docstring of [`src/pricing/engine.py`](../src/pricing/engine.py), and §0 of the
 [strategy plan](brainstorm/sebi/strats/review/strategy2-plan.md)):
 
 | our `a / t` | opponents who pay | expected income |
@@ -92,7 +92,7 @@ a  <  1.5a · P(the Charge is fair)      ⟺      P(fair) > 2/3
 Our Limit is therefore the value below which we still believe with two-thirds confidence
 that the Charge is fair: the **one-third quantile of our posterior over `t`**. That is
 README's "bottom third" with a proof attached rather than a heuristic, and it is why
-[`src/domain/pricing/engine.py`](../src/domain/pricing/engine.py) has `LIMIT_QUANTILE = 1.0 / 3.0` and no tuning knob
+[`src/pricing/engine.py`](../src/pricing/engine.py) has `LIMIT_QUANTILE = 1.0 / 3.0` and no tuning knob
 next to it.
 
 The two facts pull in opposite directions and that is the whole game: the Charge wants to
@@ -113,10 +113,10 @@ that hard: we submit early and often rather than once and correctly.
 
 ### T+0 — the blind floor, published before the Case exists
 
-`run_game` starts the [`SubmissionCoordinator`](../src/services/submission_coordinator.py)
+`run_game` starts the [`SubmissionCoordinator`](../src/runtime/submission_coordinator.py)
 and immediately publishes `blind_floor()`: `BLIND_LINE_ITEMS = 40` indices, each carrying
 `STANDARD_CHARGE = 300.00` and `STANDARD_LIMIT = 35.00`
-([`main.py`](../main.py), [`fast_path.py`](../src/services/strategies/fast_path.py)). This
+([`main.py`](../main.py), [`fast_path.py`](../src/strategies/fast_path.py)). This
 happens *before* the key fetch, because the alternative is not a zero.
 
 A Line Item we never submit defaults to `(0, 0)`, and `(0, 0)` is a bleed, not a neutral
@@ -174,14 +174,14 @@ Case loads at which some Line Item has no number.
 
 ### T+3 to ~T+50 — the model call on the sliced Policy
 
-[`strategy2.propose`](../src/services/strategies/strategy2/strategy.py) runs, dispatched
-through [`StrategyRouter`](../src/services/strategy_router.py). It first collects everything
+[`strategy2.propose`](../src/strategies/strategy2/strategy.py) runs, dispatched
+through [`StrategyRouter`](../src/strategies/router.py). It first collects everything
 knowable for free (Channels A and B, [§5](#5-the-three-estimation-channels)), then makes
 **one model call for the whole Case** — one call, not one per item, so the model sees
 neighbouring positions and can notice duplicates, an inflated quantity, or a sub-limit that
 applies across several lines.
 
-The prompt is handed a **sliced** Policy. [`policy_slice.slice_policy`](../src/services/policy/slice.py)
+The prompt is handed a **sliced** Policy. [`policy_slice.slice_policy`](../src/evidence/policy/slice.py)
 keeps only `PART 3` (exclusions), `4` (insured property), `5` (insured costs), `7`
 (calculation of the indemnity) and `11` (the claim-specific loss description), which is
 about 41 % of a 35k–65k-character document. The slice is **verbatim** — never reflowed,
@@ -217,7 +217,7 @@ improves exactly those two and leaves the rest of the snapshot alone. Higher lay
 write indices that layer 1 already knows (`snapshot()` filters on `valid_indices`), so a
 model that hallucinates a Line Item 99 cannot inject one.
 
-Priorities live in [`strategy_router.py`](../src/services/strategy_router.py):
+Priorities live in [`strategy_router.py`](../src/strategies/router.py):
 `STRATEGY_PRIORITIES = {"strategy1": 1, "strategy3": 2, "strategy2": 3}`. `register()`
 rejects any proposal whose priority is below the incumbent's, so completion order does not
 matter — Strategy 2 wins whenever it produces anything, because it is the only estimator
@@ -226,7 +226,7 @@ nothing.
 
 ### T+50 to T+60 — the coverage mask and the final PUT
 
-[`fraud_detection.detect_fraud`](../src/services/fraud_detection.py) has been running
+[`fraud_detection.detect_fraud`](../src/evidence/fraud_detection.py) has been running
 concurrently since T+3, one 15-second model call per Line Item, all fired at once. Its
 verdicts arrive as a `FraudDecision`, and applying it zeroes the Limit on the flagged
 indices — and only the Limit. `a` is never touched, for the reason in
@@ -255,7 +255,7 @@ free deterministic shortcut; the middle is the memory lookup; everything converg
 single `Evidence` record, and the fork near the bottom is the only place where the Charge
 and the Limit part company. Both are read off the same distribution.
 
-[`src/domain/pricing/engine.py`](../src/domain/pricing/engine.py) is the **only** module in the repo that decides a
+[`src/pricing/engine.py`](../src/pricing/engine.py) is the **only** module in the repo that decides a
 number we are scored on. Nothing that talks to a model is allowed to emit a Charge, a Limit
 or a Fair Value — models emit `Evidence` (a coverage probability, a price band, a quoted
 clause) and this module prices it. That is
@@ -330,7 +330,7 @@ The ceiling has been re-opened twice and stays at 0.45 both times. Loosening to 
 wrong, because leave-one-out cannot see a regime change when 31 training Games stay in every
 fold. Split on *time* instead (train on Games 1–25, score on 26+) and it scores **−2,274**;
 +17,218 of the +17,835 is Games 1–19, and every value above 0.45 loses on Games 28–32. The
-full table lives on the constant in [`engine.py`](../src/domain/pricing/engine.py).
+full table lives on the constant in [`engine.py`](../src/pricing/engine.py).
 
 One empirical shading is worth knowing: the 2/3 rule prices an accepted Overcharge at `a`,
 but the Cap allows `min(a, c)` with `c ≥ 4t`, so accepting is in truth slightly worse than
@@ -370,7 +370,7 @@ price band, because the Charge on a worthless item is free. The same channel own
 slicer and the rule that the index is the printed POS number.
 
 **Channel B — Price Memory, an anchor and not an answer.**
-[`src/domain/pricing/memory.py`](../src/domain/pricing/memory.py) holds the Fair Values reconstructed from
+[`src/evidence/memory.py`](../src/evidence/memory.py) holds the Fair Values reconstructed from
 settled Games, keyed on the normalised Line Item wording. Measured leave-one-out over Cases
 1–14 (each Case scored against a store built from the other thirteen) it reaches **22 %** of
 the items with a known non-zero Fair Value at **σ = 0.43**. That is good enough to narrow a
@@ -419,7 +419,7 @@ band, which raises both the Charge and the Limit toward the estimate — the mec
 better evidence turns directly into more money.
 
 The prompt itself is a piece of engineering worth reading in full in
-[`prompts.py`](../src/services/strategies/strategy2/prompts.py). It states the level anchors
+[`prompts.py`](../src/strategies/strategy2/prompts.py). It states the level anchors
 explicitly, and those anchors are **measured against the settled Fair Values, not guessed**:
 tradesman labour at roughly 60–110 EUR/hour multiplied by the hours; small parts and
 consumables genuinely in the tens; leak detection and moisture surveys around 430 and reaching
@@ -448,7 +448,7 @@ contract, written up in
 **per Line Item, a probability `p_covered ∈ [0, 1]` that the Policy indemnifies this
 position at all, plus the deciding clause quoted verbatim** — at least 60 characters,
 character-exact from `policy.txt`, validated with
-[`policy_quote.is_policy_quote()`](../src/services/policy/quotes.py). Not a boolean. When nothing was
+[`policy_quote.is_policy_quote()`](../src/evidence/policy/quotes.py). Not a boolean. When nothing was
 found, the answer is `0.9` (cover is the normal case), not `0.5`. The index is the printed
 POS number, gaps kept.
 
@@ -471,7 +471,7 @@ has `t = 0`, so charging is free (Game 3 again). And it may **never block the Su
 it runs concurrently and a late verdict overwrites by `PUT`, because Games 10–12 cost 139,904
 between them by submitting nothing at all.
 
-The shipped implementation, [`fraud_detection.py`](../src/services/fraud_detection.py), is
+The shipped implementation, [`fraud_detection.py`](../src/evidence/fraud_detection.py), is
 the strict end of that contract: one model call per Line Item under a strict JSON schema, and
 a verdict of "not covered" survives only if all three of `covered or related is false`,
 `confidence ≥ 0.85`, and `is_policy_quote(exclusion_quote, policy_text)` hold. The quote test
@@ -611,7 +611,7 @@ imports and launches `llm_values` directly.
 - **The coverage detector in the live path is still a boolean.** §6 specifies `p_covered` as a
   probability, but `fraud_detection.py` emits a set of flagged indices, and the `p_covered`
   that actually reaches the posterior comes from Strategy 2's own Channel C. A probability-
-  emitting replacement, `src/services/policy/coverage.py`, exists in the tree but is not yet imported
+  emitting replacement, `src/evidence/policy/coverage.py`, exists in the tree but is not yet imported
   by `main.py` or by Strategy 2; until it is wired in, the contract seam is a design document
   rather than a running interface.
 - **`fast_path.llm_values` still contributes numbers.** As merge layer 2 it fills any index

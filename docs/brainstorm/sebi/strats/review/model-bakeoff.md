@@ -21,9 +21,9 @@ evidence, and the model is the evidence layer's biggest unexamined variable.
 ## Method
 
 Real, unmodified Strategy 2 evidence prompts (`ENSEMBLE_PROMPTS` — `PROMPT` anchored,
-`PROMPT_UNANCHORED` un-anchored — from `src/services/strategies/strategy2/prompts.py`), the
+`PROMPT_UNANCHORED` un-anchored — from `src/strategies/strategy2/prompts.py`), the
 same `build_input_content` / `build_request_text` plumbing the live path uses
-(`src/services/strategies/strategy2/model.py`), fired at each of the three deployments with an
+(`src/strategies/strategy2/model.py`), fired at each of the three deployments with an
 explicit `model=` instead of `get_model_name()`. Nothing in `src/` was touched; the harness
 lives in `scripts/experiments/model_bakeoff_draw.py` (draws, caches every raw response to
 `var/experiments/model_bakeoff/`) and `scripts/experiments/model_bakeoff_score.py` (scores the

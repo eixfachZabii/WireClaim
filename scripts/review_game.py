@@ -33,7 +33,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.observability.decisions import load as load_decisions  # noqa: E402
+from src.runtime.decisions import load as load_decisions  # noqa: E402
 
 LESSONS_DIR = Path("var/lessons")
 REVIEWS_DIR = Path("var/reviews")

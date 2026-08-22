@@ -4,9 +4,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from src.observability import decisions as decision_log
+from src.runtime import decisions as decision_log
 from src.data.models import CaseData, LineItem
-from src.observability.decisions import (
+from src.runtime.decisions import (
     SCHEMA_VERSION,
     GameDecisions,
     ItemDecision,
@@ -15,8 +15,8 @@ from src.observability.decisions import (
     record,
     record_proposals,
 )
-from src.domain.pricing.engine import Evidence
-from src.services.strategies.strategy2.strategy import build_proposal
+from src.pricing.engine import Evidence
+from src.strategies.strategy2.strategy import build_proposal
 
 
 class RecordTests(unittest.TestCase):

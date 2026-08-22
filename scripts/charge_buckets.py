@@ -54,7 +54,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.case_loader import read_case  # noqa: E402
-from src.domain.pricing.engine import (  # noqa: E402
+from src.pricing.engine import (  # noqa: E402
     CHARGE_BOUNDS,
     CHARGE_INTERCEPT,
     CHARGE_SLOPE,
@@ -65,7 +65,7 @@ from src.domain.pricing.engine import (  # noqa: E402
     _lognormal_quantile,
     implied_sigma,
 )
-from src.services.strategies.strategy2.blend import combine  # noqa: E402
+from src.strategies.strategy2.blend import combine  # noqa: E402
 from scripts.dump_evidence import load as load_evidence  # noqa: E402
 from scripts.replay_payoffs import usable_games  # noqa: E402
 from scripts.replay_payoffs import replay
