@@ -78,11 +78,16 @@ LIMIT_COLLAPSE = 1.0 / 3.0
 #: Limit is zeroed on a story alone.
 UNVERIFIED_SHRINK = 0.5
 
-#: `quantity_missing` is the dash in the amount/unit columns. 20 of 20 such positions in
-#: the settled Games are worth exactly zero, against a 40% base rate. That is strong
-#: enough to stand without a quote, so it gets its own (smaller) shrink and a ceiling.
-QUANTITY_MISSING_SHRINK = 0.85
-QUANTITY_MISSING_CEILING = 0.35
+#: `quantity_missing` is the dash printed in the amount and unit columns. 20 of 20 such
+#: positions in the settled Games are worth exactly zero, against a 40% base rate, so a
+#: Laplace-smoothed P(t = 0 | dash) is 21/22 = 95%. This is the one signal strong enough
+#: to override the model in both directions: it caps `p_covered` whatever the model says.
+#:
+#: The ceiling is set above the 0.045 the count implies, on purpose. It is 20 observations
+#: from 6 Cases and one parser; a mislabelled dash must cost us a shaded Limit, not a
+#: guaranteed wrongful rejection. Sweeping 0.30 / 0.20 / 0.10 over the settled record moved
+#: recall not at all and the Brier score by 0.004, so the cautious end is free.
+QUANTITY_MISSING_CEILING = 0.10
 
 #: Items per LLM call. One call per Case would let a single failure blind a 39-item
 #: invoice; one call per item repeats a ~20k-character Policy 39 times and loses the
@@ -160,15 +165,15 @@ HOW TO DECIDE
 
 8. IS THE PROPERTY EVEN INSURED? Before judging the head of cost, check the list of insured property and insured locations (usually PART 4, and any "property not insured" list). Work on an object or an installation that falls outside it - a means of transport, an outbuilding, a swimming pool and its pipework, property belonging to someone else - is worth zero however ordinary the trade and however genuine the peril: the labour, the materials and the attendance on that work all go with it. This is the mirror image of rule 1: rule 1 rescues a SERVICE that the Policy names in its own right (investigation, assessment, leak detection), while this rule zeroes ordinary repair work performed on an uninsured object.
 
-7. DUPLICATES: where the Policy indemnifies only the first charge for the same head of cost, the FIRST occurrence on the invoice keeps its cover and the later repeats of the same head - "return visit", "already billed by", a second identical line - are the ones worth zero. Do not zero the whole group.
+9. DUPLICATES: where the Policy indemnifies only the first charge for the same head of cost, the FIRST occurrence on the invoice keeps its cover and the later repeats of the same head - "return visit", "already billed by", a second identical line - are the ones worth zero. Do not zero the whole group.
 
-8. There is no quota. The share of worthless positions per invoice ranges from 0% to 67% in the measured record. Many invoices contain NOTHING excluded; some contain a majority. Judge each position on its own clause. Never flag a position because it "feels like" the invoice should contain some. If you have found nothing for a position, return 0.9.
+10. There is no quota. The share of worthless positions per invoice ranges from 0% to 67% in the measured record. Many invoices contain NOTHING excluded; some contain a majority. Judge each position on its own clause. Never flag a position because it "feels like" the invoice should contain some. If you have found nothing for a position, return 0.9.
 
-9. Go below 0.34 only when the position gets NOTHING AT ALL. If your reason would merely shrink the amount, or if the position is a plausible part of indemnifiable work, use the middle of the scale (0.5-0.8) - that band is read as a real probability downstream and it is the honest answer.
+11. Use the middle of the scale when you are genuinely torn. Below 0.34 means the position gets NOTHING AT ALL. If your only reason would shrink the amount rather than remove it (rule 4), the answer is 0.8 or above, not a low number. If a clause plainly catches the position but you cannot rule out a proviso or a restoring cross-reference, 0.4-0.6 is the honest answer and it is read downstream as a real probability, not as a shrug.
 
-10. `quantity_missing: true` means the invoice printed a dash instead of an amount and a unit for that position. Every one of the 20 such positions in the settled record was worth exactly zero. Treat it as strong evidence, and still cite the clause that says so.
+12. `quantity_missing: true` means the invoice printed a dash instead of an amount and a unit for that position. Every one of the 20 such positions in the settled record was worth exactly zero. Treat it as strong evidence, and still cite the clause that says so.
 
-11. If a section titled "LOSS DESCRIPTION AND OPERATIVE PROVISIONS FOR THIS CLAIM" is present, it enumerates the clauses that decide this very claim. Use it first.
+13. If a section titled "LOSS DESCRIPTION AND OPERATIVE PROVISIONS FOR THIS CLAIM" is present, it enumerates the clauses that decide this very claim. Use it first.
 
 THE QUOTE - a verdict below 0.34 is DISCARDED unless the quote passes an automatic check
 
@@ -330,27 +335,27 @@ def calibrate(
     The model's number is evidence, the quote is proof, and the two are combined rather
     than one overriding the other:
 
-    * A verdict above the collapse point is taken as given -- it costs nothing to hold.
-    * A verdict below it that carries a verified Policy quote is taken as given too.
-    * A verdict below it with no verified quote is shrunk towards the default. This is the
+    * `quantity_missing` overrides everything, in both directions. It is the only signal
+      measured at 20 out of 20, and on the settled record the model talks itself out of
+      four of those positions with a plausible story about the work being indemnifiable.
+    * A verdict above the collapse point is otherwise taken as given -- it costs nothing.
+    * A verdict below it that carries a verified (or repairable) Policy quote stands.
+    * A verdict below it with no usable quote is shrunk towards the default. This is the
       Case 7 guard: the Damage Description manufactures doubt that no clause supports, and
       an unquoted doubt must not zero a Limit on its own.
-    * `quantity_missing` is itself evidence (20 of 20 in the settled record), so it shrinks
-      far less and is capped below the collapse point.
 
     Returns `(p_covered, quote_verified, clause)`, where `clause` is the model's quote
     when the gate accepted it and the repaired verbatim Policy span when it did not.
     """
     probability = _clamp(raw_p)
-    if probability > LIMIT_COLLAPSE:
+    if probability > LIMIT_COLLAPSE and not quantity_missing:
         # Nothing is at stake above the collapse point, so do not spend the repair.
         return probability, is_policy_quote(clause, policy_text), clause
     repaired = repair_quote(clause, policy_text)
+    if quantity_missing:
+        return min(probability, QUANTITY_MISSING_CEILING), bool(repaired), repaired or clause
     if repaired:
         return probability, True, repaired
-    if quantity_missing:
-        shrunk = DEFAULT_P_COVERED - QUANTITY_MISSING_SHRINK * (DEFAULT_P_COVERED - probability)
-        return min(shrunk, QUANTITY_MISSING_CEILING), False, clause
     return DEFAULT_P_COVERED - UNVERIFIED_SHRINK * (DEFAULT_P_COVERED - probability), False, clause
 
 
