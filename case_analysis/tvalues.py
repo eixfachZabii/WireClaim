@@ -55,11 +55,13 @@ def main() -> None:
     games = analysis["games"][-args.games:]
 
     header = ["game", "item", "t bracket", "t point",
-              f"{TEAM} a", f"{TEAM} t-hat (a/0.7)", f"{TEAM} a/t", f"{TEAM} b/t"]
-    for name in top:
-        header += [f"{name} a/t", f"{name} b/t"]
+              f"{TEAM} a", f"{TEAM} t-hat (a/0.7)", f"{TEAM} a/t"]
+    header += [f"{name} a/t" for name in top]
+    header += [f"{TEAM} b/t"]
+    header += [f"{name} b/t" for name in top]
 
     png_rows: list[list[str]] = []
+    t_errors: list[float] = []
     for game in games:
         for li in game["line_items"]:
             t = li["t_point"]
@@ -67,19 +69,24 @@ def main() -> None:
             bracket = ("-" if lo is None and hi is None
                        else f"[{lo or 0:,.0f}, {'∞' if hi is None else f'{hi:,.0f}'})")
             our_a = li["charges_a"].get(TEAM)
+            if our_a and t:
+                t_errors.append(abs(our_a / 0.7 - t) / t)
             row = [
                 str(game["game_id"]), str(li["line_item_index"]), bracket,
                 "-" if t is None else f"{t:,.0f}",
                 "-" if not our_a else f"{our_a:,.0f}",
                 "-" if not our_a else f"{our_a / 0.7:,.0f}",
-                ratio(our_a, t), ratio(b_mid(li["limits_b"].get(TEAM)), t),
+                ratio(our_a, t),
             ]
-            for name in top:
-                row += [
-                    ratio(li["charges_a"].get(name), t),
-                    ratio(b_mid(li["limits_b"].get(name)), t),
-                ]
+            row += [ratio(li["charges_a"].get(name), t) for name in top]
+            row += [ratio(b_mid(li["limits_b"].get(TEAM)), t)]
+            row += [ratio(b_mid(li["limits_b"].get(name)), t) for name in top]
             png_rows.append(row)
+
+    avg_off = (f"{100 * sum(t_errors) / len(t_errors):,.0f}%" if t_errors else "-")
+    summary = (["avg", "", "", "", "", f"t-hat off by {avg_off}", ""]
+               + [""] * (len(header) - 7))
+    png_rows.append(summary)
 
     with (DATA_DIR / "tvalues.csv").open("w", newline="") as f:
         writer = csv.writer(f)
@@ -102,13 +109,17 @@ def main() -> None:
         game_id = png_rows[r - 1][0]
         if c == 0 and game_id != prev_game:
             prev_game = game_id
-        if 4 <= c <= 7:
+        if r == len(png_rows):
+            cell.set_facecolor("#d6eaf8")
+            cell.set_text_props(fontweight="bold")
+        elif c in (4, 5, 6, 7 + len(top)):
             cell.set_facecolor("#fff3cd")
-        elif int(game_id) % 2 == 0:
+        elif game_id.isdigit() and int(game_id) % 2 == 0:
             cell.set_facecolor("#f2f2f2")
     ax.set_title(
         f"Derived t per line item — last {len(games)} settled games: "
-        f"{TEAM} (Charge, implied t-hat, a/t, b/t) vs. top {TOP_N} ({', '.join(top)})",
+        f"{TEAM} vs. top {TOP_N} ({', '.join(top)}) — a/t side by side, then b/t; "
+        f"last row: avg % our implied t-hat is off the derived t",
         fontsize=11, fontweight="bold", pad=12,
     )
     fig.savefig(DATA_DIR / "tvalues.png", dpi=140, bbox_inches="tight")
