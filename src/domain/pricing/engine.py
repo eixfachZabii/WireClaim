@@ -594,6 +594,53 @@ LIMIT_QUANTILE = 1.0 / 3.0
 # settled Games instead of carrying a literal range that went five Games stale.
 LIMIT_CEILING = 0.45
 
+# The same ceiling for Line Items Channel B priced — a wording seen in a settled Case, whose
+# Fair Value we recovered exactly rather than estimated.
+#
+# This is the first thing measured all night that survived every test we could put it to, and
+# it is *not* a loosening of the ceiling. A flat 0.75 for every item was swept directly and
+# fails exactly where the standing guardrail says it should (Games 19-32, odd fold -2,749,
+# late fold -2,274). What pays is loosening it only where the estimate is measurably better:
+# Price Memory's leave-one-out log error is 0.39-0.48 against the model's 0.76-0.78, and the
+# split reproduces on zero-look-ahead live decisions rather than only on reconstructed data.
+# Trusting the better channel further on the accept side is therefore priced, not hoped.
+#
+# Measured against the real Field through `replay_payoffs.replay`, model-only items held at
+# `LIMIT_CEILING`, cap and quantile untouched:
+#
+#     window            delta   odd      even     early    late
+#     all 37 Games    +40,791  +16,935  +23,856  +20,261  +20,530
+#     Games 19-32     +12,598   +4,981   +7,617   +6,996   +5,602
+#
+# **Eight fold cells, eight positive.** No other candidate in the family managed that:
+# conditioning on band width flips sign on the odd fold, and conditioning on coverage
+# probability is not an independent signal (59-64% of those items are already memory-backed)
+# and splits 12:1 across folds where this splits near 1:1. The aggregate only just clears the
+# +/-38,170 noise floor at n=37, so it is the fold consistency carrying this, not the total.
+#
+# The mechanism is visible in what the extra accepts actually buy: 618 newly-accepted fair
+# Charges saving 47,042 (at `0.5a` each -- accepting a fair Charge still costs `a`, only the
+# lawyer's half is saved) against 54 newly-accepted Overcharges costing 6,251. **7.53:1.**
+#
+# The strongest evidence it is about the channel rather than about which wordings happened to
+# be in the store: splitting the items by whether Price Memory could reach them *before*
+# tonight's rebuild, the already-reachable ones score 5.85:1 and the newly-reachable ones
+# **14.63:1**. A wider net normally catches worse matches; this one caught better ones, which
+# is the same thing the rebuild's leave-one-out sigma said (0.659 -> 0.581 while recall went
+# 22% -> 53%).
+#
+# 0.75 is where it saturates -- 0.85, 1.00, 1.25 and 1.50 all score identically -- and the
+# reason is the `b <= a` clamp at the end of `price_item`, not the ceiling. Above roughly the
+# Charge factor the Charge sets the Limit and this constant stops binding. So 0.75 is the
+# natural stopping point rather than an arbitrary one, and raising it further is not a
+# decision this constant can express.
+#
+# What would falsify it: the Field's Limits stop clustering, or Price Memory's measured error
+# stops beating the model's. Re-run `scripts/experiments/cap_ceiling_sweep.py` and
+# `fair_vs_overcharge_split.py`; if the fair-to-Overcharge ratio falls toward 1:1, revert to
+# `LIMIT_CEILING`.
+LIMIT_CEILING_MEMORY = 0.75
+
 #: An absolute ceiling on the Limit, in EUR, independent of the estimate.
 #:
 #: This is the one thing a multiplicative ceiling cannot do. 2,000.00 is the most common
@@ -796,7 +843,12 @@ def _normal_quantile(p: float) -> float:
            (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1)
 
 
-def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Price:
+def price_item(
+    evidence: Evidence,
+    *,
+    confirmed_uncovered: bool = False,
+    memory_backed: bool = False,
+) -> Price:
     """The whole pricing decision for one Line Item.
 
     `confirmed_uncovered` is for a proven exclusion — a policy clause quoted verbatim.
@@ -805,6 +857,11 @@ def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Pric
     Charge a free option (README R6c). Game 3 is the proof: every Line Item was
     uncovered, two teams Charged ~100 and were paid by 2 of 16, and the rest of the field
     scored zero.
+
+    `memory_backed` says Channel B priced this item — a wording seen in a *settled* Case,
+    whose Fair Value we recovered exactly. It selects `LIMIT_CEILING_MEMORY` over
+    `LIMIT_CEILING`; see that constant for why the Limit, and only the Limit, is allowed to
+    trust one channel more than the other.
     """
     filled = evidence.with_defaults()
     sigma = implied_sigma(filled.price_low, filled.price_median, filled.price_high)
@@ -823,9 +880,10 @@ def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Pric
     else:
         # Strip the zero mass, then take the quantile that leaves 1/3 of the total below.
         conditional = (LIMIT_QUANTILE - (1.0 - covered)) / covered
+        ceiling = LIMIT_CEILING_MEMORY if memory_backed else LIMIT_CEILING
         limit = min(
             _lognormal_quantile(filled.price_median, sigma, conditional),
-            LIMIT_CEILING * filled.price_median,
+            ceiling * filled.price_median,
             LIMIT_CAP,
         )
 

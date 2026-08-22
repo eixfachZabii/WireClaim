@@ -145,7 +145,14 @@ def build_proposal(
             rule = "uninformed-constants"
             priced = None
         else:
-            price = price_item(evidence, confirmed_uncovered=uncovered)
+            price = price_item(
+                evidence,
+                confirmed_uncovered=uncovered,
+                # Exactly the condition that puts "B:memory" in `channels` above, so the
+                # decision log and the pricing agree about which items got the looser
+                # ceiling. Any drift between these two is a stage attribution that lies.
+                memory_backed=from_memory is not None and not uncovered,
+            )
             item_price = ItemPrice(
                 index=line_item.index,
                 charge_price=price.charge,
