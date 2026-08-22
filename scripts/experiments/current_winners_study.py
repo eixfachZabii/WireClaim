@@ -111,11 +111,25 @@ class TeamMetrics:
     t0_charged: int = 0
     t0_charge_income: float = 0.0
 
+    #: sum over items of t(index) * (opponent count) -- the honest ceiling if this team had
+    #: charged exactly `a = t` on every item to every opponent (R1: collected regardless of
+    #: accept/reject). Added here (not present in `rivals_study.TeamMetrics`) specifically
+    #: to separate "this team got better" from "this window's Cases are worth more" -- see
+    #: the module docstring's finding #3.
+    t_available: float = 0.0
+
     net_identity: float = 0.0
 
     @property
     def net_buckets(self) -> float:
         return self.income_fair + self.income_over - self.cost_accept - self.penalty
+
+    @property
+    def fair_capture(self) -> float:
+        """`income_fair / t_available` -- the case-size-normalized measure of how much of
+        the honest ceiling was actually collected as fair (non-Overcharge) income. Comparable
+        across windows with different average Line Item values; raw euro totals are not."""
+        return self.income_fair / self.t_available if self.t_available else float("nan")
 
 
 def measure_team(books: list[Book], team: str) -> TeamMetrics:
@@ -145,6 +159,7 @@ def measure_team(books: list[Book], team: str) -> TeamMetrics:
 
             if t > 0:
                 m.b_over_t.append(book.b(index, team) / t)
+            m.t_available += t * (len(book.team_names) - 1)
 
         for row in book.rows[team]:
             index = row["line_item_index"]
@@ -175,6 +190,33 @@ def _verify_reconciliation(metrics: dict[str, TeamMetrics]) -> list[str]:
                 f"{m.net_identity:,.2f} (off by {m.net_buckets - m.net_identity:,.2f})"
             )
     return bad
+
+
+def replay_capped(snap, submission: dict[int, tuple[float, float]]) -> float:
+    """Our net had we submitted `submission`, Cap enforced (`c = max(4t, 2000)`, floored by
+    what was actually observed paid on the item). Identical model to `rivals.replay_capped`
+    / `rivals_study.replay_capped` -- reproduced here for the same reason as the block above.
+    """
+    income = 0.0
+    cost = 0.0
+    for index in snap.line_items:
+        charge, limit = submission.get(index, (0.0, 0.0))
+        t = snap.fair_point(index)
+        observed = max((a for a in snap.charges[index].values() if a != INF), default=0.0)
+        c = max(cap_of(t), observed)
+        for team in snap.opponents:
+            b = snap.limit_point(index, team, "mid")
+            if charge <= b:
+                income += min(charge, c)
+            elif charge <= t:
+                income += charge
+            their_a = snap.charges[index][team]
+            if their_a <= limit:
+                cost += min(their_a, c)
+            elif their_a <= t:
+                cost += 1.5 * their_a
+    return income - cost
+
 
 EVIDENCE_DIR = Path(__file__).resolve().parents[2] / "var" / "evidence"
 DECISIONS_DIR = Path(__file__).resolve().parents[2] / "var" / "decisions"
@@ -254,7 +296,8 @@ def print_bucket_table(metrics: dict[str, TeamMetrics], title: str) -> None:
     print(f"\n=== {title}: four-bucket net decomposition ===")
     print(
         f"{'team':22s} {'net':>12s} | {'(i) inc fair':>13s} {'(ii) inc over':>13s} "
-        f"{'(iii) cost acc':>14s} {'(iv) penalty':>13s} | {'issuer side':>12s} {'reviewer side':>13s}"
+        f"{'(iii) cost acc':>14s} {'(iv) penalty':>13s} | {'issuer side':>12s} {'reviewer side':>13s} "
+        f"{'t_available':>13s} {'fair capture':>12s}"
     )
     for team, m in metrics.items():
         issuer_side = m.income_fair + m.income_over
@@ -262,9 +305,14 @@ def print_bucket_table(metrics: dict[str, TeamMetrics], title: str) -> None:
         print(
             f"{team:22s} {money(m.net_identity)} | {money(m.income_fair):>13s} "
             f"{money(m.income_over):>13s} {money(m.cost_accept):>14s} {money(m.penalty):>13s} | "
-            f"{money(issuer_side):>12s} {money(reviewer_side):>13s}"
+            f"{money(issuer_side):>12s} {money(reviewer_side):>13s} {money(m.t_available):>13s} "
+            f"{m.fair_capture:11.1%}"
         )
     print("  (i)+(ii) = income as Issuer.  -(iii)-(iv) = cost as Reviewer.  net = (i)+(ii)-(iii)-(iv).")
+    print("  t_available = sum(t * opponents) -- the honest ceiling if a=t on every item, every")
+    print("  opponent (R1). fair_capture = income_fair / t_available: the case-size-normalized")
+    print("  share of that ceiling actually collected as fair income -- comparable across windows")
+    print("  with different average Line Item values, unlike the raw euro totals to its left.")
 
 
 def decompose(game_ids: list[int], wanted: list[str], title: str) -> dict[str, TeamMetrics]:
