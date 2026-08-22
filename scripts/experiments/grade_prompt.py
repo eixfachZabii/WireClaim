@@ -53,7 +53,8 @@ from src.services.strategies.strategy2.model import (  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from live_window import wait_for_safe_window  # noqa: E402
-from tail_prompts import ANCHORS, COMMON_HEAD, COVERAGE_RULES  # noqa: E402
+
+from src.services.strategies.strategy2.prompts import PROMPT  # noqa: E402
 
 CACHE = Path("var/experiments/grade_prompt")
 CASES = Path("[PUBLIC] EHL Cases/cases")
@@ -66,17 +67,45 @@ MODELS = {"mini": "gpt-5.4-mini", "terra": "gpt-5.6-terra"}
 MINI_GAMES = [41, 44, 40, 42, 20, 12, 24, 7, 18, 35, 25, 19]
 TERRA_GAMES = [41, 44]
 
-GRADE_PROMPT = f"""{COMMON_HEAD}
-For each Line Item return:
-- line_item: the POS number printed on the invoice. Use it exactly. Numbering may skip a number and may continue across several invoices in the same document.
-- coverage_probability: the probability from 0 to 1 that this Policy indemnifies this position at all. This is the most valuable number you produce. Roughly 40% of positions are worth nothing.
-- item_grade: your own judgement, BEFORE you price it, of the quality/rarity tier of the specific item or service this Line Item describes -- one of "ordinary", "premium", or "exceptional". If a photograph is attached, look at it closely: brand marks, materials, visible mechanical complications or craftsmanship (a mechanical watch with a visible tourbillon, a moon-phase subdial, or a perpetual calendar is "exceptional"; a plain quartz watch is "ordinary"), condition, and anything the description or an attached valuation/certificate says about it. An "exceptional" item can legitimately be a five- or six-figure object -- do not let a business-as-usual expectation cap what you write down.
-- comparable: one short, concrete, named real-world comparable that anchors your price -- a specific product tier, market segment, or category benchmark (e.g. "entry-level Swiss automatic watch", "haute horlogerie grand complication", "mid-range condensation dryer rental", "budget flat-pack kitchen unit"). Not a brand guess, a market-segment anchor.
-- price_low, price_median, price_high: a realistic GROSS TOTAL band in EUR for the WHOLE Line Item at German market prices, consistent with the grade and comparable you just named. Never a net amount, never a per-unit price. Make the band honest: wide when you are unsure, narrow when you are confident.
-- clause: the Policy sentence that decides coverage, quoted verbatim.
-{ANCHORS}{COVERAGE_RULES}
-Return JSON only:
-{{"items":[{{"line_item":1,"coverage_probability":0.9,"item_grade":"ordinary","comparable":"","price_low":0.0,"price_median":0.0,"price_high":0.0,"clause":""}}]}}"""
+#: The two extra fields, spliced into the SHIPPED prompt rather than into a hand-copied
+#: reconstruction of it. That matters twice over: an earlier harness (`tail_prompts.py`)
+#: reassembled the prompt from its own copies of the anchor/coverage paragraphs and has since
+#: rotted (it still imports `s2.PROMPT`, removed in the six-module split, and now dies at
+#: import). And an A/B whose control is a *paraphrase* of the live prompt measures the
+#: paraphrase as well as the change. Here the control is `prompts.PROMPT` verbatim and the
+#: treatment is that same string with two request lines and two JSON keys added -- one
+#: variable.
+_GRADE_FIELDS = (
+    '- item_grade: your own judgement, BEFORE you price it, of the quality/rarity tier of the '
+    'specific item or service this Line Item describes -- one of "ordinary", "premium", or '
+    '"exceptional". If a photograph is attached, look at it closely: brand marks, materials, '
+    'visible mechanical complications or craftsmanship (a mechanical watch with a visible '
+    'tourbillon, a moon-phase subdial, or a perpetual calendar is "exceptional"; a plain quartz '
+    'watch is "ordinary"), condition, and anything the description or an attached valuation '
+    'certificate says about it. An "exceptional" item can legitimately be a five- or six-figure '
+    'object -- do not let a business-as-usual expectation cap what you write down.\n'
+    '- comparable: one short, concrete market-segment comparable that anchors your price (e.g. '
+    '"entry-level Swiss automatic watch", "haute horlogerie grand complication", "mid-range '
+    'condensation dryer rental"). A segment anchor, not a brand guess.\n'
+)
+
+#: Anchor the splice on the price-band request line, which is the line the two new fields have
+#: to precede -- the model must grade before it prices, or the field is a post-hoc label rather
+#: than a reasoning step.
+_PRICE_LINE = "- price_low, price_median, price_high:"
+
+if _PRICE_LINE not in PROMPT:  # pragma: no cover - guards a silent no-op A/B
+    raise SystemExit(
+        "grade_prompt.py: the shipped PROMPT no longer contains the price-band request line "
+        "this splice anchors on. Re-read src/services/strategies/strategy2/prompts.py and "
+        "re-anchor, rather than shipping an A/B whose treatment equals its control."
+    )
+
+GRADE_PROMPT = PROMPT.replace(_PRICE_LINE, _GRADE_FIELDS + _PRICE_LINE, 1).replace(
+    '{"items":[{"line_item":1,"coverage_probability":0.9,',
+    '{"items":[{"line_item":1,"coverage_probability":0.9,"item_grade":"ordinary","comparable":"",',
+    1,
+)
 
 
 def _draw_path(game_id: int, model_tag: str) -> Path:

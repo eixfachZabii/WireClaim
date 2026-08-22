@@ -351,6 +351,41 @@ sweep moves it by ~18k. The other ~750k is the estimate. Only the evidence layer
 module was scoring five Games short — the five that matter most, since a Field measurement
 does not survive a phase boundary. It now derives from `usable_games`.
 
+## H9 ❌ Scale `t_hat` itself (uniform, threshold-conditional, power-law) so `a` and `b` move together
+
+Full report: [`scale-estimate.md`](scale-estimate.md). Different in kind from H2 and H8: those
+moved a multiplier on top of a fixed `t_hat`; this scales `price_median` and reprices through
+the real `price_item`, so the Charge *and* the Limit move together — asserted directly in the
+harness, not assumed.
+
+**Reproduces the motivating evidence and still loses.** The 6.01×/1.17× magnitude bias quoted
+as support is `level_fit.py`'s own *by-true-`t`* table — the biased conditioning direction its
+own docstring already flags. Bucketed by `t_hat` itself (the only actionable direction), the
+same sample runs 0.46× under 50 EUR and **1.95× over 1,000 — already too high, not too low**,
+which is exactly why the loss shows up where it does. The 73%-censored-below-`t_lo` proof
+(`upward-charge.md`) is real but does not say *which* items — nothing in the decision-time
+evidence (`t_hat`, `sigma`, `coverage_probability`, `channels`) separates a genuinely
+underpriced censored item from a catastrophically overpriced one in the same magnitude band.
+
+- Uniform λ 1.1–1.3: inside the ±27,352 (n=19) / ±24,302 (n=15) noise floor on both windows,
+  and λ=1.1's in-sample +9,572 flips sign odd (−13,786) vs even (+23,359). λ ≥ 1.5: clear,
+  fold-robust losses (−46,063 to −96,739).
+- `threshold>500` (only items above 500 scaled): negative at every λ tested, every window —
+  direct confirmation `t_hat` is not uniformly low there.
+- `threshold>1000, λ=2.0`: the only configuration that clears the noise floor on 3 of 4 folds
+  (+86,773 ALL19, +80,560 LAST15) — **entirely two Line Items in two Games** (g44 stolen
+  watch, g41 robbery compensation, both censored/unbounded, estimate 0.73×/0.50× the proven
+  floor). Removing exactly those two Games: −52,743 (λ=2.0), −58,793 (λ=1.5). The weak EARLY
+  fold (+5,172, inside noise) was the tell before the by-Game breakdown confirmed why.
+- Power-law (γ > 1, low anchor, the *stretch* direction): catastrophic and monotone in γ
+  (−6,548 at γ=1.1 to −444,174 at γ=1.5), replicating — in the opposite exponent direction —
+  H2's "the whole `exp(c0)·t̂^c1` family's argmax is `c1 = 1`" finding, now on the current
+  engine and window.
+
+**No `src/` change proposed.** Third independent confirmation tonight (after H2's fitted
+recalibration and `upward-charge.md`'s conditional Charge multiplier) that no deterministic
+function of the `t_hat` we already have closes the gap — it belongs to the evidence layer.
+
 ---
 
 ## Standing measurements worth not re-deriving

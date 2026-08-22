@@ -34,8 +34,6 @@ from src.services.strategies.strategy2.blend import combine  # noqa: E402
 from src.services.strategies.strategy2.channels import local_evidence  # noqa: E402
 
 from replay_payoffs import snapshot, replay  # noqa: E402
-from vision_ablation import MINI_GAMES as VISION_MINI_GAMES, TERRA_GAMES as VISION_TERRA_GAMES  # noqa: E402
-from grade_prompt import MINI_GAMES as GRADE_MINI_GAMES, TERRA_GAMES as GRADE_TERRA_GAMES  # noqa: E402
 
 RETEST = ROOT / "var" / "experiments" / "model_bakeoff_retest"
 VISION = ROOT / "var" / "experiments" / "vision_ablation"
@@ -43,6 +41,22 @@ GRADE = ROOT / "var" / "experiments" / "grade_prompt"
 CASES = ROOT / "[PUBLIC] EHL Cases" / "cases"
 INF = math.inf
 NOISE_FLOOR_18 = 26622.0
+
+
+def cached_games(directory: Path, model_tag: str, suffix: str) -> list[int]:
+    """Which Games actually have a cached draw. Discovered from disk, never imported.
+
+    Deliberately not `from vision_ablation import MINI_GAMES`: `scripts/experiments/` is
+    shared with other agents working the same night, and that module was rewritten under this
+    one mid-session. A scoreboard that imports a peer's constant reports on whatever that peer
+    last edited; one that reads the cache reports on the draws that were actually paid for.
+    """
+    if not directory.exists():
+        return []
+    return sorted(
+        int(p.name.split("_")[1])
+        for p in directory.glob(f"case_*_{model_tag}_{suffix}.json")
+    )
 
 
 def _evidence_from(path: Path) -> dict[int, Evidence]:
@@ -77,7 +91,23 @@ def grade(game_id: int, model_tag: str) -> dict[int, Evidence]:
     return _evidence_from(GRADE / f"case_{game_id:02d}_{model_tag}_grade.json")
 
 
-def log_errors(games: list[int], model_tag: str, loader, *, tail_only: bool = False) -> list[float]:
+def log_errors(
+    games: list[int],
+    model_tag: str,
+    loader,
+    *,
+    tail_only: bool = False,
+    population: str = "real_money",
+) -> list:
+    """One row per scorable Line Item: (game, index, log_error, median, t).
+
+    `population` splits the corpus the way CLAUDE.md rule 10 requires and never pools them:
+      real_money  bounded bracket AND t_lo > 0 -- the only items price accuracy moves euros on
+      censored    t_hi == inf -- `t` falls back to the proven lower bound `t_lo`, so a positive
+                  error may be real and a NEGATIVE one is a *proof* of under-pricing. This is
+                  also where the expensive items live (nobody rightfully rejected them), which
+                  is why a real_money-only headline is blind to exactly the tail we care about.
+    """
     out = []
     for g in games:
         try:
@@ -89,13 +119,35 @@ def log_errors(games: list[int], model_tag: str, loader, *, tail_only: bool = Fa
             if item.price_median <= 0:
                 continue
             lo, hi = snap.fair_brackets.get(index, (0.0, INF))
-            if hi == INF or lo <= 0:
-                continue  # real-money population only
-            t = (lo + hi) / 2.0
+            if population == "real_money":
+                if hi == INF or lo <= 0:
+                    continue
+                t = (lo + hi) / 2.0
+            elif population == "censored":
+                if hi != INF or lo <= 0:
+                    continue
+                t = lo
+            else:
+                raise ValueError(population)
             if tail_only and t < 1000:
                 continue
             out.append((g, index, math.log(item.price_median / t), item.price_median, t))
     return out
+
+
+def paired(rows_a: list, rows_b: list) -> tuple[list, list]:
+    """Restrict two row sets to the Line Items BOTH priced.
+
+    Without this the two RMSLEs describe different item populations -- the no-photo arm
+    priced two items (g19#8, g19#9) the photo arm left out, and an unpaired comparison
+    silently credits or blames the arm for a composition difference rather than for the
+    variable under test.
+    """
+    keys = {(r[0], r[1]) for r in rows_a} & {(r[0], r[1]) for r in rows_b}
+    return (
+        [r for r in rows_a if (r[0], r[1]) in keys],
+        [r for r in rows_b if (r[0], r[1]) in keys],
+    )
 
 
 def _stats(rows) -> str:
@@ -155,6 +207,21 @@ def euro_delta(games: list[int], model_tag: str, loader_a, loader_b, label_a: st
     print(f"      {label_b:10s} total {total_b:>12,.2f}")
     print(f"      delta {label_b}-{label_a}: {total_b - total_a:+,.2f}  (noise floor +/-{nf:,.0f})  [{flag}]")
 
+    # Per Game, largest movement first. A total is only worth quoting if it is not one Case:
+    # this repo has been burnt by exactly that (an 83,577 penalty figure that was one Line
+    # Item; a 17,492 ceiling cliff that was Game 22 alone), so the breakdown ships with the
+    # total rather than being available on request.
+    per_game = sorted(((net_b[g] - net_a[g], g) for g in common), key=lambda kv: -abs(kv[0]))
+    print(f"      per Game ({label_b} - {label_a}), largest first:")
+    for delta, g in per_game:
+        share = delta / (total_b - total_a) if abs(total_b - total_a) > 1e-9 else float("nan")
+        print(f"        g{g:02d}  {delta:>+11,.0f}   ({share:+.0%} of the total delta)")
+    if per_game:
+        biggest, g_big = per_game[0]
+        rest = (total_b - total_a) - biggest
+        print(f"      without g{g_big:02d}: {rest:+,.0f} over {len(common) - 1} Games "
+              f"(floor +/-{NOISE_FLOOR_18 * math.sqrt((len(common) - 1) / 18.0):,.0f})")
+
 
 def section(title: str) -> None:
     print(f"\n{'=' * 90}\n{title}\n{'=' * 90}")
@@ -162,14 +229,28 @@ def section(title: str) -> None:
 
 def main() -> None:
     section("VISION ABLATION -- photo ON (retest anchor) vs photo OFF (vision_ablation nophoto)")
-    for model_tag, games in (("mini", VISION_MINI_GAMES), ("terra", VISION_TERRA_GAMES)):
+    for model_tag in ("mini", "terra"):
+        games = cached_games(VISION, model_tag, "nophoto")
+        if not games:
+            print(f"\n  -- model={model_tag}: no no-photo draws cached --")
+            continue
         print(f"\n  -- model={model_tag}, Games {games} --")
+        for population in ("real_money", "censored"):
+            for tail_only in (False, True):
+                on, off = paired(
+                    log_errors(games, model_tag, baseline_anchor, tail_only=tail_only, population=population),
+                    log_errors(games, model_tag, nophoto, tail_only=tail_only, population=population),
+                )
+                if not on:
+                    continue
+                label = f"{population}{' t>=1000' if tail_only else ''}"
+                print(f"    [{label:20s}] photo ON   {_stats(on)}")
+                print(f"    [{label:20s}] photo OFF  {_stats(off)}")
+                wins_on = sum(1 for a, b in zip(on, off) if abs(a[2]) < abs(b[2]) - 1e-9)
+                wins_off = sum(1 for a, b in zip(on, off) if abs(b[2]) < abs(a[2]) - 1e-9)
+                print(f"    [{label:20s}] paired sign test: photo ON better {wins_on}, photo OFF better {wins_off}")
         photo_on = log_errors(games, model_tag, baseline_anchor)
         photo_off = log_errors(games, model_tag, nophoto)
-        print(f"    photo ON   {_stats(photo_on)}")
-        print(f"    photo OFF  {_stats(photo_off)}")
-        print(f"    photo ON,  t>=1000  {_stats(log_errors(games, model_tag, baseline_anchor, tail_only=True))}")
-        print(f"    photo OFF, t>=1000  {_stats(log_errors(games, model_tag, nophoto, tail_only=True))}")
         print("    per-item deltas (game#index: t, photoON_median, photoOFF_median, log_err ON, log_err OFF):")
         on_map = {(g, i): (e, m) for g, i, e, m, t in photo_on}
         off_map = {(g, i): (e, m, t) for g, i, e, m, t in photo_off}
@@ -183,7 +264,11 @@ def main() -> None:
         euro_delta(games, model_tag, baseline_anchor, nophoto, "photoON", "photoOFF")
 
     section("GRADE PROMPT -- baseline anchor vs grade-first (item_grade + comparable fields)")
-    for model_tag, games in (("mini", GRADE_MINI_GAMES), ("terra", GRADE_TERRA_GAMES)):
+    for model_tag in ("mini", "terra"):
+        games = cached_games(GRADE, model_tag, "grade")
+        if not games:
+            print(f"\n  -- model={model_tag}: no grade-prompt draws cached --")
+            continue
         print(f"\n  -- model={model_tag}, Games {games} --")
         base = log_errors(games, model_tag, baseline_anchor)
         gr = log_errors(games, model_tag, grade)
