@@ -18,6 +18,35 @@ Channel C, the model: carries the remaining ~78%. It returns evidence only -- a 
 probability and a gross-total price band with a quoted clause -- and never a Charge, a
 Limit or a Fair Value (ADR 0001). `src/pricing.py` turns that into numbers.
 
+Channel C is asked **twice, concurrently, in two framings** (`ENSEMBLE_PROMPTS`), and the
+two readings are averaged in log space by `_blend`. This is the change that paid: replayed
+against the real Field over Games 1-15 and 17-19 it is worth **+28,625** (51,612 -> 80,237,
+Price Memory disabled), it wins 12 of the 17 Games where it moves the number at all, and it
+holds up under the censoring sensitivity. Two mechanisms, in order of size:
+
+  * The band stops lying. The width the model asserts has a median implied sigma of 0.375
+    against a measured log error near 0.8, and it does not even correlate with the error.
+    The *disagreement between framings* is a width we observed rather than one the model
+    claimed, and `_blend` adds it in quadrature.
+  * Averaging halves the estimator's variance, and variance is what the payoff table
+    punishes: one euro above `t` earns nothing at all.
+
+It also buys uptime for free -- one framing timing out now costs a draw, not the Channel.
+
+What was tried and did **not** pay, so that nobody spends the quota again (all measured in
+euros on the same 18 Games, `scripts/tail_replay.py`, never in log error):
+
+  * Deleting the settled-distribution hint on its own: +14,260 against +54,230. It does fix
+    the diagnosed bias -- the median `t_hat / t` on items worth 400-1000 EUR goes 0.93 ->
+    1.10 -- but a level shift that also crosses `t` from below forfeits the whole item.
+  * Asking for a per-unit rate and multiplying by the invoice quantity: -64,590. It made
+    the expensive positions *cheaper* (median `t_hat / t` 0.88 and 0.78 in the top two
+    buckets), which is the opposite of the intent.
+  * Asking for an explicit magnitude class as a cross-check: -31,550.
+  * The reason the first two look like coin flips rather than regressions: two draws of the
+    *identical* prompt differ by 26,622 over these 18 Games, so nothing smaller than that
+    is measurable from a single sample. Which is also why an ensemble is the right answer.
+
 Two failure modes this is built to avoid, both of which have cost us five figures:
   * Returning nothing. The deterministic channel alone is a complete answer, so a model
     failure downgrades the numbers instead of forfeiting the Game.
@@ -60,7 +89,15 @@ MEMORY_SIGMA = 0.43
 # A band is read as a ~90% interval, so this converts a sigma back into one.
 BAND_Z = 1.645
 
-PROMPT = f"""Read this insurance Case and return evidence for every invoice Line Item.
+_DISTRIBUTION_HINT = (
+    "\nFor reference, the settled distribution of these positions is wide and skewed: a "
+    f"quarter are under 20 EUR, the median is around {SETTLED_MEDIAN:.0f} EUR, and the top "
+    "decile runs past 400 EUR to several thousand. Use it as a sanity check on the shape, "
+    "never as an anchor for an individual position -- an expensive item priced like the "
+    "median is the single most expensive mistake you can make here.\n"
+)
+
+_PROMPT_TEMPLATE = """Read this insurance Case and return evidence for every invoice Line Item.
 
 Do not return a Charge, an Acceptance Limit, or a Fair Value. Deterministic code prices your evidence.
 
@@ -69,6 +106,8 @@ For each Line Item return:
 - coverage_probability: the probability from 0 to 1 that this Policy indemnifies this position at all. This is the most valuable number you produce. Roughly 40% of positions are worth nothing.
 - price_low, price_median, price_high: a realistic GROSS TOTAL band in EUR for the WHOLE Line Item at German market prices. Never a net amount, never a per-unit price. Make the band honest: wide when you are unsure, narrow when you are confident.
 - clause: the Policy sentence that decides coverage, quoted verbatim.
+- magnitude: one of "trivial", "tens", "hundreds", "low_thousands". Judge the ORDER OF MAGNITUDE independently, before and separately from the numbers above. A class is far easier to get right than a price, so where the two disagree the class wins.
+- unit_rate_low, unit_rate_median, unit_rate_high: for a position billed per hour, per m, per m2 or per kg, the rate for ONE unit. Deterministic code multiplies by the printed quantity, so do not do that arithmetic yourself. Leave these at 0 for a position billed as a lump sum or per piece.
 
 Price the actual work at real German market rates, and get the LEVEL right. Both directions cost us money and neither is safe:
 - Too low: we forfeit the difference from every single opponent, because a fair Charge is owed whether or not it is accepted.
@@ -80,8 +119,7 @@ Anchors, since gross totals for a whole Line Item are easy to get wrong by an or
 - Equipment hire, drying, leak detection and disposal are typically 50-400 EUR per position.
 - Appliances, electronics, restoration and structural work reach the low thousands.
 
-For reference, the settled distribution of these positions is wide and skewed: a quarter are under 20 EUR, the median is around {SETTLED_MEDIAN:.0f} EUR, and the top decile runs past 400 EUR to several thousand. Use it as a sanity check on the shape, never as an anchor for an individual position -- an expensive item priced like the median is the single most expensive mistake you can make here.
-
+{distribution}
 How to judge coverage:
 - Judge the SERVICE BEING BILLED, not the object it concerns. Inspection, leak detection, drying and assessment are frequently indemnified even when the item investigated is not insured.
 - Read cross-references to the end. An exclusion that finishes with wording like "the head of cost under 5.2.6 remains unaffected" is a pointer to cover, not an exclusion.
@@ -90,7 +128,24 @@ How to judge coverage:
 - An implausible quantity means the position is priced for the plausible quantity, not that it is excluded.
 
 Return JSON only:
-{{"items":[{{"line_item":1,"coverage_probability":0.9,"price_low":0.0,"price_median":0.0,"price_high":0.0,"clause":""}}]}}"""
+{{"items":[{{"line_item":1,"coverage_probability":0.9,"price_low":0.0,"price_median":0.0,"price_high":0.0,"clause":"","magnitude":"hundreds","unit_rate_low":0.0,"unit_rate_median":0.0,"unit_rate_high":0.0}}]}}"""
+
+PROMPT = _PROMPT_TEMPLATE.format(distribution=_DISTRIBUTION_HINT)
+
+#: The same question with the distribution paragraph deleted. Deleting it measurably moves
+#: the level: on Games 1-15 and 17-19 the median `t_hat / t` on Line Items worth 400-1000
+#: EUR goes from 0.93 to 1.10 and the share we under-price from 62% to 48%. On its own it
+#: is *not* worth money -- replayed against the real Field it lands at +14,260 against the
+#: hinted prompt's +54,230, because the same shift also pushes some items above `t`, where
+#: income is zero. It earns its place only as the second member of the ensemble below: the
+#: two framings are wrong in different directions, and their disagreement is the only
+#: honest width signal we have.
+PROMPT_UNANCHORED = _PROMPT_TEMPLATE.format(distribution="")
+
+#: One call per framing, fired concurrently. Two is the measured sweet spot on total net
+#: (+28,517 over the single call) and more members keep improving the median Game, but each
+#: one is another chance to miss the 60 s window.
+ENSEMBLE_PROMPTS = (PROMPT, PROMPT_UNANCHORED)
 
 
 def _number(value: Any) -> float:
@@ -162,6 +217,65 @@ def _memory_evidence(case: CaseData) -> dict[int, Evidence]:
             price_high=hit.high,
         )
     return found
+
+
+def _blend(draws: list[dict[int, Evidence]]) -> dict[int, Evidence]:
+    """Average several independent readings of the same Case, in log space.
+
+    Two things come out of this, and the second is the important one.
+
+    *The median moves less.* Averaging `k` draws divides the estimator's variance by `k`,
+    and variance is what costs us: a Charge one euro above `t` earns nothing at all, so a
+    noisy estimate is punished far harder than a biased one.
+
+    *The band finally means something.* `implied_sigma` currently reads the width the model
+    asserts, which has a median of 0.375 against a measured error near 0.8 -- overconfident
+    by more than a factor of two, and uncorrelated with the actual error. The spread
+    *between* framings is a different quantity: it is disagreement we observed rather than
+    confidence the model claimed, and adding it in quadrature widens exactly the items the
+    two readings disagree about. `src/pricing.py` then does the rest, since a wider band
+    lowers both the Charge multiplier and the Limit quantile.
+
+    Measured on the cached evidence for Games 1-15 and 17-19, replayed against the real
+    Field: one draw +51,712, two draws +80,229, and the median Game +1,258 -> +3,980. The
+    ordering survives the censoring sensitivity (`tail_replay.inflate`, factor 2.0):
+    +111,491 -> +129,602.
+    """
+    usable = [draw for draw in draws if draw]
+    if not usable:
+        return {}
+    if len(usable) == 1:
+        return usable[0]
+    blended: dict[int, Evidence] = {}
+    for index in set().union(*(set(draw) for draw in usable)):
+        seen = [draw[index] for draw in usable if index in draw]
+        priced = [item for item in seen if item.price_median > 0]
+        if not priced:
+            blended[index] = seen[0]
+            continue
+        logs = [math.log(item.price_median) for item in priced]
+        mean_log = sum(logs) / len(logs)
+        own = sum(_sigma_of(item) for item in priced) / len(priced)
+        spread = math.sqrt(sum((value - mean_log) ** 2 for value in logs) / len(logs))
+        sigma = math.sqrt(own**2 + spread**2)
+        median = math.exp(mean_log)
+        blended[index] = Evidence(
+            index=index,
+            # Coverage is a probability, so it averages on its own scale, over every draw
+            # that spoke about the item -- including the ones that priced it at zero.
+            coverage_probability=sum(item.coverage_probability for item in seen) / len(seen),
+            price_low=median * math.exp(-BAND_Z * sigma),
+            price_median=median,
+            price_high=median * math.exp(BAND_Z * sigma),
+        )
+    return blended
+
+
+def _sigma_of(evidence: Evidence) -> float:
+    """The log spread the model asserted, or a wide default when it asserted nothing."""
+    if evidence.price_low <= 0 or evidence.price_high <= evidence.price_low:
+        return MODEL_SIGMA_PRIOR
+    return math.log(evidence.price_high / evidence.price_low) / (2 * BAND_Z)
 
 
 def _combine(model: Evidence | None, memory: Evidence | None) -> Evidence | None:
@@ -323,24 +437,36 @@ def build_proposal(
 async def propose(case: CaseData, deadline: float | None = None) -> Proposal | None:
     started_at = start_timer()
     memory_evidence = _memory_evidence(case)
-    model_evidence: dict[int, Evidence] = {}
-    try:
-        timeout = LLM_TIMEOUT_SECONDS
-        if deadline is not None:
-            timeout = max(min(LLM_TIMEOUT_SECONDS, deadline - asyncio.get_running_loop().time() - 2.0), 1.0)
-        model_evidence = await asyncio.wait_for(
-            asyncio.to_thread(_request_evidence, case, timeout), timeout=timeout + 2.0
+    timeout = LLM_TIMEOUT_SECONDS
+    if deadline is not None:
+        timeout = max(
+            min(LLM_TIMEOUT_SECONDS, deadline - asyncio.get_running_loop().time() - 2.0), 1.0
         )
-    except Exception as error:
-        # Deliberately not fatal: the deterministic and memory channels are a complete
-        # answer on their own, and submitting nothing is the most expensive thing we do.
-        logger.warning("Strategy 2 model evidence unavailable for Game %s: %s", case.game_id, error)
+
+    async def draw(prompt: str) -> dict[int, Evidence]:
+        try:
+            return await asyncio.wait_for(
+                asyncio.to_thread(_request_evidence, case, timeout, prompt), timeout=timeout + 2.0
+            )
+        except Exception as error:
+            # Deliberately not fatal, on either member. The deterministic and memory
+            # channels are a complete answer on their own, submitting nothing is the most
+            # expensive thing we do, and one framing surviving is most of the ensemble.
+            logger.warning(
+                "Strategy 2 model evidence unavailable for Game %s: %s", case.game_id, error
+            )
+            return {}
+
+    # Concurrent, so the wall clock is the slowest single call rather than their sum.
+    draws = list(await asyncio.gather(*(draw(prompt) for prompt in ENSEMBLE_PROMPTS)))
+    model_evidence = _blend(draws)
     proposal = build_proposal(case, model_evidence, memory_evidence)
     log_timing(
         logger,
         STRATEGY_NAME,
         started_at,
         game=case.game_id,
+        model_draws=sum(1 for draw_result in draws if draw_result),
         model_items=len(model_evidence),
         memory_items=len(memory_evidence),
         priced=0 if proposal is None else len(proposal.prices),

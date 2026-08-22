@@ -7,7 +7,12 @@ from unittest.mock import patch
 from src.data.models import CaseData, LineItem
 from src.pricing import Evidence
 from src.services.strategies.strategy2.strategy import (
+    ENSEMBLE_PROMPTS,
+    PROMPT,
+    PROMPT_UNANCHORED,
     STRATEGY_NAME,
+    _band_of,
+    _blend,
     _combine,
     build_proposal,
     propose,
@@ -123,6 +128,79 @@ class CombineTests(unittest.TestCase):
         self.assertIsNone(_combine(None, None))
 
 
+class BlendTests(unittest.TestCase):
+    """The ensemble: two framings of the same Case, averaged in log space."""
+
+    def test_the_median_is_the_geometric_mean_of_the_draws(self) -> None:
+        blended = _blend([{1: Evidence(1, 0.9, 80.0, 100.0, 125.0)}, {1: Evidence(1, 0.9, 320.0, 400.0, 500.0)}])
+
+        self.assertAlmostEqual(blended[1].price_median, 200.0)
+
+    def test_disagreement_widens_the_band(self) -> None:
+        """The spread between framings is the only honest width signal we have.
+
+        The width the model asserts has a median of 0.375 against a measured error near
+        0.8, so a band that ignores the disagreement claims precision that is not there.
+        """
+        agreeing = _blend([{1: Evidence(1, 0.9, 90.0, 100.0, 110.0)}, {1: Evidence(1, 0.9, 90.0, 100.0, 110.0)}])
+        disagreeing = _blend([{1: Evidence(1, 0.9, 90.0, 100.0, 110.0)}, {1: Evidence(1, 0.9, 900.0, 1000.0, 1100.0)}])
+
+        self.assertAlmostEqual(agreeing[1].price_high / agreeing[1].price_low, 110.0 / 90.0, places=6)
+        self.assertGreater(
+            disagreeing[1].price_high / disagreeing[1].price_low,
+            agreeing[1].price_high / agreeing[1].price_low,
+        )
+
+    def test_a_single_surviving_draw_is_passed_through(self) -> None:
+        """One framing timing out must not cost us the model channel."""
+        only = {1: Evidence(1, 0.9, 80.0, 100.0, 125.0)}
+
+        self.assertIs(_blend([{}, only]), only)
+        self.assertEqual(_blend([{}, {}]), {})
+
+    def test_coverage_averages_over_every_draw(self) -> None:
+        blended = _blend([{1: Evidence(1, 1.0, 80.0, 100.0, 125.0)}, {1: Evidence(1, 0.2, 80.0, 100.0, 125.0)}])
+
+        self.assertAlmostEqual(blended[1].coverage_probability, 0.6)
+
+    def test_the_two_framings_differ_only_in_the_distribution_hint(self) -> None:
+        self.assertEqual(ENSEMBLE_PROMPTS, (PROMPT, PROMPT_UNANCHORED))
+        self.assertIn("the median is around 59 EUR", PROMPT)
+        self.assertNotIn("the median is around", PROMPT_UNANCHORED)
+
+
+class BandTests(unittest.TestCase):
+    def test_a_gross_total_band_is_taken_as_given(self) -> None:
+        item = {"price_low": 125.0, "price_median": 100.0, "price_high": 80.0}
+
+        self.assertEqual(_band_of(item, quantity=6.75), (80.0, 100.0, 125.0))
+
+    def test_a_per_unit_rate_is_multiplied_by_the_printed_quantity(self) -> None:
+        """"Service technician hours (6.75 hrs)" was charged 102 against a true t >= 593."""
+        item = {"unit_rate_low": 60.0, "unit_rate_median": 85.0, "unit_rate_high": 110.0}
+
+        low, median, high = _band_of(item, quantity=6.75)
+
+        self.assertAlmostEqual(median, 573.75)
+        self.assertAlmostEqual(low, 405.0)
+        self.assertAlmostEqual(high, 742.5)
+
+    def test_a_magnitude_class_above_the_number_pulls_the_band_up(self) -> None:
+        item = {"price_low": 60.0, "price_median": 140.0, "price_high": 260.0, "magnitude": "low_thousands"}
+
+        low, median, high = _band_of(item, quantity=1.0)
+
+        self.assertGreater(median, 140.0)
+        self.assertLess(median, 1000.0)
+        self.assertGreaterEqual(high, 2000.0)
+        self.assertLessEqual(low, median)
+
+    def test_a_magnitude_class_never_pulls_a_band_down(self) -> None:
+        item = {"price_low": 900.0, "price_median": 1500.0, "price_high": 2400.0, "magnitude": "tens"}
+
+        self.assertEqual(_band_of(item, quantity=1.0), (900.0, 1500.0, 2400.0))
+
+
 class ProposeTests(unittest.TestCase):
     def test_a_model_failure_still_produces_a_submission(self) -> None:
         """Submitting nothing is the most expensive thing we do: 139,904 over three Games."""
@@ -137,6 +215,26 @@ class ProposeTests(unittest.TestCase):
         self.assertIsNotNone(proposal)
         self.assertGreater(proposal.prices[0].charge_price, 0.0)
         self.assertEqual(proposal.prices[0].acceptance_limit, 0.0)
+
+    def test_one_framing_failing_still_uses_the_other(self) -> None:
+        """Two calls means two chances, not two ways to lose the model channel."""
+        case = case_with(LineItem(1, "Drying fan"))
+        calls: list[str] = []
+
+        def flaky(_case, _timeout, prompt):
+            calls.append(prompt)
+            if len(calls) == 1:
+                raise RuntimeError("model down")
+            return {1: Evidence(1, 0.95, 80.0, 100.0, 125.0)}
+
+        with patch(
+            "src.services.strategies.strategy2.strategy._request_evidence", side_effect=flaky
+        ), patch("src.price_memory.lookup", return_value=None):
+            proposal = asyncio.run(propose(case))
+
+        self.assertEqual(len(calls), 2)
+        self.assertIsNotNone(proposal)
+        self.assertGreater(proposal.prices[0].charge_price, 0.0)
 
     def test_a_model_failure_with_nothing_else_known_returns_none(self) -> None:
         case = case_with(LineItem(1, "Something never seen before"))

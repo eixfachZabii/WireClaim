@@ -284,6 +284,33 @@ every opponent's Charge and pays it, and the Cap has never bound.
 estimator it costs €14–18k per 14 Games. It stays for now because it is a cheap guard
 while the band is broken, but it should be revisited once (1) is fixed.
 
+## 7c. Two negative results, recorded so nobody repeats them
+
+**The magnitude class made things dramatically worse.** Asking the model for an order-of-
+magnitude class alongside its band, and letting the class pull the band upward where the
+two disagree, was built and then measured end to end: regenerating evidence for all 19
+Cases and replaying gives **−75,390 against +51,921**, a swing of **−127,312**. Games 10,
+17 and 18 alone lose 115,000 of it. The mechanism is clear in hindsight — inflating a
+median raises the Limit through the same posterior, and overpaying is unbounded while
+undercharging only forfeits. **Reverted.** A per-unit rate schema was included in the same
+change, so it is untested on its own and may still be worth trying *without* the magnitude
+floor.
+
+**The coverage detector is good but not yet worth wiring.** Graded against the reconstructed
+Fair Values over all 14 settled Cases: recall **61.8 %** of the truly worthless items,
+false positives **1.7 %**, Brier **0.122** against **0.327** for a flat 0.9. Quote repair
+(anchoring a model's assembled citation back onto contiguous policy text) roughly doubled
+recall, and two-sample averaging cut the expensive error from 6.0 % to 1.7 %. It is parked
+in `src/services/coverage.py`, imported by nothing, because Strategy 2 already produces its
+own coverage probability and swapping one estimator for another mid-tournament needs a
+measured euro comparison, not a better confusion matrix.
+
+It asks for one cheap change when it is wired: adding `not insured`, `outside this
+contract`, `is not indemnified` and `not payable` to `EXCLUSION_MARKERS` lifts recall to
+**67.1 %** at no cost in false positives. Not shipped yet, because `policy_quote` also
+gates the **live** fraud mask, so a more permissive gate changes live behaviour for a
+module that is not yet live.
+
 ## 8. Risks and what is still unmeasured
 
 1. **The model's σ is unknown.** Everything hinges on it. If it lands above 0.5, the honest
