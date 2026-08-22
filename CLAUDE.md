@@ -60,7 +60,11 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 Allowed: any tooling, LLMs, manual work, domain research, anything inside our own team. Forbidden and disqualifying: cross-team coordination, sharing or using another team's key, obtaining decryption keys before release, reading other teams' unsettled submissions, and probing or overloading the API.
 
-**The open question is R9.** The public leaderboard publishes settled Transactions (`line_item_index, issuer, reviewer, accepted, amount`), which invert to bracket the Fair Value and reconstruct every opponent's Limit. The handout explicitly points us at the leaderboard, and inference from published results is not the same as "extracting the secret thresholds" — but it is close enough to the line that **we ask in `#❓-ask-orgateam` before building on it.** The rules say to ask when unsure. If the answer is no, R1–R8 stand untouched and self-calibration on our own settled results is unaffected.
+**R9 is settled: we asked, and it is allowed.** The public leaderboard publishes
+settled Transactions (`line_item_index, issuer, reviewer, accepted, amount`), which
+invert to bracket the Fair Value and reconstruct every opponent's Limit. Inference from
+published results is not "extracting the secret thresholds", and the organisers
+confirmed it. Build on it.
 
 Read the leaderboard at the rate a browser would. Do not enumerate endpoints that the leaderboard page itself does not call.
 

@@ -31,14 +31,24 @@ EPS = 1e-9
 # ─────────────────────────── SECTION 1 · the rules ───────────────────────────
 
 def settle(a, b, t, c):
-    """One Transaction -> (accepted, amount the Reviewer pays).
+    """One Transaction -> (accepted, amount, reviewer_pays).
+
+    `amount` is the field published in the Transactions view.  VERIFIED against Game 1:
+    it is what the ISSUER RECEIVES, in both branches -- NOT what the Reviewer pays.
+    README R9 says `a = amount / 1.5` on a wrongful rejection; that is WRONG (see F0 in
+    PLAN.md).  Reconciled to the cent against /performance for all 17 teams:
+        income = SUM(amount over rows where the team is Issuer)
+        costs  = SUM(amount | accepted) + 1.5 * SUM(amount | wrongfully rejected)
 
     min(a,c) == a whenever a <= t, because c >= 4t >= 4a.
     THE CAP CAN ONLY EVER BIND ON A FRAUD-ZONE CHARGE.  That is load-bearing below.
     """
     if a <= b:
-        return True, (a if a <= t else min(a, c))
-    return False, (1.5 * a if a <= t else 0.0)
+        amt = a if a <= t else min(a, c)
+        return True, amt, amt
+    if a <= t:
+        return False, a, 1.5 * a          # Wrongful Rejection: the 0.5a is destroyed (R2)
+    return False, 0.0, 0.0                # rightful rejection: nothing happens (R5)
 
 
 # ───────────────────────── SECTION 2 · the inversion ─────────────────────────
@@ -76,7 +86,7 @@ class ItemInversion:
         return math.log(self.t_hi / self.t_lo) if self.two_sided else math.inf
 
 
-def invert_item(rows, known_a=None, lawyer=1.5):
+def invert_item(rows, known_a=None, lawyer=1.0):
     """rows: (issuer, reviewer, accepted: bool, amount: float) for ONE Line Item.
 
     `known_a` injects Charges we know without inference -- in practice exactly one entry,
@@ -98,6 +108,7 @@ def invert_item(rows, known_a=None, lawyer=1.5):
                 ev.n_rej += 1
                 if amt > 0:
                     fair_vals.append(amt / lawyer)      # wrongful rejection => a <= t
+                                                        # lawyer=1.0: amount IS the Charge
                 else:
                     zero_rej = True                     # rightful rejection  => a >  t
                     out.n_rej_zero += 1
@@ -264,7 +275,7 @@ def make_game(rng, n_teams=30, dark_share=0.0, pi0=0.15, tau=0.8, med=300.0,
     for iss, (a, _, _) in subs.items():
         for rev, (_, b, _) in subs.items():
             if iss != rev:
-                acc, amt = settle(a, b, t, c)
+                acc, amt, _ = settle(a, b, t, c)
                 rows.append((iss, rev, acc, amt))
     return t, c, subs, rows, ours
 
@@ -390,9 +401,9 @@ def evaluate(rng, trials, beta_known, sigma_belief, dark_share=0.0,
         for name, (aj, bj, _) in subs.items():
             if name == US:
                 continue
-            acc, _ = settle(a, bj, t, c)
-            income += a if a <= t else (min(a, c) if acc else 0.0)   # us as Issuer
-            _, paid = settle(aj, b, t, c)                            # us as Reviewer
+            _, got, _ = settle(a, bj, t, c)                          # us as Issuer
+            income += got
+            _, _, paid = settle(aj, b, t, c)                         # us as Reviewer
             costs += paid
     k = n_teams - 1
     return (income - costs) / tsum / k, income / tsum / k, costs / tsum / k
@@ -672,7 +683,99 @@ def f7_straddle(trials=3000, seed=37, sigma_true=0.45, sigma_belief=0.30, beta_t
     print("  Row 1 is the deployed policy and confirms the theorem: 0.0% two-sided.")
 
 
+# ───────── SECTION 11 · F0 validation against LIVE settled Transactions ───────
+#   python3 invert.py --live [game_id]     (stdlib urllib; ~2 requests per team)
+
+LB = "https://c2f.public.quantco.cloud/leaderboard/api"
+
+
+def _get(path):
+    """urllib first; fall back to curl, because some python.org builds ship no CA bundle.
+    We never disable certificate verification."""
+    import json as _j
+    import urllib.request
+    try:
+        with urllib.request.urlopen(LB + path, timeout=20) as r:
+            return _j.loads(r.read())
+    except Exception:
+        import subprocess
+        out = subprocess.run(["curl", "-sSf", LB + path], capture_output=True, check=True)
+        return _j.loads(out.stdout)
+
+
+def fetch_game(game_id):
+    import time
+    import urllib.parse
+    teams = [c["team_name"] for c in _get("/matrix")["items"]]
+    rows = set()
+    for t in teams:
+        q = urllib.parse.quote(t)
+        page = 1
+        while True:
+            d = _get(f"/transactions?game_id={game_id}&team={q}&page={page}&page_size=500")
+            for r in d["items"]:
+                rows.add((r["issuer"], r["reviewer"], r["line_item_index"],
+                          bool(r["accepted"]), float(r["amount"])))
+            if page >= d["total_pages"]:
+                break
+            page += 1
+            time.sleep(0.4)
+        time.sleep(0.4)
+    return teams, sorted(rows)
+
+
+def validate_live(game_id=1):
+    teams, rows = fetch_game(game_id)
+    print(f"=== F0 · LIVE validation on settled Game {game_id} ===")
+    print(f"  {len(rows)} unique Transaction rows, {len(teams)} teams")
+
+    # ── the semantics test: is a wrongful-rejection amount 1.0x or 1.5x the Charge? ──
+    per = {}
+    for iss, rev, k, acc, amt in rows:
+        d = per.setdefault((iss, k), {"acc": set(), "rejpos": set(), "rej0": 0})
+        (d["acc"] if acc else (d["rejpos"] if amt > 0 else None))
+        if acc:
+            d["acc"].add(round(amt, 6))
+        elif amt > 0:
+            d["rejpos"].add(round(amt, 6))
+        else:
+            d["rej0"] += 1
+    ratios = [max(d["rejpos"]) / max(d["acc"]) for d in per.values()
+              if d["acc"] and d["rejpos"] and max(d["acc"]) > 0]
+    if ratios:
+        print(f"  wrongful-rejection amount / accepted amount, same Issuer+Line Item:")
+        print(f"    n={len(ratios)}  min={min(ratios):.6f}  max={max(ratios):.6f}"
+              f"   => lawyer factor is {'1.0 (amount == Charge)' if abs(max(ratios)-1)<1e-6 else 'NOT 1.0'}")
+    print(f"  Issuer+Line Items with inconsistent accepted amounts: "
+          f"{sum(1 for d in per.values() if len(d['acc']) > 1)} (must be 0)")
+    print(f"  Issuer+Line Items both FAIR and FRAUD: "
+          f"{sum(1 for d in per.values() if d['rejpos'] and d['rej0'])} (must be 0)")
+
+    # ── the inversion itself ─────────────────────────────────────────────
+    by_item = {}
+    for iss, rev, k, acc, amt in rows:
+        by_item.setdefault(k, []).append((iss, rev, acc, amt))
+    print(f"\n  {'item':>4} {'t_lo':>9} {'t_hi':>9} {'cap':>8} {'t=0?':>5} "
+          f"{'charges exact':>14} {'GUTTMAN':>8}")
+    g = 0
+    for k in sorted(by_item):
+        inv = invert_item(by_item[k])
+        nex = sum(1 for e in inv.issuers.values() if e.a_exact is not None)
+        g += inv.guttman_violations
+        print(f"  {k:>4} {inv.t_lo:>9.2f} "
+              f"{(inv.t_hi if math.isfinite(inv.t_hi) else float('inf')):>9.2f} "
+              f"{('%.2f' % inv.cap) if inv.cap else '-':>8} {str(inv.zero_t):>5} "
+              f"{nex:>6}/{len(inv.issuers):<7} {inv.guttman_violations:>8}")
+    print(f"  TOTAL Guttman violations: {g}   "
+          f"(0 == 'accepted iff a <= b, one Limit per team per Line Item' holds exactly)")
+
+
 if __name__ == "__main__":
+    import sys
+    if "--live" in sys.argv:
+        validate_live(int(sys.argv[sys.argv.index("--live") + 1])
+                      if len(sys.argv) > sys.argv.index("--live") + 1 else 1)
+        raise SystemExit
     roundtrip_test()
     f1_bracket()
     f2_coverage()
