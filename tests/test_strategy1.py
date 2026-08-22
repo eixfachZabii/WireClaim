@@ -104,6 +104,29 @@ class Strategy1Tests(unittest.TestCase):
         self.assertEqual(proposal.prices[0].acceptance_limit, 0.0)
         self.assertEqual(proposal.prices[0].charge_price, 315.0)
 
+    def test_low_model_coverage_collapses_the_limit(self) -> None:
+        """A doubtful item must not keep a full Limit.
+
+        `max(probability, 0.9)` used to override the model's verdict, so
+        covered_probability could not fall below 0.81 and the Limit never collapsed.
+        Game 17 paid 70,736 on accepted claims because of it.
+        """
+        confident = estimate_fair_values(self.case, (Evidence(1, 0.95, 0.95, 400.0, 600.0),))
+        doubtful = estimate_fair_values(self.case, (Evidence(1, 0.05, 0.95, 400.0, 600.0),))
+
+        self.assertGreater(confident[0].covered_probability, 0.8)
+        self.assertLess(doubtful[0].covered_probability, 0.1)
+
+        confident_limit = proposal_from_estimates(confident).prices[0].acceptance_limit
+        doubtful_limit = proposal_from_estimates(doubtful).prices[0].acceptance_limit
+        self.assertLess(doubtful_limit, confident_limit)
+
+    def test_a_missing_coverage_probability_still_defaults_to_covered(self) -> None:
+        """Absent evidence means covered; only a stated low probability lowers it."""
+        estimates = estimate_fair_values(self.case, (Evidence(1, 0.0, 0.0, 400.0, 600.0),))
+
+        self.assertGreater(estimates[0].covered_probability, 0.8)
+
     def test_missing_price_band_uses_quantity_scaled_fallback(self) -> None:
         estimates = estimate_fair_values(
             self.case,

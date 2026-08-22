@@ -199,8 +199,13 @@ def estimate_fair_values(case: CaseData, evidence: tuple[Evidence, ...]) -> tupl
         if confirmed_uncovered:
             covered_probability = 0.0
         else:
-            coverage = max(item.coverage_probability, DEFAULT_COVERAGE_PROBABILITY)
-            relatedness = max(item.relatedness_probability, DEFAULT_COVERAGE_PROBABILITY)
+            # Default when the model said nothing; never *floor* what it did say. This
+            # was `max(probability, 0.9)`, which silently overrode a verdict of "5%
+            # likely covered" with 90% and meant covered_probability could not fall
+            # below 0.81 -- so the Limit never collapsed and we paid full price on the
+            # 40% of Line Items whose Fair Value is 0. Game 17 paid 70,736 that way.
+            coverage = item.coverage_probability or DEFAULT_COVERAGE_PROBABILITY
+            relatedness = item.relatedness_probability or DEFAULT_COVERAGE_PROBABILITY
             covered_probability = coverage * relatedness
         estimates.append(
             Estimate(
