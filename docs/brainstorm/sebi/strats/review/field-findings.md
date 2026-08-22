@@ -56,3 +56,43 @@ Nearly every team scored exactly 0; `error404 ai` charged anyway and made **+403
 **Convention risk is the quantity column, not VAT.** On Game 1, a per-unit (`÷q`) slip
 costs 30,400–38,100; a VAT (`÷1.19`) slip costs 6,960 — **5.5× worse**. Going dark
 entirely costs 41,710.
+
+## Case structure — read from decrypted Cases 1–4
+
+Keys unlock at each Game's start, so every past Case is readable. Four of them overturn
+the assumption that this is a pricing problem.
+
+**Line Items are self-labelling.** The generator puts the disqualifier in the description
+text, in parentheses:
+
+| Case | Line Item | The tell |
+| --- | --- | --- |
+| 1 | "Preventive replacement of plant-room electrical components **(no confirmed water contact)**" | not Related to the damage |
+| 1 | "**Upgrade** to high-quality natural stone floor (**upgrade from pre-loss ceramic tiling**)" | betterment — the policy owes the pre-loss standard |
+| 1 | "Supply and install **premium hardwood** skirting boards (**upgrade from pre-loss softwood**)" | betterment |
+| 4 | "DVD player (**was already failing before the storm, age-related**)" | pre-existing, not caused by the peril |
+| 4 | "Router (**no diagnostic report provided**)" | unproven |
+| 4 | "**Administrative and claim-processing fee**" | not an indemnifiable loss |
+
+**Whole Cases can be uncovered, and Game 3 was one.** Case 3's policy is buildings-only —
+*"an insurance of immovable property at a defined location… it is **not** an insurance of
+the movable belongings of the persons who live there, and it is **not** an insurance of
+any form of transport."* The claim is a suitcase stolen from a parked car in France. Both
+Line Items are `t = 0`. That is why nearly the whole Field scored exactly 0 and the two
+teams that charged anyway took ~400 each.
+
+**Consequences.**
+
+- **The coverage/relatedness gate is worth more than any pricing refinement.** `t = 0`
+  turns a good price estimate into a wrong answer, and Case 3 shows entire Cases can be
+  zero. Reading the policy's scope clause first is the highest-value single step.
+- **Betterment is a partial haircut, not a binary.** Items 4 and 18 in Case 1 are covered
+  *at the pre-loss standard* — stone priced as ceramic, hardwood as softwood. A binary
+  covered/not-covered verdict gets both wrong in opposite directions.
+- **"Vehicle costs" recurs in all four Cases** and is the most repeated Line Item seen so
+  far — worth pinning down once, since Price Memory will hit it constantly.
+- **Some Line Items carry `– –` for quantity and unit.** Any parser that assumes a numeric
+  quantity will produce a wrong gross total on exactly the items designed to be traps.
+- This is a **reading** task before it is a pricing task, which is the empirical case for
+  [ADR 0001](../../adr/0001-the-model-reads-the-engine-prices.md): agents read and quote
+  the clause, deterministic code prices.
