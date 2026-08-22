@@ -306,7 +306,7 @@ if p_covered <= 1/3:
 else:
     q = (1/3 − (1 − p_covered)) / p_covered        # strip the zero mass, re-normalise
     b = median × exp(σ × z(q))
-    b = min(b, 0.85 × median)                      # LIMIT_CEILING
+    b = min(b, 0.45 × median, 708.0)               # LIMIT_CEILING, LIMIT_CAP
 b = min(b, a)
 ```
 
@@ -317,11 +317,20 @@ of the arithmetic. There is no threshold in the code that says "if uncertain, re
 correct answer often: about 40 % of settled Line Items (76 of 192 in Games 1–14) have
 `t = 0`, and paying anything on one of those is a pure loss.
 
-Two guards sit on top. `LIMIT_CEILING = 0.85` caps the Limit at 85 % of the median, because
+Three guards sit on top. `LIMIT_CEILING = 0.45` caps the Limit at 45 % of the median, because
 the quantile rule trusts the band and a model returning `95–105` on an item worth 20 would
-otherwise have us accept nearly the full median; it binds only below `σ ≈ 0.38`, so at
-realistic widths the band still drives the number. And `b ≤ a` always holds, since the Limit
-is a lower quantile of the same posterior than the Charge.
+otherwise have us accept nearly the full median. `LIMIT_CAP = 708` (12 × the settled median)
+caps it in **euros**, which is the one thing a multiplier cannot do: when the estimate blows
+up, a multiplicative ceiling blows up with it, and Game 29 bought thirteen opponents' Charges
+of 2,000.00 on an item worth under 57 for 24,157 of pure loss. And `b ≤ a` always holds, since
+the Limit is a lower quantile of the same posterior than the Charge.
+
+The ceiling has been re-opened twice and stays at 0.45 both times. Loosening to 0.70 is worth
++17,835 over 32 Games and is positive in **32 of 32** leave-one-Game-out folds — and is still
+wrong, because leave-one-out cannot see a regime change when 31 training Games stay in every
+fold. Split on *time* instead (train on Games 1–25, score on 26+) and it scores **−2,274**;
++17,218 of the +17,835 is Games 1–19, and every value above 0.45 loses on Games 28–32. The
+full table lives on the constant in [`pricing.py`](../src/pricing.py).
 
 One empirical shading is worth knowing: the 2/3 rule prices an accepted Overcharge at `a`,
 but the Cap allows `min(a, c)` with `c ≥ 4t`, so accepting is in truth slightly worse than
@@ -387,21 +396,39 @@ Policy, so it is always decided from the Case at hand.
 zero and Channel B reaches a fifth of the rest, so the model is not a fallback: it is the
 load-bearing estimator. It returns evidence only — `coverage_probability`, a gross-total
 `price_low / price_median / price_high` band, and the deciding clause quoted verbatim. Its
-own σ is **not yet measured**; `MODEL_SIGMA_PRIOR = 0.6` is a stated guess used only to
-weight it against Price Memory when both speak, and it is the single most important number
-still missing from this system.
+own σ **has since been measured**, and `MODEL_SIGMA_PRIOR = 0.6` — the weight used against
+Price Memory when both speak — turns out to be close: graded on the logged Games against the
+recovered Fair Values, the model-only channel scores RMSLE **0.76** and the memory-backed one
+**0.48**, against asserted band widths of 0.39 and 0.35. So the model is overconfident by
+about **1.9×** and Price Memory by 1.4×; the *ordering* the blend assumes is right, the
+*calibration* of the band is not. Two cautions on those figures: they are computed on items
+with a two-sided bracket, which exist only where somebody rightfully rejected and therefore
+skew cheap, and the sample is small. Median `t̂/t` over both one- and two-sided brackets is
+**0.99**, so the estimator is roughly median-unbiased and the apparent level error in the
+per-Game digests is a censoring artefact, not a bias to correct.
 
-When both a model band and a memory band exist for the same index, `_combine` does an
-inverse-variance blend in log space with weights `1/0.6²` and `1/0.43²`. Two independent
+When both a model band and a memory band exist for the same index, `combine` does an
+inverse-variance blend in log space with weights `1/0.6²` and `1/0.43²`. One special case sits
+in front of it: the model zeroes its band on items it judges uncovered — every zero-band Line
+Item in the logged Games came back with `coverage ≤ 0.30` — and that used to discard the
+memory anchor, dropping the item onto `FALLBACK_MEDIAN` so it was Charged a flat 39.62 whatever
+it was worth. `combine` now keeps the model's coverage verdict, so the Limit still collapses,
+and takes the anchor's band. Two independent
 estimates of the same quantity are worth more than either, and blending them *narrows* the
 band, which raises both the Charge and the Limit toward the estimate — the mechanism by which
 better evidence turns directly into more money.
 
 The prompt itself is a piece of engineering worth reading in full in
-[`strategy.py`](../src/services/strategies/strategy2/strategy.py). It states the level
-anchors explicitly (tradesman labour at roughly 60–110 EUR/hour multiplied by the hours;
-small parts and consumables genuinely in the tens; equipment hire, drying, leak detection and
-disposal typically 50–400; appliances and structural work into the low thousands), gives the
+[`prompts.py`](../src/services/strategies/strategy2/prompts.py). It states the level anchors
+explicitly, and those anchors are **measured against the settled Fair Values, not guessed**:
+tradesman labour at roughly 60–110 EUR/hour multiplied by the hours; small parts and
+consumables genuinely in the tens; leak detection and moisture surveys around 430 and reaching
+850; drying around 425, or 1,400–2,600 large-area; assessment and inspection around 490;
+disposal and strip-out around 130; appliances and structural work into the low thousands. The
+band they replaced — a single "equipment hire, drying, leak detection and disposal typically
+50–400" — was wrong on its two largest members, and the model anchored on it: our estimates on
+the fourteen settled leak-detection items were 180…561, and sat **below the proven floor of
+`t` on 11 of them**. The prompt also gives the
 settled distribution as a shape check (a quarter under 20 EUR, median around 59, top decile
 past 400), and tells the model that pricing an expensive item like the median is the most
 expensive single mistake available to it. It also encodes the two coverage traps: judge the

@@ -180,14 +180,32 @@ Read the leaderboard at the rate a browser would. Do not enumerate endpoints tha
 
 ## Status
 
-The repository now contains a tested Python case-ingestion runner in `main.py`
-with a small read-only API client in `src/api.py`. `pixi run start` watches the
-published schedule; `pixi run case-0` processes the permanent test game. The
-game analysis, glossary, five strategy pitches (~4,150 lines) under
-`docs/brainstorm/sebi/`, and one ADR remain the source of strategy and domain
-decisions.
+**The pipeline is live and has played 33 Games.** Everything the old version of this section
+called unimplemented — invoice parsing, policy analysis, pricing, submission — shipped long
+ago; there is no `TODO(api-submission)` boundary any more.
 
-**Still unimplemented:** invoice parsing, policy analysis, pricing, and submission;
-the boundary is marked with `TODO(api-submission)` in `src/api.py`. Running the
-runner requires `TEAM_API_KEY`, the case archives, and the Pixi environment
+What runs, in the order a Game touches it:
+
+| layer | where | what it decides |
+| --- | --- | --- |
+| schedule + Case load | `main.py`, `src/data/` | unzip, parse the invoice, slice the Policy |
+| evidence | `strategy2/{prompts,model,channels}.py` | coverage probability, a price band, the clause quoted verbatim |
+| blend | `strategy2/blend.py` | two model draws + the Price Memory anchor, inverse-variance in log space |
+| pricing | `src/pricing.py` | the Charge and the Limit — the only place a scored number is decided |
+| submission | `src/api/`, `src/services/submission*` | four sequenced posts per Game, merged per Line Item |
+| learning | `scripts/learn_*.py`, `scripts/replay_payoffs.py` | decision log × recovered Fair Value → the stage that was wrong |
+
+Three strategies price every Case and a router picks one; `strategy2` wins most Games.
+`scripts/replay_payoffs.py` reproduces every published net to the cent, so any proposed
+change is a **measurement** rather than an argument — use it before touching a constant.
+
+Running it needs `TEAM_API_KEY`, the Azure keys, the Case archives and the Pixi environment
 described in `README.md`.
+
+**Where the money still is.** Today's pricing replayed over all 33 settled Games nets about
+**+198k** against an oracle **+966k**. The decision rules are at their measured optimum — the
+Charge factor sits at the empirical argmax (0.70 measured, 0.69 shipped), and the best
+constant available anywhere in a full sweep moves the total by ~18k. **The rest is estimate
+quality, and only the evidence layer reaches it.** See H3 and H8 in the
+[hypothesis ledger](docs/brainstorm/sebi/strats/review/hypothesis-ledger.md) before proposing
+another constant; four of the obvious ones are already falsified there with numbers attached.
