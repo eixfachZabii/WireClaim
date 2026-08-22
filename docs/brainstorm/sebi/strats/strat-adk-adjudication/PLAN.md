@@ -1,6 +1,6 @@
 # Strategy: **The ADK Adjudication Layer**
 
-> The realisation of [ADR 0001](../adr/0001-the-model-reads-the-engine-prices.md) —
+> The realisation of [ADR 0001](../../adr/0001-the-model-reads-the-engine-prices.md) —
 > _the model reads, the engine prices_ — as a concrete Google ADK agent team, an
 > evidence contract, and a workflow graph.
 >

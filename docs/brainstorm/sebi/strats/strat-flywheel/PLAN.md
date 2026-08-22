@@ -58,7 +58,7 @@ have spent 100 Games confidently converging on the wrong number, and every diagn
 have looked healthy while doing it, because the error is a constant multiplier that a
 self-consistent loop cannot see.
 
-**It had already propagated.** [`FIELD-REPORT-01.md`](../FIELD-REPORT-01.md) uses the `/1.5`
+**It had already propagated.** [`FIELD-REPORT-01.md`](../review/FIELD-REPORT-01.md) uses the `/1.5`
 rule to compute how much Fair-Zone income we forfeit, and its numbers are therefore **1.5× too
 small**. Corrected, Game 1 forfeits **1,361.36 per opponent = 21,782** against the 13,502 we
 scored — **1.6× our entire score**, not 1.07×. The report's central claim survives and gets

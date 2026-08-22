@@ -66,7 +66,7 @@ Public leaderboard: <https://c2f.public.quantco.cloud/leaderboard/>
 
 ## 3. What we proved
 
-Fifteen results. They are the reason the plan looks the way it does.
+Sixteen results. They are the reason the plan looks the way it does.
 
 ### R1 — Below `t`, income is risk-free
 
@@ -232,6 +232,16 @@ probability, not a binary guess — which is exactly why ADR 0001 makes the cove
 agent emit a verdict _and_ a confidence, and lets the engine carry `π₀` as a spike at
 zero rather than collapsing it early.
 
+### R6d — Fair Value is often *stated in the Case*, not a market-research question
+Case 0: the policy sets the indemnity basis ("the market value of the bicycle at the
+time of the theft"), the description supplies the number ("the bike was worth 420
+Euros"), and the invoice line reads "New Bike, 1 unit". So `t = 420`, and the fraud
+vector is **replacement-new vs. market-value** — invoicing a new bike when the policy
+owes the depreciated one. Expect the same shape elsewhere: deductibles, sums insured,
+"new for old" clauses, exclusion lists. Read the policy for the *basis* and the
+description for the *figure* before reaching for a price table; the table is the second
+tool, needed mainly for repair cases with quantities.
+
 ### R7 — The default submission is the worst possible submission
 
 `a = 0` earns nothing. `b = 0` rejects _every_ fair claim, so we pay `1.5a` to every
@@ -275,9 +285,9 @@ for **any** team in **any** settled game. That inverts:
 > bracket and every fitted bias — **33 % too low**, in the direction that makes us charge
 > less and reject more, with every diagnostic still looking healthy. Working and
 > reconciliation in
-> [`docs/brainstorm/sebi/strat-flywheel/PLAN.md`](docs/brainstorm/sebi/strat-flywheel/PLAN.md) §0;
+> [`docs/brainstorm/sebi/strats/strat-flywheel/PLAN.md`](docs/brainstorm/sebi/strats/strat-flywheel/PLAN.md) §0;
 > re-checked automatically every Game by
-> [`invert.py`](docs/brainstorm/sebi/strat-flywheel/invert.py) (`--live`).
+> [`invert.py`](docs/brainstorm/sebi/strats/strat-flywheel/invert.py) (`--live`).
 
 So after every settled game we can bracket `t ∈ [max fair a, min fraud a)` for every
 line item, and reconstruct **every opponent's `b`** from what they did and did not
