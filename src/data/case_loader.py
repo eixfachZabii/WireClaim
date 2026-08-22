@@ -9,8 +9,14 @@ from src.data.models import CaseData, LineItem
 
 ARCHIVE_DIR = Path("[PUBLIC] EHL Cases/cases")
 OUTPUT_DIR = Path("var/cases")
-_NUMBERED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d*)\s*(?:[.)]|[-–])\s*(?P<name>\S.*)$")
-_SPACED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d*)\s{2,}(?P<name>\S.*)$")
+_NUMBERED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s*(?:[.)]|[-–])\s*(?P<name>\S.*)$")
+_SPACED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s+(?P<name>\S.*)$")
+_TRAILING_QUANTITY = re.compile(
+    r"\s+(?P<quantity>\d+(?:[.,]\d+)?)\s+(?P<unit>pcs|hrs?|m2|m\u00b2|m|days?|units?|flat rate)\s*$",
+    re.IGNORECASE,
+)
+_TRAILING_DASHES = re.compile(r"\s+[-\u2013]\s+[-\u2013]\s*$")
+_UNIT_ONLY = re.compile(r"^(?:pcs|hrs?|m2|m\u00b2|m|days?|units?|flat rate)$", re.IGNORECASE)
 
 
 async def load_case(game_id: int, deadline: float) -> CaseData:
@@ -94,7 +100,13 @@ async def read_case(game_id: int, case_dir: Path) -> CaseData:
         policy_text=policy_text,
         description_text=description_text,
         line_items=tuple(line_items),
-        image_paths=tuple(sorted(case_dir.glob("images.*"))),
+        image_paths=tuple(
+            sorted(
+                path
+                for path in case_dir.iterdir()
+                if path.suffix.lower() in {".jpg", ".jpeg", ".png"}
+            )
+        ),
     )
 
 
@@ -103,11 +115,43 @@ def read_invoice_line_items(invoice_path: Path) -> list[LineItem]:
 
     text = "\n".join(page.extract_text() or "" for page in PdfReader(invoice_path).pages)
     line_items: dict[int, LineItem] = {}
+    last_index: int | None = None
+    in_items_section = not any("DESCRIPTION" in line for line in text.splitlines())
     for line in text.splitlines():
+        stripped = line.strip()
+        if "POS." in stripped and "DESCRIPTION" in stripped:
+            in_items_section = True
+            continue
+        if stripped.startswith(("INVOICE", "Created on", "Page ")):
+            in_items_section = False
+            continue
+        if not in_items_section:
+            continue
         match = _NUMBERED_LINE_ITEM.match(line) or _SPACED_LINE_ITEM.match(line)
         if match:
             index = int(match.group("index"))
-            line_items.setdefault(index, LineItem(index=index, name=match.group("name").strip()))
+            name = match.group("name").strip()
+            if _UNIT_ONLY.match(name):
+                # Wrapped quantity fragment (e.g. "12 m\u00b2") of the previous item.
+                if last_index is not None and last_index in line_items:
+                    previous = line_items[last_index]
+                    line_items[last_index] = LineItem(
+                        index=previous.index,
+                        name=f"{previous.name} ({index} {name})",
+                        quantity=float(index),
+                    )
+                continue
+            quantity = 1.0
+            quantity_match = _TRAILING_QUANTITY.search(name)
+            if quantity_match:
+                quantity = float(quantity_match.group("quantity").replace(",", "."))
+                name = f"{name[: quantity_match.start()]} ({quantity_match.group(0).strip()})"
+            else:
+                name = _TRAILING_DASHES.sub("", name)
+            if not name or not any(char.isalpha() for char in name):
+                continue
+            line_items.setdefault(index, LineItem(index=index, name=name, quantity=quantity))
+            last_index = index
     if not line_items:
         raise ValueError(f"Could not identify numbered Line Items in {invoice_path}.")
     return list(line_items.values())
