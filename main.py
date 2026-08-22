@@ -5,8 +5,29 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+
+def load_env() -> None:
+    """Load the KEY=value pairs from .env using python-dotenv or stdlib fallback."""
+    try:
+        from dotenv import find_dotenv, load_dotenv
+
+        env_file = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent / ".env")
+        load_dotenv(dotenv_path=env_file, override=True)
+    except ImportError:
+        path = Path(".env")
+        if not path.exists():
+            return
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip() and not line.lstrip().startswith("#") and "=" in line:
+                name, value = line.split("=", 1)
+                if name.strip():
+                    os.environ.setdefault(name.strip(), value.strip().strip('"\''))
+
+
+load_env()
+
 from src.ab_calculation import calculate_ab
-from src.api import APIError, get_decryption_key, list_games
+from src.api import APIError, get_decryption_key, list_games, query_llm
 from src.api_post import post_result
 from src.lineitem_checks import check_line_items
 from src.parse_invoice import parse_invoice
@@ -15,31 +36,23 @@ ARCHIVE_DIR = Path("[PUBLIC] EHL Cases/cases")
 OUTPUT_DIR = Path("var/cases")
 
 
-def load_env() -> None:
-    """Load the simple KEY=value pairs used by this project."""
-    path = Path(".env")
-    if not path.exists():
-        return
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if line.strip() and not line.lstrip().startswith("#") and "=" in line:
-            name, value = line.split("=", 1)
-            if name.strip():
-                os.environ.setdefault(name.strip(), value.strip().strip('"\''))
-
-
-load_env()
-
-
 def parse_time(value: str) -> datetime:
+    """Parse ISO timestamp to UTC datetime."""
     return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
 
 
 def extract_case(game_id: int, key: str) -> Path:
     """Decrypt one case into var/cases/case_XX."""
     name = f"case_{game_id:02d}"
-    archive = ARCHIVE_DIR / f"{name}.zip"
-    if not archive.exists():
-        raise FileNotFoundError(f"Missing case archive: {archive}")
+    candidate_archives = [
+        ARCHIVE_DIR / f"{name}.zip",
+        Path("cases") / f"{name}.zip",
+        Path(f"{name}.zip"),
+    ]
+    archive = next((a for a in candidate_archives if a.exists()), None)
+    if not archive:
+        raise FileNotFoundError(f"Missing case archive for {name} in candidate locations.")
+
     case_dir = OUTPUT_DIR / name
     case_dir.mkdir(parents=True, exist_ok=True)
 
@@ -54,7 +67,7 @@ def extract_case(game_id: int, key: str) -> Path:
 
 
 def process_case(game_id: int, case_dir: Path) -> None:
-    """Entry point for the rest of the system."""
+    """Entry point for pricing analysis and submission."""
     print(f"Game {game_id} is ready: {case_dir}")
     line_items = parse_invoice(case_dir / "invoices.pdf")
     checked_line_items = check_line_items(
@@ -68,6 +81,7 @@ def process_case(game_id: int, case_dir: Path) -> None:
 
 def handle_game(game_id: int) -> None:
     """Fetch the released key, decrypt the archive, and trigger processing."""
+    key = None
     for attempt in range(10):
         try:
             key = get_decryption_key(game_id)
@@ -76,7 +90,13 @@ def handle_game(game_id: int) -> None:
             if error.status_code != 403 or attempt == 9:
                 raise
             time.sleep(0.5)
-    process_case(game_id, extract_case(game_id, key))
+
+    if not key:
+        raise RuntimeError(f"Could not retrieve decryption key for game {game_id}")
+
+    print(f"Decryption key for game {game_id}: {key}")
+    case_dir = extract_case(game_id, key)
+    process_case(game_id, case_dir)
 
 
 def watch_games() -> None:
@@ -96,13 +116,25 @@ def watch_games() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="WireClaim case watcher")
+    parser = argparse.ArgumentParser(description="WireClaim - QuantCo Claim-to-Fame Runner")
     parser.add_argument(
         "--game-id",
         type=int,
+        default=None,
         help="Process one game immediately instead of watching the schedule",
     )
+    parser.add_argument(
+        "--test-llm",
+        action="store_true",
+        help="Test LLM connection and exit",
+    )
     args = parser.parse_args()
+
+    if args.test_llm:
+        print("Testing LLM...")
+        llm_response = query_llm("Answer only with: API works")
+        print("LLM Response:", llm_response)
+        return
 
     if args.game_id is not None:
         handle_game(args.game_id)
