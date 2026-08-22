@@ -46,6 +46,48 @@ the number we already have. Charging and accepting at `t` outright would be 811,
 Open question: which *evidence* closes it — a better coverage read, a second opinion on the
 expensive items only, or Price Memory reaching further than 22% of items.
 
+## H5b 🔬 41% of our Charges are unrecoverable, and that part is not noise
+
+**Measured, on-policy.** Over the Strategy 2 era (Games 21-27), **19 of 46 Charges sat above
+the Fair Value**, so not one of sixteen reviewers could owe us anything on them. Median `a/t`
+is **0.99**. eyay, over the same corpus, runs median `a/t` **0.68** with **7 of 316**
+unrecoverable, and takes 574,774 of structural income against our 230,025.
+
+This is a structural fact rather than a fitted one, and it survives the regime split (51% of
+Charges unrecoverable over Games 1-18, 41% over 19-26, 41% over 21-27). It is the clearest
+remaining defect on the Issuer side.
+
+**But the obvious fix is not shippable, and the reason matters.** Scaling our own Charges and
+replaying gives a *jagged* surface, not a curve:
+
+| Charge × | 0.55 | 0.65 | 0.75 | 0.85 | 1.00 | 1.15 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Games 21-27 | +39,893 | **+69,756** | +45,097 | +55,676 | +38,997 | +10,041 |
+| Games 19-27 | +60,408 | **+102,301** | +79,184 | +98,639 | +86,170 | +2,752 |
+
+Non-monotone in both windows, with 0.75 *worse* than both its neighbours. The Field's Limits
+are clustered, so the total jumps whenever our Charge crosses a cluster — any peak here is a
+fact about sixteen specific opponents, and R9 says it does not survive their next
+recalibration. **Do not ship 0.65.**
+
+Two things the table does say, and both are robust to the jaggedness: **1.15 is clearly bad**
+in both windows, so nothing argues for charging more; and 1.00 is below several lower points
+in both, so the level is more likely too high than too low.
+
+**The open question, and the next measurement.** Is the over-charging *conditional* on
+something we observe at decision time? `charge_factor` is already `clamp(0.85 - 0.45σ, 0.30,
+0.80)`, so the model's own stated confidence is priced in — but that width is known to be
+uninformative (median implied σ 0.375 against a real log error near 0.8, and the narrow third
+scores *worse* than the wide third). If the unrecoverable Charges concentrate in an
+observable bucket — a unit, a magnitude, a channel, a coverage band — then a conditional rule
+exists and it is worth more than any multiplier. If they are scattered uniformly, this reduces
+to H3 and only better evidence closes it.
+
+Note the tension to respect: on *penalised* items our median is **0.74×** the true Fair Value,
+i.e. too low, while on charged items `a/t` is 0.99, i.e. too high. **The estimator is
+scattered, not biased**, which is precisely why a global multiplier cannot win and why 0.75
+lands in a trough.
+
 ## H4 🔬 Coverage is the highest-value single bit, and ours is not yet good enough
 
 76 of 192 settled Line Items are worth nothing, and `p_covered <= 2/3` is what collapses the
