@@ -257,9 +257,27 @@ never soften `a` to be "acceptable" to the field.
 The Transactions view exposes `line_item_index, issuer, reviewer, accepted, amount`
 for **any** team in **any** settled game. That inverts:
 
-- rejected & `amount > 0` ⟹ the charge was **fair**, and `a = amount / 1.5`
+- rejected & `amount > 0` ⟹ the charge was **fair**, and **`a = amount`**
 - rejected & `amount = 0` ⟹ the charge was **fraudulent**
 - accepted ⟹ `amount = a` (or `min(a,c)`)
+
+> ⚠️ **Corrected against real data, Game 1.** This document previously said
+> `a = amount / 1.5` on a wrongful rejection. **That was wrong.** The published
+> `amount` is what the **Issuer receives**, in *both* branches — the `0.5a` lawyer fee
+> appears only in the aggregate `costs` and never in a Transaction row. Verified two ways:
+>
+> - 18 Issuer–Line-Items in Game 1 had both an acceptance and a wrongful rejection.
+>   The ratio of the two amounts was **1.000000** in every case (min = max).
+> - `/performance` reconciles to the cent for all 17 teams:
+>   `income = Σ(amount | Issuer)` and `costs = Σ(amount | accepted) + 1.5·Σ(amount | wrongfully rejected)`.
+>
+> Dividing by 1.5 would have made every recovered Charge — and therefore every `t`
+> bracket and every fitted bias — **33 % too low**, in the direction that makes us charge
+> less and reject more, with every diagnostic still looking healthy. Working and
+> reconciliation in
+> [`docs/brainstorm/sebi/strat-flywheel/PLAN.md`](docs/brainstorm/sebi/strat-flywheel/PLAN.md) §0;
+> re-checked automatically every Game by
+> [`invert.py`](docs/brainstorm/sebi/strat-flywheel/invert.py) (`--live`).
 
 So after every settled game we can bracket `t ∈ [max fair a, min fraud a)` for every
 line item, and reconstruct **every opponent's `b`** from what they did and did not
@@ -270,13 +288,11 @@ leaderboard shows `amount < a` — which pins `c` exactly. Since `c ≥ 4t`, tha
 a free _upper_ bound `t ≤ c/4`, bracketing `t` from above as well as below. With a
 field of tens of teams, somebody overshoots every round.
 
-> ⚠️ **Ask the organisers first.** Fair play forbids "extract the secret thresholds"
-> and "read other teams' submissions". Reading the _published, settled_ leaderboard
-> is explicitly encouraged by the handout, and inference from public results is not
-> the same as extraction — but this is close enough to the line that we ask in
-> `#❓-ask-orgateam` **before** we build on it. The rules say to ask when unsure.
-> Fallback if the answer is no: R1–R8 still stand, and self-calibration on our own
-> settled results alone is unaffected.
+> ✅ **Confirmed allowed.** We asked the organisers. Inference from the published,
+> settled leaderboard is sanctioned — it is not "extracting the secret thresholds".
+> R9 is cleared to build on.
+
+---
 
 ### R10 — A dark team is a one-way money fountain, and overnight is the main event
 
@@ -322,6 +338,7 @@ Recorded deliberately, because two of these would have cost us money.
 | "If their `t' > t*` we just take `a = t'`."                                                    | Impossible — `a` is one number against the whole field, not per opponent (R3).                                                                                                                                                                              |
 | "Find `t` so our claims get paid either way."                                                  | ✅ Correct, and it is the core insight.                                                                                                                                                                                                                     |
 | "As insurer always pay up to `t*`, reject above."                                              | ✅ Correct in spirit, but the Limit belongs in the bottom third of the posterior, not at `t̂` (R4, R6).                                                                                                                                                      |
+| _(this document, R9, until Game 1 settled)_ "rejected & `amount > 0` ⟹ `a = amount / 1.5`." | **Wrong, and load-bearing.** `amount` is what the **Issuer receives**, in both branches; the lawyer fee never appears in a Transaction row. Ratio measured at exactly `1.000000` on 18 real cases and reconciled to the cent against `/performance` for all 17 teams. Would have made every recovered Charge, `t` bracket and fitted bias 33 % too low. Caught by running the inverter against real rows instead of reasoning about them (`strat-flywheel` §0). |
 | _(this document, earlier draft)_ "the optimum Charge sits at or above the median, so `a > b`." | **Wrong, twice.** The optimal Charge is ~0.7 · t̂, well _below_ the median (R5b), and `a` ends up near or below `b`, not above it (R6). The original `a = t = b` intuition was closer than the correction. Caught by `docs/brainstorm/sebi/evidence/sim.py`. |
 
 ---
@@ -368,7 +385,7 @@ overloading the API, disqualification if breached. When unsure — ask, don't as
 - [ ] `pixi install && pixi run python starter_script.py` — prove the round-trip on case 0
 - [ ] Confirm Entire is installed and our submission path satisfies the gate
 - [ ] Select the QuantCo challenge for our team on `ehl.gg`
-- [ ] Ask `#❓-ask-orgateam` about leaderboard-derived calibration (R9)
+- [x] Leaderboard-derived calibration (R9) — asked, confirmed allowed
 - [ ] `brew install p7zip` on every machine that might run the bot
 
 ---

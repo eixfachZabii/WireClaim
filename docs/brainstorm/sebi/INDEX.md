@@ -1,7 +1,11 @@
 # Strategy index — what we pitched, what we picked
 
-Seven pitches were commissioned. **Six landed** (~5,970 lines). Two were lost to a
-model session limit that resets **18:10 CEST** and can be re-commissioned then.
+> **Read [`FIELD-REPORT-01.md`](FIELD-REPORT-01.md) first.** Games 1–2 have settled and
+> the data overturns the priority order below: we are undercharging by 2–3× inside the
+> Fair Zone (worth more than our entire score), while the Overcharge the Field was
+> assumed to reward is measured at 6 % acceptance. All of the money is below `t`.
+
+Eight pitches were commissioned. **All eight landed** (~7,600 lines).
 
 | Track                                                      | Status                  | Owns                                                                         | Headline finding                                                                                                                                                                                                                                              |
 | ---------------------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -10,8 +14,8 @@ model session limit that resets **18:10 CEST** and can be re-commissioned then.
 | [`strat-quant`](strat-quant/PLAN.md)                       | ✅ 615 ln + `sweep.py`  | posterior → `(a,b)`                                                          | Calibration from _disagreement, not introspection_: 6 framings, robust MAD, `σ_floor`. A naive `b = t̂` costs **+8–10 %**.                                                                                                                                     |
 | [`strat-metagame`](strat-metagame/PLAN.md)                 | ✅ 741 ln + `derive.py` | the Field                                                                    | Found **R6c** (always charge on uncovered items — free). Cap-jump bar is ~15.6 %, not 25 %. Tit-for-tat structurally impossible.                                                                                                                              |
 | [`strat-warroom`](strat-warroom/PLAN.md)                   | ✅ 776 ln               | human loop + pitch                                                           | Human edits the **belief, never the price**. Full 5-min script, timed.                                                                                                                                                                                        |
-| `strat-flywheel`                                           | ❌ lost                 | R9 inversion, Price Memory                                                   | — re-commission 18:10, or hand-build (see below)                                                                                                                                                                                                              |
-| `strat-wildcard`                                           | ❌ lost                 | contrarian angles                                                            | — the gross/net VAT trap is still unexamined                                                                                                                                                                                                                  |
+| [`strat-flywheel`](strat-flywheel/PLAN.md)                 | ✅ 877 ln + `invert.py`  | R9 inversion, Price Memory, the feedback loop                                 | **Corrected R9 against real Game 1: `amount` IS the Charge, not `1.5×` it** — the old rule made every recovered Charge 33 % too low, and had already propagated into `FIELD-REPORT-01`, whose forfeited-income figure is really **21,782 (1.6× our whole score)**, not 14,417. 0 Guttman violations on 4,896 live rows; one Game's bracket pins `t` to **± 3.5 %**; bias learned by Game 10. |
+| [`strat-wildcard`](strat-wildcard/PLAN.md)                 | ✅ 733 ln + 7 scripts   | contrarian angles                                                            | **The scoreboard inverts in closed form.** `Σcosts − Σincome = 0.5·W` and `income_i = (N−1)·A_i` — verified exactly on Game 1: Field acceptance `p̄` = **5.96 %**, so the Overcharge is dead. Our own income is a per-Line-Item oracle on the sign of `a − t`. **The ×q error is 5.5× the ×1.19 error.** |
 | [`strat-adk-adjudication`](strat-adk-adjudication/PLAN.md) | ✅ 1824 ln              | ADK realisation of [ADR 0001](adr/0001-the-model-reads-the-engine-prices.md) | Evidence contract with **no field for a Charge, a Limit or a Fair Value**. σ comes from _measured_ disagreement — the named anchors are a second estimate, not a footnote. ADK 2.7.1 drives **OpenAI natively** (`labs.openai.OpenAILlm`); ~45 min migration. |
 
 ## What the pitches agree on
@@ -41,10 +45,15 @@ One dev on the ADK agent team (mirror `SampleRepo/server/app/services/ai/agents.
 one on the deterministic engine (posterior, shrinkage R6b, quantile rules R5b/R6).
 
 **Supporting — The Flywheel** (R9) · **1 dev**
-The lost pitch, and the thing that compounds: scrape settled Games, invert
-`(line_item, issuer, reviewer, accepted, amount)` back to every team's Charge, bracket
-Fair Value, discover the Cap, fit calibration. Everything else gets better as a
-by-product. **Blocked on nothing but a working submit path.**
+[`strat-flywheel`](strat-flywheel/PLAN.md), and the thing that compounds: scrape settled
+Games, invert `(line_item, issuer, reviewer, accepted, amount)` back to every team's
+Charge, bracket Fair Value, discover the Cap, fit calibration. Everything else gets
+better as a by-product. **The inverter is already written and already validated against
+real Game 1** (`python3 strat-flywheel/invert.py --live 1`) — it is a pure function with
+no dependencies, so it was finished before the pricing pipeline existed.
+
+**Its first output is a correction to `README.md` R9 itself**, and every other track was
+about to build on the wrong version — see [`strat-flywheel/PLAN.md`](strat-flywheel/PLAN.md) §0.
 
 Pitch instrumentation (`strat-warroom` §5) is not a track — it is a rule: every run
 writes its artifacts from Game 1, or the story cannot be assembled at 11:00 Sunday.
@@ -56,5 +65,5 @@ writes its artifacts from Game 1, or the story cannot be assembled at 11:00 Sund
    already beats going dark (README R7).
 3. **Game 1 with the Fast Path only.** Do not wait for the good pipeline.
 4. **Flywheel online by ~Game 8**, so calibration starts compounding early.
-5. **Re-commission the two lost pitches at 18:10**, or drop them — by then the
+5. **Re-commission `strat-wildcard` at 18:10**, or drop it — by then the
    tournament will have taught us more than they would have.
