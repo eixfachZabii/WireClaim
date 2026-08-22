@@ -122,7 +122,11 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(run_game.await_count, 1)
         self.assertEqual(run_game.await_args.args, (1,))
 
-    async def test_a_case_that_never_loads_does_not_submit_unknown_indices(self) -> None:
+    async def test_a_case_that_never_loads_still_submits_the_blind_floor(self) -> None:
+        """Silence is not abstention. Omitted Line Items default to `a = 0, b = 0`, which
+        earns nothing and wrongfully rejects every fair claim at 1.5x -- so a Case that never
+        loads must still leave a floor behind (CLAUDE.md rule 1). This test previously
+        asserted the opposite; it was written in the same commit that deleted the floor."""
         submitter = Mock(return_value=[])
         with (
             patch.object(main, "load_case", side_effect=RuntimeError("no key")),
@@ -130,7 +134,10 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
         ):
             await main.run_game(99, dry_run=True)
 
-        submitter.assert_not_called()
+        submitter.assert_called()
+        submitted = submitter.call_args.args[1]
+        self.assertEqual(len(submitted), main.BLIND_LINE_ITEMS)
+        self.assertTrue(all(item["charge_price"] > 0 for item in submitted))
 
     async def test_first_submission_uses_only_loaded_case_indices(self) -> None:
         case = CaseData(
@@ -151,6 +158,10 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(submitter.call_count, 1)
         first_submissions = submitter.call_args.args[1]
+        # The blind floor is published before the key fetch, but the coordinator coalesces
+        # pending snapshots before it flushes -- so on a Case that loads normally the floor is
+        # superseded in memory and never costs a submission. This is what makes restoring it
+        # free: it is visible only on the path where the Case never arrives.
         self.assertEqual([submission["index"] for submission in first_submissions], [1, 2])
 
     def test_dry_submit_returns_without_logging(self) -> None:
