@@ -67,6 +67,7 @@ from src.pricing import (  # noqa: E402
 )
 from src.services.strategies.strategy2.blend import combine  # noqa: E402
 from scripts.dump_evidence import load as load_evidence  # noqa: E402
+from scripts.replay_payoffs import usable_games  # noqa: E402
 from scripts.replay_payoffs import replay
 from scripts.replay_payoffs import snapshot as _snapshot  # noqa: E402
 
@@ -74,7 +75,19 @@ snapshot = functools.lru_cache(maxsize=None)(_snapshot)
 
 DECISIONS = Path("var/decisions")
 CASES = Path("[PUBLIC] EHL Cases/cases")
-ALL_GAMES = tuple(range(1, 28))
+def _all_games() -> tuple[int, ...]:
+    """Every settled Game that reconstructs, discovered rather than hard-coded.
+
+    This was `range(1, 28)` and stayed there while Games 28-32 settled, so every sweep run
+    through this module was silently scoring five Games short — including the ones that
+    matter most, because a Field measurement does not survive a phase boundary (README R9).
+    A literal range is also fragile the other way: widening it past the last settled Game
+    raises `KeyError: 'items'` on the unsettled Game's cached payload. Ask the reconstructor.
+    """
+    return tuple(usable_games(range(1, 101)))
+
+
+ALL_GAMES = _all_games()
 RECENT = tuple(range(21, 28))
 INF = float("inf")
 
