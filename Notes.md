@@ -1,3 +1,12 @@
+### Aufgaben:
+- .zip holen + extraction
+- policy violation detection per line item
+- t value guess
+- given t value guess, error margin and PV (policy violation boolean) calculate a and b per lineitem
+- post to api
+
+
+
 ### Gedanken aus Beschreibung:
 - b darf nie unter t sein // das führt zu falsche ablehnung
 - a darf nie über t sein // dann können andere uns rechtmäßif ablehnen ABER kosten hier nur opportunity cost da bei ablehnung einfach kein geld fliest. 
