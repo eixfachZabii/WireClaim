@@ -1,8 +1,11 @@
 @startuml
 ' WireClaim — one Game on the 60-second clock.
-' Source of truth: main.py (run_game, blind_floor, RUN_SECONDS),
-' src/data/case_loader.py, src/services/submission_coordinator.py,
-' src/services/strategies/strategy2/strategy.py, src/services/fraud_detection.py
+' Source of truth: main.py (run_game, RUN_SECONDS),
+' src/data/case_loader.py, src/runtime/submission_coordinator.py,
+' src/strategies/strategy2/strategy.py, src/evidence/fraud_detection.py
+' NOTE: the T+0 blind floor this diagram once showed (blind_floor(),
+' BLIND_LINE_ITEMS) was deleted by commit 9b5ee55 and never restored --
+' see docs/ARCHITECTURE.md Section 9. Nothing is published until T+3.
 !theme plain
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
@@ -26,31 +29,24 @@ database "QuantCo API" as API
 
 Sched -> Run : start_time reached\ndeadline = loop.time() + RUN_SECONDS (60 s)
 
-== T+0  blind floor, before the Case exists ==
-Run -> SC : start()
-Run -> SC : publish(blind_floor())
-SC -> API : PUT /api/games/{id}/submissions\n40 indices, a=300.00, b=35.00
-note right of SC
-  The Line Item count is unknowable
-  before the Case loads, so we cover
-  a fixed range of 40. Surplus indices
-  create no Transactions.
-  Failure here: logged, retried on the
-  next event; the (0,0) default stands.
-end note
-
-== T+0 to ~T+3  load (the only blocking phase) ==
+== T+0 to ~T+3  load (the only blocking phase) -- nothing is published here ==
+Run -> SC : start()  -- starts the worker only; it sends nothing until publish() is called
 Run -> Loader : load_case(game_id, deadline)
 Loader -> API : GET /api/games/{id}/key
 API --> Loader : decryption_key  (403 until start_time -> poll every 0.5 s)
 Loader -> Loader : 7z x -p<key>  ->  var/cases/case_NN/
 Loader -> Loader : pypdf parse invoices.pdf\nPOS number, quantity, quantity_missing
 Loader --> Run : CaseData
-note right of Loader
-  Failure: run_game logs
-  "blind floor stands", waits for the
-  coordinator to go idle, and exits.
-  40 plausible numbers, not (0,0).
+note right of Loader #FEE2E2
+  A blind floor used to cover this window --
+  publish(blind_floor()), 40 indices at
+  a=300.00, b=35.00, before the key fetch --
+  added by b5ba5dc, deleted three hours
+  later by 9b5ee55, never restored.
+  Failure here today: run_game logs
+  "no submission was sent" and exits.
+  Nothing has been sent for this Game.
+  See docs/ARCHITECTURE.md Section 9.
 end note
 
 == T+3  deterministic layer publishes ==
@@ -62,9 +58,9 @@ SC -> API : PUT — real indices only, a=300.00, b=35.00
 par
   Run -> S2 : propose(case, deadline)
   S2 -> S2 : Channel A: dash quantity => p_covered = 0\nChannel B: Price Memory lookup (sigma 0.43)
-  S2 -> API : one whole-Case model call on the sliced Policy\ntimeout = min(40 s, deadline - now - 2 s)
+  S2 -> API : two concurrent whole-Case model calls on the sliced Policy\ntimeout = min(55 s, deadline - now - 3 s)
   API --> S2 : evidence JSON (band + p_covered + clause)
-  S2 -> S2 : combine, then pricing.price_item per Line Item
+  S2 -> S2 : blend the two draws, combine with Channel B,\nthen pricing.price_item per Line Item
   S2 --> Run : Proposal(source="strategy2")
   note right of S2
     Model failure is caught and logged.

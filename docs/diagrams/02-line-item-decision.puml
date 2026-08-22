@@ -1,7 +1,7 @@
 @startuml
 ' WireClaim — how one Line Item becomes a Charge and a Limit.
-' Source of truth: src/pricing.py (price_item, charge_factor, implied_sigma),
-' src/services/strategies/strategy2/strategy.py (_memory_evidence, _combine),
+' Source of truth: src/pricing/engine.py (price_item, charge_factor, implied_sigma),
+' src/strategies/strategy2/{channels,blend}.py (local_evidence, combine),
 ' main.py (RunManager.snapshot).
 !theme plain
 skinparam backgroundColor #FFFFFF
