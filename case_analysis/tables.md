@@ -5,10 +5,11 @@ The number-only tables, regenerated automatically with the same workflow as
 
 ## Derived t per line item — last 5 games
 
-For every line item: the derived t bracket/point, Bin busy's Charge and implied t-hat
-(a/0.7 — our submission isn't public, only our Charge is). All a/t values side by side
-(us, eyay, error404 ai), then all b/t values side by side. Last row: on average, how far (in %)
-our implied t-hat was off the derived t. Full data in `data/tvalues.csv`.
+For every line item: the derived t bracket/point, then per team a block of
+`a | b | a/t | b/t | net` — the Charge, the reconstructed Limit (interval midpoint),
+their ratios to the derived t, and the net income/payment on that item (received as
+Issuer minus paid as Reviewer incl. 1.5a penalties). Bin busy first (highlighted),
+then the best performers of these games. Full data in `data/tvalues.csv`.
 
 ![t values per line item](data/tvalues.png)
 
