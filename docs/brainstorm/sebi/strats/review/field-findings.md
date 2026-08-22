@@ -137,3 +137,44 @@ training example we can keep forever**:
 
 Extracted Case folders are gitignored — they are derivable from the committed archive
 plus a key, so there is no reason to carry them in git.
+
+## Game 5 post-mortem — we lost 10,604, and it was all the Limit
+
+| Game | income | paid on ACCEPT | paid on REJECT | net |
+| --- | ---: | ---: | ---: | ---: |
+| 4 | 13,935 | 6,238 (150 txns) | 4,177 (90) | +3,520 |
+| 5 | 9,075 | **19,450 (246 txns)** | 230 (26) | **−10,604** |
+
+**99 % of Game 5's costs came from accepting.** We accepted 246 of 272 Transactions —
+our Limit is effectively infinite.
+
+The mechanism is specific and it is the worst possible pairing. On the Line Items where
+our own pipeline decided *"not covered, charge nothing"*, we still accepted the whole
+Field's Charges on that same item:
+
+| item | our Charge | we accepted up to |
+| ---: | ---: | ---: |
+| 3 | **0.00** | **1,121.40** |
+| 7 | **0.00** | 522.23 |
+| 11 | **0.00** | 510.00 |
+| 10 | **0.00** | 365.56 |
+| 14 | **0.00** | 360.00 |
+
+We identified `t = 0` for our own issuing and then paid four figures for it as Reviewer.
+Forfeiting the free option (R6c) *and* funding everyone else's Overcharge, on the same
+Line Item, in the same Submission.
+
+**This reverses the priority in `report.md` and `actnow.md`.** Those were written when we
+were losing to timidity as Issuer; the Charge was the sensitive knob and `b` looked flat.
+That was true of the *Field average*, not of a Limit this loose. R6's "spend the effort
+on the Charge" holds only once `b` is inside the posterior at all. Ours is outside it.
+
+**The single rule that fixes it: coverage verdict must drive `b`, not just `a`.**
+If the item is not covered, `t = 0`, so *every* Charge on it is in the Fraud Zone and the
+correct Limit is exactly **0**. The same verdict should push `a` **up**, not down.
+
+| verdict | Charge `a` | Limit `b` |
+| --- | --- | --- |
+| covered | ~`t̂` (raise it — we still undercharge) | bottom third of the posterior |
+| **not covered** | **high** — free option, toward the Cap floor (R6c) | **0** |
+| unsure | mid | low, and never above `t̂` |

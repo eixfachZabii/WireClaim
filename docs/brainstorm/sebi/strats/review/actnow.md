@@ -68,9 +68,15 @@ This is the expensive direction: a wrongful acceptance costs `min(a,c)` with `c 
 against `0.5a` for a wrongful rejection — **~8× worse**.
 
 **Change.** Cap the Limit at roughly the bottom third of the posterior (R4/R6), and never
-leave it unbounded. `b` is *flat* across `Q₀.₀₅`–`Q₀.₃₃`, so this needs no tuning — just
-a finite number. **Do not spend the afternoon on `b`**; it is ~3× less sensitive than the
-Charge. Get it finite and move on.
+leave it unbounded.
+
+> **Updated after Game 5 — this is now the #1 item, not the #3.** We lost **−10,604** in
+> Game 5 and **99 % of the cost was acceptances** (19,450 across 246 accepted
+> Transactions, versus 230 on rejections). The earlier line here — "do not spend the
+> afternoon on `b`" — was written when we were losing to timidity as Issuer. It is wrong
+> now. R6's "the Limit is flat" holds only once `b` is *inside* the posterior; ours is
+> outside it. **Coverage verdict must drive `b`: not covered ⇒ `b = 0`.**
+> See [`field-findings.md`](field-findings.md) and [`trackplan.md`](trackplan.md).
 
 ---
 
