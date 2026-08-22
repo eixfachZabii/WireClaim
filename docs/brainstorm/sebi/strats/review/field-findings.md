@@ -10,6 +10,37 @@ Append a block per Game. Everything here is inverted from the public leaderboard
 largest such Charge on a Line Item is a hard **lower bound** on Fair Value. Rejected with
 `amount = 0` ⇒ Fraud Zone.
 
+## Every settled Game, current through Game 14
+
+Generated with `scripts/pull_transactions.py` (which pages to the end) and
+`scripts/invert_fair_values.py`. **`/transactions` paginates at 100 rows** — any Line
+Item count written earlier in this file that is lower than the one here was a short
+read, not a small Case. `income` includes what a wrongful rejection still owes us.
+
+| Game | Line Items | our income | paid on accepts | penalties | our net | dominant mechanism |
+| ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 1 | 18 | 19,704 | 1,127 | 5,075 | **13,502** | **positive** — income exceeded both cost sides |
+| 2 | 7 | 5,088 | 601 | 3,765 | **722** | **positive** — income exceeded both cost sides |
+| 3 | 2 | 0 | 0 | 0 | **0** | submitted nothing, but every `t` was 0 so it cost nothing |
+| 4 | 15 | 13,935 | 6,238 | 4,177 | **3,520** | **positive** — income exceeded both cost sides |
+| 5 | 17 | 9,075 | 19,450 | 230 | **-10,604** | **`b` unbounded** — paid above `t` |
+| 6 | 2 | 1,035 | 0 | 4,975 | **-3,940** | **`b` too low** — wrongful-rejection penalties |
+| 7 | 6 | 0 | 33,568 | 0 | **-33,568** | **`b` unbounded** — paid above `t` |
+| 8 | 39 | 3,429 | 83,503 | 0 | **-80,074** | **`b` unbounded** — paid above `t` |
+| 9 | 16 | 750 | 17,334 | 4,813 | **-21,397** | mixed: `a` above `t` and `b` misaligned |
+| 10 | 6 | 5,300 | 0 | 65,806 | **-60,506** | **`b` too low** — wrongful-rejection penalties |
+| 11 | 23 | 0 | 0 | 36,017 | **-36,017** | **submitted nothing** — `b`=0 turned every fair claim into `1.5a` |
+| 12 | 12 | 0 | 0 | 43,381 | **-43,381** | **submitted nothing** — `b`=0 turned every fair claim into `1.5a` |
+| 13 | 17 | 16,800 | 3,555 | 15,852 | **-2,607** | **`b` too low** — wrongful-rejection penalties |
+| 14 | 13 | 450 | 2,374 | 676 | **-2,599** | mixed: `a` above `t` and `b` misaligned |
+
+**Totals by mechanism across all 14 Games** (from the reconstruction in
+[`t-inversion.md`](t-inversion.md)): forfeited income from `a` below `t` **298,379**;
+overpaying with `b` above `t` **100,664**; the `0.5a` surcharge from `b` below `t`
+**61,588**; overcharges rejected **23,194**.
+
+---
+
 ## Standing after Games 1–3
 
 | | team | G1 | G2 | G3 | total |
