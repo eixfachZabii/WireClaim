@@ -1,145 +1,159 @@
-# Which strategy actually wins this — a ranking against real data
+# Where we actually stand — Games 1–14, measured
 
-Written Sat 15:30 CEST after Games 1–3; **standing refreshed after Game 6.**
+Rewritten Sat ~18:15 CEST. Everything here is derived from settled Transactions or from a
+Case we opened. Nothing is inferred from intuition, and the places where the previous
+version of this file was wrong are marked rather than deleted.
 
-**We are Bin busy, 5th of 17 (3,199)** — Games 5 and 6 both lost, by opposite failures
-(`b` unbounded, then `b` ≈ 0). ~20 hours and ~94 Games remain.
+**We are `Bin busy`, 16th of 17, at −276,950.** 86 Games remain.
 
-> **The ranking below still holds, but the problem it is ranked against has moved.**
-> When this was written we were losing to *timidity as Issuer*. We are now losing to an
-> uncontrolled *Limit* and a pricing pipeline that falls back to a constant. Read
-> [`trackplan.md`](trackplan.md) first; it is current through Game 6. The tier order here —
-> flywheel and wildcard's controller first — is if anything reinforced: both are
-> self-correcting mechanisms, and the last two Games are exactly what an open-loop
-> pipeline looks like.
+| | net | mechanism |
+| --- | ---: | --- |
+| TakeTheMoneyAndRun | **+86,394** | income 355,996 — they win on the Issuer side |
+| error404 ai | +81,284 | income 354,394 |
+| **Bin busy** | **−276,950** | income **75,566** |
+| makalu | −290,624 | income **0** — never submitted anything |
 
----
-
-## 1. The two prizes are won by different work
-
-Judging is explicitly two halves: **leaderboard net** *and* **the methodology write-up**
-("your methodology also counts (style)"). QuantCo track = 1000 €; overall hackathon =
-1500 € + $2500 credits; winners present to QuantCo.
-
-Our eight pitches split almost perfectly along that seam, and the mistake to avoid is
-letting the leaderboard work eat the write-up. One person owns the story from tonight,
-not from 09:00 Sunday.
+We are one place above a team that has never submitted. That is the whole story: **the
+leaders earn 4.7× our income on the identical Cases.** We are not losing because we pay
+too much. We are losing because we do not get paid.
 
 ---
 
-## 2. What the data says the problem actually is
+## 1. The measurement that unlocked everything
 
-Not what we assumed this morning.
+The secret Fair Value `t` is **exactly recoverable** from the public leaderboard. No
+model, no LLM, no estimation. The payoff table leaks it:
 
-| Belief at 12:00 | What Games 1–3 measured |
-| --- | --- |
-| The Overcharge above `t` is the prize | **Field acceptance is 5.96 %** vs a ~25 % break-even. Worthless. |
-| We need a better price model | We need a **less biased** one — we charge **~2.5× too little** |
-| Uptime is the dominant risk | We are submitting. The dominant loss is **timidity**, not absence |
-| `b` needs care | `b` is flat in the bottom third; ours is loose but it is not what is costing us |
-
-**The measured loss.** Game 1: `21,625` of *guaranteed* income forfeited by charging
-below Fair Value — **1.6× the 13,502 we actually scored**. Game 2: `8,752` against +722
-earned. Every euro of that was risk-free (R1): paid whether or not the reviewer accepts.
-
-**Three distinct errors, and only the first is a model problem:**
-
-1. **Undercharging on covered items — ~2.5× median.** Our Charge was the *minimum of the
-   entire Field* on nearly every item. Measured ratios `t/a`: 1.58, 2.03, 3.04, 2.33,
-   3.16, 1.68, 2.87, 2.64.
-2. **Charging 0 on live items.** G1 items 1 and 18 had `t ≥ 122.94` and `98.02`; we
-   charged nothing.
-3. **Not exercising the free option on uncovered items.** Game 3 is the proof: nearly
-   every team scored exactly **0**, while `error404 ai` (+403) and `Non Deterministic`
-   (+400) charged on `t = 0` items and got paid. R6c, in real money, for free.
-
----
-
-## 3. The ranking
-
-Scored on *effect on our leaderboard net between now and Sunday 12:00*, given the above.
-
-### Tier 1 — attacks the measured problem, buildable tonight
-
-**1. `strat-flywheel`** — the highest-value pitch in the repo.
-Directly targets the 2.5× bias with labels that are now **confirmed legal**. Ships with
-a validated inverter (`invert.py`, 0 Guttman violations on 4,896 real rows, 94 % of
-Charges recovered exactly) and it already earned its keep: it caught the `a = amount/1.5`
-error that would have made every fitted bias 33 % low *in the direction of charging
-less*, with all diagnostics looking healthy. Compounding is front-loaded — σ 0.459 →
-0.354 by Game 20, flat after 35 — so **the value is realised tonight or not at all.**
-*Risk:* `t_hi = ∞` on 11 of 18 real items — the Field barely straddles `t`, so labels are
-one-sided. Its own fallback section addresses this.
-
-**2. `strat-wildcard` (X3 Fair-Rate Controller + X5 Limit Alarm)**
-The cleverest idea produced all day: **our own income is a per-item oracle on the sign of
-`a − t`** — a Fair Charge is paid by all `N−1` reviewers, an Overcharge only by acceptors.
-So we can servo the Charge multiplier upward without a price model, without the
-leaderboard, and without knowing we were broken. Simulated: **more than doubles net when
-`t̂` is 19 % off.** ~8.5 dev-hours, one dev, no LLM dependency. It is also the insurance
-on everything else — X1 inverts the whole scoreboard from the public Net column alone.
-
-### Tier 2 — the root cause, and the floor
-
-**3. `strat-adjuster`** — fixes the *centre* rather than servoing around it. This is the
-real fix for error 1, and it owns the coverage gate that error 3 depends on. But it is
-the heaviest build in the repo (1254 lines of plan) and Tier 1 buys most of the gain for
-a tenth of the effort. **Do it, but behind the controller.** Case 0 also shifted its
-centre of gravity: `t` is frequently *stated in the documents* (policy gives the
-indemnity basis, description gives the number), so policy reading beats price tables.
-
-**4. `strat-ops`** — insurance, not offence, now that we are submitting. But 48 Games
-run overnight and if *we* go dark we become the money fountain (13 teams took exactly
-−8,273.70 in Game 1). Break-even uptime 71 %. Cheap, finite, front-loaded. **Ship the
-two-phase submit and stop.**
-
-### Tier 3 — architecture, and the other half of the prize
-
-**5. `strat-adk-adjudication`** — the ADR 0001 realisation. Moderate leaderboard value
-(it owns coverage, which is error 3), **high write-up value**: "the model reads, the
-engine prices" is the single most defensible thing we can say to a room of QuantCo data
-scientists, and it is their own ADR 0021 argument applied where the stakes are higher.
-Its provider finding is load-bearing and verified: ADK 2.7.1 drives OpenAI natively.
-
-**6. `strat-warroom`** — near-zero leaderboard value, **highest pitch value**. The
-5-minute script is already written and timed. Its instrumentation spec must start
-tonight or the story cannot be assembled Sunday morning. Treat as a parallel track owned
-by one person, not as a thing to do after the code works.
-
-### Tier 4 — absorbed or falsified
-
-**7. `strat-quant`** — most of its content is already distilled into README R1–R10, and
-its central concern (posterior *width*) is second-order now that we know the problem is
-*bias*. **Keep one thing: the counterfactual replay evaluator**, which lets us test
-reviewer-side changes offline against settled data with near-certainty.
-
-**8. `strat-metagame`** — its core thesis, a generous Field worth exploiting, is
-**falsified**: it assumed `m₅₀ ≈ 1.8` and acceptance ~66 %; measured is 5.96 %. Its
-phase table is also contradicted — 13 of 17 teams were dark at 15:00 *Saturday*, not
-overnight. **One idea survives and it is excellent: M5 / R6c**, the free option on
-uncovered items, which Game 3 just paid two teams 400 each for.
-
----
-
-## 4. What I would actually do with the remaining 20 hours
-
-| When | Who | What |
+| Transaction row | what it means | what it proves |
 | --- | --- | --- |
-| **now → 18:00** | 2 devs | `trackplan.md` — the four one-line fixes. Biggest euro-per-minute in the repo by an order of magnitude. |
-| now → 20:00 | 1 dev | Flywheel: wire `invert.py` to run each Settlement, fit the bias, feed the multiplier |
-| now → 20:00 | 1 dev | Fair-Rate Controller + Limit Alarm (wildcard X3/X5) — the safety net if the flywheel is wrong |
-| 18:00 → 00:00 | 1 dev | Adjuster + ADK coverage gate (ADR 0001) — the root-cause fix |
-| continuous | 1 dev | Ops floor: two-phase submit, never dark; then instrumentation for the pitch |
-| 08:00 → 11:00 Sun | 1–2 | Freeze the algorithm. Assemble the write-up and rehearse the 5 minutes. |
+| `accepted`, `amount = x` | both sides move `x` | `x = min(a, c)` — nothing about `t` |
+| `rejected`, **`amount = x > 0`** | **wrongful** rejection: reviewer pays `1.5x`, issuer still gets `x` | `x` **is** the Charge **and `a ≤ t`** |
+| `rejected`, `amount = 0` | rightful rejection, nothing flows | **`a > t`** |
 
-**Freeze the pricing algorithm by 08:00 Sunday.** Games 82–100 are worth less than a
-botched deploy costs, and the write-up is half the prize.
+So per Line Item, `t ≥ max{a wrongfully rejected}` and `t < min{a rightfully rejected}`.
+
+**This is checkable, and it checks out.** Summing `+amount` as issuer and
+`−(amount if accepted else 1.5·amount)` as reviewer reproduces **all 238 published
+team-Game nets to the cent**. Run `python scripts/invert_fair_values.py --verify`.
+
+> ### The trap that cost us two hours: `/transactions` paginates at 100 rows
+> Page one of a 544-row Game is 32 rows for each of the first three Line Items and 4 of
+> the fourth — which reads exactly like a 4-item Case. On that false reading we set
+> `BLIND_LINE_ITEMS = 8` and justified the fraud allowance on a 2–4 item denominator.
+> Games actually carry **2 to 39 Line Items, median 15**. `scripts/pull_transactions.py`
+> pages to the end and raises on a short read. Full evidence in
+> [`t-inversion.md`](t-inversion.md).
+
+**The settled `t` distribution** (148 items with both bounds, bracket midpoints):
+median **≈ 59**, p25 ≈ 19, p75 ≈ 127, p90 ≈ 365, max **7,225**. Also: **76 of 192 items
+have `t = 0`.** `t` is small, heavy-tailed, and very often zero.
 
 ---
 
-## 5. The one-sentence version
+## 2. Where the 276,950 went
 
-**Stop being timid inside the Fair Zone.** All of the money is below `t`, we are leaving
-~2.5× of it there every Game, the ground above `t` is worth 6 %, and the two cheapest
-pitches in the repo — the flywheel's calibration and wildcard's self-correcting
-controller — are the ones that fix exactly that.
+| mechanism | cost | kind |
+| --- | ---: | --- |
+| **`a` too low → forfeited income** | **298,379** | opportunity |
+| `b` too high → overpaying | 100,664 | cash |
+| `b` too low → the `0.5a` wrongful-rejection surcharge | 61,588 | cash |
+| `a` too high → overcharges rejected | 23,194 | opportunity |
+
+Worst Games: **G8 −80,074** (accepted 100 %; 45,567 of 83,503 paid was above `t`),
+**G10 −60,506**, **G12 −43,381**, **G11 −36,017** (the last three: *submitted nothing*,
+so `b = 0` converted every fair charge into `1.5a` — 139,904 across the three),
+**G7 −33,568**, **G9 −21,397**, **G5 −10,604**. Only G1, G2, G4 were positive.
+
+**Our positioning, over the 78 fully-bounded items with `t > 0`:** median **`a/t = 1.06`**,
+median **`b/t = 1.16`**, and only **27 %** of our Charges landed in the fair zone — worst
+in the field apart from the team that submits nothing. We charge just above `t`, so we
+collect nothing, *and* we accept just above `t`, so the field farms us.
+
+### What the winners do
+
+| team | `a/t` median | `b/t` median | fair-zone % | accept rate |
+| --- | ---: | ---: | ---: | ---: |
+| TakeTheMoneyAndRun | **0.73** | **0.58** | 67 % | 65 % |
+| error404 ai | 0.85 | 0.81 | 58 % | 63 % |
+| Non Deterministic | 0.67 | 0.48 | 59 % | 57 % |
+| **Bin busy** | **1.06** | **1.16** | **27 %** | 69 % |
+| Oasis (−114,959) | 0.79 | **1.37** | 41 % | 72 % |
+
+The winning shape is narrow and consistent: **`a ≈ 0.7–0.85 t`, `b ≈ 0.5–0.8 t`, and
+`b < a`.** Our accept *rate* (69 %) is close to theirs (63–65 %) — the rate was never the
+problem. The *level* is. Oasis is the control group for generosity; makalu for absence.
+
+---
+
+## 3. The number that decides whether Strategy 2 is worth running
+
+Simulating `a = β·t̂` and `b = α·t̂` where `t̂ = t·lognormal(σ)`, against the real charges:
+
+| σ (our estimate error) | best `β` | E[income] | best `α` | E[cost] | **net per transaction** |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.25 | 0.7 | 105 | 0.7 | 87 | **+18** |
+| 0.5 | 0.6 | 78 | 0.5 | 92 | **−14** |
+| 0.75 | 0.5 | 63 | 0.33 | 96 | **−33** |
+
+**Break-even is around σ ≈ 0.35.** Above that we lose money no matter how we tune the
+multipliers; below it the multipliers barely matter. A perfect per-item Limit costs 65.0
+per transaction against 97.5 for rejecting everything and 195.7 for accepting everything
+— so the entire prize is estimate *accuracy*, and no constant recovers any of it.
+
+This is the acceptance test for Strategy 2, and it is measurable before we ship:
+**replay it against the 148 bounded Line Items and show σ < 0.35.** For reference, a blind
+constant scores σ ≈ 1.12. R6's "bottom third" (`α ≈ 0.33`) is only optimal at σ ≈ 0.75 —
+i.e. it is a confession of a bad estimate, not a target.
+
+---
+
+## 4. Deterministic signals — free accuracy, no model
+
+These are the cheapest wins available and none needs a token.
+
+1. **`– –` in the quantity/unit columns means `t = 0`.** Validated: **20 of 20** such
+   Line Items across 6 Cases have `t = 0`, 17 with a tight upper bound under 40, against
+   a 33 % base rate for normal items. Our parser currently *strips* the dashes and sets
+   `quantity = 1.0`, throwing the signal away. → `b = 0`, and Charge freely (R6c).
+2. **The submission index is the invoice POS number, gaps included.** Case 11's invoice
+   has no POS 12, and the settled Game has indices 1–11 and 13–23. Never renumber by row
+   ordinal.
+3. **Invoice quantity does not predict price.** `corr(log quantity, log Charge) = +0.12`;
+   scaling a constant by quantity raised log error from 1.12 to 1.32. Eight grub screws
+   are not eight technician hours. `standard_values` no longer scales.
+4. **Case 10 ships an answer key.** `PART 11 – OPERATIVE PROVISIONS FOR THIS CLAIM`
+   enumerates the 24 clauses that decide every line. `grep "^PART 11"` collapses an
+   823-line policy to two dozen paragraphs at zero cost.
+
+---
+
+## 5. Corrections to the previous version of this file
+
+| It said | Measured reality |
+| --- | --- |
+| "We charge **~2.5× too little**" (Games 1–3) | Over all 14 Games our median `a/t` is **1.06** — we charge *above* `t`. True early, false now; the flat 150 fallback overshoots a median `t` of 59. |
+| "Field acceptance is 5.96 %, the Overcharge is worthless" | Field accept rate is **63–69 %**. The leaders' `a/t` p75 is **above 1** — they *do* overcharge on roughly a third of items and get paid. Not settled; do not act on it without measuring `p(a)` (R5c). |
+| "`b` is flat in the bottom third; not what is costing us" | Half true. Limit errors cost **162,252** (100,664 + 61,588). But it is second: forfeited income is **298,379**. |
+| "Uptime is the dominant risk … we are submitting" | Then false, now true: G10–12 submitted nothing and cost **139,904**. |
+| Base rate of uncovered items ~12 % ("2 of 17 in Game 5") | **40 %** of all items (76/192) have `t = 0`, ranging **0 %–67 % per Case**. Case 12 has zero uncovered items; Case 10 has 4 of 6. **There is no safe prior.** |
+
+---
+
+## 6. What this implies for the strategy
+
+Ranked by measured euros, not by elegance.
+
+1. **Get income up.** 298,379 of forfeited income dwarfs everything. That means `a` must
+   sit *below* `t`, at `β ≈ 0.7`, on every item we believe is covered — and `t̂` must stop
+   overshooting on cheap items.
+2. **Never be absent.** 139,904 for three Games. The blind floor is in; keep it.
+3. **Drive `b` from the same posterior at `α ≈ 0.5–0.7`, never above `t̂`.** Both of our
+   Limit failures were the *level*, in opposite directions, in adjacent Games.
+4. **Take the free deterministic signals** (§4) before spending a token.
+5. **Measure σ every Game.** It is the one number that says whether the pipeline is worth
+   running, and it is computable from settled data within minutes of a Game closing.
+
+Evidence: [`t-inversion.md`](t-inversion.md) (full brackets, per-team accounting,
+validation) · [`case-findings.md`](case-findings.md) (all 14 Cases read, 22 adversarial
+vectors, recurring-template keys) · [`field-findings.md`](field-findings.md) (running log)
+· [`trackplan.md`](trackplan.md) (who does what).
