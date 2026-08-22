@@ -1,0 +1,319 @@
+import math
+import unittest
+
+from src.pricing import (
+    CHARGE_BOUNDS,
+    CHARGE_INTERCEPT,
+    CHARGE_SLOPE,
+    COVERAGE_FLOOR,
+    LIMIT_CEILING,
+    LIMIT_QUANTILE,
+    Evidence,
+    charge_factor,
+    implied_sigma,
+    price_item,
+)
+
+
+class PriceItemTests(unittest.TestCase):
+    def confident(self, median: float = 100.0, coverage: float = 1.0) -> Evidence:
+        return Evidence(
+            index=1,
+            coverage_probability=coverage,
+            price_low=median * 0.8,
+            price_median=median,
+            price_high=median * 1.25,
+        )
+
+    def test_charge_sits_below_the_estimate(self) -> None:
+        """Income is `a` whenever a <= t and collapses ~80% above it."""
+        price = price_item(self.confident(200.0))
+
+        self.assertLess(price.charge, 200.0)
+        self.assertGreater(price.charge, 0.5 * 200.0)
+
+    def test_the_charge_retreats_as_the_band_widens(self) -> None:
+        tight = price_item(Evidence(1, 1.0, 95.0, 100.0, 105.0))
+        wide = price_item(Evidence(1, 1.0, 20.0, 100.0, 500.0))
+
+        self.assertGreater(tight.charge, wide.charge)
+
+    def test_charge_factor_matches_the_simulated_optima(self) -> None:
+        """0.7 at sigma 0.25, 0.6 at 0.5, 0.5 at 0.75 -- the three simulated points."""
+        self.assertAlmostEqual(charge_factor(0.25), 0.7375, places=3)
+        self.assertAlmostEqual(charge_factor(0.5), 0.625, places=3)
+        self.assertAlmostEqual(charge_factor(0.75), 0.5125, places=3)
+        self.assertEqual(charge_factor(5.0), 0.30)
+
+    def test_limit_is_never_above_the_charge(self) -> None:
+        for median in (10.0, 100.0, 1000.0, 7225.0):
+            for coverage in (0.4, 0.7, 0.9, 1.0):
+                price = price_item(self.confident(median, coverage))
+                self.assertLessEqual(price.limit, price.charge, f"{median} {coverage}")
+
+    def test_doubtful_coverage_collapses_the_limit_to_zero(self) -> None:
+        """At P(covered) <= 1 - q = 2/3 the bottom third of the posterior *is* zero.
+
+        The threshold is `1 - LIMIT_QUANTILE`, not `LIMIT_QUANTILE`: the posterior carries
+        mass `1 - covered` at zero, so that mass alone fills the bottom third as soon as
+        `1 - covered >= q`. Coverage of 0.60 is therefore a collapse, which is the case the
+        old floor of 1/3 got right only by accident -- via the -8 clamp in
+        `_normal_quantile` -- and now gets right by construction. Worth +21 euros over 23
+        Games, i.e. nothing; shipped for the exactness, not the money.
+        """
+        self.assertEqual(price_item(self.confident(500.0, coverage=0.30)).limit, 0.0)
+        self.assertEqual(price_item(self.confident(500.0, coverage=0.60)).limit, 0.0)
+        self.assertEqual(price_item(self.confident(500.0, coverage=2.0 / 3.0)).limit, 0.0)
+        self.assertGreater(price_item(self.confident(500.0, coverage=0.95)).limit, 0.0)
+
+    def test_the_limit_falls_as_coverage_doubt_rises(self) -> None:
+        limits = [price_item(self.confident(500.0, coverage=c)).limit for c in (1.0, 0.8, 0.6, 0.4)]
+
+        self.assertEqual(limits, sorted(limits, reverse=True))
+
+    def test_a_wider_band_retreats_through_the_charge_not_the_limit(self) -> None:
+        """A wider band is a noisier estimate. Which number retreats changed at Game 24.
+
+        This test used to assert that the Limit falls as the band widens. At a ceiling of
+        0.85 that was true, because the 1/3 quantile sat under the ceiling on wide bands.
+        At the measured 0.30 the ceiling binds at *every* width the real model produces --
+        the quantile only drops below 0.30 x median above sigma ~2.8, which never happens --
+        so the Limit is a flat fraction of the median and the band acts on the Charge alone.
+
+        That is a real loss of a signal, and it is worth naming rather than papering over:
+        the band was measured to be uncalibrated anyway (implied median sigma 0.375 against
+        an actual RMSLE of 0.80, and the width ranks the errors slightly *backwards* -- see
+        `ImpliedSigmaTests`), so a Limit that ignores it is not obviously worse, and in euros
+        it is 35,726 better over 23 Games. If the band is ever fixed, the ceiling should rise
+        and this channel comes back; re-run `scripts/accept_limit_sweep.py recommend`.
+        """
+        tight = price_item(Evidence(1, 1.0, 95.0, 100.0, 105.0))
+        wide = price_item(Evidence(1, 1.0, 20.0, 100.0, 500.0))
+
+        self.assertLess(wide.sigma, 2.01)
+        self.assertGreater(wide.sigma, tight.sigma)
+        # The Charge still retreats with the band; that channel is untouched.
+        self.assertGreater(tight.charge, wide.charge)
+        # The Limit does not, because the ceiling binds at both widths. Asserted as an
+        # inequality rather than a strict one so the test states the truth: at a ceiling of
+        # 0.30 the band no longer moves the Limit at any width we see.
+        self.assertGreaterEqual(tight.limit, wide.limit)
+        self.assertEqual(tight.limit, wide.limit)
+
+    def test_a_proven_exclusion_zeroes_the_limit_but_keeps_the_charge(self) -> None:
+        """An uncovered item is a free option: t = 0, so a rejected Charge costs nothing."""
+        price = price_item(self.confident(300.0), confirmed_uncovered=True)
+
+        self.assertEqual(price.limit, 0.0)
+        self.assertGreater(price.charge, 0.0)
+
+    def test_a_missing_band_still_produces_a_plausible_number(self) -> None:
+        """Never submit 0: it forfeits income and rejects every fair claim."""
+        price = price_item(Evidence(index=1))
+
+        self.assertGreater(price.charge, 0.0)
+        self.assertLess(price.charge, 200.0)
+
+    def test_an_incoherent_band_is_repaired_rather_than_trusted(self) -> None:
+        price = price_item(Evidence(1, 0.9, price_low=900.0, price_median=100.0, price_high=0.0))
+
+        self.assertGreater(price.charge, 0.0)
+        self.assertGreaterEqual(price.charge, price.limit)
+
+    def test_nothing_is_ever_negative(self) -> None:
+        price = price_item(Evidence(1, -5.0, -10.0, -10.0, -10.0))
+
+        self.assertGreaterEqual(price.charge, 0.0)
+        self.assertGreaterEqual(price.limit, 0.0)
+
+
+class MeasuredConstants(unittest.TestCase):
+    """Pin each constant to the euros that chose it.
+
+    Every number quoted here was measured by `scripts/tune_pricing.py`, which feeds the
+    cached model evidence through `price_item` and scores it with
+    `scripts/replay_payoffs.py` -- a replay that reproduces all fourteen published nets to
+    the cent. These are not golden values for their own sake: each test names the finding
+    it guards, so moving a constant means re-running the measurement, not editing a number
+    until the suite goes green.
+    """
+
+    def test_the_charge_line_is_the_one_the_replay_confirmed(self) -> None:
+        """Measured optima 0.70/0.65/0.60/0.50/0.45 over sigma 0.25-0.75 fit 0.829-0.519s.
+
+        The shipped line runs 0.04-0.06 above that -- inside the spread between replicas --
+        so it was left alone. Refitting it exactly *lost* money on both the real evidence
+        (13,599 -> 4,397) and the simulation (145,169 -> 130,900), because the `b <= a`
+        clamp couples the Charge to the Limit.
+        """
+        self.assertEqual((CHARGE_INTERCEPT, CHARGE_SLOPE), (0.85, 0.45))
+        self.assertEqual(CHARGE_BOUNDS, (0.30, 0.80))
+
+    def test_the_charge_never_reaches_the_estimate(self) -> None:
+        """Confirmed in euros: `a = t_hat` scores -103k where `a = 0.6 t_hat` scores +150k.
+
+        The theory said the optimum must sit below 1 because a Charge at or under `t` is
+        paid by every opponent while acceptance above it collapses. The replay agrees at
+        every band width, so this is now a measured property rather than an argument.
+        """
+        for sigma in (0.0, 0.1, 0.25, 0.5, 1.0, 2.0):
+            self.assertLess(charge_factor(sigma), 1.0, sigma)
+
+    def test_the_limit_ceiling_carries_the_measurement(self) -> None:
+        """The ceiling is a Field measurement, not a pricing fact, and it was re-measured.
+
+        The history matters, because this constant has been argued in both directions.
+        Games 1-14 preferred 0.45 over 0.85 by +17,915; Games 15-19 inverted that and
+        0.85 won by ~15,000 on the strength of Games 17 and 18, and 0.85 was shipped on the
+        grounds that we are paid on the Games that come next.
+
+        Games 20-24 then reversed the reversal. Re-measured over every settled Game with
+        `scripts/accept_limit_sweep.py` (Game 16 excluded -- its Transactions do not
+        reconstruct), a ceiling of 0.30 beats 0.85 in every window:
+
+            Games 1-14   +32,100 against +13,599
+            Games 15-19  +19,639 against +37,688   <- the only window that prefers 0.85
+            Games 20-24  +56,639 against +21,386
+            Games 21-24  +41,303 against    -653   <- Strategy 2's own era, on policy
+            all 23       +108,378 against +72,673
+
+        So this pins 0.30, worth +35,726 over 23 Games and +41,956 over Games 21-24. What
+        makes it more than another four-Game fluctuation is the decomposition rather than
+        the total: loosening from 0.30 to 0.85 saves 222,098 in wrongful-rejection penalties
+        and pays 148,065 more on claims we owed plus 109,738 more on accepted Overcharges,
+        so it is a losing trade on the cost side alone, with income untouched.
+
+        0.20-0.35 is a plateau (2,557 euros of spread on 108,000); leave-one-out picks
+        inside 0.20-0.40 in all 23 folds, though its held-out total (+86,774) loses to
+        fixing the constant at 0.30 (+108,399), which is the usual verdict on 23 samples.
+        And pushing every censored Fair Value bracket to +inf -- the assumption most
+        favourable to generosity -- still prefers 0.30 by +17,668.
+        Re-run the sweep at every regime boundary rather than inheriting this (README R9).
+        """
+        self.assertEqual(LIMIT_CEILING, 0.30)
+
+    def test_the_derived_constants_were_not_fitted_away(self) -> None:
+        """The quantile stays where the theory put it; the floor moves to where it implies.
+
+        The quantile is flat in euros -- under 125 over Games 1-14 and 2,600 over all 23,
+        with every value above 0.30 worse than the derived 1/3 -- so it keeps its derivation
+        rather than a sweep's argmax.
+
+        The coverage floor is equally flat (137 euros over all 23 Games) but it was *wrong*:
+        the bottom `q` of a posterior carrying mass `1 - covered` at zero is zero exactly
+        when `covered <= 1 - q`, which is 2/3, not 1/3. The old value only reached the right
+        answer through the -8 clamp inside `_normal_quantile`, leaving a Limit of
+        `median * exp(-8 * sigma)` where the derivation says zero. Making it exact is worth
+        +21 euros over 23 Games: shipped because it is derived, not because it pays.
+        """
+        self.assertAlmostEqual(LIMIT_QUANTILE, 1.0 / 3.0)
+        self.assertAlmostEqual(COVERAGE_FLOOR, 2.0 / 3.0)
+        self.assertAlmostEqual(COVERAGE_FLOOR, 1.0 - LIMIT_QUANTILE)
+
+
+class TheCeilingIsWhatBinds(unittest.TestCase):
+    """Exercise the Limit across the band widths the real model actually produces.
+
+    This class was called `TheLimitRetreatsThroughTwoChannels`, after a docstring claiming
+    the ceiling "only binds below sigma ~0.38, so for the widths we actually see the band
+    still drives the Limit". Measured over Games 1-19 the model's implied sigma has median
+    0.375 and spans 0.148 to 0.668, so the ceiling was already doing more of the work than
+    the derivation suggested. At the ceiling measured over Games 1-24 (0.30) there is only
+    one channel left: the ceiling binds at every width in that range and well beyond it.
+
+    So the name is now the finding. The tests below pin it, and pin the invariants at the
+    widths where they are least obvious -- `b <= a`, nothing negative, and the Limit
+    collapsing to exactly zero once coverage is doubtful.
+
+    The bigger caveat is that `sigma` is not what it claims to be at all: the bands imply a
+    median 0.375 while the estimator's actual RMSLE is 0.80, and band width does not rank
+    the errors. See `ImpliedSigmaTests`. A Limit that ignores an uncalibrated width is not a
+    loss of information so much as a refusal to trust a number that has not earned it.
+    """
+
+    #: The real model's implied sigma over Games 1-19: median 0.375, spanning this range.
+    OBSERVED_SIGMAS = (0.15, 0.25, 0.375, 0.50, 0.67)
+
+    def band(self, sigma: float, median: float = 400.0) -> Evidence:
+        spread = math.exp(1.645 * sigma)
+        return Evidence(1, 1.0, median / spread, median, median * spread)
+
+    def test_the_ceiling_binds_across_the_whole_observed_range(self) -> None:
+        """Not merely "binds" -- it *is* the Limit at every width the model produces."""
+        for sigma in self.OBSERVED_SIGMAS:
+            price = price_item(self.band(sigma))
+
+            self.assertAlmostEqual(price.sigma, sigma, places=2)
+            self.assertAlmostEqual(price.limit, LIMIT_CEILING * 400.0, places=2, msg=str(sigma))
+
+    def test_the_limit_stays_far_under_the_estimate(self) -> None:
+        """The failure a loose Limit invites: the Cap has never bound in 52,224 rows.
+
+        Game 7 item 2 was priced at 2,200 against a true Fair Value of 40, at coverage
+        0.98. A Limit near the median accepts every opponent's Charge on such an item and
+        pays it in full, and no Cap stops that -- zero conflicts in 52,224 settled rows.
+
+        Measured over all 23 scoreable Games, that risk is realised, but not in the shape
+        the argument assumed. It is not one catastrophic row: the worst single accepted
+        Overcharge anywhere in the replay is 2,573 euros (G24 item 3), and it is the same
+        2,573 whether the Limit sits at 0.30 x median or at the full median. What the loose
+        Limit actually buys is *volume* -- 121,927 euros of accepted Overcharges across the
+        Field at a ceiling of 0.85 against 12,189 at 0.30. So the honest version of the
+        asymmetry argument is aggregate, not tail: many moderate Overcharges, each one
+        cheap, and no Cap to stop any of them.
+        """
+        for sigma in self.OBSERVED_SIGMAS:
+            price = price_item(self.band(sigma, median=2200.0))
+
+            # Bounded by the ceiling and by the Charge, so never the full estimate.
+            self.assertLessEqual(price.limit, LIMIT_CEILING * 2200.0 + 0.01, sigma)
+            self.assertLessEqual(price.limit, price.charge, sigma)
+
+    def test_the_invariants_survive_the_new_ceiling(self) -> None:
+        for sigma in self.OBSERVED_SIGMAS:
+            for coverage in (0.0, 0.2, 1.0 / 3.0, 0.5, 0.6, 2.0 / 3.0, 0.9, 1.0):
+                shape = self.band(sigma)
+                price = price_item(
+                    Evidence(1, coverage, shape.price_low, shape.price_median, shape.price_high)
+                )
+
+                self.assertGreaterEqual(price.charge, 0.0)
+                self.assertGreaterEqual(price.limit, 0.0)
+                self.assertLessEqual(price.limit, price.charge)
+                if coverage <= COVERAGE_FLOOR:
+                    self.assertEqual(price.limit, 0.0, (sigma, coverage))
+
+
+class ImpliedSigmaTests(unittest.TestCase):
+    def test_a_tight_band_implies_a_small_sigma(self) -> None:
+        self.assertLess(implied_sigma(95.0, 100.0, 105.0), 0.05)
+
+    def test_a_wide_band_implies_a_large_sigma(self) -> None:
+        self.assertGreater(implied_sigma(20.0, 100.0, 500.0), 0.9)
+
+    def test_a_degenerate_band_is_treated_as_maximally_uncertain(self) -> None:
+        self.assertEqual(implied_sigma(0.0, 0.0, 0.0), 1.0)
+        self.assertEqual(implied_sigma(100.0, 100.0, 100.0), 1.0)
+
+    def test_the_band_understates_the_error_it_is_supposed_to_measure(self) -> None:
+        """The uncertainty signal this module is built on does not currently work.
+
+        Measured over Games 1-14 against the recovered Fair Values: the model's bands imply
+        a median sigma of 0.375 while the estimator's actual RMSLE is 0.80, so the band is
+        overconfident by 2.1x. And the width does not rank the errors -- the narrow third
+        scores RMSLE 0.847 against the wide third's 0.733, very slightly *backwards*.
+
+        This test does not assert against live evidence (that would need the cache and the
+        network); it pins the arithmetic of the claim, so the 2.1x figure in the module
+        docstring stays honest if `implied_sigma` is ever rescaled.
+        """
+        observed_median_sigma = implied_sigma(400.0 / math.exp(1.645 * 0.375), 400.0,
+                                              400.0 * math.exp(1.645 * 0.375))
+        measured_rmsle = 0.80
+
+        self.assertAlmostEqual(observed_median_sigma, 0.375, places=3)
+        self.assertAlmostEqual(measured_rmsle / observed_median_sigma, 2.1, places=1)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -4,7 +4,7 @@ from src.data.models import CaseData, Proposal
 from src.services.strategies.strategy1.strategy import propose_with_model
 
 STRATEGY_NAME = "strategy3"
-LUNA_MODEL = "luna"
+LUNA_MODEL = "gpt-5.6-luna"
 
 
 async def propose(case: CaseData, deadline: float | None = None) -> Proposal | None:

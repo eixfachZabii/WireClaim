@@ -16,6 +16,12 @@ class LineItem:
     quantity: float = 1.0
     unit_price: float = 0.0
     total_gross: float = 0.0
+    quantity_missing: bool = False
+    """True when the invoice printed a dash instead of an amount and unit.
+
+    Such positions are a strong marker for a Fair Value of zero, so the signal
+    must survive parsing instead of collapsing into a plain ``quantity = 1.0``.
+    """
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -24,6 +30,7 @@ class LineItem:
             "quantity": self.quantity,
             "unit_price": self.unit_price,
             "total_gross": self.total_gross,
+            "quantity_missing": self.quantity_missing,
         }
 
 

@@ -12,7 +12,8 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name, get_service_tier
 from src.data.models import CaseData, ItemPrice, Proposal
-from src.policy_quote import is_policy_quote
+from src.policy_quote import has_explicit_line_item_exclusion, is_policy_quote
+from src.services.strategies.fast_path import STANDARD_LIMIT
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ PROMPT = """Read this insurance Case and return structured evidence for every in
 
 Do not return a Charge, a Limit, or a Fair Value. Deterministic code prices from your evidence.
 
-Coverage is the default. An invoice is ordinarily honest work. Do not lower coverage or relatedness because the Damage Description seems suspicious. A low coverage or relatedness value is allowed only when `exclusion_quote` contains an exact Policy quote proving an exclusion, missing requirement, scope restriction, or that the item cannot be covered. If no such quote exists, keep coverage and relatedness high.
+Start with the Policy scope: determine whether the reported event is an insured peril, whether the affected property class and location are insured, and quote any clause that excludes them. Then test each Line Item itself. An insured event does not make every invoice charge covered. Compare every Line Item name against exact Policy exclusions, especially movable contents, vehicles or transport, theft outside the insured perils, and ancillary costs such as shipping, delivery, installation, service, maintenance and liability charges. For an exact exclusion, set coverage_probability or relatedness_probability below 0.5 and reproduce the full exclusion as exclusion_quote. Do not lower coverage or relatedness because the Damage Description merely seems suspicious. If no exact exclusion quote exists, keep coverage and relatedness high.
 
 For every Line Item, return:
 - line_item: the one-based invoice index
@@ -94,6 +95,27 @@ def _extract_json(text: str) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise ValueError("Strategy 1 model response must be a JSON object.")
     return payload
+
+
+def _apply_explicit_cost_exclusions(
+    case: CaseData,
+    proposal: Proposal | None,
+    source: str,
+) -> Proposal | None:
+    prices = proposal.by_index() if proposal is not None else {}
+    for line_item in case.line_items:
+        price = prices.get(line_item.index)
+        if price is None:
+            price = ItemPrice(
+                index=line_item.index,
+                charge_price=FALLBACK_ESTIMATE * max(line_item.quantity, 1.0),
+                acceptance_limit=STANDARD_LIMIT,
+                source=source,
+            )
+        if has_explicit_line_item_exclusion(line_item.name, case.policy_text):
+            price = price.with_limit(0.0)
+        prices[line_item.index] = price
+    return Proposal(source=source, prices=tuple(sorted(prices.values(), key=lambda price: price.index))) if prices else None
 
 
 def _text_documents(case: CaseData) -> str:
@@ -199,8 +221,13 @@ def estimate_fair_values(case: CaseData, evidence: tuple[Evidence, ...]) -> tupl
         if confirmed_uncovered:
             covered_probability = 0.0
         else:
-            coverage = max(item.coverage_probability, DEFAULT_COVERAGE_PROBABILITY)
-            relatedness = max(item.relatedness_probability, DEFAULT_COVERAGE_PROBABILITY)
+            # Default when the model said nothing; never *floor* what it did say. This
+            # was `max(probability, 0.9)`, which silently overrode a verdict of "5%
+            # likely covered" with 90% and meant covered_probability could not fall
+            # below 0.81 -- so the Limit never collapsed and we paid full price on the
+            # 40% of Line Items whose Fair Value is 0. Game 17 paid 70,736 that way.
+            coverage = item.coverage_probability or DEFAULT_COVERAGE_PROBABILITY
+            relatedness = item.relatedness_probability or DEFAULT_COVERAGE_PROBABILITY
             covered_probability = coverage * relatedness
         estimates.append(
             Estimate(
@@ -226,7 +253,7 @@ def _limit_from_estimate(estimate: Estimate) -> float:
         conditional_quantile = (LIMIT_QUANTILE - zero_mass) / estimate.covered_probability
         limit = estimate.low + conditional_quantile * (estimate.high - estimate.low)
     median = (estimate.low + estimate.high) / 2
-    return min(max(limit, 0.0), median)
+    return min(max(limit, 0.0), median, STANDARD_LIMIT)
 
 
 def proposal_from_estimates(estimates: tuple[Estimate, ...], source: str = STRATEGY_NAME) -> Proposal | None:
@@ -267,7 +294,11 @@ async def propose_with_model(
     try:
         evidence = await asyncio.to_thread(_request_evidence, case, model, timeout)
         estimates = estimate_fair_values(case, evidence)
-        proposal = proposal_from_estimates(estimates, source)
+        proposal = _apply_explicit_cost_exclusions(
+            case,
+            proposal_from_estimates(estimates, source),
+            source,
+        )
     except asyncio.CancelledError:
         log_timing(logger, source, started_at, "cancelled", game=case.game_id, model=get_model_name(model))
         raise

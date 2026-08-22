@@ -24,7 +24,11 @@ SYSTEM_PROMPT = """Read one invoice Line Item and return price evidence for a de
 
 Do not decide coverage, relatedness, Charge, Limit, or Fair Value. Estimate only the defensible gross unit price and a gross-total price band for the work or item itself. Use the Policy digest for like-for-like and upgrade rules. Use the Damage Description, all invoice Line Items, and attached images to identify duplicate work, inflated quantities, preventive work, pre-existing damage, or unsupported fees.
 
-Return realistic German market-price evidence. `unit_price` is gross per unit; `quantity` is the plausible quantity; `total_low` and `total_high` are gross totals for the complete Line Item. Record concerns in `flags` and explain the price anchors in `reasoning`."""
+Return realistic German market-price evidence. `unit_price` is gross per unit; `quantity` is the plausible quantity; `total_low` and `total_high` are gross totals for the complete Line Item. Record concerns in `flags` and explain the price anchors in `reasoning`.
+
+`quantity_missing: true` means the invoice printed no amount and no unit for this Line Item, only dashes. Every one of the 20 such Line Items in the settled Games turned out to be worth exactly 0, so price it near zero and flag it.
+
+The printed quantity is a weak guide to value across different kinds of work: eight grub screws are not eight technician hours. Anchor on what the whole Line Item is worth."""
 
 RESPONSE_SCHEMA: dict[str, Any] = {
     "name": "price_evidence",

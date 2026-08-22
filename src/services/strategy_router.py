@@ -5,6 +5,7 @@ import logging
 from collections.abc import AsyncIterator, Awaitable, Callable
 
 from src.data.models import CaseData, Proposal
+from src.services.strategies import STRATEGY_PRIORITIES
 from src.services.strategies.strategy1 import propose as strategy1
 from src.services.strategies.strategy2 import propose as strategy2
 from src.services.strategies.strategy3 import propose as strategy3
@@ -12,7 +13,10 @@ from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Strategy = Callable[..., Awaitable[Proposal | None]]
-STRATEGY_PRIORITIES = {"strategy1": 1, "strategy2": 2, "strategy3": 3}
+# `STRATEGY_PRIORITIES` is re-exported for the callers that already import it from here.
+# It is defined in `src.services.strategies` because it describes the tracks rather than
+# the router, and because two copies of it had already drifted apart.
+__all__ = ["STRATEGY_PRIORITIES", "StrategyRouter"]
 
 
 class StrategyRouter:

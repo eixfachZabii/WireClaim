@@ -1,0 +1,96 @@
+@startuml
+' WireClaim — one Game on the 60-second clock.
+' Source of truth: main.py (run_game, blind_floor, RUN_SECONDS),
+' src/data/case_loader.py, src/services/submission_coordinator.py,
+' src/services/strategies/strategy2/strategy.py, src/services/fraud_detection.py
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam defaultFontName "Inter, Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam ArrowColor #18181B
+skinparam ArrowFontColor #52525B
+skinparam sequenceMessageAlign center
+
+title One Game, T+0 to T+60 — every arrow is code in main.run_game
+
+actor "Tournament\nschedule" as Sched
+participant "main.run_game" as Run
+participant "SubmissionCoordinator" as SC
+participant "case_loader" as Loader
+participant "RunManager" as RM
+participant "strategy2" as S2
+participant "fraud_detection" as FD
+database "QuantCo API" as API
+
+Sched -> Run : start_time reached\ndeadline = loop.time() + RUN_SECONDS (60 s)
+
+== T+0  blind floor, before the Case exists ==
+Run -> SC : start()
+Run -> SC : publish(blind_floor())
+SC -> API : PUT /api/games/{id}/submissions\n40 indices, a=300.00, b=35.00
+note right of SC
+  The Line Item count is unknowable
+  before the Case loads, so we cover
+  a fixed range of 40. Surplus indices
+  create no Transactions.
+  Failure here: logged, retried on the
+  next event; the (0,0) default stands.
+end note
+
+== T+0 to ~T+3  load (the only blocking phase) ==
+Run -> Loader : load_case(game_id, deadline)
+Loader -> API : GET /api/games/{id}/key
+API --> Loader : decryption_key  (403 until start_time -> poll every 0.5 s)
+Loader -> Loader : 7z x -p<key>  ->  var/cases/case_NN/
+Loader -> Loader : pypdf parse invoices.pdf\nPOS number, quantity, quantity_missing
+Loader --> Run : CaseData
+note right of Loader
+  Failure: run_game logs
+  "blind floor stands", waits for the
+  coordinator to go idle, and exits.
+  40 plausible numbers, not (0,0).
+end note
+
+== T+3  deterministic layer publishes ==
+Run -> RM : RunManager(standard_values(case))
+Run -> SC : publish(snapshot(), reason="case_loaded")
+SC -> API : PUT — real indices only, a=300.00, b=35.00
+
+== T+3 to ~T+50  the two model producers race ==
+par
+  Run -> S2 : propose(case, deadline)
+  S2 -> S2 : Channel A: dash quantity => p_covered = 0\nChannel B: Price Memory lookup (sigma 0.43)
+  S2 -> API : one whole-Case model call on the sliced Policy\ntimeout = min(40 s, deadline - now - 2 s)
+  API --> S2 : evidence JSON (band + p_covered + clause)
+  S2 -> S2 : combine, then pricing.price_item per Line Item
+  S2 --> Run : Proposal(source="strategy2")
+  note right of S2
+    Model failure is caught and logged.
+    Channels A and B alone still build
+    a Proposal — the Game is not lost.
+  end note
+else
+  Run -> FD : detect_fraud(case)
+  FD -> API : one model call PER Line Item, 15 s each, concurrent
+  FD -> FD : verdict survives only with\nconfidence >= 0.85 AND a verbatim\nexclusion quote (>= 60 chars)
+  FD -> FD : circuit breaker: discard the whole mask if\nflagged > max(2, 0.35 x line items)
+  FD --> Run : FraudDecision(fraud_indices)
+end
+
+== each event, until the deadline ==
+loop while loop.time() < deadline
+  Run -> RM : set_strategy / set_fast_path / apply_fraud
+  Run -> RM : snapshot()  (per Line Item merge + coverage mask)
+  alt snapshot changed
+    RM --> SC : publish(prices, reason)
+    SC -> API : PUT (upsert, last write wins)
+  else identical signature
+    SC -> SC : skip — no request
+  end
+end
+
+== T+60 ==
+Run -> SC : close()  — worker cancelled, no PUT after the deadline
+@enduml

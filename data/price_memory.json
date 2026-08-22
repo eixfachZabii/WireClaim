@@ -1,0 +1,2830 @@
+{
+ "version": 1,
+ "built_from_games": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14
+ ],
+ "line_items_joined": 192,
+ "line_items_with_proven_positive_t": 116,
+ "per_unit_units": [
+  "hrs",
+  "kg",
+  "m",
+  "m2"
+ ],
+ "measured_leave_one_out_sigma_log": 0.43,
+ "warning": "PRICE ONLY. This store never asserts coverage; advisory_zero_observations is a hint to read the policy clause, not a verdict that the item is uncovered.",
+ "entries": {
+  "clean dry conservatory rug": {
+   "display_name": "Clean / dry conservatory rug",
+   "values": [
+    122.94
+   ],
+   "games": [
+    1
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 1,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 122.94,
+     "t_low": 122.94,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "inspect plant room electrical systems": {
+   "display_name": "Inspect plant-room electrical systems",
+   "values": [
+    227.66
+   ],
+   "games": [
+    1
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 1,
+     "line_item_index": 2,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 227.66,
+     "t_low": 227.66,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "restore wall surfaces": {
+   "display_name": "Restore wall surfaces",
+   "values": [
+    56.916
+   ],
+   "games": [
+    1
+   ],
+   "units": [
+    "m2"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 1,
+     "line_item_index": 6,
+     "unit": "m2",
+     "quantity": 10.0,
+     "value": 56.916,
+     "t_low": 569.16,
+     "t_high": null,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "final site cleaning": {
+   "display_name": "Final site cleaning",
+   "values": [
+    182.13,
+    92.79
+   ],
+   "games": [
+    1,
+    8
+   ],
+   "units": [
+    "pcs",
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 1,
+     "line_item_index": 7,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 182.13,
+     "t_low": 182.13,
+     "t_high": null,
+     "basis": "gross"
+    },
+    {
+     "game": 8,
+     "line_item_index": 16,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 92.79,
+     "t_low": 90.0,
+     "t_high": 95.58,
+     "basis": "gross"
+    }
+   ]
+  },
+  "vehicle costs": {
+   "display_name": "Vehicle costs",
+   "values": [
+    111.375,
+    96.375,
+    88.875,
+    39.5,
+    85.975,
+    86.155,
+    80.24,
+    94.0,
+    57.5,
+    64.46,
+    32.45
+   ],
+   "games": [
+    5,
+    8,
+    9,
+    11,
+    13,
+    14
+   ],
+   "units": [
+    "pcs",
+    "pcs",
+    "pcs",
+    "pcs",
+    "pcs",
+    "pcs",
+    "pcs",
+    "pcs",
+    "pcs",
+    "pcs",
+    "pcs"
+   ],
+   "advisory_zero_observations": 6,
+   "advisory_zero_games": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    14
+   ],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 9,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 111.375,
+     "t_low": 42.75,
+     "t_high": 180.0,
+     "basis": "gross"
+    },
+    {
+     "game": 5,
+     "line_item_index": 12,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 96.375,
+     "t_low": 42.75,
+     "t_high": 150.0,
+     "basis": "gross"
+    },
+    {
+     "game": 5,
+     "line_item_index": 17,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 88.875,
+     "t_low": 42.75,
+     "t_high": 135.0,
+     "basis": "gross"
+    },
+    {
+     "game": 8,
+     "line_item_index": 38,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 39.5,
+     "t_low": 34.0,
+     "t_high": 45.0,
+     "basis": "gross"
+    },
+    {
+     "game": 9,
+     "line_item_index": 7,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 85.975,
+     "t_low": 81.95,
+     "t_high": 90.0,
+     "basis": "gross"
+    },
+    {
+     "game": 9,
+     "line_item_index": 12,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 86.155,
+     "t_low": 82.31,
+     "t_high": 90.0,
+     "basis": "gross"
+    },
+    {
+     "game": 11,
+     "line_item_index": 4,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 80.24,
+     "t_low": 80.24,
+     "t_high": null,
+     "basis": "gross"
+    },
+    {
+     "game": 11,
+     "line_item_index": 18,
+     "unit": "pcs",
+     "quantity": 2.0,
+     "value": 94.0,
+     "t_low": 94.0,
+     "t_high": null,
+     "basis": "gross"
+    },
+    {
+     "game": 11,
+     "line_item_index": 23,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 57.5,
+     "t_low": 57.5,
+     "t_high": null,
+     "basis": "gross"
+    },
+    {
+     "game": 13,
+     "line_item_index": 12,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 64.46,
+     "t_low": 64.46,
+     "t_high": null,
+     "basis": "gross"
+    },
+    {
+     "game": 14,
+     "line_item_index": 9,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 32.45,
+     "t_low": 24.9,
+     "t_high": 40.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "leak detection pool pipeline": {
+   "display_name": "Leak detection pool pipeline",
+   "values": [
+    409.79
+   ],
+   "games": [
+    1
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 1,
+     "line_item_index": 9,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 409.79,
+     "t_low": 409.79,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "skilled worker hours": {
+   "display_name": "Skilled worker hours",
+   "values": [
+    77.5,
+    94.285,
+    70.4286,
+    54.7875
+   ],
+   "games": [
+    8,
+    11,
+    12
+   ],
+   "units": [
+    "hrs",
+    "hrs",
+    "hrs",
+    "hrs"
+   ],
+   "advisory_zero_observations": 3,
+   "advisory_zero_games": [
+    1,
+    14
+   ],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 37,
+     "unit": "hrs",
+     "quantity": 3.0,
+     "value": 77.5,
+     "t_low": 210.64,
+     "t_high": 254.36,
+     "basis": "per_unit"
+    },
+    {
+     "game": 11,
+     "line_item_index": 2,
+     "unit": "hrs",
+     "quantity": 8.0,
+     "value": 94.285,
+     "t_low": 754.28,
+     "t_high": null,
+     "basis": "per_unit"
+    },
+    {
+     "game": 11,
+     "line_item_index": 21,
+     "unit": "hrs",
+     "quantity": 14.0,
+     "value": 70.4286,
+     "t_low": 986.0,
+     "t_high": null,
+     "basis": "per_unit"
+    },
+    {
+     "game": 12,
+     "line_item_index": 8,
+     "unit": "hrs",
+     "quantity": 4.0,
+     "value": 54.7875,
+     "t_low": 200.0,
+     "t_high": 238.3,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "moisture measurement": {
+   "display_name": "Moisture measurement",
+   "values": [
+    227.66
+   ],
+   "games": [
+    1
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 1,
+     "line_item_index": 13,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 227.66,
+     "t_low": 227.66,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "vacuum water": {
+   "display_name": "Vacuum water",
+   "values": [
+    105.78
+   ],
+   "games": [
+    1
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 1,
+     "line_item_index": 14,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 105.78,
+     "t_low": 105.78,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "room drying pool conservatory": {
+   "display_name": "Room drying (pool/conservatory)",
+   "values": [
+    606.22
+   ],
+   "games": [
+    1
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 1,
+     "line_item_index": 15,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 606.22,
+     "t_low": 606.22,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "condensation dryer": {
+   "display_name": "Condensation dryer",
+   "values": [
+    97.5
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 1,
+   "advisory_zero_games": [
+    1
+   ],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 26,
+     "unit": "pcs",
+     "quantity": 2.0,
+     "value": 97.5,
+     "t_low": 45.0,
+     "t_high": 150.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "drying fan": {
+   "display_name": "Drying fan",
+   "values": [
+    75.0
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 2,
+   "advisory_zero_games": [
+    1,
+    11
+   ],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 18,
+     "unit": "pcs",
+     "quantity": 3.0,
+     "value": 75.0,
+     "t_low": 45.0,
+     "t_high": 105.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "supply and install premium hardwood skirting boards upgrade from pre loss softwood": {
+   "display_name": "Supply and install premium hardwood skirting boards (upgrade from pre-loss softwood)",
+   "values": [
+    6.5347
+   ],
+   "games": [
+    1
+   ],
+   "units": [
+    "m"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 1,
+     "line_item_index": 18,
+     "unit": "m",
+     "quantity": 15.0,
+     "value": 6.5347,
+     "t_low": 98.02,
+     "t_high": null,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "speaker system surge damaged": {
+   "display_name": "Speaker system (surge damaged)",
+   "values": [
+    367.5,
+    282.25
+   ],
+   "games": [
+    2,
+    4
+   ],
+   "units": [
+    "pcs",
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 2,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 367.5,
+     "t_low": 310.0,
+     "t_high": 425.0,
+     "basis": "gross"
+    },
+    {
+     "game": 4,
+     "line_item_index": 2,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 282.25,
+     "t_low": 229.5,
+     "t_high": 335.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "tv set": {
+   "display_name": "TV set",
+   "values": [
+    577.5
+   ],
+   "games": [
+    2
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 2,
+     "line_item_index": 4,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 577.5,
+     "t_low": 555.0,
+     "t_high": 600.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "tv set surge damaged": {
+   "display_name": "TV set (surge damaged)",
+   "values": [
+    364.625
+   ],
+   "games": [
+    4
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 4,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 364.625,
+     "t_low": 199.25,
+     "t_high": 530.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "av receiver amplifier surge damaged": {
+   "display_name": "AV receiver / amplifier (surge damaged)",
+   "values": [
+    532.5
+   ],
+   "games": [
+    4
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 4,
+     "line_item_index": 3,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 532.5,
+     "t_low": 532.5,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "melted mains plug and power lead physically surge damaged": {
+   "display_name": "Melted mains plug and power lead (physically surge- damaged)",
+   "values": [
+    29.94
+   ],
+   "games": [
+    4
+   ],
+   "units": [
+    "flat rate"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 4,
+     "line_item_index": 4,
+     "unit": "flat rate",
+     "quantity": 1.0,
+     "value": 29.94,
+     "t_low": 28.0,
+     "t_high": 31.88,
+     "basis": "gross"
+    }
+   ]
+  },
+  "leak detection call out and electro acoustic pinpointing of the leak beneath the kitchen sink": {
+   "display_name": "Leak detection call-out and electro-acoustic pinpointing of the leak beneath the kitchen sink",
+   "values": [
+    638.75
+   ],
+   "games": [
+    5
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 638.75,
+     "t_low": 402.5,
+     "t_high": 875.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "moisture measurement of the kitchen floor and wall base": {
+   "display_name": "Moisture measurement of the kitchen floor and wall base",
+   "values": [
+    174.625
+   ],
+   "games": [
+    5
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 2,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 174.625,
+     "t_low": 150.0,
+     "t_high": 199.25,
+     "basis": "gross"
+    }
+   ]
+  },
+  "service technician hours": {
+   "display_name": "Service technician hours",
+   "values": [
+    45.4086,
+    69.0,
+    87.9067
+   ],
+   "games": [
+    5,
+    11,
+    13
+   ],
+   "units": [
+    "hrs",
+    "hrs",
+    "hrs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 3,
+     "unit": "hrs",
+     "quantity": 14.0,
+     "value": 45.4086,
+     "t_low": 497.94,
+     "t_high": 773.5,
+     "basis": "per_unit"
+    },
+    {
+     "game": 11,
+     "line_item_index": 20,
+     "unit": "hrs",
+     "quantity": 5.5,
+     "value": 69.0,
+     "t_low": 379.5,
+     "t_high": null,
+     "basis": "per_unit"
+    },
+    {
+     "game": 13,
+     "line_item_index": 7,
+     "unit": "hrs",
+     "quantity": 6.75,
+     "value": 87.9067,
+     "t_low": 593.37,
+     "t_high": null,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "freeing the affected pipe run beneath the kitchen sink": {
+   "display_name": "Freeing the affected pipe run beneath the kitchen sink",
+   "values": [
+    119.47
+   ],
+   "games": [
+    5
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 5,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 119.47,
+     "t_low": 108.44,
+     "t_high": 130.5,
+     "basis": "gross"
+    }
+   ]
+  },
+  "removal and disposal of damaged pipe insulation": {
+   "display_name": "Removal and disposal of damaged pipe insulation",
+   "values": [
+    226.5
+   ],
+   "games": [
+    5
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 6,
+     "unit": "pcs",
+     "quantity": 2.0,
+     "value": 226.5,
+     "t_low": 153.0,
+     "t_high": 300.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "repair of the confirmed leak on the copper supply pipe": {
+   "display_name": "Repair of the confirmed leak on the copper supply pipe",
+   "values": [
+    155.25
+   ],
+   "games": [
+    5
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 7,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 155.25,
+     "t_low": 130.5,
+     "t_high": 180.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "replacement copper pipe section and transition fittings": {
+   "display_name": "Replacement copper pipe section and transition fittings",
+   "values": [
+    84.155
+   ],
+   "games": [
+    5
+   ],
+   "units": [
+    "flat rate"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 8,
+     "unit": "flat rate",
+     "quantity": 1.0,
+     "value": 84.155,
+     "t_low": 53.56,
+     "t_high": 114.75,
+     "basis": "gross"
+    }
+   ]
+  },
+  "removal transport and disposal of the water damaged wooden kitchen table": {
+   "display_name": "Removal, transport and disposal of the water-damaged wooden kitchen table",
+   "values": [
+    189.75
+   ],
+   "games": [
+    5
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 13,
+     "unit": "pcs",
+     "quantity": 3.0,
+     "value": 189.75,
+     "t_low": 150.0,
+     "t_high": 229.5,
+     "basis": "gross"
+    }
+   ]
+  },
+  "supply of replacement table premium solid oak designer model higher specification than the original": {
+   "display_name": "Supply of replacement table - premium solid-oak designer model, higher specification than the original",
+   "values": [
+    360.0
+   ],
+   "games": [
+    5
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 14,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 360.0,
+     "t_low": 360.0,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "delivery and assembly of the replacement table": {
+   "display_name": "Delivery and assembly of the replacement table",
+   "values": [
+    300.0
+   ],
+   "games": [
+    5
+   ],
+   "units": [
+    "flat rate"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 5,
+     "line_item_index": 15,
+     "unit": "flat rate",
+     "quantity": 1.0,
+     "value": 300.0,
+     "t_low": 300.0,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "surge damaged home electronics speaker system and tv set": {
+   "display_name": "Surge-damaged home electronics (speaker system and TV set)",
+   "values": [
+    832.5
+   ],
+   "games": [
+    6
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 6,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 2.0,
+     "value": 832.5,
+     "t_low": 765.0,
+     "t_high": 900.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "air conditioning unit living room surge damaged replaced like for like": {
+   "display_name": "Air conditioning unit - living room (surge damaged, replaced like-for-like)",
+   "values": [
+    1494.49
+   ],
+   "games": [
+    7
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 7,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 1494.49,
+     "t_low": 1232.54,
+     "t_high": 1756.44,
+     "basis": "gross"
+    }
+   ]
+  },
+  "installation living room unit": {
+   "display_name": "Installation - living-room unit",
+   "values": [
+    494.93
+   ],
+   "games": [
+    7
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 7,
+     "line_item_index": 3,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 494.93,
+     "t_low": 467.5,
+     "t_high": 522.36,
+     "basis": "gross"
+    }
+   ]
+  },
+  "floor console equivalent stand for the living room unit": {
+   "display_name": "Floor console (equivalent stand for the living-room unit)",
+   "values": [
+    63.89
+   ],
+   "games": [
+    7
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 7,
+     "line_item_index": 5,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 63.89,
+     "t_low": 53.6,
+     "t_high": 74.18,
+     "basis": "gross"
+    }
+   ]
+  },
+  "freight shipping": {
+   "display_name": "Freight shipping",
+   "values": [
+    32.52
+   ],
+   "games": [
+    7
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 7,
+     "line_item_index": 6,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 32.52,
+     "t_low": 21.98,
+     "t_high": 43.06,
+     "basis": "gross"
+    }
+   ]
+  },
+  "remove and transport rug": {
+   "display_name": "Remove and transport rug",
+   "values": [
+    56.5
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 56.5,
+     "t_low": 53.0,
+     "t_high": 60.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "high quality led lighting above billiard table": {
+   "display_name": "High-quality LED lighting above billiard table",
+   "values": [
+    765.0
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 2,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 765.0,
+     "t_low": 765.0,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "specialist rug cleaning": {
+   "display_name": "Specialist rug cleaning",
+   "values": [
+    200.16
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 3,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 200.16,
+     "t_low": 200.16,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "electrical inspection of robot vacuum cleaner": {
+   "display_name": "Electrical inspection of robot vacuum cleaner",
+   "values": [
+    123.33
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 4,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 123.33,
+     "t_low": 114.12,
+     "t_high": 132.54,
+     "basis": "gross"
+    }
+   ]
+  },
+  "disassemble billiard table": {
+   "display_name": "Disassemble billiard table",
+   "values": [
+    367.575
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 6,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 367.575,
+     "t_low": 339.15,
+     "t_high": 396.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "inspect billiard table for moisture damage": {
+   "display_name": "Inspect billiard table for moisture damage",
+   "values": [
+    200.0
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 7,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 200.0,
+     "t_low": 200.0,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "replace damaged billiard cloth": {
+   "display_name": "Replace damaged billiard cloth",
+   "values": [
+    452.2
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 8,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 452.2,
+     "t_low": 452.2,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "recushion billiard table rails": {
+   "display_name": "Recushion billiard table rails",
+   "values": [
+    471.415
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "flat rate"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 9,
+     "unit": "flat rate",
+     "quantity": 1.0,
+     "value": 471.415,
+     "t_low": 454.5,
+     "t_high": 488.33,
+     "basis": "gross"
+    }
+   ]
+  },
+  "align and reassemble billiard table": {
+   "display_name": "Align and reassemble billiard table",
+   "values": [
+    428.59
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 11,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 428.59,
+     "t_low": 368.85,
+     "t_high": 488.33,
+     "basis": "gross"
+    }
+   ]
+  },
+  "restore plasterboard ceiling": {
+   "display_name": "Restore plasterboard ceiling",
+   "values": [
+    73.165
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "m2"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 13,
+     "unit": "m2",
+     "quantity": 8.0,
+     "value": 73.165,
+     "t_low": 542.64,
+     "t_high": 628.0,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "fill ceiling and wall surfaces": {
+   "display_name": "Fill ceiling and wall surfaces",
+   "values": [
+    23.741
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "m2"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 14,
+     "unit": "m2",
+     "quantity": 15.0,
+     "value": 23.741,
+     "t_low": 339.45,
+     "t_high": 372.78,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "construction waste disposal": {
+   "display_name": "Construction waste disposal",
+   "values": [
+    68.22
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 2,
+   "advisory_zero_games": [
+    8
+   ],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 13,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 68.22,
+     "t_low": 56.44,
+     "t_high": 80.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "control measurement during drying": {
+   "display_name": "Control measurement during drying",
+   "values": [
+    203.185
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 19,
+     "unit": "pcs",
+     "quantity": 2.0,
+     "value": 203.185,
+     "t_low": 184.32,
+     "t_high": 222.05,
+     "basis": "gross"
+    }
+   ]
+  },
+  "final measurement": {
+   "display_name": "Final measurement",
+   "values": [
+    109.205
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 20,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 109.205,
+     "t_low": 90.0,
+     "t_high": 128.41,
+     "basis": "gross"
+    }
+   ]
+  },
+  "remove floor covering in guest wc": {
+   "display_name": "Remove floor covering in guest WC",
+   "values": [
+    31.505
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "m2"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 23,
+     "unit": "m2",
+     "quantity": 5.0,
+     "value": 31.505,
+     "t_low": 145.48,
+     "t_high": 169.57,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "remove skirting boards": {
+   "display_name": "Remove skirting boards",
+   "values": [
+    10.1371
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "m"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 24,
+     "unit": "m",
+     "quantity": 12.0,
+     "value": 10.1371,
+     "t_low": 113.15,
+     "t_high": 130.14,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "insulation layer drying": {
+   "display_name": "Insulation layer drying",
+   "values": [
+    638.02
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 25,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 638.02,
+     "t_low": 573.0,
+     "t_high": 703.04,
+     "basis": "gross"
+    }
+   ]
+  },
+  "side channel compressor": {
+   "display_name": "Side channel compressor",
+   "values": [
+    97.26
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 27,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 97.26,
+     "t_low": 60.0,
+     "t_high": 134.52,
+     "basis": "gross"
+    }
+   ]
+  },
+  "remove damaged parquet": {
+   "display_name": "Remove damaged parquet",
+   "values": [
+    34.099
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "m2"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 28,
+     "unit": "m2",
+     "quantity": 5.0,
+     "value": 34.099,
+     "t_low": 157.83,
+     "t_high": 183.16,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "renew parquet floor": {
+   "display_name": "Renew parquet floor",
+   "values": [
+    7.2975
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "m"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 29,
+     "unit": "m",
+     "quantity": 12.0,
+     "value": 7.2975,
+     "t_low": 45.0,
+     "t_high": 130.14,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "supply and install new skirting boards": {
+   "display_name": "Supply and install new skirting boards",
+   "values": [
+    507.0
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 30,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 507.0,
+     "t_low": 507.0,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "open water damaged ceiling surface": {
+   "display_name": "Open water-damaged ceiling surface",
+   "values": [
+    124.11
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 31,
+     "unit": "pcs",
+     "quantity": 2.0,
+     "value": 124.11,
+     "t_low": 89.95,
+     "t_high": 158.27,
+     "basis": "gross"
+    }
+   ]
+  },
+  "leak detection cause investigation": {
+   "display_name": "Leak detection / cause investigation",
+   "values": [
+    411.675
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 33,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 411.675,
+     "t_low": 401.93,
+     "t_high": 421.42,
+     "basis": "gross"
+    }
+   ]
+  },
+  "moisture measurement of multiple rooms": {
+   "display_name": "Moisture measurement of multiple rooms",
+   "values": [
+    251.745
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 34,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 251.745,
+     "t_low": 199.25,
+     "t_high": 304.24,
+     "basis": "gross"
+    }
+   ]
+  },
+  "inspect and disassemble toilet cistern": {
+   "display_name": "Inspect and disassemble toilet cistern",
+   "values": [
+    123.095
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 35,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 123.095,
+     "t_low": 113.05,
+     "t_high": 133.14,
+     "basis": "gross"
+    }
+   ]
+  },
+  "replace fill valve in toilet cistern": {
+   "display_name": "Replace fill valve in toilet cistern",
+   "values": [
+    118.5
+   ],
+   "games": [
+    8
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 8,
+     "line_item_index": 36,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 118.5,
+     "t_low": 100.0,
+     "t_high": 137.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "cutting and removal of the storm felled tree from the shed roof": {
+   "display_name": "Cutting and removal of the storm-felled tree from the shed roof",
+   "values": [
+    969.33
+   ],
+   "games": [
+    9
+   ],
+   "units": [
+    "flat rate"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 9,
+     "line_item_index": 10,
+     "unit": "flat rate",
+     "quantity": 1.0,
+     "value": 969.33,
+     "t_low": 862.59,
+     "t_high": 1076.07,
+     "basis": "gross"
+    }
+   ]
+  },
+  "lifting and earth moving machinery hire": {
+   "display_name": "Lifting and earth-moving machinery hire",
+   "values": [
+    588.2
+   ],
+   "games": [
+    9
+   ],
+   "units": [
+    "flat rate"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 9,
+     "line_item_index": 11,
+     "unit": "flat rate",
+     "quantity": 1.0,
+     "value": 588.2,
+     "t_low": 576.4,
+     "t_high": 600.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "disposal of shed roof timber and the broken glass pane building debris": {
+   "display_name": "Disposal of shed roof timber and the broken glass pane (building debris)",
+   "values": [
+    100.35
+   ],
+   "games": [
+    9
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 9,
+     "line_item_index": 13,
+     "unit": "pcs",
+     "quantity": 2.0,
+     "value": 100.35,
+     "t_low": 87.3,
+     "t_high": 113.4,
+     "basis": "gross"
+    }
+   ]
+  },
+  "material costs": {
+   "display_name": "Material costs",
+   "values": [
+    90.675
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 1,
+   "advisory_zero_games": [
+    10
+   ],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 22,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 90.675,
+     "t_low": 69.35,
+     "t_high": 112.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "compensation for stolen watch premium replacement model upgrade on the one taken": {
+   "display_name": "Compensation for stolen watch (premium replacement model, upgrade on the one taken)",
+   "values": [
+    7225.0
+   ],
+   "games": [
+    10
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 10,
+     "line_item_index": 3,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 7225.0,
+     "t_low": 7225.0,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "compensation for cash taken in robbery": {
+   "display_name": "Compensation for cash taken in robbery",
+   "values": [
+    404.11
+   ],
+   "games": [
+    10
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 10,
+     "line_item_index": 4,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 404.11,
+     "t_low": 404.11,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "indoor leak detection": {
+   "display_name": "Indoor leak detection",
+   "values": [
+    357.38
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 357.38,
+     "t_low": 357.38,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "material for the work": {
+   "display_name": "Material for the work",
+   "values": [
+    52.79
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 3,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 52.79,
+     "t_low": 44.08,
+     "t_high": 61.5,
+     "basis": "gross"
+    }
+   ]
+  },
+  "room drying 30 m2": {
+   "display_name": "Room drying 30 m²",
+   "values": [
+    293.065
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "flat rate"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 5,
+     "unit": "flat rate",
+     "quantity": 1.0,
+     "value": 293.065,
+     "t_low": 250.13,
+     "t_high": 336.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "removal and disposal of damaged insulation": {
+   "display_name": "Removal and disposal of damaged insulation",
+   "values": [
+    22.755
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "m2"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 7,
+     "unit": "m2",
+     "quantity": 1.0,
+     "value": 22.755,
+     "t_low": 19.51,
+     "t_high": 26.0,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "wet insulation wool from basement": {
+   "display_name": "Wet insulation wool from basement",
+   "values": [
+    89.575
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 8,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 89.575,
+     "t_low": 75.65,
+     "t_high": 103.5,
+     "basis": "gross"
+    }
+   ]
+  },
+  "room drying 50 m2": {
+   "display_name": "Room drying 50 m²",
+   "values": [
+    291.415
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 9,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 291.415,
+     "t_low": 224.7,
+     "t_high": 358.13,
+     "basis": "gross"
+    }
+   ]
+  },
+  "profipress elbow 90 degree copper 15mm model 01": {
+   "display_name": "Profipress elbow 90° copper 15mm model 01",
+   "values": [
+    53.625
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 13,
+     "unit": "pcs",
+     "quantity": 5.0,
+     "value": 53.625,
+     "t_low": 44.0,
+     "t_high": 63.25,
+     "basis": "gross"
+    }
+   ]
+  },
+  "profipress elbow 90 degree copper 15mm model 02": {
+   "display_name": "Profipress elbow 90° copper 15mm model 02",
+   "values": [
+    75.975
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 14,
+     "unit": "pcs",
+     "quantity": 5.0,
+     "value": 75.975,
+     "t_low": 44.0,
+     "t_high": 107.95,
+     "basis": "gross"
+    }
+   ]
+  },
+  "hose": {
+   "display_name": "Hose",
+   "values": [
+    10.8433
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "m"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 16,
+     "unit": "m",
+     "quantity": 3.0,
+     "value": 10.8433,
+     "t_low": 32.53,
+     "t_high": null,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "helper hours": {
+   "display_name": "Helper hours",
+   "values": [
+    39.8,
+    67.2243
+   ],
+   "games": [
+    11,
+    13
+   ],
+   "units": [
+    "hrs",
+    "hrs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 17,
+     "unit": "hrs",
+     "quantity": 5.0,
+     "value": 39.8,
+     "t_low": 199.0,
+     "t_high": null,
+     "basis": "per_unit"
+    },
+    {
+     "game": 13,
+     "line_item_index": 8,
+     "unit": "hrs",
+     "quantity": 5.75,
+     "value": 67.2243,
+     "t_low": 386.54,
+     "t_high": null,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "transition piece 16x15mm": {
+   "display_name": "Transition piece 16x15mm",
+   "values": [
+    44.01
+   ],
+   "games": [
+    11
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 11,
+     "line_item_index": 19,
+     "unit": "pcs",
+     "quantity": 3.0,
+     "value": 44.01,
+     "t_low": 44.01,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "cleaning of affected floor areas in the utility room and adjoining hallway": {
+   "display_name": "Cleaning of affected floor areas in the utility room and adjoining hallway",
+   "values": [
+    101.615
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 101.615,
+     "t_low": 93.45,
+     "t_high": 109.78,
+     "basis": "gross"
+    }
+   ]
+  },
+  "inspection of the washing machine and supply drain connection to confirm no further leakage": {
+   "display_name": "Inspection of the washing machine and supply/drain connection to confirm no further leakage",
+   "values": [
+    144.825
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 2,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 144.825,
+     "t_low": 135.66,
+     "t_high": 153.99,
+     "basis": "gross"
+    }
+   ]
+  },
+  "removal and disposal of water damaged skirting boards": {
+   "display_name": "Removal and disposal of water-damaged skirting boards",
+   "values": [
+    74.5
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 3,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 74.5,
+     "t_low": 69.0,
+     "t_high": 80.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "replace skirting boards": {
+   "display_name": "Replace skirting boards",
+   "values": [
+    134.6
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 4,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 134.6,
+     "t_low": 119.2,
+     "t_high": 150.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "moisture measurement of the utility room and hallway floor": {
+   "display_name": "Moisture measurement of the utility room and hallway floor",
+   "values": [
+    117.425
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 5,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 117.425,
+     "t_low": 113.05,
+     "t_high": 121.8,
+     "basis": "gross"
+    }
+   ]
+  },
+  "drying of the affected floor area": {
+   "display_name": "Drying of the affected floor area",
+   "values": [
+    247.575
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 6,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 247.575,
+     "t_low": 232.15,
+     "t_high": 263.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "drying unit rental": {
+   "display_name": "Drying unit rental",
+   "values": [
+    70.56
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 7,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 70.56,
+     "t_low": 48.96,
+     "t_high": 92.16,
+     "basis": "gross"
+    }
+   ]
+  },
+  "transport of the high value painting to the specialist restorer": {
+   "display_name": "Transport of the high-value painting to the specialist restorer",
+   "values": [
+    152.75
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 9,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 152.75,
+     "t_low": 145.5,
+     "t_high": 160.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "professional assessment of the high value painting": {
+   "display_name": "Professional assessment of the high-value painting",
+   "values": [
+    400.0
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 10,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 400.0,
+     "t_low": 400.0,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "conservatory drying and stabilisation of the painting": {
+   "display_name": "Conservatory drying and stabilisation of the painting",
+   "values": [
+    650.01
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 11,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 650.01,
+     "t_low": 650.01,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "full restoration of the painting": {
+   "display_name": "Full restoration of the painting",
+   "values": [
+    2321.48
+   ],
+   "games": [
+    12
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 12,
+     "line_item_index": 12,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 2321.48,
+     "t_low": 2321.48,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "profipress elbow 90 degree copper 15mm": {
+   "display_name": "Profipress elbow 90° copper 15mm",
+   "values": [
+    63.295
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 1,
+     "unit": "pcs",
+     "quantity": 4.0,
+     "value": 63.295,
+     "t_low": 38.4,
+     "t_high": 88.19,
+     "basis": "gross"
+    }
+   ]
+  },
+  "profipress elbow 90 degree copper 28mm": {
+   "display_name": "Profipress elbow 90° copper 28mm",
+   "values": [
+    140.22
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 2,
+     "unit": "pcs",
+     "quantity": 5.0,
+     "value": 140.22,
+     "t_low": 96.0,
+     "t_high": 184.44,
+     "basis": "gross"
+    }
+   ]
+  },
+  "profipress elbow 45 degree copper 28mm": {
+   "display_name": "Profipress elbow 45° copper 28mm",
+   "values": [
+    28.14
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 3,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 28.14,
+     "t_low": 18.0,
+     "t_high": 38.28,
+     "basis": "gross"
+    }
+   ]
+  },
+  "grub screw": {
+   "display_name": "Grub screw",
+   "values": [
+    10.0
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 4,
+     "unit": "pcs",
+     "quantity": 8.0,
+     "value": 10.0,
+     "t_low": 8.0,
+     "t_high": 12.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "two screw pipe clamp 25 mm": {
+   "display_name": "Two-screw pipe clamp 25 mm",
+   "values": [
+    310.0
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 5,
+     "unit": "pcs",
+     "quantity": 4.0,
+     "value": 310.0,
+     "t_low": 20.0,
+     "t_high": 600.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "copper pipe 15x1": {
+   "display_name": "Copper pipe 15x1",
+   "values": [
+    14.1312
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "m"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 6,
+     "unit": "m",
+     "quantity": 6.4,
+     "value": 14.1312,
+     "t_low": 90.44,
+     "t_high": null,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "rock wool pipe insulation": {
+   "display_name": "Rock wool pipe insulation",
+   "values": [
+    50.75
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 9,
+     "unit": "pcs",
+     "quantity": 6.0,
+     "value": 50.75,
+     "t_low": 50.75,
+     "t_high": null,
+     "basis": "gross"
+    }
+   ]
+  },
+  "binding wire": {
+   "display_name": "Binding wire",
+   "values": [
+    9.0
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "kg"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 10,
+     "unit": "kg",
+     "quantity": 2.0,
+     "value": 9.0,
+     "t_low": 18.0,
+     "t_high": null,
+     "basis": "per_unit"
+    }
+   ]
+  },
+  "small parts and consumables": {
+   "display_name": "Small parts and consumables",
+   "values": [
+    88.54
+   ],
+   "games": [
+    13
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 0,
+   "advisory_zero_games": [],
+   "samples": [
+    {
+     "game": 13,
+     "line_item_index": 11,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 88.54,
+     "t_low": 27.08,
+     "t_high": 150.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "assembly costs": {
+   "display_name": "Assembly costs",
+   "values": [
+    140.0
+   ],
+   "games": [
+    14
+   ],
+   "units": [
+    "pcs"
+   ],
+   "advisory_zero_observations": 1,
+   "advisory_zero_games": [
+    14
+   ],
+   "samples": [
+    {
+     "game": 14,
+     "line_item_index": 10,
+     "unit": "pcs",
+     "quantity": 1.0,
+     "value": 140.0,
+     "t_low": 130.0,
+     "t_high": 150.0,
+     "basis": "gross"
+    }
+   ]
+  },
+  "apprentice hours": {
+   "display_name": "Apprentice hours",
+   "values": [
+    36.495
+   ],
+   "games": [
+    14
+   ],
+   "units": [
+    "hrs"
+   ],
+   "advisory_zero_observations": 1,
+   "advisory_zero_games": [
+    14
+   ],
+   "samples": [
+    {
+     "game": 14,
+     "line_item_index": 12,
+     "unit": "hrs",
+     "quantity": 1.0,
+     "value": 36.495,
+     "t_low": 35.51,
+     "t_high": 37.48,
+     "basis": "per_unit"
+    }
+   ]
+  }
+ }
+}

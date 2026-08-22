@@ -6,10 +6,50 @@ from collections.abc import Callable, Sequence
 
 from src.api import submit_prices
 from src.data.models import ItemPrice
+from src.services.strategies import STRATEGY_PRIORITIES
 from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 Submitter = Callable[..., object]
+
+
+def format_submission_update(
+    game_id: int,
+    sequence: int,
+    reason: str,
+    force: bool,
+    prices: Sequence[ItemPrice],
+) -> str:
+    kind, separator, source = reason.partition(":")
+    if kind == "strategy" and separator:
+        priority = str(STRATEGY_PRIORITIES.get(source, 0))
+    elif kind == "fast_path" and separator:
+        source, priority = "fast lane", "fast"
+    elif reason == "fraud":
+        source, priority = "fraud locks", "n/a"
+    elif reason in {"case_loaded", "standard"}:
+        source, priority = "standard", "baseline"
+    else:
+        source, priority = "blind floor", "baseline"
+    lines = [
+        "\n\n\n-------------",
+        "POST UPDATE",
+        f"game: {game_id}",
+        f"sequence: {sequence}",
+        f"source: {source}",
+        f"priority: {priority}",
+        f"reason: {reason}",
+        f"force: {force}",
+        f"line_items: {len(prices)}",
+        "line |       charge |        limit",
+        "-----+--------------+--------------",
+    ]
+    lines.extend(
+        f"{price.index:>4} | {price.charge_price:>12.2f} | {price.acceptance_limit:>12.2f}"
+        for price in prices
+    )
+    lines.append("-------------")
+    return "\n".join(lines)
 
 
 class SubmissionCoordinator:
@@ -84,12 +124,14 @@ class SubmissionCoordinator:
             sequence = self._submission_sequence
             submission_started_at = start_timer()
             logger.info(
-                "submission_dispatch game=%s sequence=%s reason=%s force=%s line_items=%s",
-                self._game_id,
-                sequence,
-                reason,
-                force_submission,
-                len(snapshot),
+                "%s",
+                format_submission_update(
+                    self._game_id,
+                    sequence,
+                    reason,
+                    force_submission,
+                    snapshot,
+                ),
             )
             try:
                 await asyncio.to_thread(

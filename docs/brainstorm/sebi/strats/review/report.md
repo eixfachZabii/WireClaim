@@ -95,15 +95,19 @@ Simulating `a = β·t̂` and `b = α·t̂` where `t̂ = t·lognormal(σ)`, again
 | 0.5 | 0.6 | 78 | 0.5 | 92 | **−14** |
 | 0.75 | 0.5 | 63 | 0.33 | 96 | **−33** |
 
-**Break-even is around σ ≈ 0.35.** Above that we lose money no matter how we tune the
-multipliers; below it the multipliers barely matter. A perfect per-item Limit costs 65.0
+**Break-even is σ ≈ 0.85**, on a validated replay of the real payoff table (see
+[`strategy2-plan.md`](strategy2-plan.md) §0): `a = 0.7·t̂` nets **+131,497** over the 14
+Games at σ = 0.35, **+89,807** at 0.5 and **+31,725** at 0.75, turning negative near 1.0.
+An earlier draft of this file said 0.35 — that came from a cruder model and was too
+pessimistic. A perfect per-item Limit costs 65.0
 per transaction against 97.5 for rejecting everything and 195.7 for accepting everything
 — so the entire prize is estimate *accuracy*, and no constant recovers any of it.
 
-This is the acceptance test for Strategy 2, and it is measurable before we ship:
-**replay it against the 148 bounded Line Items and show σ < 0.35.** For reference, a blind
-constant scores σ ≈ 1.12. R6's "bottom third" (`α ≈ 0.33`) is only optimal at σ ≈ 0.75 —
-i.e. it is a confession of a bad estimate, not a target.
+This is the acceptance test for Strategy 2 and it runs offline today:
+`python scripts/backtest.py` scores any estimator against the 148 bounded Line Items.
+Ship above σ ≈ 0.85 and we lose money; below it we make it, and the payoff roughly
+quadruples between 0.75 and 0.35. Score with **total log error, not standard deviation** —
+a stdev cannot see a bias, and our bias is the problem.
 
 ---
 
@@ -132,7 +136,7 @@ These are the cheapest wins available and none needs a token.
 | It said | Measured reality |
 | --- | --- |
 | "We charge **~2.5× too little**" (Games 1–3) | Over all 14 Games our median `a/t` is **1.06** — we charge *above* `t`. True early, false now; the flat 150 fallback overshoots a median `t` of 59. |
-| "Field acceptance is 5.96 %, the Overcharge is worthless" | Field accept rate is **63–69 %**. The leaders' `a/t` p75 is **above 1** — they *do* overcharge on roughly a third of items and get paid. Not settled; do not act on it without measuring `p(a)` (R5c). |
+| "Field acceptance is 5.96 %, the Overcharge is worthless" | **The original conclusion was right, for a better reason.** Overall accept rate is 63–69 %, but acceptance *of a Charge above `t`* collapses to **17 % at `a/t` 1.0–1.3 and 7 % above 1.3**. Since a Charge at or below `t` is paid by *every* opponent, expected income falls from `1.00 × t` to `0.20 × t` the moment we cross. **Overcharging forfeits ~80 % of income.** The leaders' `a/t` p75 above 1 is the upper tail of their estimate noise, not an exploit. |
 | "`b` is flat in the bottom third; not what is costing us" | Half true. Limit errors cost **162,252** (100,664 + 61,588). But it is second: forfeited income is **298,379**. |
 | "Uptime is the dominant risk … we are submitting" | Then false, now true: G10–12 submitted nothing and cost **139,904**. |
 | Base rate of uncovered items ~12 % ("2 of 17 in Game 5") | **40 %** of all items (76/192) have `t = 0`, ranging **0 %–67 % per Case**. Case 12 has zero uncovered items; Case 10 has 4 of 6. **There is no safe prior.** |
@@ -152,6 +156,8 @@ Ranked by measured euros, not by elegance.
 4. **Take the free deterministic signals** (§4) before spending a token.
 5. **Measure σ every Game.** It is the one number that says whether the pipeline is worth
    running, and it is computable from settled data within minutes of a Game closing.
+
+The design that follows from all of this is in [`strategy2-plan.md`](strategy2-plan.md).
 
 Evidence: [`t-inversion.md`](t-inversion.md) (full brackets, per-team accounting,
 validation) · [`case-findings.md`](case-findings.md) (all 14 Cases read, 22 adversarial
