@@ -3,6 +3,14 @@
 All images below are regenerated automatically every 15 minutes from the settled leaderboard data
 (see `.github/workflows/case-analysis.yml`). Newest / most important first.
 
+## Derived t per line item — last 5 games
+
+For every line item: the derived t bracket/point, Bin busy's Charge and implied t-hat
+(a/0.7 — our submission isn't public, only our Charge is), and a/t & b/t for us vs. the
+current top 3 teams. Full data in `data/tvalues.csv`.
+
+![t values per line item](data/tvalues.png)
+
 ## Best teams per game — what to copy
 
 Top 3 by net each game (+ Bin busy's row highlighted): income split (fair accepts /
