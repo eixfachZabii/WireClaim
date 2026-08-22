@@ -49,7 +49,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from charge_buckets import Row, dataset, snapshot  # noqa: E402
 from replay_payoffs import replay  # noqa: E402
 
-from src.pricing import (  # noqa: E402
+from src.domain.pricing.engine import (  # noqa: E402
     CHARGE_BOUNDS,
     CHARGE_INTERCEPT,
     CHARGE_SLOPE,
