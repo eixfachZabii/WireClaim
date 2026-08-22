@@ -68,10 +68,17 @@ routinely disagree:
 - Game 5 read from our own Transaction rows said the Line Items we charged 0 on were
   uncovered. Pulling five teams' rows and reading the Case showed they were covered and
   worth hundreds — item 3 sat in `[497.94, 773.50)`. The diagnosis reversed completely.
-- Case 7's brackets alone suggest the kitchen air-conditioning unit was excluded (`t < 683`
-  against `[1232, 1756)` for the identical living-room unit). The Case says the opposite:
-  the description dangles *"a couple of metres from the hob"* as bait, and the policy
-  states in terms that proximity to another appliance **does not** remove cover.
+- ~~Case 7's brackets alone suggest the kitchen air-conditioning unit was excluded. The Case
+  says the opposite: the description dangles *"a couple of metres from the hob"* as bait,
+  and the policy states that proximity to another appliance **does not** remove cover.~~
+  **Falsified — and the way it was falsified is the lesson.** Reconstructing the Fair Value
+  from settled Transactions puts Case 7 item 2 at **`t ∈ [0, 81)`** against `[1233, 1756)`
+  for the identical living-room unit. The kitchen unit really was excluded; it was never
+  paid. The claim above came from reading the policy and stopping there, which is the same
+  error in the opposite direction: *a reading is not an outcome.* The general rule — that
+  only a quoted clause is evidence, never a detail in the description — still stands, but
+  this Case is no longer the example for it. Where the settled Fair Value exists, it
+  outranks anyone's reading of the policy, including this file's.
 
 A number without its Case is a symptom without a diagnosis. Read `policy.txt`,
 `description.txt` and the invoice before concluding anything about why a Game went the way

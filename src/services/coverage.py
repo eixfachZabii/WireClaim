@@ -315,6 +315,22 @@ def _anchor_span(anchor: Sequence[str], policy_text: str) -> tuple[int, int] | N
     return (match.start(), match.end()) if match else None
 
 
+#: A numbered clause heading on its own line: "7.1.8 Outlay that is not ...", "3.1", "(4)".
+#: The repair may widen a quote backwards to its own clause heading and no further.
+_CLAUSE_HEAD = re.compile(r"^[ \t]*(?:PART[ \t]+)?\d+(?:\.\d+)*[.)]?[ \t]", re.MULTILINE)
+
+
+def _clause_start(policy_text: str, position: int) -> int:
+    """Where the numbered clause containing `position` begins.
+
+    This is the guard that keeps the repair honest. Without it a backward window will
+    happily reach out of a clause that *grants* cover into the exclusion list above it and
+    manufacture a passing quote for a covered position -- the expensive error, produced by
+    our own tooling. A repaired quote may grow up to its own clause heading and stop.
+    """
+    return max((match.start() for match in _CLAUSE_HEAD.finditer(policy_text, 0, position)), default=0)
+
+
 def repair_quote(clause: str, policy_text: str) -> str:
     """Return a quote that `is_policy_quote` accepts, or "" if none can be built.
 
@@ -336,13 +352,16 @@ def repair_quote(clause: str, policy_text: str) -> str:
     if span is None:
         return ""
     start, end = span
+    floor = _clause_start(policy_text, start)
     for lookback in QUOTE_REPAIR_LOOKBACK:
-        begin = max(start - lookback, 0)
-        if begin and (newline := policy_text.find("\n", begin, start)) >= 0:
+        begin = max(start - lookback, floor)
+        if begin > floor and (newline := policy_text.find("\n", begin, start)) >= 0:
             begin = newline + 1  # start on a line boundary, never mid-word
         candidate = policy_text[begin:end]
         if is_policy_quote(candidate, policy_text):
             return candidate
+        if begin == floor:
+            break
     return ""
 
 

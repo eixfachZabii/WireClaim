@@ -166,7 +166,11 @@ def main() -> None:
     parser.add_argument("--games", default="1-14")
     parser.add_argument("--worst", type=int, default=0)
     parser.add_argument("--memory", action="store_true", help="enable Price Memory (leaks)")
-    parser.add_argument("--tag", default="model", help="evidence cache tag")
+    parser.add_argument(
+        "--tag",
+        default="model",
+        help="evidence cache tag, or several comma-separated to score the shipped ensemble",
+    )
     parser.add_argument("--tail-factor", type=float, default=1.0)
     parser.add_argument("--frozen-pricing", action="store_true", help="see use_frozen_pricing")
     parser.add_argument(
@@ -193,9 +197,11 @@ def main() -> None:
     rows: list[tuple[float, str]] = []
     print(f"{'game':>5} {'items':>6} {'actual':>12} {'strategy2':>12} {'delta':>12}")
     for game_id in game_ids:
-        model = load_evidence(game_id, args.tag)
+        # Several tags go through the Strategy's own `_blend`, so the harness scores the
+        # shipped code path rather than a re-implementation of it.
+        model = s2._blend([load_evidence(game_id, tag) or {} for tag in args.tag.split(",")])
         case = case_of(game_id)
-        if model is None or case is None:
+        if not model or case is None:
             print(f"{game_id:5d} {'--':>6} (no cached evidence or case)")
             continue
         try:
