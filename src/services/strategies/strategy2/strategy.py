@@ -80,7 +80,7 @@ from src.domain.pricing.engine import Evidence, price_item
 from src.observability.decisions import GameDecisions, ItemDecision, record
 from src.services.strategies.fast_path import STANDARD_CHARGE, STANDARD_LIMIT
 from src.services.strategies.strategy2.blend import blend, combine
-from src.services.strategies.strategy2.channels import local_evidence
+from src.services.strategies.strategy2.channels import aggregate_class_discount, local_evidence
 from src.services.strategies.strategy2.constants import (
     LLM_TIMEOUT_SECONDS,
     STRATEGY_NAME,
@@ -126,6 +126,12 @@ def build_proposal(
     stage* was wrong rather than only that we lost money.
     """
     prices: list[ItemPrice] = []
+    # Channel D. A Line Item sharing an aggregate Policy sub-limit with another Line Item in
+    # the same Case has its coverage discounted unless it is the class's dearest member, so
+    # its Limit collapses while its Charge is left alone. A no-op on every Case with fewer
+    # than two matched members -- which is every Case in the corpus except Game 44.
+    model_evidence = aggregate_class_discount(case, model_evidence)
+
     for line_item in case.line_items:
         from_model = model_evidence.get(line_item.index)
         from_memory = memory_evidence.get(line_item.index)
