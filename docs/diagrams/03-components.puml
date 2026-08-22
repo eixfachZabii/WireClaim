@@ -1,0 +1,84 @@
+@startuml
+' WireClaim — module map and dependency direction.
+' Derived from the import graph of main.py and src/.
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam defaultFontName "Inter, Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam ArrowColor #18181B
+skinparam ArrowFontColor #52525B
+skinparam componentStyle rectangle
+skinparam linetype ortho
+top to bottom direction
+
+title Modules and what depends on what
+
+package "Runner" {
+  component "main.py\nrun_game, RunManager,\nblind_floor" as Main
+  component "services/submission_coordinator.py\ndebounced PUT worker" as SC
+  component "services/strategy_router.py\nconcurrent strategies,\nhighest priority wins" as Router
+}
+
+package "Ingestion" {
+  component "data/case_loader.py\nkey -> 7z -> PDF parse" as Loader
+}
+
+package "Estimation" {
+  component "strategies/strategy2/strategy.py\nChannels A + B + C" as S2
+  component "policy_slice.py\nPART 3,4,5,7,11" as Slice
+  component "price_memory.py\nsettled Fair Values,\nsigma 0.43" as Memory
+}
+
+package "Decision" {
+  component "pricing.py\nEvidence -> Charge, Limit\nthe only module that\ndecides a scored number" as Pricing
+  component "services/fraud_detection.py\ncoverage mask" as Fraud
+  component "policy_quote.py\nis_policy_quote()" as Quote
+}
+
+package "Edges" {
+  component "api/tournament.py\nlist_games, key,\nsubmit_prices" as Tour
+  component "api/llm.py\nclient, model,\nservice tier" as LLM
+}
+
+package "Legacy — being retired" {
+  component "strategies/fast_path.py\nstandard_values (used)\nllm_values (legacy)" as FP
+  component "strategies/strategy1\nstrategies/strategy3\nservices/t_calc.py\npolicy_digest.py" as Legacy
+}
+
+database "var/price_memory.json" as Store
+folder "[PUBLIC] EHL Cases/cases/*.zip" as Archives
+
+Main --> SC
+Main --> Loader
+Main --> Router
+Main --> Fraud
+Main --> FP : standard_values
+
+Router --> S2
+Router --> Legacy
+
+S2 --> Slice
+S2 --> Memory
+S2 --> Pricing
+S2 --> LLM
+S2 ..> FP : build_input_content\n(via strategy1)
+
+Fraud --> Quote
+Fraud --> LLM
+
+Memory --> Store
+Loader --> Archives
+Loader --> Tour
+SC --> Tour
+
+note bottom of Pricing
+  Nothing that talks to a model emits a
+  Charge or a Limit (ADR 0001) — they
+  return evidence and this module prices it.
+  Every module passes the frozen dataclasses
+  of data/models.py; that edge is omitted
+  because it would touch every box.
+end note
+@enduml
