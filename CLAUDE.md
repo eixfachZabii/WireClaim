@@ -61,6 +61,22 @@ Case 3 being *entirely uncovered*, the Line Items that name their own disqualifi
 betterment being a partial haircut rather than a binary — none of that was guessable.
 Extracted folders are gitignored; they are derivable from the archive plus a key.
 
+**Never judge our algorithm, or a Game's result, from the numbers alone. Open the Case.**
+Leaderboard inversion tells you *what* happened; only the Case tells you *why*, and the two
+routinely disagree:
+
+- Game 5 read from our own Transaction rows said the Line Items we charged 0 on were
+  uncovered. Pulling five teams' rows and reading the Case showed they were covered and
+  worth hundreds — item 3 sat in `[497.94, 773.50)`. The diagnosis reversed completely.
+- Case 7's brackets alone suggest the kitchen air-conditioning unit was excluded (`t < 683`
+  against `[1232, 1756)` for the identical living-room unit). The Case says the opposite:
+  the description dangles *"a couple of metres from the hob"* as bait, and the policy
+  states in terms that proximity to another appliance **does not** remove cover.
+
+A number without its Case is a symptom without a diagnosis. Read `policy.txt`,
+`description.txt` and the invoice before concluding anything about why a Game went the way
+it did — and quote the clause when you do.
+
 **3. The model reads; the engine prices.** [ADR 0001](docs/brainstorm/sebi/adr/0001-the-model-reads-the-engine-prices.md). No agent emits a Charge, a Limit, or a Fair Value — agents emit _structured evidence_ (coverage verdict + the policy clause quoted verbatim, relatedness, quantity/unit/trade, a price **band with named anchors**), and deterministic code turns evidence into a posterior and the posterior into numbers. This is SampleRepo's ADR 0021 applied where it matters more: there an unanchored model verdict was one word on a card; here it is the number we are scored on, 100 times, unattended. _Two regenerates over one invoice must not disagree._
 
 **4. Get the Limit inside the posterior before you tune anything else.** R6 says the Limit is flat anywhere in the bottom third (`Q₀.₀₅`–`Q₀.₃₃` differ by ~2 % of net) and the Charge is ~3× more sensitive — **but that only holds once `b` is inside the posterior at all.** In Game 5 ours was not: we accepted 246 of 272 Transactions, **99 % of our costs came from accepting**, and we paid 1,121.40 on a Line Item whose Fair Value was under 773.50. Net −10,604. A Limit outside the posterior is not a flat knob, it is an open tap. Close it, *then* apply R6 and spend the effort on the Charge.
