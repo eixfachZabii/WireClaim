@@ -3,6 +3,7 @@ import unittest
 
 from src.domain.pricing.engine import (
     CHARGE_BOUNDS,
+    LIMIT_CAP,
     CHARGE_INTERCEPT,
     CHARGE_SLOPE,
     COVERAGE_FLOOR,
@@ -94,11 +95,12 @@ class PriceItemTests(unittest.TestCase):
         self.assertGreater(wide.sigma, tight.sigma)
         # The Charge still retreats with the band; that channel is untouched.
         self.assertGreater(tight.charge, wide.charge)
-        # The Limit does not, because the ceiling binds at both widths. Asserted as an
-        # inequality rather than a strict one so the test states the truth: at a ceiling of
-        # 0.30 the band no longer moves the Limit at any width we see.
-        self.assertGreaterEqual(tight.limit, wide.limit)
-        self.assertEqual(tight.limit, wide.limit)
+        # And so does the Limit, again. At a ceiling of 0.30 this was flat -- the ceiling
+        # bound at every width we see, so the band could not move the Limit at all. At 0.45
+        # the quantile binds on the narrow bands again, which is the point of pairing the
+        # ceiling with an absolute cap: the cap bounds the disaster, so the multiplicative
+        # term is free to sit where the posterior actually wants it.
+        self.assertGreater(tight.limit, wide.limit)
 
     def test_a_proven_exclusion_zeroes_the_limit_but_keeps_the_charge(self) -> None:
         """An uncovered item is a free option: t = 0, so a rejected Charge costs nothing."""
@@ -160,67 +162,29 @@ class MeasuredConstants(unittest.TestCase):
             self.assertLess(charge_factor(sigma), 1.0, sigma)
 
     def test_the_limit_ceiling_carries_the_measurement(self) -> None:
-        """The ceiling is a Field measurement, not a pricing fact, and it was re-measured.
+        """The ceiling has been argued in both directions, and both were partly artefacts.
 
-        The history matters, because this constant has been argued in both directions.
-        Games 1-14 preferred 0.45 over 0.85 by +17,915; Games 15-19 inverted that and
-        0.85 won by ~15,000 on the strength of Games 17 and 18, and 0.85 was shipped on the
-        grounds that we are paid on the Games that come next.
+        Games 1-14 preferred 0.45 over 0.85; Games 15-19 inverted it; Games 20-24 reversed the
+        reversal and 0.30 shipped. Then `scripts/penalty_audit.py cliff` decomposed the step
+        that justified 0.30 -- 0.35 to 0.40 costing 17,492 -- and found **Game 22 alone
+        supplies -19,892 of it while the other five Games prefer the looser ceiling**. At 0.01
+        resolution the step is at 0.37 to 0.38, because one Line Item worth under 245.70 was
+        priced at a median of 5,400 and ten opponents Charged exactly 2,000.00: 0.37 rejects
+        all ten, 0.38 buys all ten. A live constant was set by one item and one round number.
 
-        Games 20-24 then reversed the reversal. Re-measured over every settled Game with
-        `scripts/accept_limit_sweep.py` (Game 16 held out of these totals for comparability
-        with the older ones -- it does reconstruct, to the cent, and including it changes
-        nothing), a ceiling of 0.30 beats 0.85 in every window:
+        With `LIMIT_CAP` bounding the disaster the pair was re-swept on fresh evidence:
 
-            Games 1-14   +32,100 against +13,599
-            Games 15-19  +19,639 against +37,688   <- the only window that prefers 0.85
-            Games 20-24  +56,639 against +21,386
-            Games 21-24  +41,303 against    -653   <- Strategy 2's own era, on policy
-            all 23       +108,378 against +72,673
+            config                 all 27     21-27     28-29
+            0.30, no cap           83,030    15,300        84
+            0.45 + cap             93,951    23,590       138   <- this
+            0.70 + cap            101,300    23,459    -1,261
+            0.70, no cap           51,138   -23,396   -35,261
 
-        So this pins 0.30, worth +35,726 over 23 Games and +41,956 over Games 21-24. What
-        makes it more than another four-Game fluctuation is the decomposition rather than
-        the total: loosening from 0.30 to 0.85 saves 222,098 in wrongful-rejection penalties
-        and pays 148,065 more on claims we owed plus 109,738 more on accepted Overcharges,
-        so it is a losing trade on the cost side alone, with income untouched.
-
-        Re-audited at Game 26 (`scripts/limit_audit.py`) against the first two Games that
-        actually ran this ceiling, on **disjoint** windows so neither total borrows the
-        other's Games. All 26 Games reconstruct; nothing is excluded:
-
-            ceiling   Games 1-20   Games 21-26      all 26
-              0.15       +64,686       +17,727     +82,412   <- 21-26 argmax
-              0.25       +67,417       +15,819     +83,236   <- all argmax
-              0.30       +67,730       +15,300     +83,030   <- shipped
-              0.45       +71,630        -1,287     +70,343
-              0.70       +74,533       -23,396     +51,138   <- 1-20 argmax
-              0.85       +73,981       -22,244     +51,737
-
-        The windows disagree about the argmax and it does not matter: 0.30 is within 3% of
-        it in all three, both argmaxes are inside the noise floor (+340 and +404 a Game
-        against a floor of ~1,670), and 0.00-0.35 is one flat region everywhere. The
-        asymmetry is the argument -- train on 1-20 and it picks 0.85, which scores -22,244
-        on Games 21-26 against +15,300 for 0.30; train on 21-26 and it picks 0.10, which
-        costs only 2,844 on Games 1-20. Leave-one-out loses to fixing the constant in every
-        window, as usual at this sample size.
-
-        And the penalties that motivated the re-audit are not this constant's fault. Against
-        a per-item oracle Limit `b = t` -- the best any rule could achieve -- only 36,791 of
-        the 108,793 we paid over Games 21-26 was avoidable at all, because rejecting a fair
-        Charge costs 1.5a where accepting costs a, so two thirds of every penalty is money we
-        owed anyway. The remaining third is per-item headroom a multiplier cannot reach: on
-        the penalised items our estimate's median is 0.74x the true Fair Value, and 30% of
-        the penalty needs a ceiling above 1.0. This is an estimator problem wearing a Limit's
-        clothes.
-
-        0.20-0.35 is a plateau (2,557 euros of spread on 108,000); leave-one-out picks
-        inside 0.20-0.40 in all 23 folds, though its held-out total (+86,774) loses to
-        fixing the constant at 0.30 (+108,399), which is the usual verdict on 23 samples.
-        And pushing every censored Fair Value bracket to +inf -- the assumption most
-        favourable to generosity -- still prefers 0.30 by +17,668.
-        Re-run the sweep at every regime boundary rather than inheriting this (README R9).
+        0.45 is the only setting positive on all three windows. The last row is why the cap
+        exists rather than the ceiling being loosened on its own.
         """
-        self.assertEqual(LIMIT_CEILING, 0.30)
+        self.assertEqual(LIMIT_CEILING, 0.45)
+
 
     def test_the_derived_constants_were_not_fitted_away(self) -> None:
         """The quantile stays where the theory put it; the floor moves to where it implies.
@@ -435,7 +399,23 @@ class TheChargeIsUnconditional(unittest.TestCase):
             two = price_item(self.band(median * 2))
             # delta rather than places: both numbers are rounded to the cent.
             self.assertAlmostEqual(two.charge, one.charge * 2, delta=0.02, msg=str(median))
-            self.assertAlmostEqual(two.limit, one.limit * 2, delta=0.02, msg=str(median))
+
+    def test_the_limit_is_deliberately_not_scale_free(self) -> None:
+        """`LIMIT_CAP` breaks the scaling on purpose, and that is the whole point of it.
+
+        A multiplicative ceiling cannot bound what we pay, because it is a multiple of the
+        number that broke: when the estimate explodes the ceiling explodes with it. Game 29
+        priced a Line Item worth under 57.30 at a median of 7,138, thirteen opponents Charged
+        exactly 2,000.00, and a Limit of 2,142 accepted all thirteen for 24,157 of pure loss.
+        An absolute cap is the only term in the rule that does not scale with the estimate.
+        """
+        small = price_item(self.band(200.0))
+        huge = price_item(self.band(20_000.0))
+
+        # delta scaled by the factor: both numbers are rounded to the cent first.
+        self.assertAlmostEqual(huge.charge, small.charge * 100, delta=1.0)
+        self.assertLess(huge.limit, small.limit * 100)
+        self.assertLessEqual(huge.limit, LIMIT_CAP + 0.01)
 
     def test_the_charge_reads_only_the_band(self) -> None:
         """The Charge is a function of the band alone -- not of coverage, not of a channel.

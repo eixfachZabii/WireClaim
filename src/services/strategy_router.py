@@ -117,6 +117,9 @@ class StrategyRouter:
                                 elapsed_s=start_timer() - started_at,
                             ),
                         )
+                        logger.debug(
+                            "%s traceback for Game %s", name, case.game_id, exc_info=error
+                        )
                         log_timing(logger, name, started_at, "failed", game=case.game_id)
                         continue
                     log_timing(logger, name, started_at, game=case.game_id, produced=proposal is not None)
