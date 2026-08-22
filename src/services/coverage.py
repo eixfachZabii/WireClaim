@@ -51,6 +51,7 @@ import logging
 import math
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any, Iterable, Sequence
 
 from src.api import get_llm_client, get_model_name
@@ -88,6 +89,11 @@ UNVERIFIED_SHRINK = 0.5
 #: guaranteed wrongful rejection. Sweeping 0.30 / 0.20 / 0.10 over the settled record moved
 #: recall not at all and the Brier score by 0.004, so the cautious end is free.
 QUANTITY_MISSING_CEILING = 0.10
+
+#: The printed invoice is context, not the payload; a page of headers is ~2k characters
+#: and the biggest settled Case runs to five pages. Truncation keeps a pathological PDF
+#: from crowding out the Policy.
+MAX_INVOICE_CHARS = 12000
 
 #: Items per LLM call. One call per Case would let a single failure blind a 39-item
 #: invoice; one call per item repeats a ~20k-character Policy 39 times and loses the
@@ -359,10 +365,50 @@ def calibrate(
     return DEFAULT_P_COVERED - UNVERIFIED_SHRINK * (DEFAULT_P_COVERED - probability), False, clause
 
 
+@lru_cache(maxsize=32)
+def _read_invoice_text(invoice_path: str) -> str:
+    """The printed invoice, best effort. Never raises, never blocks on failure.
+
+    `LineItem` carries a name and a quantity and nothing else, and that loses the header.
+    Case 14 is one PDF holding *two* invoices: a bicycle service (POS 1-8, on an uninsured
+    means of transport, all worth zero) and a locksmith (POS 9-13, called out to cut the
+    lock so the recovered bicycle could be released -- indemnified, and three of those five
+    positions are worth real money). Seen as one flat list of names, POS 9-13 look like a
+    duplicate billing of POS 4-8 and the whole invoice reads as uncovered. The header is
+    the only thing that distinguishes them, so it goes in the prompt.
+    """
+    try:
+        from pypdf import PdfReader
+
+        text = "\n".join(page.extract_text() or "" for page in PdfReader(invoice_path).pages)
+    except Exception as error:  # pragma: no cover - depends on the extracted Case
+        logger.info("Invoice text unavailable for %s: %s", invoice_path, error)
+        return ""
+    return text[:MAX_INVOICE_CHARS]
+
+
+def invoice_text(case: CaseData) -> str:
+    try:
+        return _read_invoice_text(str(case.case_dir / "invoices.pdf"))
+    except Exception:  # pragma: no cover - defence in depth
+        return ""
+
+
 def build_prompt(case: CaseData, line_items: Sequence[LineItem], policy_text: str) -> str:
+    printed = invoice_text(case)
+    printed_block = (
+        "=== THE INVOICE AS PRINTED ===\n"
+        "This file may hold SEVERAL invoices from different trades. A position belongs to "
+        "the invoice it is printed under; judge it against that provider's work, and do not "
+        "read the same position number twice.\n"
+        f"{printed}\n\n"
+        if printed
+        else ""
+    )
     return (
         f"=== POLICY (sliced to the operative parts) ===\n{policy_text}\n\n"
         f"=== DAMAGE DESCRIPTION ===\n{case.description_text}\n\n"
+        f"{printed_block}"
         "=== INVOICE LINE ITEMS TO ASSESS ===\n"
         f"{json.dumps([item.to_dict() for item in line_items], ensure_ascii=False, indent=1)}\n\n"
         f"Return exactly {len(line_items)} entries, one per index above."
