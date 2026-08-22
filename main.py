@@ -81,11 +81,16 @@ class RunManager:
 # showed up. So we publish a floor before loading anything, and only then start work.
 #
 # We cannot know the Line Item count before the Case loads, so we cover a fixed range.
-# Settled Games 1-13 all carry 2-4 items (max index 4); 8 is generous headroom while
-# keeping the payload small, and indices beyond the real count are accepted and ignored
-# (verified against the test Game: PUT of indices 1-8 returned 200). Once the Case
-# loads, RunManager.snapshot() drops anything outside its real indices.
-BLIND_LINE_ITEMS = 8
+# Settled Games 1-14 carry 2, 2, 6, 6, 7, 12, 13, 15, 16, 17, 17, 18, 23 and 39 Line
+# Items, so 40 covers every Case seen so far. Indices past the real count create no
+# Transactions and are accepted by the API (verified against the test Game: a PUT of
+# indices 1-8 returned 200), and RunManager.snapshot() drops them once the Case loads.
+#
+# This was 8 for one commit, on the false reading that Games had 2-4 Line Items. That
+# came from the leaderboard's /transactions endpoint, which paginates at 100 rows: page
+# one of a 544-row Game is 32 rows for each of the first three indices and 4 of the
+# fourth, which looks exactly like a 4-item Case. Always page to the end.
+BLIND_LINE_ITEMS = 40
 
 
 def blind_floor() -> tuple[ItemPrice, ...]:
