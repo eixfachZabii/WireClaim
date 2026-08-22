@@ -14,8 +14,10 @@ class StrategyRouterTests(unittest.TestCase):
 
         self.assertEqual(router.register(proposal("strategy1", 100.0)).source, "strategy1")
         self.assertEqual(router.register(proposal("strategy2", 200.0)).source, "strategy2")
-        self.assertIsNone(router.register(proposal("strategy1", 300.0)))
-        self.assertEqual(router.current.source, "strategy2")
+        self.assertEqual(router.register(proposal("strategy3", 300.0)).source, "strategy3")
+        self.assertIsNone(router.register(proposal("strategy1", 400.0)))
+        self.assertIsNone(router.register(proposal("strategy2", 500.0)))
+        self.assertEqual(router.current.source, "strategy3")
 
     def test_empty_proposal_does_not_replace_active_strategy(self) -> None:
         router = StrategyRouter(strategies=())

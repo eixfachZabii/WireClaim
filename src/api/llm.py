@@ -80,6 +80,7 @@ def get_llm_client(
     return OpenAI(
         api_key=resolved_key,
         base_url=resolved_endpoint,
+        max_retries=0,
     )
 
 

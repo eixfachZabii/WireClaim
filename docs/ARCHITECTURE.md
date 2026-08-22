@@ -63,6 +63,7 @@ layer 4 is not a layer of prices but a *mask* that only ever writes `b := 0`.
 | `src/services/strategies/fast_path.py` | `standard_values` (sync floor) + `llm_values` (one 20 s call) |
 | `src/services/strategies/strategy1/` | evidence-based estimator, 35 s, the live strategy |
 | `src/services/strategies/strategy2/` | **stub — the slot we are building into** |
+| `src/services/strategies/strategy3/` | Strategy-1-equivalent pipeline using the fixed `luna` model override |
 | `src/services/fraud_detection.py` | per-Line-Item coverage/relatedness verdict, 15 s each |
 | `src/services/t_calc.py`, `src/policy_digest.py` | supporting estimation helpers |
 
@@ -78,6 +79,7 @@ Everything is scheduled against a single `deadline = loop.time() + 60`.
 | `standard_values` + first `PUT` | no | ~immediate after load |
 | `fast_path.llm_values` | no | 20 s LLM timeout |
 | `strategy1` | no | 35 s LLM timeout |
+| `strategy3` | no | 35 s LLM timeout, fixed `luna` override |
 | `fraud_detection` | no | 15 s per Line Item, all items concurrent |
 | every later `PUT` | no | bounded by `deadline - now` |
 
@@ -115,16 +117,16 @@ simply never contributes.
    (README R6c). Game 3 confirmed it: two teams charged on an all-uncovered Case and took
    ~400 each while the rest of the Field scored 0.
 
-**Strategy priority.** `STRATEGY_PRIORITIES = {"strategy1": 1, "strategy2": 2}`, and
+**Strategy priority.** `STRATEGY_PRIORITIES = {"strategy1": 1, "strategy2": 2, "strategy3": 3}`, and
 `register()` rejects a proposal whose priority is *lower* than the incumbent's. So order of
-completion does not matter: strategy2 wins whenever it produces a non-empty Proposal. An
-unrecognised `source` string maps to priority `0` and loses to both.
+completion does not matter: strategy3 wins whenever it produces a non-empty Proposal. An
+unrecognised `source` string maps to priority `0` and loses to all three.
 
 ---
 
 ## The pricing engine
 
-Both `fast_path.llm_values` and `strategy1` follow [ADR 0001](brainstorm/sebi/adr/0001-the-model-reads-the-engine-prices.md):
+`fast_path.llm_values`, `strategy1` and `strategy3` follow [ADR 0001](brainstorm/sebi/adr/0001-the-model-reads-the-engine-prices.md):
 **the model returns evidence, never a price.** The prompts say so explicitly, and the
 response schema has no field for a Charge, a Limit or a Fair Value.
 
@@ -166,7 +168,7 @@ Charge *and* fund the Field's Charges on the same item.
 ## The fraud gate
 
 `fraud_detection.detect_fraud` runs one LLM call **per Line Item**, concurrently,
-`temperature=0`, with a strict JSON schema. A verdict of "not covered" survives only if
+with a strict JSON schema. A verdict of "not covered" survives only if
 **all three** hold:
 
 1. `covered` or `related` is false, **and**
@@ -232,5 +234,5 @@ Recorded rather than fixed; each is a real decision, not an oversight.
    instruct the model to price the pre-loss standard and the plausible quantity, but no
    evidence field records that it did, so neither is verifiable or measurable after the
    fact.
-5. **`strategy2` is the open slot.** Priority 2, currently returns `None`. Anything it
-   returns wins.
+5. **`strategy2` remains the open slot.** Priority 2, currently returns `None`. Strategy 3
+   is a Strategy-1-equivalent Gemini comparison track at priority 3.
