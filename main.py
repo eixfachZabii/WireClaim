@@ -6,20 +6,26 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
-# Optional dotenv loading with stdlib fallback
-try:
-    from dotenv import find_dotenv, load_dotenv
 
-    env_file = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent / ".env")
-    load_dotenv(dotenv_path=env_file, override=True)
-except ImportError:
-    env_path = Path(__file__).resolve().parent / ".env"
-    if env_path.exists():
-        for line in env_path.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if line and not line.startswith("#") and "=" in line:
-                k, v = line.split("=", 1)
-                os.environ.setdefault(k.strip(), v.strip().strip('"\''))
+def load_env() -> None:
+    """Load the KEY=value pairs from .env using python-dotenv or stdlib fallback."""
+    try:
+        from dotenv import find_dotenv, load_dotenv
+
+        env_file = find_dotenv(usecwd=True) or (Path(__file__).resolve().parent / ".env")
+        load_dotenv(dotenv_path=env_file, override=True)
+    except ImportError:
+        path = Path(".env")
+        if not path.exists():
+            return
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip() and not line.lstrip().startswith("#") and "=" in line:
+                name, value = line.split("=", 1)
+                if name.strip():
+                    os.environ.setdefault(name.strip(), value.strip().strip('"\''))
+
+
+load_env()
 
 from src.api import APIError, get_decryption_key, list_games, query_llm, submit_price
 
