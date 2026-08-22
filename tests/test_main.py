@@ -99,7 +99,10 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
             result = main.dry_run_submit(7, submissions, timeout=1.0)
 
         self.assertEqual(result, [])
-        self.assertIn("DRY RUN PUT /api/games/7/submissions", logs.output[0])
+        self.assertIn("DRY RUN SUBMISSION", logs.output[0])
+        self.assertIn("PUT /api/games/7/submissions", logs.output[0])
+        self.assertIn("tournament API was not called", logs.output[0])
+        self.assertIn("1 |       150.00 |        75.00", logs.output[0])
         self.assertIn('"charge_price": 150.0', logs.output[0])
 
 

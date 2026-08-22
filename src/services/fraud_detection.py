@@ -7,6 +7,7 @@ from typing import Any
 
 from src.api import get_llm_client, get_model_name
 from src.data.models import CaseData, FraudDecision, LineItem
+from src.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
 FRAUD_TIMEOUT_SECONDS = 15.0
@@ -62,7 +63,6 @@ def _check_item(line_item: LineItem, case: CaseData) -> bool:
     )
     response = get_llm_client().chat.completions.create(
         model=get_model_name(),
-        temperature=0.0,
         timeout=FRAUD_TIMEOUT_SECONDS,
         response_format={"type": "json_schema", "json_schema": RESPONSE_SCHEMA},
         messages=[
@@ -79,9 +79,21 @@ def _check_item(line_item: LineItem, case: CaseData) -> bool:
     )
 
 
+async def _timed_check(line_item: LineItem, case: CaseData) -> bool:
+    started_at = start_timer()
+    try:
+        result = await asyncio.to_thread(_check_item, line_item, case)
+    except Exception:
+        log_timing(logger, "fraud_item", started_at, "failed", game=case.game_id, line_item=line_item.index)
+        raise
+    log_timing(logger, "fraud_item", started_at, game=case.game_id, line_item=line_item.index, fraud=result)
+    return result
+
+
 async def detect_fraud(case: CaseData) -> FraudDecision:
+    started_at = start_timer()
     results = await asyncio.gather(
-        *(asyncio.to_thread(_check_item, line_item, case) for line_item in case.line_items),
+        *(_timed_check(line_item, case) for line_item in case.line_items),
         return_exceptions=True,
     )
     indices: set[int] = set()
@@ -91,4 +103,6 @@ async def detect_fraud(case: CaseData) -> FraudDecision:
             continue
         if result:
             indices.add(line_item.index)
-    return FraudDecision(fraud_indices=frozenset(indices))
+    decision = FraudDecision(fraud_indices=frozenset(indices))
+    log_timing(logger, "fraud_detection", started_at, game=case.game_id, locks=len(indices))
+    return decision

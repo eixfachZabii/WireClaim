@@ -124,3 +124,7 @@ The runner always posts complete Standard values after Case loading. A successfu
 ## Dry Retry
 
 `pixi run start --retry_dry` processes expired Games in chronological order. It stops before the first currently active or future Game. Each Game runs through the normal Case, Fraud Detection, Fast Path, and Strategy flow, but its `PUT /api/games/{id}/submissions` payload is logged instead of being sent to the tournament API. `--retry-dry` and `--game-id` are mutually exclusive.
+
+## Timing
+
+Every timing boundary emits one structured log line in the form `timing event=<name> status=<status> elapsed_s=<seconds>`. The Runner records Game and Case-load duration; Fast Path, Fraud Detection, StrategyManager, Strategy 1, Strategy 2, Fair-Value jobs, Fraud Line-Item jobs, and each Submission record their own durations. Game and Line Item identifiers are included where available.
