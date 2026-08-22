@@ -40,11 +40,28 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 **1. The default submission is an incident, never a fallback.** `a = 0, b = 0` does not score zero — `b = 0` wrongfully rejects every fair claim, so we pay `1.5a` to every opponent on every Line Item (R7). A team that goes dark becomes a **money fountain** for everyone awake: `+t` to them, `−1.5t` to us, per item, per Game (R10). Any plausible number beats the default. If the pipeline has nothing, it still submits something.
 
-**1b. After every settled Game, run the learning loop. It is one command.**
+**1b. The learning loop runs itself. Two terminals, two commands, for the whole tournament.**
 
 ```bash
-set -a && . .env && set +a && pixi run cases && pixi run learn
+set -a && . .env && set +a          # once per terminal
+pixi run start                      # terminal 1: plays every Game on the schedule
+pixi run watch                      # terminal 2: analyses each Game as it settles
 ```
+
+**`watch` already does `cases` and `learn`** — every poll it runs `extract_cases`, then
+`learn_from_game` for the newly settled Games, then the Claude review of the digest
+(`scripts/learn_watch.py`). So the digest `watch` prints *is* the learn digest. Do not run
+them by hand expecting something extra; there isn't any.
+
+The other tasks are for doing something off the loop, not for the loop:
+
+| task | when you actually need it |
+| --- | --- |
+| `pixi run learn` | re-read older Games by hand, e.g. `--games 26-33` after changing the analysis |
+| `pixi run cases` | top up the extraction without waiting for a poll |
+| `pixi run review-game 33` | re-run the Claude review of one Game after editing its prompt |
+| `pixi run case-0` | the permanent test Game, for a dry run |
+| `pixi run test` | the unit tests |
 
 `pixi run learn` joins the **decision log** Strategy 2 writes at submission time
 (`var/decisions/game_NNN.json`) against the reconstructed Fair Value, and names *the stage
