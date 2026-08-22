@@ -40,7 +40,29 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 **1. The default submission is an incident, never a fallback.** `a = 0, b = 0` does not score zero — `b = 0` wrongfully rejects every fair claim, so we pay `1.5a` to every opponent on every Line Item (R7). A team that goes dark becomes a **money fountain** for everyone awake: `+t` to them, `−1.5t` to us, per item, per Game (R10). Any plausible number beats the default. If the pipeline has nothing, it still submits something.
 
-**2. Before anything else, unzip and read the new Cases.** Decryption keys never expire
+**1b. After every settled Game, run the learning loop. It is one command.**
+
+```bash
+set -a && . .env && set +a && pixi run cases && pixi run learn
+```
+
+`pixi run learn` joins the **decision log** Strategy 2 writes at submission time
+(`var/decisions/game_NNN.json`) against the reconstructed Fair Value, and names *the stage
+that was wrong* rather than the amount that was lost. If it reports **"No decision log for
+this Game"**, stop: that means Strategy 2 did not land, and nothing else in the report can be
+interpreted until you know why. Games 21–24 submitted a Limit of 35 on every Line Item —
+`STANDARD_LIMIT`, from a lower layer — and an hour went into inferring what one log line now
+says outright.
+
+Then follow the **`learn-from-runs`** skill (`.devin/skills/learn-from-runs/`): attribute to a
+stage, add the evidence to
+[`hypothesis-ledger.md`](docs/brainstorm/sebi/strats/review/hypothesis-ledger.md), and change
+**at most one thing** — validated across *every* settled Game, never on the strength of the
+Game that just settled. One Game is far inside the **26,622** noise floor.
+
+**2. Before anything else, unzip and read the new Cases.** `pixi run start` now does this
+first (`pixi run cases`), because the runner extracts to `var/cases/` and used to leave the
+readable copy several Games behind. Decryption keys never expire
 and every Game whose `start_time` has passed is readable, so at the start of any session —
 and before any analysis, any strategy claim, any prompt change — top up the extraction and
 look at what is actually in there:
