@@ -41,7 +41,47 @@ MAX_CONSECUTIVE_FAST_EXITS=20
 stamp() { date '+%Y-%m-%d %H:%M:%S'; }
 say() { echo "[$(stamp)] supervise: $*" | tee -a "${LOG}"; }
 
-trap 'say "stopped by signal -- not restarting."; exit 0' INT TERM
+# Refuse to be the second runner. `pixi run play` was invoked five times in one night, and
+# nothing stopped two supervisors from holding a live `main.py` each. Two runners do not
+# double our coverage, they compete: both PUT to the same Game so the Submission becomes a
+# race whose winner is whichever finished last, and both fire Strategy 2's two-draw ensemble,
+# putting four model calls into one 60-second window. Four concurrent calls is exactly the
+# contention that lost Game 46 both of its draws to a timeout and Game 49 one to an HTTP 429.
+#
+# `mkdir` is the mutex because it is atomic on every filesystem we might run on and needs no
+# `flock`, which macOS does not ship. The PID inside lets a stale lock -- from a `kill -9`, or
+# a laptop sleep -- be told apart from a live one, so this cannot lock us out of our own
+# tournament. That distinction matters more than the guard: refusing to start when nothing is
+# running would be a worse bug than the one being fixed.
+#
+# The lock is checked *second*, because it cannot see a runner that predates it. A supervisor
+# started before this guard existed holds no lock, and on the night this was written exactly
+# such a process was live -- so a lock-only check would have cheerfully started the second
+# runner it exists to prevent. `pgrep` is the guard that does not depend on our own bookkeeping:
+# at this point we have not launched a child, so any `python main.py` at all is somebody else's.
+if pgrep -f "python main.py" >/dev/null 2>&1; then
+  say "a main.py is already running (PID $(pgrep -f 'python main.py' | tr '\n' ' ')) -- refusing to start a second runner."
+  say "two runners race on the same Submission and put four model calls in one window."
+  exit 1
+fi
+
+LOCK="${LOG_DIR}/supervise.lock"
+if ! mkdir "${LOCK}" 2>/dev/null; then
+  holder=$(cat "${LOCK}/pid" 2>/dev/null || echo "")
+  if [ -n "${holder}" ] && kill -0 "${holder}" 2>/dev/null; then
+    say "already running as PID ${holder} -- refusing to start a second runner."
+    say "two runners race on the same Submission and put four model calls in one window."
+    say "to take over: kill ${holder} (its supervisor will exit too), then rerun."
+    exit 1
+  fi
+  say "clearing a stale lock (PID '${holder}' is not running)."
+  rm -rf "${LOCK}" && mkdir "${LOCK}" || { say "could not take the lock -- aborting."; exit 1; }
+fi
+echo "$$" > "${LOCK}/pid"
+
+release() { rm -rf "${LOCK}"; }
+trap 'release; say "stopped by signal -- not restarting."; exit 0' INT TERM
+trap 'release' EXIT
 
 say "starting; logging to ${LOG}"
 fast_exits=0
