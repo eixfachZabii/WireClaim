@@ -1410,3 +1410,71 @@ game,rank,team,net,med_a_over_t,med_b_over_t,inc_fair,inc_over,inc_penalty,paid_
 83,15,Nullpointer Naan,-1651.48,2.846,2.186,0.0,1987.03,0.0,3401.21,0.0,lost money (biggest leak: accepted Overcharges)
 83,16,Teamers,-2692.37,3.209,4.422,0.0,1783.62,0.0,4238.69,0.0,lost money (biggest leak: accepted Overcharges)
 83,17,Trust Nobody,-5656.51,3.783,5.992,0.0,798.0,0.0,6217.21,0.0,lost money (biggest leak: accepted Overcharges)
+84,1,Bin busy,18396.96,2.333,1.0,7203.35,7333.56,12117.13,214.47,3798.92,won via 1.5a penalties from strict reviewers
+84,2,Codacabana,17877.97,1.659,1.022,3738.52,23127.44,3450.6,2065.49,8515.73,won via Overcharges the Field swallowed
+84,3,Non Deterministic,15944.16,1.823,1.0,3519.94,19042.32,10113.02,8351.45,3743.66,won via Overcharges the Field swallowed
+84,4,eyay,11828.73,3.414,1.0,2508.88,21966.86,6517.36,10393.92,4052.25,won via Overcharges the Field swallowed
+84,5,TakeTheMoneyAndRun,9107.13,0.839,1.125,6845.0,1957.0,8755.0,519.32,2765.13,won via 1.5a penalties from strict reviewers
+84,6,Oasis,7748.09,1.218,1.156,4036.98,13188.06,2538.06,1217.49,9673.88,won via Overcharges the Field swallowed
+84,7,error404 ai,5846.09,5.195,1.0,2855.44,17688.84,3671.28,7742.32,9153.69,won via Overcharges the Field swallowed
+84,8,Nullpointer Naan,1559.24,2.271,0.413,4940.0,4960.0,2900.0,0.0,11240.76,won via Overcharges the Field swallowed
+84,9,Teamers,-170.01,2.427,1.156,2281.9,23434.18,2475.7,18261.54,7241.27,lost money (biggest leak: accepted Overcharges)
+84,10,OPUSMOPUS,-11975.76,,0.413,0.0,0.0,0.0,0.0,11975.76,lost money (biggest leak: lawyer fees)
+84,11,Trust Nobody,-11975.76,,0.413,0.0,0.0,0.0,0.0,11975.76,lost money (biggest leak: lawyer fees)
+84,12,harissa eagles,-11975.76,,0.413,0.0,0.0,0.0,0.0,11975.76,lost money (biggest leak: lawyer fees)
+84,13,makalu,-11975.76,,0.413,0.0,0.0,0.0,0.0,11975.76,lost money (biggest leak: lawyer fees)
+84,14,Claims Renaissance,-13091.56,3.06,2.417,2880.41,15239.74,4441.67,26180.94,5838.69,lost money (biggest leak: accepted Overcharges)
+84,15,Alpha,-16210.14,5.539,2.264,2932.9,13940.0,5836.7,29915.22,4706.34,lost money (biggest leak: accepted Overcharges)
+84,16,TBD,-24569.62,24.997,1.833,0.0,4000.0,12000.0,33318.28,52.5,lost money (biggest leak: accepted Overcharges)
+84,17,AsianSuperNerds,-27789.22,2.796,1.824,1147.7,4894.57,8033.9,32592.13,5589.8,lost money (biggest leak: accepted Overcharges)
+85,1,Codacabana,3110.04,0.905,0.921,2254.34,0.0,1024.7,0.0,0.0,won via honest Charges the Field accepted + tight Limit (no lawyer fees)
+85,2,TakeTheMoneyAndRun,2499.06,0.746,1.0,1859.0,0.0,845.0,0.0,0.0,won via honest Charges the Field accepted + tight Limit (no lawyer fees)
+85,3,Bin busy,2139.09,1.324,0.373,0.0,2700.0,0.0,0.0,560.91,won via Overcharges the Field swallowed
+85,4,Oasis,1919.79,1.095,0.373,0.0,2480.7,0.0,0.0,560.91,won via Overcharges the Field swallowed
+85,5,eyay,1652.0,1.242,1.223,0.0,2531.61,0.0,505.67,0.0,won via Overcharges the Field swallowed + tight Limit (no lawyer fees)
+85,6,AsianSuperNerds,1209.04,2.183,1.661,0.0,2966.34,0.0,1383.36,0.0,won via Overcharges the Field swallowed + tight Limit (no lawyer fees)
+85,7,Non Deterministic,957.1,1.997,1.754,0.0,2714.4,0.0,1383.36,0.0,won via Overcharges the Field swallowed + tight Limit (no lawyer fees)
+85,8,Alpha,-204.09,2.207,2.287,0.0,2500.0,0.0,2330.15,0.0,lost money (biggest leak: accepted Overcharges)
+85,9,OPUSMOPUS,-560.91,,0.373,0.0,0.0,0.0,0.0,560.91,lost money (biggest leak: lawyer fees)
+85,10,harissa eagles,-560.91,,0.373,0.0,0.0,0.0,0.0,560.91,lost money (biggest leak: lawyer fees)
+85,11,makalu,-560.91,,0.373,0.0,0.0,0.0,0.0,560.91,lost money (biggest leak: lawyer fees)
+85,12,error404 ai,-1066.64,3.049,1.661,0.0,690.66,0.0,1383.36,0.0,lost money (biggest leak: accepted Overcharges)
+85,13,Nullpointer Naan,-1077.99,1.309,2.52,0.0,2371.2,0.0,3075.25,0.0,lost money (biggest leak: accepted Overcharges)
+85,14,Trust Nobody,-1769.59,1.137,2.826,0.0,2318.4,0.0,3714.05,0.0,lost money (biggest leak: accepted Overcharges)
+85,15,Teamers,-2318.09,2.391,3.026,0.0,2166.0,0.0,4110.15,0.0,lost money (biggest leak: accepted Overcharges)
+85,16,Claims Renaissance,-2625.59,2.649,3.026,0.0,1800.0,0.0,4051.65,0.0,lost money (biggest leak: accepted Overcharges)
+85,17,TBD,-3676.25,3.002,3.049,0.0,1360.0,0.0,4662.31,0.0,lost money (biggest leak: accepted Overcharges)
+86,1,TakeTheMoneyAndRun,1844.71,2.0,1.0,804.0,878.0,940.0,0.0,355.11,won via 1.5a penalties from strict reviewers
+86,2,Non Deterministic,1431.33,2.88,1.0,583.7,1231.01,1284.14,956.34,180.0,won via 1.5a penalties from strict reviewers
+86,3,TBD,1141.68,2.857,1.0,360.0,1016.0,1560.0,1146.4,0.0,won via 1.5a penalties from strict reviewers + tight Limit (no lawyer fees)
+86,4,Teamers,623.13,1.706,1.0,0.0,1500.05,0.0,49.0,180.0,won via Overcharges the Field swallowed
+86,5,error404 ai,213.18,2.74,1.0,0.0,1467.97,0.0,486.87,0.0,won via Overcharges the Field swallowed + tight Limit (no lawyer fees)
+86,6,Claims Renaissance,180.22,1.696,1.0,594.0,1014.78,462.0,975.3,640.02,won via Overcharges the Field swallowed
+86,7,Codacabana,171.37,3.321,1.0,0.0,1466.55,0.0,527.26,0.0,won via Overcharges the Field swallowed + tight Limit (no lawyer fees)
+86,8,eyay,-232.83,3.458,1.0,662.64,1481.12,301.2,1657.27,938.52,lost money (biggest leak: accepted Overcharges)
+86,9,Alpha,-243.59,3.473,1.0,630.0,1174.67,490.0,1627.0,640.02,lost money (biggest leak: accepted Overcharges)
+86,10,Nullpointer Naan,-447.98,2.211,1.0,627.0,1211.17,285.0,1860.23,0.0,lost money (biggest leak: accepted Overcharges)
+86,11,AsianSuperNerds,-579.5,2.101,1.0,741.58,223.69,953.46,1675.88,481.11,lost money (biggest leak: accepted Overcharges)
+86,12,OPUSMOPUS,-1151.88,,1.0,0.0,0.0,0.0,0.0,1151.88,lost money (biggest leak: lawyer fees)
+86,13,Trust Nobody,-1151.88,,1.0,0.0,0.0,0.0,0.0,1151.88,lost money (biggest leak: lawyer fees)
+86,14,harissa eagles,-1151.88,,1.0,0.0,0.0,0.0,0.0,1151.88,lost money (biggest leak: lawyer fees)
+86,15,makalu,-1151.88,,1.0,0.0,0.0,0.0,0.0,1151.88,lost money (biggest leak: lawyer fees)
+86,16,Bin busy,-1311.04,2.547,2.25,0.0,668.56,0.0,840.22,1114.38,lost money (biggest leak: lawyer fees)
+86,17,Oasis,-1510.06,2.88,1.0,630.0,807.0,378.0,2338.8,844.02,lost money (biggest leak: accepted Overcharges)
+87,1,eyay,13593.14,0.779,0.776,6169.79,311.06,14495.49,0.0,4212.55,won via 1.5a penalties from strict reviewers
+87,2,Claims Renaissance,11431.39,0.554,0.66,5813.77,212.0,13047.83,86.89,4390.76,won via 1.5a penalties from strict reviewers
+87,3,Oasis,5814.22,0.874,0.844,5564.7,262.8,8014.5,118.57,4461.94,won via 1.5a penalties from strict reviewers
+87,4,Bin busy,2249.19,0.751,0.746,3688.16,600.0,7724.96,146.97,9179.08,won via 1.5a penalties from strict reviewers
+87,5,Alpha,762.14,0.404,0.207,1763.22,196.78,8724.78,0.0,9922.63,won via 1.5a penalties from strict reviewers
+87,6,TakeTheMoneyAndRun,736.2,0.788,1.0,4652.0,226.0,5668.0,700.1,7452.33,won via 1.5a penalties from strict reviewers
+87,7,Codacabana,-2417.6,1.017,1.0,786.38,2453.45,3960.66,1799.86,2532.99,lost money (biggest leak: lawyer fees)
+87,8,AsianSuperNerds,-2506.59,1.05,1.0,938.74,1537.33,4023.98,0.0,6138.68,lost money (biggest leak: lawyer fees)
+87,9,Non Deterministic,-2525.55,0.726,0.697,1832.72,2397.71,1949.52,0.0,5013.9,lost money (biggest leak: lawyer fees)
+87,10,Teamers,-2586.28,1.002,1.0,1047.37,2578.3,5556.95,4458.08,1359.01,lost money (biggest leak: accepted Overcharges)
+87,11,error404 ai,-3304.86,1.161,1.0,1086.4,2203.78,4829.44,3125.63,4194.01,lost money (biggest leak: lawyer fees)
+87,12,Trust Nobody,-7298.72,0.359,1.0,1820.68,0.0,3169.4,2543.11,8360.94,lost money (biggest leak: lawyer fees)
+87,13,Nullpointer Naan,-10905.88,,0.098,0.0,0.0,0.0,0.0,10905.88,lost money (biggest leak: lawyer fees)
+87,14,OPUSMOPUS,-10905.88,,0.098,0.0,0.0,0.0,0.0,10905.88,lost money (biggest leak: lawyer fees)
+87,15,TBD,-10905.88,,0.098,0.0,0.0,0.0,0.0,10905.88,lost money (biggest leak: lawyer fees)
+87,16,harissa eagles,-10905.88,,0.098,0.0,0.0,0.0,0.0,10905.88,lost money (biggest leak: lawyer fees)
+87,17,makalu,-10905.88,,0.098,0.0,0.0,0.0,0.0,10905.88,lost money (biggest leak: lawyer fees)
