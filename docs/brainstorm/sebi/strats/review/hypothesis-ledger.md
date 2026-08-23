@@ -788,3 +788,50 @@ over 63 Games. R5c again: a rival's ratio measured against `t` is not a rule you
 | Price Memory | 22% recall, leave-one-out log error 0.43 |
 | our accept rate vs the leaders | 6–19% vs 63–65% — and copying theirs imports 60–75k of loss |
 | fair share of Charges we face | 67.2% pooled, against a 66.7% break-even |
+
+---
+
+## H15 ❌ The lawyer bill means the Limit is too low — no, it is the premium on a policy that pays 4×
+
+Raised at Game 68 on a penalty line of −39,258. Two corrections, then the measurement.
+
+**"Penalties" is not "waste."** Rejecting a fair Charge costs `1.5a` where accepting costs `a`, so
+two thirds of any penalty figure is money owed either way. Game 68's actual waste was **13,086**,
+which the digest prints beside it. And the other side of the ledger, since the Limit bet shipped
+at Game 66: **saved by rightly rejecting 80,986 against 19,813 wasted — 4.1 : 1.** Removing the
+waste means accepting the fraudulent claims that produced the 80,986.
+
+**The derived quantile is right.** `LIMIT_QUANTILE = 1/3` follows from the payoff table — accepting
+beats rejecting exactly when `P(fair) > 2/3` — but that derivation assumes a calibrated posterior,
+and ours is not (implied sigma 0.375 against a realised error near 1.0). So it was worth sweeping,
+and it had not been swept tonight. Over 67 Games:
+
+| q | accept if | all | odd | even | ≤45 | >45 | last10 | folds+ |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.200 | P(fair)>0.80 | −27,424 | −9,410 | −18,015 | −23,700 | −3,724 | +2,791 | 0/4 |
+| 0.267 | P(fair)>0.73 | −16,328 | −4,872 | −11,456 | −13,350 | −2,979 | +485 | 0/4 |
+| **0.333 (shipped)** | P(fair)>0.67 | — | — | — | — | — | — | — |
+| 0.400 | P(fair)>0.60 | +3,753 | +1,619 | +2,134 | +2,177 | +1,576 | +765 | 4/4 |
+| 0.450 | P(fair)>0.55 | −1,489 | −1,262 | −226 | −764 | −725 | −930 | 0/4 |
+| 0.600 | P(fair)>0.40 | −6,425 | +101 | −6,526 | −4,369 | −2,056 | +733 | 1/4 |
+
+q = 0.40 is the argmax and clears four folds, but at **+3,753 it is 7 % of the ±50,977 floor** —
+not a result. Everything looser loses. With the global `b` multiplier (H-none: ×1.18 and ×1.50 both
+sign-flipping noise) and the ceiling-plus-clamp loosening that *was* shipped, the Limit has now been
+attacked from three independent directions and the derived value survives all three. **Stop
+proposing it.**
+
+**Game 68's loss was the opposite of a Limit problem.** Income +32,779 against a ceiling of
++100,970, with `charge-far-below-t` at −18,910: item 1 Charged 551 against `t ≥ 1,555`, item 2 223
+against `t ≥ 499`, item 4 541 against `t ≥ 2,234` — roughly 47,000 of income forfeited from all
+sixteen opponents because `t_hat` was 2–2.5× too *low* on stolen-goods items. Zero of the eleven Line
+Items were memory-backed: theft and contents vocabulary that the store, built mostly on
+water-damage repair Cases, has never seen.
+
+One caution recorded because it nearly became a false finding. Bucketing the export's
+`penalty_on_this_item` by proven direction appears to show being too low costing 10× being too high.
+That is **definitional, not empirical**: a low `t_hat` lowers `b` and produces lawyer penalties,
+which is what that column measures, while a high `t_hat` produces accept-payments, which land in a
+different column. The wording split that prompted it (multi-item aggregate versus single named or
+listed article, from Game 68's "several unscheduled" at `t ≥ 2,234` against "one high-value ring
+listed" at `t ∈ [2421, 2850)`) reaches **n = 7 and n = 3**. Not testable. §4a stays open.
