@@ -159,13 +159,6 @@ and the same fraud-call rate averaged over the top-3 / top-5 teams.
 
 ![Bin busy fraud calls](data/table_binbusy.png)
 
-## Per-game averages — field vs. top 3 vs. Bin busy
-
-Average Charge a and Limit b of all active teams (always-zero teams excluded), the top-3 by net,
-Bin busy's own values, and the average derived Fair Value t.
-
-![Per-game averages](data/table_averages.png)
-
 ## Trend dashboard
 
 Net per team, per-game average a / b / derived t, fraud-zone rate by team, and median Charge
