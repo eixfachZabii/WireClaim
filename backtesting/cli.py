@@ -7,9 +7,11 @@ import asyncio
 import json
 from pathlib import Path
 
+from backtesting.api_server import serve
 from backtesting.data import load_dataset, sync_dataset
 from backtesting.diagnostics import dataset_diagnostics
 from backtesting.experiments import rerender, run_experiment
+from backtesting.logged import replay_logged
 from backtesting.paths import CURRENT_DATASET, RUNS
 
 
@@ -34,6 +36,22 @@ def main() -> None:
     run.add_argument("--spec", default="backtesting/specs/default.json")
     run.add_argument("--dataset", help="dataset ID prefix (default: current dataset)")
     run.add_argument("--games", help="Games to score while retaining the dataset's earlier history")
+
+    logged = commands.add_parser("replay-logged", help="deterministically replay live decision logs")
+    logged.add_argument("--games", required=True)
+    logged.add_argument("--dataset", help="dataset ID prefix (default: current dataset)")
+    logged.add_argument("--source", default="winner", help="winner, all, strategy1, strategy2, ...")
+    logged.add_argument("--seat", default="Bin busy")
+    logged.add_argument("--cap-mode", default="fitted", choices=("fitted", "rules_only"))
+
+    api = commands.add_parser("serve-api", help="serve a drop-in historical Tournament API")
+    api.add_argument("--games", required=True)
+    api.add_argument("--dataset", help="dataset ID prefix (default: current dataset)")
+    api.add_argument("--host", default="127.0.0.1")
+    api.add_argument("--port", type=int, default=8765)
+    api.add_argument("--release-delay", type=float, default=3.0)
+    api.add_argument("--spacing", type=float, default=65.0)
+    api.add_argument("--duration", type=float, default=3600.0)
 
     report = commands.add_parser("report", help="rerender an existing run without API/model calls")
     report.add_argument("run_id")
@@ -69,6 +87,25 @@ def main() -> None:
             run_experiment(args.spec, dataset_id=args.dataset, games_override=args.games)
         )
         print(f"Wrote {run_dir}")
+    elif args.command == "replay-logged":
+        run_dir, _ = replay_logged(
+            args.games,
+            dataset_id=args.dataset,
+            source=args.source,
+            seat=args.seat,
+            cap_mode=args.cap_mode,
+        )
+        print(f"Wrote {run_dir}")
+    elif args.command == "serve-api":
+        serve(
+            args.games,
+            dataset_id=args.dataset,
+            host=args.host,
+            port=args.port,
+            release_delay=args.release_delay,
+            spacing=args.spacing,
+            duration_seconds=args.duration,
+        )
     else:
         path = Path(args.run_id)
         run_dir = path if path.is_dir() else RUNS / args.run_id
