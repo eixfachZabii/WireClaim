@@ -1665,3 +1665,20 @@ game,rank,team,net,med_a_over_t,med_b_over_t,inc_fair,inc_over,inc_penalty,paid_
 98,15,TakeTheMoneyAndRun,-1347.87,6.411,7.853,110.0,1408.0,242.0,2746.87,214.47,lost money (biggest leak: accepted Overcharges)
 98,16,Teamers,-1430.2,8.341,8.441,86.4,1379.7,51.84,2498.11,441.48,lost money (biggest leak: accepted Overcharges)
 98,17,error404 ai,-1888.81,5.091,12.334,121.1,1504.82,155.7,3304.73,214.47,lost money (biggest leak: accepted Overcharges)
+99,1,TakeTheMoneyAndRun,17293.14,0.906,1.0,12520.0,7792.0,19064.0,5358.8,4295.85,won via 1.5a penalties from strict reviewers
+99,2,AsianSuperNerds,16323.1,1.015,0.983,16040.96,3448.57,17522.08,2079.07,10323.05,won via 1.5a penalties from strict reviewers
+99,3,Oasis,13225.83,1.048,1.0,9153.0,8883.0,17271.0,3734.45,8196.31,won via 1.5a penalties from strict reviewers
+99,4,eyay,12187.57,1.228,1.0,7990.13,9681.85,18589.55,6080.68,7165.18,won via 1.5a penalties from strict reviewers
+99,5,Bin busy,7237.49,1.238,0.983,8216.67,10670.79,12589.41,4118.91,12464.22,won via 1.5a penalties from strict reviewers
+99,6,Alpha,4453.97,0.764,0.28,14962.34,2955.68,10093.34,28.0,23487.8,won via honest Charges the Field accepted
+99,7,Codacabana,2764.06,0.925,0.995,8593.07,6743.36,16079.25,9875.04,9157.48,won via 1.5a penalties from strict reviewers
+99,8,error404 ai,-4934.18,0.95,1.371,6974.4,9460.74,13344.32,18197.98,1558.41,lost money (biggest leak: accepted Overcharges)
+99,9,Teamers,-6395.28,1.207,1.027,5098.85,11096.75,9860.99,13090.92,9089.51,lost money (biggest leak: accepted Overcharges)
+99,10,Non Deterministic,-7118.44,1.976,1.0,1835.14,7972.02,8307.58,4890.33,11131.96,lost money (biggest leak: lawyer fees)
+99,11,Claims Renaissance,-7121.72,0.518,0.429,9251.82,2970.0,5242.26,1462.98,20287.76,lost money (biggest leak: lawyer fees)
+99,12,Trust Nobody,-12679.27,0.81,1.69,7948.8,8644.32,7948.8,17188.51,11280.51,lost money (biggest leak: accepted Overcharges)
+99,13,TBD,-12983.41,1.067,1.0,4985.0,8460.0,6775.0,12673.41,11996.67,lost money (biggest leak: accepted Overcharges)
+99,14,Nullpointer Naan,-25899.17,,0.25,0.0,0.0,0.0,0.0,25899.17,lost money (biggest leak: lawyer fees)
+99,15,OPUSMOPUS,-25899.17,,0.25,0.0,0.0,0.0,0.0,25899.17,lost money (biggest leak: lawyer fees)
+99,16,harissa eagles,-25899.17,,0.25,0.0,0.0,0.0,0.0,25899.17,lost money (biggest leak: lawyer fees)
+99,17,makalu,-25899.17,,0.25,0.0,0.0,0.0,0.0,25899.17,lost money (biggest leak: lawyer fees)
