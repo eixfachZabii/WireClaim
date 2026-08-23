@@ -423,6 +423,59 @@ CHARGE_BOUNDS = (0.30, 0.80)
 BIG_ITEM_THRESHOLD = 1000.0
 BIG_ITEM_CHARGE_SCALE = 1.0
 
+# The Charge's counterpart to `LIMIT_CEILING_MEMORY`, and it exists because the Charge was the
+# only number in this file that ignored *which channel produced the estimate*.
+#
+# The Limit has trusted Price Memory more than the model since Game 37: `LIMIT_CEILING_MEMORY`
+# 0.75 against `LIMIT_CEILING` 0.45, plus the absolute `LIMIT_CAP` coming off entirely. That was
+# +40,791 on all four folds, on one argument -- a memory-backed wording has been *seen settle*,
+# so `invert_fair_values` recovered what it was actually worth, while a model-only estimate is
+# unchecked. The measured log errors are `MEMORY_SIGMA = 0.43` against `MODEL_SIGMA_PRIOR = 0.6`,
+# and the model's real error is worse than its own prior: RMSLE 1.66 / 1.82 / 2.20 over
+# G26-40 / G41-55 / G56-64.
+#
+# The Charge applied the same discount to both. That discount is insurance against `t_hat` being
+# wrong -- a fair Charge is owed by all sixteen opponents whatever their Limits, an Overcharge is
+# paid only by the ~1 in 5 who accept -- so its correct size is proportional to how wrong the
+# estimate might be. One rate for two channels whose log errors differ by 4x is necessarily too
+# timid on one of them, and `sigma` cannot rescue it: `implied_sigma` reads the width the *model
+# asserted*, whose median is 0.375 and which `blend.py`'s docstring notes "does not even
+# correlate with the actual error".
+#
+# Measured -- `scripts/experiments/memory_charge_trust.py`, 65 Games, 727 Line Items, 50 %
+# memory-backed. Delta against a flat Charge, `folds+` counting odd/even/<=45/>45:
+#
+#     k_memory      all       odd      even     <=45      >45   last10   last20   folds+
+#       1.05    +35,477   +18,382   +17,096  +41,587   -6,109   +2,759   -6,109      3/4
+#       1.10    +68,239   +27,877   +40,362  +63,999   +4,240   +3,989   +4,240      4/4
+#       1.15    +80,613   +36,319   +44,294  +79,920     +693   +6,100     +693      4/4  <- shipped
+#       1.20    +75,038   +17,315   +57,723  +69,733   +5,305   +8,065   +5,305      4/4
+#       1.25    +64,776   +14,724   +50,052  +79,748  -14,972   +2,746  -14,972      3/4
+#       1.30    +58,259    +5,028   +53,231  +78,726  -20,467   +4,836  -20,467      3/4
+#
+# 1.15 is the argmax on the full record and the middle of a three-value plateau that passes all
+# four folds, with both neighbours outside it failing on `>45`. The differences *within* the
+# plateau are +-13,000, far inside the +-36,046 half-fold floor, so the choice between 1.10,
+# 1.15 and 1.20 is not measurable -- which is the argument for the middle rather than the edge.
+#
+# **The control is what makes this a channel effect rather than "Charge more".** Raising the
+# model-only channel instead, `k_model = 1.10` with memory left alone, is **-95,061 and 0/4**;
+# and a *global* multiplier of 1.10 across every item is -27,185 over the record and negative on
+# the last 10, 15 and 20 Games separately (`scripts/experiments/regime_ab_sweep.py`). The Charge
+# is at its optimum on average and too low only where the estimate is good.
+#
+# Not to be confused with the closed negative in `ORCHESTRATOR.md`: "Charge conditioned on
+# channel, sigma, unit, quantity -- every *downward* multiplier loses, held-out delta -15,354".
+# That swept making the Charge more timid on the weaker channel. This is the opposite direction,
+# and it is the direction `LIMIT_CEILING_MEMORY` already took.
+#
+# What would falsify it: Price Memory's error rising toward the model's. `MEMORY_SIGMA` is
+# measured leave-one-out; re-run `scripts/experiments/memory_perhit_sigma.py` and this sweep
+# together. If a memory-backed wording starts settling far below its stored value -- Game 63,
+# where four memory-backed items carried medians of 1,618 / 606 / 91 / 58 against Fair Values
+# under 54 / 76 / 20 / 12, is a warning shot -- this constant is the first thing to revert.
+CHARGE_TRUST_MEMORY = 1.15
+
 LIMIT_QUANTILE = 1.0 / 3.0
 
 # A guard against the model claiming precision it does not have. The quantile above is
@@ -1008,6 +1061,11 @@ def price_item(
     # item turns out to be worthless the Charge simply gets rejected at no cost, whereas
     # shading it down for doubt forfeits guaranteed income on everything that is covered.
     charge = charge_factor(sigma) * filled.price_median
+    if memory_backed:
+        # See `CHARGE_TRUST_MEMORY`: the discount below `t_hat` is insurance against the
+        # estimate, and Channel B's estimate has been watched settle. Same argument as
+        # `LIMIT_CEILING_MEMORY`, applied to the number it was never applied to.
+        charge *= CHARGE_TRUST_MEMORY
     if filled.price_median >= BIG_ITEM_THRESHOLD:
         # See `BIG_ITEM_THRESHOLD`: in this bucket two thirds of our estimates are already
         # above `t`, where the income is zero whatever we Charge, so raising it is close to

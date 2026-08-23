@@ -3,6 +3,7 @@ import unittest
 
 from src.pricing.engine import (
     BIG_ITEM_CHARGE_SCALE,
+    CHARGE_TRUST_MEMORY,
     BIG_ITEM_THRESHOLD,
     CHARGE_BOUNDS,
     LIMIT_CAP,
@@ -41,15 +42,28 @@ class PriceItemTests(unittest.TestCase):
 
         self.assertGreater(memory.limit, model_only.limit)
 
-    def test_the_looser_ceiling_moves_the_limit_and_nothing_else(self) -> None:
-        """It is a Limit-side rule. A Charge that moved with the channel would be a
-        conditional Charge rule, and every one of those failed out of sample."""
-        evidence = self.confident(1000.0)
+    def test_a_memory_hit_raises_the_charge_too_but_only_by_the_measured_factor(self) -> None:
+        """Both numbers move with the channel, and this test used to assert the opposite.
 
-        self.assertEqual(
-            price_item(evidence).charge,
-            price_item(evidence, memory_backed=True).charge,
+        It was `test_the_looser_ceiling_moves_the_limit_and_nothing_else`, reasoning that "a
+        Charge that moved with the channel would be a conditional Charge rule, and every one
+        of those failed out of sample". That was true of the rules measured at the time, and
+        they all moved the Charge *down* on the weaker channel. Moving it *up* on the stronger
+        one -- the direction `LIMIT_CEILING_MEMORY` already took for the Limit -- is
+        **+80,613 over 65 Games and positive on all four folds**, while the control that
+        raises the model-only channel instead is -95,061 and 0/4. See `CHARGE_TRUST_MEMORY`.
+
+        The factor is asserted exactly rather than as an inequality, so that changing the
+        constant without re-reading its evidence breaks a test.
+        """
+        evidence = self.confident(1000.0)
+        flat = price_item(evidence)
+        trusted = price_item(evidence, memory_backed=True)
+
+        self.assertAlmostEqual(
+            trusted.charge, flat.charge * CHARGE_TRUST_MEMORY, delta=0.02
         )
+        self.assertGreater(trusted.limit, flat.limit)
 
     def test_a_memory_hit_never_resurrects_the_limit_on_an_uncovered_item(self) -> None:
         """A proven exclusion outranks the channel. `t = 0`, so any Limit above zero is a
