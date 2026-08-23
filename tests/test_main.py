@@ -248,7 +248,7 @@ class MainTests(unittest.TestCase):
         with (
             patch.object(main.argparse.ArgumentParser, "parse_args", return_value=args),
             patch.object(main, "run_game", new=run_game),
-            patch.object(main.asyncio, "run"),
+            patch.object(main, "_run_operation"),
         ):
             main.main()
 
