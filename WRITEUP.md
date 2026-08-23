@@ -95,13 +95,13 @@ result driven by a few *Games*, never one driven by a few *items*.
   every subsequent decision was settled by a number instead of an argument. Three claims we had
   written down as fact were falsified by it within a day.
 - **We climbed from last to 5th.** After nine Games we were **17th of 17**. We are now **5th** on
-  **+260,250** weighted. Over the **72 Games since the estimator was working** we are **2nd of 17
-  by rate** (+5,169/Game), and re-basing every team to zero at Game 20 — when it went live — puts
-  us **2nd of 17** at **+403,758**.
-- **The distribution is tight, which is the part we would actually defend.** **2 losing Games in
-  the last 20, the worst costing 3,941**; 4 losing Games in the last 30, the fewest of any team.
-  That is the **2nd-best risk-adjusted return in the field** (mean/σ = 0.72 vs 0.83). Seven teams
-  carry a single Game worse than −80,000; our deepest hole in thirty Games is −9,720. In an
+  **+285,904** weighted. Over the **74 Games since the estimator was working** we are **2nd of 17
+  by rate** (+5,145/Game), and re-basing every team to zero at Game 20 — when it went live — puts
+  us **2nd of 17** at **+425,074**.
+- **The distribution is tight, which is the part we would actually defend.** **3 losing Games in
+  the last 20, the worst costing 3,941**; 3 losing Games in the last 30, second fewest of any team.
+  That is the **2nd-best risk-adjusted return in the field** (mean/σ = 0.75 vs 0.94). Seven teams
+  carry a single Game worse than −80,000; our deepest hole in thirty Games is −3,941. In an
   insurance book, the narrow distribution is the number that matters.
 - **The architecture degraded instead of failing.** Eight triple-weighted Games ran with the model
   channel completely dark and still banked +254,092, because no scored number ever depended on a
