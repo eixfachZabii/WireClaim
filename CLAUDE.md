@@ -227,6 +227,13 @@ worth carrying forward:
 > **Games 1–25 cost −322,595 weighted. Games 26–100 earned +560,850.** The tournament was
 > decided before the strategy was finished.
 
+**One correction to carry, because it inverts a headline.** Replays that rebuild Price Memory
+*leave-one-out* let Game 40 be priced with Game 80's data. Those figures (up to +630,751, "first
+place") value **the store we now own**, not what we could have run. Rebuilt walk-forward — earlier
+Games only — the same arm is **+13,372**, and the estimate alone is **−37,894**. Quote the
+walk-forward number for anything about our process; quote leave-one-out only when the question is
+what the finished asset is worth.
+
 Everything the old version of this section called unimplemented — invoice parsing, policy
 analysis, pricing, submission — shipped long ago; there is no `TODO(api-submission)` boundary
 any more.

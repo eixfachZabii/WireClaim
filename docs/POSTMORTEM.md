@@ -165,7 +165,28 @@ Replaying all 100 Games with the *finished* Price Memory, letting a hit price th
 (`scripts/experiments/memory_first.py`, leave-one-Game-out): **+855,591 weighted against our
 real +224,840** — a gain of **+630,751**, positive on all five folds. That is first place.
 
-The caveat is larger than the result:
+> ### That number is hindsight, and the honest one is not a gain at all
+>
+> Leave-one-out builds Game 40's store from Games 1–39 **and 41–100**. We did not have Games
+> 41–100 at Game 40. Rebuild each Game's store from **strictly earlier Games only** — what the
+> live pipeline actually had — and the same arm collapses:
+>
+> | arm | leave-one-out | walk-forward |
+> | --- | ---: | ---: |
+> | memory-first, flat pricing | +630,751 (5/5 folds) | **+13,372** (3/4) |
+> | memory-first, shipped Limit kept — the estimate alone | +532,969 (4/4) | **−37,894** (2/4) |
+>
+> So "we would have finished first" is **not** supported. What is supported is narrower and
+> still worth saying: *the store we ended up owning is worth first place on these Games* — an
+> asset valuation, not a counterfactual about our process. The two answer different questions
+> and this document conflated them until the walk-forward arm was run.
+>
+> The gap between the two columns is also a finding in its own right: **memory-first only beats
+> the shipped blend once the store is large.** With a thin store, replacing a blended estimate
+> with a pure memory anchor is a downgrade, which is why the shipped 66 % blend weight was right
+> all along (H24) and why the estimate-only arm goes negative walk-forward.
+
+The remaining caveats on the leave-one-out figure, which stand independently:
 
 - improved 54 Games, worsened 28, unchanged 17
 - **median Game gain +190** — the typical Game barely moves
@@ -382,10 +403,13 @@ multiplier is worth tens of thousands and is nearly flat in σ; the estimate is 
 
 ## 9. What to do differently
 
-1. **Ship the store warm.** `data/price_memory.json` now holds all 325 wordings from 1,161
-   joined Line Items across 100 Games, not 203 from 46. It is the one asset measured here that
-   is worth six figures and cannot be re-derived inside a 60-second window. This is the whole
-   fix for the finding in §5.
+1. **Ship the store warm — for the *next* tournament, not as a claim about this one.**
+   `data/price_memory.json` now holds all 325 wordings from 1,161 joined Line Items across 100
+   Games, not 203 from 46. It cannot be re-derived inside a 60-second window, so having it on
+   disk at Game 1 is worth real money **if the wordings recur**. That conditional is load-bearing
+   and untested: within this tournament the store had to be earned Game by Game, and walk-forward
+   it was worth **−37,894**, not +532,969. What transfers to a *fresh* Case set is unknown from
+   this data.
 2. **Stop tuning constants.** §3 shows the best constant available is worse than what we ship.
    Four separate sweeps in the ledger say the same thing. The budget belongs in the evidence
    layer, and `price_of_sigma.py` says what a given improvement there is worth.

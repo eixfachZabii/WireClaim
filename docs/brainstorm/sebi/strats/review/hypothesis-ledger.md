@@ -1551,3 +1551,52 @@ overlap). A better shortlist is the untested half — `retrieval_ceiling.py` sho
 those same eight reaches 0.358, so the anchors are often present and the failure is *selection*:
 the worst misses are confident picks of a wrong anchor (Game 19, ratio 1.00 at confidence 0.85,
 out by 17x). But 0.867 against a bar of 0.60 is not a tuning gap.
+
+## H30 ⚠️ Amendment to H25/H29 — the warm-store result is an asset valuation, not a counterfactual
+
+**Prompted by a reader's objection, and the objection was right.** H25 reports the finished Price
+Memory as worth **+630,751** weighted and "first place". Every such figure is built
+leave-one-Game-out, which prices Game 40 using Games 1–39 **and 41–100**. We did not have Games
+41–100 at Game 40.
+
+Two corrections, both measured.
+
+**1. The attribution was conflated.** The +630,751 arm changes the *estimate* (memory anchor
+instead of the blend) **and** the *pricing* (flat `a = 0.69 t̂`, `b = 1.0 t̂` instead of the shipped
+Limit stack). Isolating the estimate by scaling our real submission — which preserves the shipped
+quantile, ceiling and released clamp — gives **+532,969**, with the flat pricing worth the other
+~98k.
+
+**2. Walk-forward, it is not a gain at all.**
+
+| arm | leave-one-out | walk-forward |
+| --- | ---: | ---: |
+| memory-first, flat pricing | +630,751 (5/5 folds) | **+13,372** (3/4) |
+| memory-first, estimate alone | +532,969 (4/4) | **−37,894** (2/4) |
+
+Store reach: 781 Line Items leave-one-out against **581** walk-forward.
+
+### What may and may not be claimed
+
+* **May:** "the store we finished with is worth first place on these Games." That is an asset
+  valuation and it is real.
+* **May not:** "we would have finished first." Within this tournament the store had to be *earned*
+  Game by Game, and the process counterfactual is +13,372 at best.
+* **Unknown:** what the store is worth on a *fresh* Case set. Shipping it warm pays only if the
+  wordings recur, and nothing here measures that. It is the single most valuable untested
+  assumption left in this repository.
+
+### The finding hiding inside the gap
+
+The two columns differ by more than recall. **Memory-first only beats the shipped blend once the
+store is large.** With a thin store, replacing a blended estimate with a pure memory anchor is a
+*downgrade* — which is exactly why the shipped 66 % blend weight measured best in H24, and why the
+estimate-only arm goes negative walk-forward while the same arm at full store is +532,969. "Trust
+memory outright" is a policy that becomes correct only above some store size, and that size is
+somewhere between 581 and 781 reached Line Items.
+
+**The cold-start diagnosis is untouched.** Games 1–25 really did cost −322,595 and Games 26–100
+really did earn +560,850; those are settled Transactions, not counterfactuals. What changes is the
+*fix*: "ship the store warm" is a bet on wording recurrence across tournaments, not a demonstrated
+repair. Getting to a working pipeline sooner (H25's other conclusion, and the NO-BLANKS arm's
++407,107 in H26, which uses no memory at all) survives intact and is the better-supported lever.
