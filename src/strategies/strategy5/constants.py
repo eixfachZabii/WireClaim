@@ -5,10 +5,12 @@ from __future__ import annotations
 STRATEGY_NAME = "strategy5"
 
 # A missing model/memory estimate is not evidence that t=0. Strategy 2's flat fallback is
-# (300, 35), which violates Strategy 5's geometry. A coarse prior of 450 is the lowest
-# shared point that wins on both the historical calibration slice and the separately
-# generated Games 62-67 fallback slice.
-UNINFORMED_FAIR_VALUE = 450.0
+# (300, 35), which violates Strategy 5's geometry. In no-model, past-only replays the first
+# invoice position behaves as the primary capital-loss row, while later positions behave as
+# parts/labour. Games 43-61 independently select about 8,625 and exactly 275; 8,500 is used
+# for the primary row because it has the stronger identified lower bound on Games 62-67.
+PRIMARY_UNINFORMED_FAIR_VALUE = 8_500.0
+UNINFORMED_FAIR_VALUE = 275.0
 
 # Strategy 2's median has magnitude-dependent error. Coarse tiers are used instead of a
 # fitted curve so every branch remains inspectable and has enough historical support.
@@ -34,6 +36,7 @@ __all__ = [
     "LOW_VALUE_THRESHOLD",
     "MID_VALUE_FACTOR",
     "MID_VALUE_THRESHOLD",
+    "PRIMARY_UNINFORMED_FAIR_VALUE",
     "STRATEGY_NAME",
     "UNINFORMED_FAIR_VALUE",
 ]

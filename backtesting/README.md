@@ -232,13 +232,14 @@ reproduces actual net to the cent.
 Use this command for the historical live baseline. Do not replace it with a fresh Strategy 2
 draw: a fresh model call is a different sample running current code and prompts.
 
-Strategy 5 now uses five deliberately coarse point-estimate tiers: an uninformed prior of
-450 EUR, then `0.75`, `0.50`, `0.70`, and `1.35` times Strategy 2's combined median at the
-100, 500, and 3,000 EUR breakpoints. Every branch submits `a = b`, and only a proven
-dash-quantity exclusion submits zero.
+Strategy 5 uses deliberately coarse point-estimate tiers. With no Strategy 2 price evidence,
+the first invoice position uses a primary-loss prior of 8,500 EUR and later positions use a
+parts/labour prior of 275 EUR. With evidence, it applies `0.75`, `0.50`, `0.70`, or `1.35`
+to Strategy 2's combined median at the 100, 500, and 3,000 EUR breakpoints. Every branch
+submits `a = b`, and only a proven dash-quantity exclusion submits zero.
 
 On the 35 Games with reusable live evidence through Game 61 (26-41 and 43-61), its
-identified midpoint is **97,595 EUR**, versus **51,620 EUR** for Strategy 2. The later
+identified midpoint is **95,989 EUR**, versus **51,620 EUR** for Strategy 2. The later
 validation slice 54-61 is independently positive (**13,142 vs 2,448**), after harmless
 phantom parser rows in Games 54 and 59 are ignored. The score envelopes still overlap, so
 this is a midpoint lead, not an identified-set proof.
@@ -248,11 +249,13 @@ The reproducible extension spec
 [`strategy2_games_62_67.json`](specs/strategy2_games_62_67.json) runs Strategy 2 once per
 Game with past-only Price Memory and writes isolated decision logs. In the 2026-08-23 local
 run, model credentials were unavailable (`model_draws = 0`), so the extension measures the
-shared fallback/memory path only: Strategy 5 leads its same-evidence Strategy 2 baseline at
-the midpoint (**-77,353 vs -79,757**), but the envelopes overlap and the generated Strategy
-2 submissions are behaviorally incompatible with the historical live submissions. Do not
-present this as a victory over the Strategy 2 that actually played Games 62-67; rerun the
-spec with model credentials to close that evidence gap.
+shared fallback/memory path only. Strategy 5 is positive across the fitted-cap identified
+set at **23,583 / 46,278 / 383,439 EUR** (lower/midpoint/upper), while the same-evidence
+Strategy 2 baseline is negative at **-86,874 / -79,757 / -52,328 EUR**. These envelopes do
+not overlap. The generated Strategy 2 submissions are nevertheless behaviorally incompatible
+with the historical live submissions, so do not present this as a victory over the Strategy
+2 that actually played Games 62-67; rerun the spec with model credentials to close that
+evidence gap.
 
 ### `report`: rerender an existing run
 

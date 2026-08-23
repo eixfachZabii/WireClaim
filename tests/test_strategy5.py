@@ -16,6 +16,7 @@ from src.strategies.strategy5.constants import (
     LOW_VALUE_THRESHOLD,
     MID_VALUE_FACTOR,
     MID_VALUE_THRESHOLD,
+    PRIMARY_UNINFORMED_FAIR_VALUE,
     STRATEGY_NAME,
     UNINFORMED_FAIR_VALUE,
 )
@@ -75,6 +76,23 @@ class CoherentFairValuePolicyTests(unittest.TestCase):
             (UNINFORMED_FAIR_VALUE, UNINFORMED_FAIR_VALUE),
         )
 
+    def test_primary_uninformed_path_uses_capital_loss_prior(self) -> None:
+        self.assertEqual(
+            price_evidence(band(), uninformed=True, primary_uninformed=True),
+            (PRIMARY_UNINFORMED_FAIR_VALUE, PRIMARY_UNINFORMED_FAIR_VALUE),
+        )
+
+    def test_confirmed_exclusion_wins_over_uninformed_primary_tier(self) -> None:
+        self.assertEqual(
+            price_evidence(
+                band(),
+                confirmed_uncovered=True,
+                uninformed=True,
+                primary_uninformed=True,
+            ),
+            (0.0, 0.0),
+        )
+
     def test_large_item_uses_strategy2_inspired_tail_factor(self) -> None:
         evidence = band(median=BIG_ITEM_THRESHOLD)
         charge, limit = price_evidence(evidence)
@@ -122,6 +140,21 @@ class Strategy5ProposalTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(result.prices[0].charge_price, 0.0)
         self.assertEqual(result.prices[0].acceptance_limit, 0.0)
+
+    def test_first_uninformed_invoice_position_gets_primary_prior(self) -> None:
+        missing = payload()
+        missing["items"] = [
+            {"index": 4, "price_median": None, "charge": 300, "limit": 35},
+            {"index": 9, "price_median": None, "charge": 300, "limit": 35},
+        ]
+
+        result = proposal_from_decisions(7, missing, {4, 9})
+
+        by_index = result.by_index()
+        self.assertEqual(by_index[4].charge_price, PRIMARY_UNINFORMED_FAIR_VALUE)
+        self.assertEqual(by_index[4].acceptance_limit, PRIMARY_UNINFORMED_FAIR_VALUE)
+        self.assertEqual(by_index[9].charge_price, UNINFORMED_FAIR_VALUE)
+        self.assertEqual(by_index[9].acceptance_limit, UNINFORMED_FAIR_VALUE)
 
     def test_zero_limit_rule_without_dash_quantity_is_not_an_exclusion(self) -> None:
         uncertain = payload()
