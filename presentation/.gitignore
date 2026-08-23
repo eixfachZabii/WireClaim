@@ -1,0 +1,8 @@
+# LaTeX build artefacts. writeup.pdf is deliberately NOT ignored -- it is the
+# deliverable the organisers read, and they should not need a TeX install.
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz

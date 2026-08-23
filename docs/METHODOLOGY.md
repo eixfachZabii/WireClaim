@@ -66,7 +66,7 @@ Replayed over the last 10 Games: **−80,266 → +102,817.**
 
 ## The negatives, which are the actual methodology
 
-**11 of 19 numbered hypotheses were measured and rejected**, each with the script that killed it:
+**12 of our 20 numbered hypotheses were measured and rejected**, each with the script that killed it:
 a global Charge multiplier (monotone loss), the exact expected-income argmax (loses in all 15
 cells), four separate attacks on the Limit (⅓ is the argmax), copying the best rival's ratios
 (−280k to −380k), more ensemble draws (draw noise is 1.1 % of the error).
@@ -94,11 +94,19 @@ unbounded *because* nobody rightfully rejected, which is selection on the answer
 
 ## Where we stand, honestly
 
-Rank lags the strategy. Games 1–25 ran before the current estimator existed and cost **322,595** —
-the whole of our deficit. Over the last twenty settled Games we are **2nd in the field by rate**
-(+17,302 per Game) while sitting 5th on season total, and the four teams above us on total are
-1st, 3rd, 4th and 5th by rate. We are not claiming that wins; we are saying the total measures
-when we started working and the rate measures what we built.
+Rank lags the strategy. **After nine Games we were 17th of 17 — last.** We are now **5th**, on
++231,298 weighted. Games 1–25 ran before the current estimator existed and cost **322,595**, which
+is larger than our entire current season net: the deficit *is* the learning curve.
+
+Judge the rate. Over the last twenty settled Games we are **2nd in the field** at **+6,897 per
+Game**, behind Codacabana's +12,253; over the 69 Games since the estimator existed we are **3rd of
+17 at +5,254**, within **4.3 %** of the field leader. And the variance is the part we would
+actually defend: **2 losing Games in the last 20, the worst of them −3,941**, against five teams
+carrying single Games worse than −80,000 — the **2nd-best risk-adjusted return in the field**
+(mean/σ = 0.72 against Codacabana's 0.83).
+
+We are not claiming that wins. The total measures when we started working; the rate measures what
+we built; the variance measures whether it is a machine or a lucky streak.
 
 The remaining gap is entirely `t̂`: **`a = b = t` reaches 100.3 % of the best possible play and is
 within 3 % on 70 of 70 Games**, while `a = b = t̂` scores −50,140. The 2,498,118 between them is

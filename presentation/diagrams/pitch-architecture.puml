@@ -1,0 +1,90 @@
+@startuml
+' WireClaim — the pitch diagram. ADR 0001 made visible.
+' Deliberately simpler than docs/diagrams/03-components.puml: this one is projected
+' for ~40 seconds, so it carries the ONE claim (evidence in, arithmetic out) and the
+' loop that closes it, and nothing else.
+!theme plain
+skinparam backgroundColor #0B0C0E
+skinparam shadowing false
+skinparam roundCorner 10
+skinparam defaultFontName "SF Mono, Menlo, Consolas, monospace"
+skinparam defaultFontSize 13
+skinparam defaultFontColor #E7E5E4
+skinparam ArrowColor #A8A29E
+skinparam ArrowFontColor #A8A29E
+skinparam ArrowFontSize 11
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam TitleFontSize 18
+skinparam TitleFontColor #E8B84B
+
+skinparam rectangle {
+  BackgroundColor #17191C
+  BorderColor #3F3F46
+  FontColor #E7E5E4
+}
+skinparam package {
+  BackgroundColor #0F1113
+  BorderColor #52525B
+  FontColor #A8A29E
+  FontSize 12
+}
+skinparam database {
+  BackgroundColor #17191C
+  BorderColor #E8B84B
+  FontColor #E7E5E4
+}
+skinparam note {
+  BackgroundColor #1C1917
+  BorderColor #E8B84B
+  FontColor #D6D3D1
+  FontSize 11
+}
+
+title The model reads. The engine prices.
+
+package "  ONE CASE, 60 SECONDS  " as CasePkg {
+  rectangle "policy.txt\ndescription.txt\ninvoices.pdf\n**no prices**" as Case
+}
+
+package "  EVIDENCE  —  language, never arithmetic  " as EvidencePkg {
+  rectangle "**Channel A**  invoice shape\nquantity printed as  - -\n⇒ p(covered) = 0" as ChA
+  rectangle "**Channel B**  Price Memory\nwordings watched settle\nlog error **0.43**" as ChB
+  rectangle "**Channel C**  the model\ncoverage probability +\nprice band + clause **quoted**" as ChC
+  ChA -[hidden]right- ChB
+  ChB -[hidden]right- ChC
+}
+
+package "  PRICING ENGINE  —  arithmetic, never language  " as EnginePkg {
+  rectangle "**blend**\ninverse-variance,\nlog space" as Blend
+  rectangle "**posterior over t**\n(1−p)·δ(0)  +  p·LogN(m, σ)" as Post
+  rectangle "**a** = k(σ) · m\n**b** = Q⅓(posterior)" as Price
+}
+
+rectangle "SUBMIT\n(a, b) per Line Item" as Submit
+
+database "SETTLED\nTRANSACTIONS" as Txn
+
+package "  THE LOOP  —  why every claim is a measurement  " as LoopPkg {
+  rectangle "**t-inversion**\nreject @ amount>0 ⇒ a ≤ t\nreject @ 0        ⇒ a > t" as Invert
+  rectangle "**replay harness**\nall 16 rivals held fixed\nnets reproduced **to the cent**" as Replay
+}
+
+Case -down-> ChA
+Case -down-> ChB
+Case -down-> ChC
+
+ChA -down-> Post : mass at 0
+ChB -down-> Blend
+ChC -down-> Blend
+Blend -down-> Post
+Post -down-> Price
+Price -down-> Submit
+Submit -right-> Txn : 16 opponents,\nboth roles
+
+Txn -up-> Invert
+Invert -right-> Replay
+Invert -up-> ChB : new anchors
+Replay -up-> Price : every constant\nis falsifiable
+
+@enduml

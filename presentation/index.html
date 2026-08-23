@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WireClaim — Bin busy — Claim to Fame</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   WireClaim pitch deck — "quant lab" 
+   One signal colour (amber). Monospace everywhere: the numbers
+   ARE the design, so nothing competes with them.
+   ============================================================ */
+:root{
+  --bg:#0B0C0E; --bg-2:#121417; --panel:#17191C;
+  --fg:#E7E5E4; --fg-2:#A8A29E; --fg-3:#6B6763;
+  --rule:#2A2D31;
+  --accent:#E8B84B;          /* the only signal colour */
+  --accent-dim:rgba(232,184,75,.14);
+  --pos:#7FB069; --neg:#C4553B;
+
+  --mono:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --title:clamp(1.9rem,5.6vw,4.4rem);
+  --h2:clamp(1.25rem,3.4vw,2.6rem);
+  --h3:clamp(.95rem,1.9vw,1.4rem);
+  --body:clamp(.72rem,1.32vw,1.02rem);
+  --small:clamp(.6rem,.92vw,.78rem);
+  --huge:clamp(2rem,7vw,5.5rem);
+
+  --pad:clamp(1.1rem,4.2vw,4.5rem);
+  --gap:clamp(.5rem,1.7vh,1.6rem);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{height:100%;scroll-behavior:smooth;scroll-snap-type:y mandatory;-webkit-text-size-adjust:100%}
+body{
+  height:100%;overflow-x:hidden;background:var(--bg);color:var(--fg);
+  font-family:var(--mono);font-weight:400;font-size:var(--body);
+  font-variant-ligatures:none;
+}
+/* faint grid — reads as graph paper, not decoration */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:64px 64px;
+}
+
+/* ---------- slide shell: exactly one viewport, never scrolls ---------- */
+.slide{
+  position:relative;z-index:1;
+  width:100vw;height:100vh;height:100dvh;overflow:hidden;
+  scroll-snap-align:start;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:var(--pad);
+}
+.slide-content{flex:1;display:flex;flex-direction:column;justify-content:center;max-height:100%;overflow:hidden;gap:var(--gap)}
+
+/* slide number + section marker, top-left, always */
+.marker{
+  position:absolute;top:calc(var(--pad)*.62);left:var(--pad);
+  font-size:var(--small);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--fg-3);display:flex;gap:.9em;align-items:baseline;
+}
+.marker b{color:var(--accent);font-weight:500}
+
+h1{font-size:var(--title);font-weight:800;letter-spacing:-.035em;line-height:.96}
+h2{font-size:var(--h2);font-weight:700;letter-spacing:-.025em;line-height:1.06}
+h3{font-size:var(--h3);font-weight:500;letter-spacing:-.01em;color:var(--fg)}
+p{color:var(--fg-2);line-height:1.55;max-width:62ch}
+strong{color:var(--fg);font-weight:700}
+em{color:var(--accent);font-style:normal;font-weight:500}
+.dim{color:var(--fg-3)}
+.rule{height:1px;background:var(--rule);width:100%}
+.accent-rule{height:2px;background:var(--accent);width:clamp(2rem,6vw,4.5rem)}
+
+/* ---------- the number, which is the point ---------- */
+.figure{font-size:var(--huge);font-weight:800;letter-spacing:-.05em;line-height:.9;font-variant-numeric:tabular-nums}
+.figure.pos{color:var(--pos)} .figure.neg{color:var(--neg)} .figure.acc{color:var(--accent)}
+.figure-label{font-size:var(--small);letter-spacing:.14em;text-transform:uppercase;color:var(--fg-3);margin-top:.7em}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:clamp(.7rem,2.4vw,2.4rem);align-items:end}
+.stat .n{font-size:clamp(1.3rem,3.4vw,2.9rem);font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1}
+.stat .n.pos{color:var(--pos)} .stat .n.neg{color:var(--neg)} .stat .n.acc{color:var(--accent)}
+.stat .l{font-size:var(--small);color:var(--fg-3);letter-spacing:.1em;text-transform:uppercase;margin-top:.6em;line-height:1.4}
+
+/* ---------- tables: the payoff matrix and the ledger ---------- */
+table{width:100%;border-collapse:collapse;font-size:var(--body);font-variant-numeric:tabular-nums}
+th,td{padding:.62em .8em;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-size:var(--small);letter-spacing:.11em;text-transform:uppercase;color:var(--fg-3);font-weight:500}
+th.math{text-transform:none;letter-spacing:.04em;font-size:var(--body)}
+td.num{text-align:right}
+tr.hi td{background:var(--accent-dim)}
+tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
+
+/* ---------- code / formula block ---------- */
+.code{
+  background:var(--panel);border:1px solid var(--rule);border-left:2px solid var(--accent);
+  padding:clamp(.7rem,1.7vw,1.4rem) clamp(.9rem,2vw,1.6rem);
+  font-size:clamp(.66rem,1.18vw,.95rem);line-height:1.72;color:var(--fg-2);
+  white-space:pre;overflow:hidden;
+}
+.code b{color:var(--fg);font-weight:700}
+.code .c{color:var(--fg-3)}
+.code .a{color:var(--accent)}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:clamp(.9rem,3vw,3rem);align-items:start}
+.cols.tight{gap:clamp(.7rem,2vw,1.8rem)}
+
+ul{list-style:none;display:flex;flex-direction:column;gap:clamp(.3rem,1.1vh,.85rem)}
+li{color:var(--fg-2);line-height:1.5;padding-left:1.4em;position:relative}
+li::before{content:'—';position:absolute;left:0;color:var(--accent)}
+li b{color:var(--fg)}
+
+.kicker{font-size:var(--small);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.note{font-size:var(--small);color:var(--fg-3);line-height:1.6;max-width:70ch}
+
+.diagram{display:flex;align-items:center;justify-content:center;min-height:0;flex:1}
+.diagram img{max-width:100%;max-height:min(58vh,560px);object-fit:contain}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .55s var(--ease),transform .55s var(--ease)}
+.slide.visible .reveal{opacity:1;transform:none}
+.slide.visible .reveal:nth-child(1){transition-delay:.05s}
+.slide.visible .reveal:nth-child(2){transition-delay:.13s}
+.slide.visible .reveal:nth-child(3){transition-delay:.21s}
+.slide.visible .reveal:nth-child(4){transition-delay:.29s}
+.slide.visible .reveal:nth-child(5){transition-delay:.37s}
+.slide.visible .reveal:nth-child(6){transition-delay:.45s}
+
+/* ---------- chrome ---------- */
+.progress{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:99;width:0;transition:width .25s var(--ease)}
+.dots{position:fixed;right:clamp(.5rem,1.4vw,1.3rem);top:50%;transform:translateY(-50%);z-index:98;display:flex;flex-direction:column;gap:.55rem}
+.dots button{width:6px;height:6px;border:0;border-radius:50%;background:var(--rule);cursor:pointer;padding:0;transition:background .2s,transform .2s}
+.dots button[aria-current="true"]{background:var(--accent);transform:scale(1.5)}
+.hint{position:fixed;bottom:clamp(.6rem,1.6vh,1.2rem);left:50%;transform:translateX(-50%);z-index:98;font-size:var(--small);color:var(--fg-3);letter-spacing:.1em;opacity:.55}
+
+/* ---------- responsive: shrink hard, never scroll ---------- */
+@media (max-height:760px){:root{--gap:clamp(.35rem,1.2vh,1rem);--pad:clamp(.9rem,3.2vw,2.6rem);--huge:clamp(1.7rem,5.6vw,4rem)}}
+@media (max-height:640px){:root{--title:clamp(1.4rem,4.4vw,2.6rem);--h2:clamp(1.05rem,2.8vw,1.8rem);--body:clamp(.66rem,1.1vw,.88rem);--huge:clamp(1.4rem,4.6vw,3rem)} .dots,.hint{display:none}}
+@media (max-height:520px){:root{--title:clamp(1.1rem,3.4vw,1.8rem);--h2:.95rem;--body:.68rem;--small:.56rem;--pad:.8rem;--huge:1.5rem} .note{display:none}}
+@media (max-width:620px){.cols{grid-template-columns:1fr} table{font-size:var(--small)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<nav class="dots" id="dots" aria-label="Slide navigation"></nav>
+<div class="hint">← → to navigate</div>
+<main id="deck">
+<!-- ============================ TITLE ============================ -->
+<section class="slide" style="justify-content:flex-end">
+  <div class="slide-content" style="flex:0 0 auto;gap:clamp(.5rem,2vh,1.4rem)">
+    <div class="accent-rule reveal"></div>
+    <h1 class="reveal">WireClaim</h1>
+    <h3 class="reveal dim" style="max-width:70ch">We stopped guessing what a claim is worth,<br>and started <em>measuring what it turned out to be worth.</em></h3>
+    <div class="rule reveal" style="margin-top:clamp(.6rem,2vh,1.6rem)"></div>
+    <div class="reveal" style="display:flex;gap:clamp(1rem,4vw,4rem);flex-wrap:wrap;font-size:var(--small);letter-spacing:.12em;text-transform:uppercase;color:var(--fg-3)">
+      <span>Team <b style="color:var(--accent)">Bin busy</b></span>
+      <span>QuantCo · Claim to Fame · Track 1</span>
+      <span>Munich Agentic Hackathon · 23 Aug 2026</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ ACT 1 ============================ -->
+<section class="slide">
+  <div class="marker"><b>01</b><span>The solution</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">The game, and the row everybody skips</div>
+    <h2 class="reveal">Per Line Item we set a Charge <em>a</em> and a Limit <em>b</em><br>against a secret Fair Value <em>t</em>.</h2>
+    <table class="reveal">
+      <tr><th></th><th class="math"><em>a ≤ t</em> <span class="dim">— the Charge is fair</span></th><th class="math"><em>a &gt; t</em> <span class="dim">— the Charge is an Overcharge</span></th></tr>
+      <tr class="hi"><td><b>rejected</b><br><span class="dim">a &gt; b</span></td>
+          <td><b>reviewer pays 1.5a · issuer still gets a</b></td>
+          <td>nothing happens</td></tr>
+      <tr><td><b>accepted</b><br><span class="dim">a ≤ b</span></td>
+          <td>reviewer pays a · issuer gets a</td>
+          <td>reviewer pays min(a,c) · issuer gets min(a,c)</td></tr>
+    </table>
+    <p class="reveal"><strong>Read the highlighted row again.</strong> A <em>fair</em> Charge is owed by every opponent — their Limit is irrelevant. An <em>Overcharge</em> is paid only by the few who accept. So the Charge is <strong>a cliff, not a slope</strong>, and crossing <em>t</em> costs roughly 5× the income.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>02</b><span>The solution</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">What the cliff is worth — Game 62, Line Item 1, t ∈ [8505, 10350)</div>
+    <table class="reveal">
+      <tr><th>team</th><th class="num">Charge</th><th class="num">who paid</th><th class="num">income, that one item</th></tr>
+      <tr class="hi"><td><b>error404 ai</b></td><td class="num">8,504.71</td><td class="num"><b>16 / 16</b></td><td class="num"><b>136,075</b></td></tr>
+      <tr><td>us</td><td class="num">10,349.89</td><td class="num">3 / 16</td><td class="num">31,050</td></tr>
+    </table>
+    <h2 class="reveal">They did not out-read the policy.<br>They charged <em>22 % lower</em> and landed on the right side of a cliff.</h2>
+    <p class="reveal">That one item was <strong>87 % of their entire Game</strong>. The whole contest is one question — <em>where is t?</em> — and everything downstream of it is arithmetic we can derive.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>03</b><span>The solution · the unlock</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">t is secret. t is also exactly recoverable.</div>
+    <h2 class="reveal">The published Transactions <em>invert</em>.</h2>
+    <div class="code reveal"><span class="c">a settled Transaction, rejected, carrying a non-zero amount</span>
+   → it was a <b>wrongful</b> rejection   → <span class="a">proves  a ≤ t</span>   and reveals a
+
+<span class="c">a settled Transaction, rejected, at zero</span>
+   → the Charge was an Overcharge  → <span class="a">proves  a &gt; t</span>
+
+<span class="c">together, for every Line Item ever played:</span>   <b>t ∈ [ a_max_fair , a_min_fraud )</b></div>
+    <div class="stats reveal">
+      <div class="stat"><div class="n acc">52,224</div><div class="l">settled rows inverted</div></div>
+      <div class="stat"><div class="n acc">100 %</div><div class="l">published nets reproduced to the cent</div></div>
+      <div class="stat"><div class="n acc">16</div><div class="l">rivals held fixed in every replay</div></div>
+    </div>
+    <p class="reveal">This is the whole entry. Once <em>t</em> is known after the fact, a counterfactual stops being an argument and becomes <strong>a measurement</strong>. We asked the organisers whether inference from published results was allowed. It is.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>04</b><span>The solution · architecture</span></div>
+  <div class="slide-content" style="gap:clamp(.3rem,1vh,.8rem)">
+    <div class="kicker reveal">ADR 0001 — the one rule the whole codebase obeys</div>
+    <h2 class="reveal">The model reads. The engine prices.</h2>
+    <div class="diagram reveal"><img src="diagrams/pitch-architecture.svg" alt="WireClaim architecture: evidence channels feed a deterministic pricing engine; settled Transactions close the loop"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>05</b><span>The solution · architecture</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">Why that seam, and not a smarter prompt</div>
+    <div class="cols">
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <h3 class="reveal">No model output is ever a price.</h3>
+        <ul class="reveal">
+          <li>Models emit <b>structured evidence</b> — a coverage probability, a price band, and the policy clause <b>quoted verbatim</b>.</li>
+          <li>Deterministic code turns evidence into a posterior, and the posterior into <b>(a, b)</b>.</li>
+          <li>A prompt that emits a number cannot be swept, folded or replayed. <b>A prompt that emits evidence can</b> — pricing becomes a pure function we re-run over the entire record in a minute.</li>
+          <li>Every constant in the engine is a hypothesis with <b>a falsifier written next to it</b>.</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <h3 class="reveal">And it means there is something underneath.</h3>
+        <div class="code reveal"><span class="c">Games 82–89, all triple-weighted</span>
+model endpoint → <b>401 on every call</b>
+model_draws = <b>0</b>
+
+blind floor posted at T+0
+Price Memory priced what it knew
+fitted constants covered the rest
+
+<span class="c">banked anyway:</span>  <span class="a">+254,092</span> weighted</div>
+        <p class="reveal note"><strong>We did not notice until afterwards.</strong> That is the point: the architecture degrades instead of failing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>06</b><span>The solution · the arithmetic</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">Every scored number, in four steps — one module, no model in sight</div>
+    <div class="code reveal"><span class="c">1  BLEND — two model draws + the Price Memory anchor, inverse-variance, log space</span>
+   log m = Σ wᵢ·log mᵢ / Σ wᵢ        w = 1/σᵢ²    σ_mem <b>0.43</b>  ·  σ_model <b>0.60</b>
+
+<span class="c">2  POSTERIOR — coverage is not a branch, it is probability mass at zero</span>
+   P(t) = (1 − p)·δ(0)  +  p·LogNormal(log m, σ)      σ = log(hi/lo) / (2·1.645)
+
+<span class="c">3  CHARGE — maximise k·P(t ≥ k·m). Falls with the error, never approaches 1.</span>
+   <b>a = k(σ) · m</b>          k = clamp(0.85 − 0.45·σ, 0.30, 0.80)
+
+<span class="c">4  LIMIT — accept iff a &lt; 1.5a·P(fair), i.e. P(fair) &gt; ⅔. So b is the ⅓ quantile.</span>
+   <b>b = Q<span class="a">⅓</span>(P)</b>   → if p ≤ ⅔ the bottom third <b>is</b> the spike at zero, so b = 0 by itself
+   then  b = min(b, ceiling·m)      ceiling <b>1.00</b> memory-backed · <b>0.45</b> model-only</div>
+    <p class="reveal note">The <em>⅓</em> is derived, not tuned: rejecting a fair claim costs <em>1.5a</em>, rejecting a fraudulent one costs nothing, so the indifference point is exactly two-thirds. Four separate attacks on it were measured and lost.</p>
+  </div>
+</section>
+
+<!-- ============================ ACT 2 ============================ -->
+<section class="slide">
+  <div class="marker"><b>07</b><span>The demo</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">One Game. 60 seconds. Unattended, 100 times, every 12.6 minutes.</div>
+    <h2 class="reveal">Half the tournament ran while everyone was asleep.</h2>
+    <div class="code reveal"><span class="a">T+0.0s</span>   <b>blind floor</b> — 40 indices posted <span class="c">before the decryption key is even fetched</span>
+<span class="a">T+0→3s</span>  fetch key · 7z decrypt · parse invoices.pdf <span class="c">(quantity, "- -" markers)</span>
+<span class="a">T+3.0s</span>   deterministic layer publishes over the floor
+<span class="a">T+3→50s</span> two model draws race a per-item coverage detector <span class="c">on the sliced policy</span>
+<span class="a">T+50s</span>  engine prices · <b>merged per Line Item</b> <span class="c">— partial output is never discarded</span>
+<span class="a">T+60s</span>  window closes · decision log written <span class="c">(what we believed, before any outcome)</span></div>
+    <div class="stats reveal">
+      <div class="stat"><div class="n">71 %</div><div class="l">break-even uptime — a smart bot needs that much to tie a dumb one that never misses</div></div>
+      <div class="stat"><div class="n">93t</div><div class="l">value of rescuing one Game</div></div>
+      <div class="stat"><div class="n">37t</div><div class="l">value of improving one Game</div></div>
+      <div class="stat"><div class="n acc">2.5×</div><div class="l">showing up beats being right</div></div>
+    </div>
+    <p class="reveal note"><strong>The default submission is an incident, never a fallback.</strong> a = 0, b = 0 does not score zero — b = 0 wrongfully rejects every fair claim, so a dark team pays 1.5a to every awake opponent, on every item, every Game. Any plausible number beats it.</p>
+  </div>
+</section>
+
+<!-- ============================ ACT 3 ============================ -->
+<section class="slide">
+  <div class="marker"><b>08</b><span>The proof</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">The bar every change had to clear</div>
+    <h2 class="reveal">Nothing shipped on an argument.</h2>
+    <div class="cols tight">
+      <ul class="reveal">
+        <li><b>Replay harness.</b> Score any hypothetical submission against the real Field, all sixteen opponents held fixed.</li>
+        <li><b>Its self-check is a test, not a comment.</b> It asserts our <i>actual</i> submission reproduces the authoritative net for every settled Game. Without that, no number means anything.</li>
+        <li><b>Positive on all four folds</b> — odd, even, early, late — not merely positive in total.</li>
+      </ul>
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <div class="reveal"><div class="figure acc">26,622</div><div class="figure-label">measured noise floor over 18 Games with an identical prompt</div></div>
+        <p class="reveal note">Scaling as √n, that is <strong>±6,275 for a single Game</strong> — which is why no single Game ever justified a change, however vivid it looked at 4 a.m.</p>
+        <p class="reveal note"><strong>Attribution before amount.</strong> The decision log records what the runner believed <em>before</em> seeing any outcome. Joined against the recovered <em>t</em>, it names <em>the stage that was wrong</em>. "We lost 8,975" is not actionable; <em>estimate-too-low on item 3</em> is.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>09</b><span>The proof</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">What actually moved money — two constants, both on the Charge</div>
+    <table class="reveal">
+      <tr><th>change</th><th>mechanism</th><th class="num">measured</th></tr>
+      <tr><td><b>BIG_ITEM_CHARGE_SCALE</b><br><span class="dim">1.25 → 1.0</span></td>
+          <td>nine Line Items move from Overcharge to fair — <b>and none move the other way</b></td>
+          <td class="num"><b style="color:var(--pos)">+79,240</b><br><span class="dim">63 Games</span></td></tr>
+      <tr><td><b>CHARGE_TRUST_MEMORY</b><br><span class="dim">= 1.15</span></td>
+          <td>raise the Charge <b>only</b> where a wording has been watched settle</td>
+          <td class="num"><b style="color:var(--pos)">+80,613</b><br><span class="dim">4 / 4 folds</span></td></tr>
+      <tr class="hi"><td><b>the control</b></td>
+          <td>do the identical thing to the <i>model</i> channel instead</td>
+          <td class="num"><b style="color:var(--neg)">−95,061</b><br><span class="dim">0 / 4 folds</span></td></tr>
+      <tr><td><b>released <code>b ≤ a</code></b><br><span class="dim">Game 66</span></td>
+          <td>a clamp that looked free: it pinned the Limit to the Charge and wrongfully rejected <b>fair</b> claims</td>
+          <td class="num"><b style="color:var(--pos)">+19,273</b><br><span class="dim">4 / 4 folds</span></td></tr>
+    </table>
+    <p class="reveal">The control is what makes it <strong>a channel effect</strong> rather than "charge more". A memory-backed wording has a measured log error of <em>0.43</em>; the model's realised error over the same Games is <em>1.66 – 2.20</em>. We trust the channel that has been watched settle.</p>
+    <div class="reveal" style="display:flex;align-items:baseline;gap:clamp(.6rem,2vw,1.6rem);flex-wrap:wrap">
+      <span class="figure neg" style="font-size:clamp(1.3rem,3.4vw,2.6rem)">−80,266</span>
+      <span class="dim" style="font-size:var(--h3)">→</span>
+      <span class="figure pos" style="font-size:clamp(1.3rem,3.4vw,2.6rem)">+102,817</span>
+      <span class="figure-label" style="margin:0">replayed over the last 10 Games</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>10</b><span>The proof</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">The negatives, which are the actual methodology</div>
+    <h2 class="reveal"><em>12 of our 20</em> numbered hypotheses were measured and <em>rejected</em>.</h2>
+    <table class="reveal">
+      <tr><th>hypothesis</th><th>verdict</th></tr>
+      <tr><td>A global Charge multiplier below 1.0</td><td>monotone loss, −118,049 at ×0.9</td></tr>
+      <tr><td>The exact argmax of expected income</td><td>loses in <b>all 15 cells</b> of the sweep</td></tr>
+      <tr><td>Move the Limit off the derived ⅓</td><td>⅓ <b>is</b> the argmax — four separate attacks</td></tr>
+      <tr><td>Copy the best rival's a/t and b/t ratios</td><td><b>−280,000 to −380,000</b> on our own t̂</td></tr>
+      <tr><td>More ensemble draws / a "swarm"</td><td>draw noise is <b>1.1 %</b> of the error</td></tr>
+      <tr class="hi"><td>A coverage recalibration p<sup>0.7</sup></td><td><b>shipped, then reverted 20 minutes later</b></td></tr>
+    </table>
+    <p class="reveal note">Each one names the script that killed it. The count of hypotheses we <strong>rejected</strong> is the best evidence we have that the ones we kept are real.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>11</b><span>The proof</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">The one we shipped and took back out — 20 minutes, in the last hour</div>
+    <div class="cols tight">
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <h3 class="reveal">It passed every test we had.</h3>
+        <ul class="reveal">
+          <li>A genuine calibration table: items stated <b>0.20–0.40</b> were 62 % covered, items stated <b>0.60–0.80</b> were 93 %.</li>
+          <li><b>Positive on all four folds</b>, no negative cell in any window. <b>+5,057.</b></li>
+        </ul>
+        <h3 class="reveal">Then we checked the <em>mechanism</em>.</h3>
+        <ul class="reveal">
+          <li>The model's coverage output is <b>bimodal</b> — it says 0.01, or it says 0.9.</li>
+          <li>An item must already sit in (0.560, 0.667] for the correction to change anything. <b>4 of 573 do.</b></li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <table class="reveal">
+          <tr><th>stated coverage</th><th class="num">items</th><th class="num">share</th></tr>
+          <tr><td>0.00 – 0.05</td><td class="num">157</td><td class="num">27.4 %</td></tr>
+          <tr class="hi"><td>0.56 – 0.67</td><td class="num"><b>4</b></td><td class="num"><b>0.7 %</b></td></tr>
+          <tr><td>0.80 – 1.01</td><td class="num">333</td><td class="num">58.1 %</td></tr>
+        </table>
+        <p class="reveal">The +5,057 was <strong>not the documented mechanism at all</strong> — it was the same exponent nudging the Limit up on the 333 confident items. A Limit raise wearing a calibration costume.</p>
+        <p class="reveal note"><strong>Two lessons.</strong> A constant can be right about its data and wrong about its mechanism. And the four-fold bar has a hole: folds catch a result driven by a few <em>Games</em>, never one driven by a few <em>items</em>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>12</b><span>The proof · discipline</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">Two traps that each cost a full working session</div>
+    <div class="cols tight">
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <h3 class="reveal"><em>1.</em> Conditioning on the outcome</h3>
+        <p class="reveal">Bucket items by what they <strong>turned out</strong> to be worth and strictness pays 9.9 : 1 under €100 and loses above €500 — a compelling case for raising the Limit on expensive items.</p>
+        <p class="reveal">Bucket by <em>t̂</em>, the only split knowable at submission time, and <strong>the gradient collapses</strong>. Of 23 items we believed were worth over 2,000, <em>14 turned out to be worth under half that.</em></p>
+        <p class="reveal note">Every rule built on the first table loses money. Never condition on the answer.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <h3 class="reveal"><em>2.</em> Censoring</h3>
+        <p class="reveal">44 of 192 items have no upper bracket. An interval is unbounded <strong>precisely because nobody rightfully rejected</strong> — which correlates with the item being expensive.</p>
+        <p class="reveal">So any statistic conditioned on "censored" is selection on the answer, and <strong>every σ we quote is optimistic.</strong> We say so rather than quoting the flattering number.</p>
+        <p class="reveal note">Same discipline killed a tempting story: the 8 dark Games <em>look</em> like proof the model channel is dead weight (28.4 % capture dark vs 17.5 % live). A permutation test over 200,000 shuffles returns <b>p = 0.208</b>. "Measurably better channel" and "switch the other one off" are different claims, and only the first is evidenced.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="slide">
+  <div class="marker"><b>13</b><span>The proof · standing</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">Where we stand, honestly</div>
+    <h2 class="reveal">After nine Games we were <em>17th of 17</em>. Last.<br>We are <em>5th</em> — and the total is still the wrong number.</h2>
+    <div class="code reveal"><span class="c">Games  1 – 25</span>   <span style="color:#C4553B">−322,595</span>  <span class="c">the estimator did not exist yet</span>
+              <span class="c">— larger than our entire current season net. The deficit IS the learning curve.</span>
+
+<span class="c">Games 26 – 94</span>   <span style="color:#7FB069">+362,531</span>  <span class="c">= </span><span class="a">+5,254 / Game</span><span class="c">  →  3rd of 17, within 4.3 % of the leader</span>
+<span class="c">Games 75 – 94</span>   <span style="color:#7FB069">+137,942</span>  <span class="c">= </span><span class="a">+6,897 / Game</span><span class="c">  →  </span><b>2nd of 17 by rate</b></div>
+    <p class="reveal">We sit <strong>5th on season total</strong>, on +231,298 weighted. The total measures <em>when we started working</em>. The rate measures <em>what we built</em>.</p>
+    <p class="reveal note">Both are on the public leaderboard. We would rather tell you which is which than quote you the flattering one.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>13b</b><span>The proof · what we are best at</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">The number we would actually defend is not the rate. It is the variance.</div>
+    <div class="stats reveal">
+      <div class="stat"><div class="n acc">2 / 20</div><div class="l">losing Games in the last twenty</div></div>
+      <div class="stat"><div class="n acc">−3,941</div><div class="l">our worst Game of those twenty</div></div>
+      <div class="stat"><div class="n acc">0.72</div><div class="l">mean ÷ σ — 2nd-best risk-adjusted return in the field</div></div>
+      <div class="stat"><div class="n acc">4 / 30</div><div class="l">losing Games over thirty — fewest of any team</div></div>
+    </div>
+    <div class="rule reveal"></div>
+    <p class="reveal"><strong>Five teams carry a single Game worse than −80,000.</strong> One team matches our two losing Games — and one of theirs cost 84,014. Our deepest hole in thirty Games is <em>−9,720</em>.</p>
+    <p class="reveal">That is what the ⅓ Limit, the blind floor and the supervisor buy. Not a bigger number — <strong>a narrower distribution</strong>, which in an insurance book is the number that matters.</p>
+    <p class="reveal note">Stated against ourselves: our accept rate is 46.5 % against a field median of 47.5 %. That is <em>not</em> a differentiator and we are not pitching it as one.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>13c</b><span>The proof · R10 on the record</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">We predicted this on day one, then watched it happen to a real opponent</div>
+    <h2 class="reveal">A team that goes dark is not neutral.<br>It is a <em>money fountain</em>.</h2>
+    <p class="reveal">With <em>b = 0</em> you wrongfully reject every fair claim, so you pay <em>1.5a</em> to every awake opponent, on every Line Item, every Game. We wrote that down as R10 before the tournament started, and built the blind floor because of it.</p>
+    <table class="reveal">
+      <tr><th class="math">team <b>makalu</b>, across all 94 Games</th><th class="num"></th></tr>
+      <tr class="hi"><td>collected from us</td><td class="num"><b>0.00</b></td></tr>
+      <tr><td>paid to us</td><td class="num"><b style="color:var(--pos)">179,992.64</b></td></tr>
+      <tr><td>collected from <i>anyone</i>, all season</td><td class="num"><b>0.00</b></td></tr>
+    </table>
+    <p class="reveal note">They are our single largest source of income and they have never earned a cent. This is why <strong>the default submission is an incident, never a fallback</strong> — and why a supervisor restarts our runner on any crash. Break-even uptime is 71 %; showing up is 2.5× being right.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>14</b><span>The proof · the ceiling</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">Where the remaining money actually is</div>
+    <div class="cols tight" style="align-items:center">
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <div class="reveal"><div class="figure pos">100.3 %</div><div class="figure-label">of the best possible play reached by a = b = t &nbsp;·&nbsp; within 3 % on <b>70 of 70</b> Games</div></div>
+        <div class="reveal"><div class="figure neg">−50,140</div><div class="figure-label">scored by the identical rule on our estimate: a = b = t̂</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <h2 class="reveal">The <em>2,498,118</em> between those two lines is not strategy.</h2>
+        <p class="reveal">It is <strong>estimation error</strong>, and nothing else. Every decision rule has now been swept from several directions and sits at its measured optimum — the best constant available anywhere in a full sweep moves the total by ~18k.</p>
+        <p class="reveal note">Which is exactly why we stopped looking for cleverness in the decision rules. The remaining headroom is not reachable by a constant; it is reachable only by reading the policy better.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="marker"><b>15</b><span>Close</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">What we would build next, in order — and what we deliberately did not</div>
+    <ul class="reveal">
+      <li><b>Clause 7.1.5, the half the model does not read.</b> Indemnity is confined to the affected parts, <i>but</i> "where an affected room was wetted as a whole, the whole of that room is treated as affected". The model reads only the first half. Game 74 returned coverage 0.01–0.05 on <b>20 of 31</b> Line Items for <b>€41,710 — 87 % of that Game's penalties</b>.</li>
+      <li><b>We diagnosed it and did not ship it.</b> Perfect coverage is worth <b>+1,173 per Game</b>, but it is a prompt change, it could not be validated without spending the live runner's quota, and it would have landed six Games before the 3× window with no way to tell a fix from a regression. <i>That call is in the write-up, not hidden.</i></li>
+      <li><b>Carry an invoice id per Line Item</b> — turns a leaky ordinal heuristic into a deterministic rule.</li>
+      <li><b>Calibrate the band.</b> The model asserts a median σ of 0.375 against a realised error near 1.0, and the asserted width does not even <i>order</i> the realised error.</li>
+    </ul>
+    <div class="rule reveal"></div>
+    <p class="reveal">Every number in this deck is reproducible from a script in the repository. <strong>No claim data is checked in</strong> — not the Cases, not the invoices, and not the four derived paths that would reproduce them.</p>
+  </div>
+</section>
+
+<section class="slide" style="justify-content:flex-end">
+  <div class="slide-content" style="flex:0 0 auto;gap:clamp(.5rem,2vh,1.4rem)">
+    <div class="accent-rule reveal"></div>
+    <h1 class="reveal">The model reads.<br>The engine prices.<br><span class="dim">The record decides.</span></h1>
+    <div class="rule reveal" style="margin-top:clamp(.6rem,2vh,1.4rem)"></div>
+    <div class="reveal cols tight" style="font-size:var(--small);color:var(--fg-3)">
+      <div><b style="color:var(--accent)">t-inversion</b><br>every counterfactual is a measurement</div>
+      <div><b style="color:var(--accent)">four folds + a measured noise floor</b><br>26,622 — nothing ships inside it</div>
+      <div><b style="color:var(--accent)">11 of 19 hypotheses killed</b><br>one of them twenty minutes after it shipped</div>
+    </div>
+    <div class="reveal" style="margin-top:clamp(.4rem,1.4vh,1rem);font-size:var(--small);letter-spacing:.12em;text-transform:uppercase;color:var(--fg-3)">
+      Team <b style="color:var(--accent)">Bin busy</b> &nbsp;·&nbsp; WireClaim &nbsp;·&nbsp; QuantCo Claim to Fame
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ============================================================
+   Deck controller. Slides are declared as data below so the
+   content stays readable and editable in one place — the same
+   reason the pricing engine is a pure function of evidence.
+   ============================================================ */
+class Deck{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.i=0;
+    this.buildDots();
+    this.observe();
+    this.bind();
+    this.slides[0]?.classList.add('visible');
+  }
+  buildDots(){
+    const n=document.getElementById('dots');
+    this.slides.forEach((s,i)=>{
+      const b=document.createElement('button');
+      b.setAttribute('aria-label','Slide '+(i+1));
+      b.onclick=()=>this.go(i);
+      n.appendChild(b);
+    });
+    this.dots=[...n.children];
+    this.mark(0);
+  }
+  /* Intersection Observer drives both the reveal animation and the
+     progress chrome, so there is one source of "which slide are we on". */
+  observe(){
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('visible');
+          const i=this.slides.indexOf(e.target);
+          if(i>-1){this.i=i;this.mark(i);}
+        }
+      });
+    },{threshold:.55});
+    this.slides.forEach(s=>io.observe(s));
+  }
+  mark(i){
+    this.dots.forEach((d,j)=>d.setAttribute('aria-current',j===i?'true':'false'));
+    document.getElementById('progress').style.width=((i+1)/this.slides.length*100)+'%';
+  }
+  go(i){
+    i=Math.max(0,Math.min(this.slides.length-1,i));
+    this.slides[i].scrollIntoView({behavior:'smooth'});
+  }
+  bind(){
+    addEventListener('keydown',e=>{
+      if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();this.go(this.i+1);}
+      if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.go(this.i-1);}
+      if(e.key==='Home'){e.preventDefault();this.go(0);}
+      if(e.key==='End'){e.preventDefault();this.go(this.slides.length-1);}
+    });
+    let y0=null;
+    addEventListener('touchstart',e=>y0=e.touches[0].clientY,{passive:true});
+    addEventListener('touchend',e=>{
+      if(y0===null)return;
+      const dy=y0-e.changedTouches[0].clientY;
+      if(Math.abs(dy)>60)this.go(this.i+(dy>0?1:-1));
+      y0=null;
+    },{passive:true});
+  }
+}
+addEventListener('DOMContentLoaded',()=>new Deck());
+</script>
+</body>
+</html>

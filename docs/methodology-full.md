@@ -110,8 +110,9 @@ about its mechanism**, and only the mechanism check caught it.
 
 **`CHARGE_TRUST_MEMORY = 1.15`.** The Charge was the only number in the engine that ignored
 *which channel produced the estimate*. The Limit had trusted Price Memory over the model since
-Game 37 (`LIMIT_CEILING_MEMORY` 0.75 against 0.45, worth +40,791) because a memory-backed wording
-has been *watched settle*. Measured log errors: **0.43 for memory against 0.6 for the model
+Game 37 (`LIMIT_CEILING_MEMORY` 0.45 → 0.75 at Game 37, worth +40,791, and → **1.00** at Game 66)
+because a memory-backed wording has been *watched settle*. The same Game 66 change **released the
+`b ≤ a` clamp** — worth +19,273 over 65 Games on all four folds, and it binds on 33 % of items. Measured log errors: **0.43 for memory against 0.6 for the model
 prior**, and the model's realised error is worse than its own prior (RMSLE 1.66 / 1.82 / 2.20
 over Games 26–40 / 41–55 / 56–64). Raising the Charge 15 % on memory-backed items only:
 **+80,613, positive on all four folds.**
@@ -126,8 +127,8 @@ channel instead is **−95,061 and 0/4**, and a global ×1.10 is −27,185 and n
 
 ## 5. The negatives, which are the actual methodology
 
-The ledger holds 19 numbered hypotheses: 4 shipped, **11 measured and rejected**, the rest
-open or dormant. A representative selection of the rejections, each with the script that killed
+The ledger holds 20 numbered hypotheses: 4 shipped, **12 measured and rejected**, 2 partly
+falsified, 2 open and 1 dormant. A representative selection of the rejections, each with the script that killed
 it:
 
 | hypothesis | verdict |
@@ -282,7 +283,7 @@ the argument needs them, as citation rather than as an archive.
 
 ```bash
 set -a && . .env && set +a
-pixi run test                                              # 416 tests, including the replay self-check
+pixi run test                                              # 417 tests, including the replay self-check
 PYTHONPATH=. pixi run python scripts/invert_fair_values.py --verify        # every net, to the cent
 PYTHONPATH=. pixi run python scripts/experiments/big_charge_floor_sweep.py # §4, first change
 PYTHONPATH=. pixi run python scripts/experiments/memory_charge_trust.py    # §4, second change
