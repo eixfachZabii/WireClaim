@@ -640,7 +640,38 @@ def _counterfactual_lines(cf: dict) -> list[str]:
                 f"— t_hat {t_hat} [{driver['bucket']}], t in [{driver['t_lo']:.0f}, {t_hi})"
             )
     elif cf.get("strategies"):
-        lines += ["", "_Only one strategy was recorded, so there is nothing to compare against._"]
+        # Three states reach here and they are not the same thing. This branch used to assert
+        # the first one unconditionally, so a Game that recorded strategy2, strategy4 and
+        # strategy5 -- and printed all three, with their nets, four lines above -- was followed
+        # by "Only one strategy was recorded". `best_alternative` was set; what was empty was
+        # `drivers`, because the best alternative priced every Line Item identically to the
+        # winner and so no item *drove* a difference.
+        scored = {
+            source: data["net"]
+            for source, data in cf["strategies"].items()
+            if data.get("net") is not None
+        }
+        winner = cf.get("winner")
+        others = {s: n for s, n in scored.items() if s != winner}
+        if len(scored) < 2 or winner not in scored:
+            lines += [
+                "",
+                "_Only one strategy was recorded, so there is nothing to compare against._",
+            ]
+        elif all(abs(net - scored[winner]) < 0.01 for net in others.values()):
+            lines += [
+                "",
+                f"_Every other track priced this Case identically to `{winner}` "
+                f"({', '.join(sorted(others))}), so there is no difference to attribute._",
+            ]
+        else:
+            ranked = sorted(others.items(), key=lambda kv: -kv[1])
+            lines += [
+                "",
+                f"_No alternative beat `{winner}` on this Case:_ "
+                + ", ".join(f"`{s}` {net - scored[winner]:+,.0f}" for s, net in ranked)
+                + ". _One Game never justifies a change either way._",
+            ]
     return lines
 
 
