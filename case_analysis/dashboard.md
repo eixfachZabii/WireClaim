@@ -37,17 +37,6 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 
 | game | item | name | a (actual) | b (actual) | t (derived) | a/t | b/t | item net | source |
 |---|---|---|---|---|---|---|---|---|---|
-| 60 | 1 | Speaker system (surge damaged) (1 pcs) | 281.49 | 281.49 | 140.75 | 2.00 | 2.00 | 3,659.37 | submitted |
-| 60 | 2 | Premium replacement TV set (larger, higher-end than (1 pcs) | 2,065.13 | 708.00 | 544.30 | 3.79 | 1.30 | -1,768.76 | submitted |
-| 60 | 3 | HDMI cables and connectors | 64.06 | 0.00 | 2.64 | 24.27 | 0.00 | 0.00 | submitted |
-| 60 | 4 | Wall-mount bracket | 64.06 | 0.00 | 2.80 | 22.88 | 0.00 | 0.00 | submitted |
-| 60 | 5 | Remote control | 64.06 | 0.00 | 2.28 | 28.10 | 0.00 | 0.00 | submitted |
-| 60 | 6 | Games console (switched off and unplugged at the | 64.06 | 0.00 | 0.00 | - | - | 0.00 | submitted |
-| 60 | 7 | Shipping (1 pcs) | 26.95 | 0.00 | 0.00 | - | - | 0.00 | submitted |
-| 60 | 8 | Installation (1 pcs) | 264.26 | 0.00 | 22.50 | 11.74 | 0.00 | 0.00 | submitted |
-| 60 | 9 | Diagnostic inspection and surge-failure report for (2 pcs) | 418.48 | 0.00 | 15.50 | 27.00 | 0.00 | 0.00 | submitted |
-| 60 | 10 | Wiring safety check of property distribution board | 64.06 | 0.00 | 13.50 | 4.75 | 0.00 | 192.18 | submitted |
-| 60 | 11 | Vehicle costs (1 pcs) | 51.75 | 0.00 | 1.45 | 35.81 | 0.00 | 155.25 | submitted |
 | 61 | 1 | Painting the disturbed wall area and closing the wall (1   pcs) | 680.33 | 425.12 | 680.33 | 1.00 | 0.62 | 3,358.26 | submitted |
 | 61 | 2 | Vehicle costs (1   flat rate) | 50.34 | 50.34 | 78.85 | 0.64 | 0.64 | -189.54 | submitted |
 | 61 | 3 | Sealing material (1   pcs) | 15.98 | 15.98 | 24.46 | 0.65 | 0.65 | 31.33 | submitted |
@@ -127,12 +116,12 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 | 69 | 6 | - | - | 0.00 | 0.00 | - | - | 0.00 | reconstructed |
 | 69 | 7 | - | 395.01 | 32.50 | 32.50 | 12.15 | 1.00 | 395.01 | reconstructed |
 | 69 | 8 | - | 24.66 | 4.00 | 4.00 | 6.17 | 1.00 | 49.32 | reconstructed |
+| 70 | 1 | - | 1,058.30 | 669.21 | 1,400.00 | 0.76 | 0.48 | 3,361.93 | reconstructed |
 
 Net per round:
 
 | game | net |
 |---|---|
-| 60 | 2,238.04 |
 | 61 | 4,131.32 |
 | 62 | -17,275.69 |
 | 63 | -3,832.01 |
@@ -142,6 +131,7 @@ Net per round:
 | 67 | 13,414.89 |
 | 68 | -9,719.85 |
 | 69 | 7,024.65 |
+| 70 | 3,361.93 |
 <!-- OURVALUES:END -->
 
 ## Number tables
