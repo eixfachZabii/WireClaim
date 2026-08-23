@@ -1,0 +1,54 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "7c218694aed4",
+  "session_id": "1c98bfc4-a82f-45c8-bfd8-fbc75be71b50",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-23T09:44:22.891896Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "WRITEUP.md",
+    "presentation/index.html",
+    "presentation/slides.pdf",
+    "presentation/writeup-full.pdf",
+    "presentation/writeup-full.tex",
+    "presentation/writeup.pdf",
+    "presentation/writeup.tex"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5",
+  "turn_id": "9fda6a9362d5",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 150,
+    "cache_creation_tokens": 124435,
+    "cache_read_tokens": 8012823,
+    "output_tokens": 51704,
+    "api_call_count": 75
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-23T09:44:22.853375Z",
+    "agent_lines": 33,
+    "agent_removed": 33,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 33,
+    "total_lines_changed": 66,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
