@@ -515,6 +515,64 @@ class Reconstruction:
         )
 
 
+CAP_FLOOR = 2_000.0
+
+
+def cap_collisions(game_id: int, us: str = US) -> dict[int, float]:
+    """Line Items where the Cap has destroyed the Charges, keyed to the amount they collapsed to.
+
+    A Charge is recovered from `amount`, and on an accepted row `amount` is `min(a, c)` with
+    `c = max(4t, 2000)` (`scripts/rivals.py` pins that model). So on a Line Item cheap enough
+    that `c = 2000`, **every** issuer who Charged above 2,000 recovers as exactly 2,000.00 --
+    their true Charges are gone, not merely uncertain.
+
+    That is unrecoverable, and it is worth being precise about why, because the obvious repair
+    does not work. Our own true Charge *is* on disk in `var/decisions/game_NNN.json`, so it can
+    be restored; the other sixteen teams' cannot. Substituting ours alone makes things worse.
+    Game 67 Line Item 1 settled at `t < 33`, and the distinct amounts observed on it are
+    `{33.00, 41.65, 2000.00}`: we Charged 10,343.65, a rival Charged something just over 2,000,
+    and both collapse to 2,000.00. A reviewer holding `b = 5,000` accepted the rival and rejected
+    us. Its Limit bracket is then built from `lo = 2000` (the acceptance) and `hi = 2000` (the
+    rejection) -- `[2000, 2000)`, inconsistent by construction, and no representative inside it
+    can be right for both rows. Restoring only our Charge was measured: it fixed Game 67 and
+    broke six Games that had reconstructed to the cent (29 by 18,000, 44 by 6,314, 33 by 4,000).
+
+    The harness is therefore left as it is -- self-consistent in the truncated Charges, and
+    exact on the money, which is what we are scored on -- and Games with a collision are named
+    here so they can be excluded knowingly rather than silently failing a self-check.
+
+    Returns `{line_item_index: collapsed_amount}`, empty when the Game is clean.
+    """
+    try:
+        snap = snapshot(game_id, us)
+    except Exception:
+        return {}
+    out: dict[int, float] = {}
+    for index in snap.line_items:
+        recovered = [c for c in snap.charges[index].values() if c != INF and c >= CAP_FLOOR]
+        low, high = snap.fair_brackets[index]
+        # Two or more issuers landing on the identical amount at or above the Cap floor is the
+        # signature: independent estimates do not tie to the cent (`rivals.py::anchor_report`
+        # finds zero exact-round Charges above 500 for five separate teams once Cap-censored
+        # rows are removed). But a tie alone is not proof, so the value must also be a Cap the
+        # bracket permits -- `c = max(4t, 2000)` means either exactly 2,000 with `t <= 500`, or
+        # `value / 4` inside `[t_lo, t_hi)`. Without that test G10 #3 is a false positive:
+        # `rivals.py` shows two issuers tied at 4,500.00 on an item worth at least 7,225, where
+        # `4500 / 4 = 1125` is far below `t_lo`, so 4,500 cannot be the Cap and the two teams
+        # simply Charged the same number.
+        for value in sorted(set(recovered)):
+            if recovered.count(value) < 2:
+                continue
+            quarter = value / 4.0
+            plausible = (value == CAP_FLOOR and low <= 500.0) or (
+                low <= quarter and (high == INF or quarter < high)
+            )
+            if plausible:
+                out[index] = value
+                break
+    return out
+
+
 def reconstruction_status(
     game_id: int, us: str = US, *, limit_rule: str = "mid"
 ) -> Reconstruction:
