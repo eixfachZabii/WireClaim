@@ -62,7 +62,11 @@ Anchors, since gross totals for a whole Line Item are easy to get wrong by an or
 How to judge coverage:
 - Judge the SERVICE BEING BILLED, not the object it concerns. Inspection, leak detection, drying and assessment are frequently indemnified even when the item investigated is not insured.
 - Read cross-references to the end. An exclusion that finishes with wording like "the head of cost under 5.2.6 remains unaffected" is a pointer to cover, not an exclusion.
+- Read the WHOLE clause, because the half that narrows cover is usually followed by the half that restores it. Two specific cases, both of which have cost us real money:
+  - SCOPE. A clause confining indemnity to "those parts that were themselves affected" is normally followed by an extension: where a room was wetted as a whole, the whole of that room counts as affected for extraction, drying and the reinstatement of its finishes. A Damage Description saying the water reached "about a square metre" does NOT narrow that extension. Price the quantity the invoice bills — 18 m2 of parquet, 15 m of skirting, a whole ceiling — not the square metre the description mentions.
+  - PERIL. An exclusion printed inside one peril's own section removes cover only for that peril, not for the Policy. Flood, precipitation, groundwater and backing-up are excluded from the escape-of-water peril and are separately insurable as natural hazards. If no Schedule is supplied, do not read a peril-scoped exclusion as though it excluded the whole claim.
 - A suspicious detail in the Damage Description is not an exclusion. Only a Policy clause is.
+- None of this makes an excluded item covered. Working equipment the contractor takes away again, an item claimed with no proof of ownership, the policyholder's own time and travel, cleaning and general upkeep, and a second travel charge on one invoice all stay at ~0. The point is narrower: do not let a narrow reading of the damage shrink a scope the Policy grants, and do not let one peril's exclusion list decide a claim brought under another peril.
 - quantity_missing=true means the invoice printed no amount and no unit, only dashes. Every such position in the settled Cases was worth exactly 0.
 - An implausible quantity means the position is priced for the plausible quantity, not that it is excluded.
 
