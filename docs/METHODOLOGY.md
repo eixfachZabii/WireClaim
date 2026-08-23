@@ -95,15 +95,19 @@ unbounded *because* nobody rightfully rejected, which is selection on the answer
 ## Where we stand, honestly
 
 Rank lags the strategy. **After nine Games we were 17th of 17 — last.** We are now **5th**, on
-+231,298 weighted. Games 1–25 ran before the current estimator was working and cost **322,595**, which
-is larger than our entire current season net: the deficit *is* the learning curve.
++260,250 weighted. Games 1–25 ran before the current estimator was working and cost **322,595**,
+which is larger than our entire current season net: the deficit *is* the learning curve.
 
-Judge the rate. Over the last twenty settled Games we are **2nd in the field** at **+6,897 per
-Game**, behind Codacabana's +12,253; over the 69 Games since the estimator existed we are **3rd of
-17 at +5,254**, within **4.3 %** of the field leader. And the variance is the part we would
-actually defend: **2 losing Games in the last 20, the worst of them −3,941**, against five teams
-carrying single Games worse than −80,000 — the **2nd-best risk-adjusted return in the field**
-(mean/σ = 0.72 against Codacabana's 0.83).
+Judge the rate. Over the **72 Games since**, we are **2nd of 17** at **+5,169 per Game** — though
+we lead 3rd by €15 per Game, so we would not lean on it. Re-basing every team to zero at **Game
+20**, when the estimator went live, puts us **2nd of 17** at **+403,758**; at the conservative Game
+26 anchor we are 3rd, by 1,121.
+
+The variance is the part we would actually defend. Over the last **thirty** Games our mean/σ is
+**0.69, the best in the field**, on the **second-lowest σ of any team**, with **4 losing Games**
+(second fewest) and a deepest hole of **−9,720** against seven teams carrying a single Game worse
+than −80,000. Over the last *twenty* we are 4th at 0.63 — a narrower window that dropped our two
+best Games, and we quote both.
 
 We are not claiming that wins. The total measures when we started working; the rate measures what
 we built; the variance measures whether it is a machine or a lucky streak.

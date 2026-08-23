@@ -95,9 +95,9 @@ result driven by a few *Games*, never one driven by a few *items*.
   every subsequent decision was settled by a number instead of an argument. Three claims we had
   written down as fact were falsified by it within a day.
 - **We climbed from last to 5th.** After nine Games we were **17th of 17**. We are now **5th** on
-  +231,298 weighted. Over the last twenty settled Games we are **2nd in the field by rate**
-  (+6,897/Game); over the 69 Games since our estimator existed, **3rd of 17** at +5,254/Game —
-  within **4.3 %** of the field leader.
+  **+260,250** weighted. Over the **72 Games since the estimator was working** we are **2nd of 17
+  by rate** (+5,169/Game), and re-basing every team to zero at Game 20 — when it went live — puts
+  us **2nd of 17** at **+403,758**.
 - **The distribution is tight, which is the part we would actually defend.** **2 losing Games in
   the last 20, the worst costing 3,941**; 4 losing Games in the last 30, the fewest of any team.
   That is the **2nd-best risk-adjusted return in the field** (mean/σ = 0.72 vs 0.83). Seven teams

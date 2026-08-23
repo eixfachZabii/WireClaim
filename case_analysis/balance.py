@@ -88,7 +88,7 @@ def main() -> None:
     ax.set_xticks(ids)
     ax.margins(x=0.08)
     ax.grid(alpha=0.3)
-    ax.legend(fontsize=8, ncols=2, loc="upper left", framealpha=0.9)
+    ax.legend(fontsize=8, ncol=2, loc="upper left", framealpha=0.9)
     fig.savefig(DATA_DIR / "balance.png", dpi=130, bbox_inches="tight")
     print(f"wrote {DATA_DIR / 'balance.png'} / .csv")
 

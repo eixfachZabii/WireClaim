@@ -1,28 +1,14 @@
-# WireClaim — QuantCo _Claim to Fame_
+# The game, and what we proved about it
 
-> Munich Agentic Hackathon (EHL stop #3), 22–23 Aug 2026 · Track 1: QuantCo
+> Reference doc for **WireClaim** (QuantCo _Claim to Fame_, Munich Agentic Hackathon, 22–23 Aug 2026).
+> Looking for the submission? → [`../README.md`](../README.md) · the write-up → [`../presentation/writeup.pdf`](../presentation/writeup.pdf)
 
-This repo is our entry to QuantCo's **Claim to Fame** challenge. This README is the
-single source of truth for _what the game is_, _how it is scored_, and _what we
-proved about how to beat it_. Read this before touching code.
+This is the single source of truth for **what the game is**, **how it is scored**, and **the
+fifteen results R1–R10 we derived and then verified against settled data**. Everything else in
+the repo — the code, the write-up, the deck — assumes this file as read and does not re-derive it.
 
-**Judging the submission? Start with [`presentation/writeup.pdf`](presentation/writeup.pdf)** —
-two pages: the approach with its derivations, then the record and a few bullets on why we think we
-succeeded and where we did not. If you want the strategy in full,
-[`presentation/writeup-full.pdf`](presentation/writeup-full.pdf) is the same argument with the
-rejected hypotheses and the two traps that cost us a working session.
-
-| where | what |
-| --- | --- |
-| [`presentation/writeup.pdf`](presentation/writeup.pdf) | **the write-up we submitted** — 2 pages ([source](presentation/writeup.tex)) |
-| [`presentation/writeup-full.pdf`](presentation/writeup-full.pdf) | the complete version, if you want the strategy ([source](presentation/writeup-full.tex)) |
-| [`WRITEUP.md`](WRITEUP.md) | the same argument in Markdown, for reading in the browser |
-| [`presentation/index.html`](presentation/index.html) | the pitch deck (arrow keys) |
-| [`presentation/RUNSHEET.md`](presentation/RUNSHEET.md) | the 5-minute run sheet and the Q&A answers |
-| [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | how we decided things, in one denser page |
-| [`docs/methodology-full.md`](docs/methodology-full.md) | the appendix, with every table |
-
-This README is the reference for the game itself; those are the argument.
+It is a working document, not a pitch. Where a claim was falsified we corrected it here rather
+than deleting it; §4 lists the corrections on purpose.
 
 ---
 
@@ -303,9 +289,9 @@ for **any** team in **any** settled game. That inverts:
 > bracket and every fitted bias — **33 % too low**, in the direction that makes us charge
 > less and reject more, with every diagnostic still looking healthy. Working and
 > reconciliation in
-> [`docs/brainstorm/sebi/strats/strat-flywheel/PLAN.md`](docs/brainstorm/sebi/strats/strat-flywheel/PLAN.md) §0;
+> [`docs/brainstorm/sebi/strats/strat-flywheel/PLAN.md`](brainstorm/sebi/strats/strat-flywheel/PLAN.md) §0;
 > re-checked automatically every Game by
-> [`invert.py`](docs/brainstorm/sebi/strats/strat-flywheel/invert.py) (`--live`).
+> [`invert.py`](brainstorm/sebi/strats/strat-flywheel/invert.py) (`--live`).
 
 So after every settled game we can bracket `t ∈ [max fair a, min fraud a)` for every
 line item, and reconstruct **every opponent's `b`** from what they did and did not
@@ -421,7 +407,8 @@ overloading the API, disqualification if breached. When unsure — ask, don't as
 ## 8. Repo map
 
 ```
-README.md                  this file — the game, the scoring, the derived results
+README.md                  judge-facing entry point — what to read, in what order
+docs/GAME-AND-PROOFS.md    this file — the game, the scoring, the derived results
 CONTEXT.md                 domain glossary — the ubiquitous language
 CLAUDE.md                  agent knowledge file — conventions and hard-won rules
 docs/

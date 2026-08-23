@@ -43,7 +43,7 @@ ERAS = [
     (81, 100, "G81–100", "3× weighted"),
 ]
 DARK_CHANNEL = (82, 89)  # model channel 401'd; model_draws = 0
-CONSISTENCY_WINDOW = (75, 94)
+CONSISTENCY_WINDOW = (78, 97)
 REBASE_ANCHOR = 20       # Strategy 2 went live around here
 REBASE_SENSITIVITY = 26  # conservative cut: G21-24 shipped the fallback Limit of 35
 
@@ -254,6 +254,8 @@ def fig_balance(th, games, teams, bal):
     ymin, ymax = -470_000, 660_000
     ax.set_xlim(0.2, n + 0.8)
     ax.set_ylim(ymin, ymax)
+    off_axis = sum(1 for t in teams if bal[t][-1] < ymin)
+    worst_m = f"{min(bal[t][-1] for t in teams) / 1e6:.2f}M".replace("-", "−")
 
     draw_eras(ax, th, n, 0.955, extra={0: f"  ·  {eur(era1)}"})
     ax.grid(axis="y", color=th["grid"], lw=0.9, alpha=0.9, zorder=1)
@@ -316,8 +318,8 @@ def fig_balance(th, games, teams, bal):
              color=th["fg"], va="top")
     fig.text(0.065, 0.902,
              f"cumulative net over {n} settled Games  ·  {US} against "
-             "16 rival teams  ·  7 teams run off the bottom of the axis, "
-             "to −2.79M",
+             f"{len(teams) - 1} rival teams  ·  {off_axis} teams run off the "
+             f"bottom of the axis, to {worst_m}",
              fontsize=15, color=th["muted"], va="top")
     return save(fig, "balance-annotated", th)
 
@@ -364,7 +366,8 @@ def fig_consistency(th, games, teams, bal):
                 fontweight="bold" if mine else "normal",
                 color=th["accent"] if mine else th["muted"], zorder=4)
 
-    ax.set_xlim(-1.02, 1.02)
+    span_x = max(abs(d["ratio"]) for d in stats) * 1.06
+    ax.set_xlim(-span_x, span_x)
     ax.set_ylim(-0.9, len(stats) - 0.35)
     ax.set_yticks([])
     ax.axvline(0, color=th["muted"], lw=1.2, zorder=2)
@@ -375,7 +378,7 @@ def fig_consistency(th, games, teams, bal):
     strip_axes(ax, th)
 
     # right-hand fact columns
-    cx = {"losses": 1.13, "worst": 1.55}
+    cx = {"losses": span_x + 0.30, "worst": span_x + 0.72}
     ax.text(cx["losses"], len(stats) - 0.45, f"losing\nGames (of {span})",
             ha="center", va="bottom", fontsize=12.5, color=th["muted"],
             clip_on=False, linespacing=1.35)
@@ -481,7 +484,7 @@ def fig_per_game(th, mgames, nets):
     fig.text(0.075, 0.908,
              f"{US} per-Game net across {n} settled Games  ·  "
              f"green = profit, red = loss  ·  G1–25 total "
-             f"{eur(sum(nets[:25]))}, G26–94 total "
+             f"{eur(sum(nets[:25]))}, G26–{mgames[-1]} total "
              f"{eur(sum(nets[25:]))}",
              fontsize=15, color=th["muted"], va="top")
     return save(fig, "per-game-net", th)
