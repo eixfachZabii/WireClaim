@@ -25,9 +25,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
 def use_frozen_pricing() -> None:
-    """Substitute the frozen pricing constants for `src.domain.pricing.engine`.
+    """Substitute the frozen pricing constants for `src.pricing.engine`.
 
-    `src/domain/pricing/engine.py` belongs to another agent and moved twice while a sweep was running --
+    `src/pricing/engine.py` belongs to another agent and moved twice while a sweep was running --
     once into a state that did not import, and once from `LIMIT_CEILING = 0.85` to `0.45`,
     which alone moved the total by +17,730. An A/B on the *prompt* has to hold that fixed.
     """
@@ -36,10 +36,10 @@ def use_frozen_pricing() -> None:
 
     importlib.import_module("src")
     spec = importlib.util.spec_from_file_location(
-        "src.domain.pricing.engine", Path(__file__).resolve().parent / "tail_pricing_frozen.py"
+        "src.pricing.engine", Path(__file__).resolve().parent / "tail_pricing_frozen.py"
     )
     module = importlib.util.module_from_spec(spec)
-    sys.modules["src.domain.pricing.engine"] = module  # dataclasses resolve their module during exec
+    sys.modules["src.pricing.engine"] = module  # dataclasses resolve their module during exec
     spec.loader.exec_module(module)
 
 
@@ -51,8 +51,8 @@ from replay_payoffs import GameSnapshot, our_actual_submission, replay, snapshot
 
 from src.data.case_loader import read_case  # noqa: E402
 from src.data.models import CaseData  # noqa: E402
-from src.domain.pricing.engine import Evidence  # noqa: E402
-from src.services.strategies.strategy2 import strategy as s2  # noqa: E402
+from src.pricing.engine import Evidence  # noqa: E402
+from src.strategies.strategy2 import strategy as s2  # noqa: E402
 
 INF = math.inf
 CASES = Path("[PUBLIC] EHL Cases/cases")
@@ -183,11 +183,11 @@ def main() -> None:
         "--limit-ceiling",
         type=float,
         default=None,
-        help="pin src.domain.pricing.engine.LIMIT_CEILING so an A/B is not confounded by a concurrent edit",
+        help="pin src.pricing.engine.LIMIT_CEILING so an A/B is not confounded by a concurrent edit",
     )
     args = parser.parse_args()
     if args.limit_ceiling is not None:
-        import src.domain.pricing.engine as pricing
+        import src.pricing.engine as pricing
 
         pricing.LIMIT_CEILING = args.limit_ceiling
     game_ids = parse_games(args.games)

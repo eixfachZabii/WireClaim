@@ -1,0 +1,276 @@
+{
+  "game_id": 32,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 10360.5,
+    "paid_on_accepts": 171.03,
+    "penalties": 3302.85,
+    "net": 6886.619999999999
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Speaker system (1 pcs)",
+      "t_lo": 171.03,
+      "t_hi": 278.5,
+      "our_charge": 318.01,
+      "our_limit_bracket": [
+        171.03,
+        Infinity
+      ],
+      "estimate_median": 459.06900238188666,
+      "coverage_probability": 0.98,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 318 against t < 278, so every opponent owed us nothing."
+    },
+    {
+      "index": 2,
+      "name": "Shipping (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 13.49,
+      "our_charge": 19.8,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 35.0,
+      "coverage_probability": 0.02,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Installation (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 46.04,
+      "our_charge": 228.65,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 330.07919999231535,
+      "coverage_probability": 0.02,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "TV set (1 pcs)",
+      "t_lo": 513.01,
+      "t_hi": 536.23,
+      "our_charge": 448.17,
+      "our_limit_bracket": [
+        0.0,
+        304.05
+      ],
+      "estimate_median": 646.96484571172,
+      "coverage_probability": 0.98,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 3302.85,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Property and liability damage to electronics (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 39.62,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.05,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Property and liability damage to electronics - service (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 32.13,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 20.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.05,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": 2978.105,
+        "income": 6537.5,
+        "cost": 3559.395,
+        "items_priced": 7,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 6886.620000000002,
+        "income": 10360.500000000002,
+        "cost": 3473.88,
+        "items_priced": 7,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": 4010.605,
+        "income": 7570.0,
+        "cost": 3559.395,
+        "items_priced": 7,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 1,
+        "name": "Speaker system (1 pcs)",
+        "delta": -1477.605,
+        "winner_net": 2691.06,
+        "alternative_net": 1213.455,
+        "t_hat": 459.06900238188666,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 171.03,
+        "t_hi": 278.5,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "TV set (1 pcs)",
+        "delta": -1220.7200000000003,
+        "winner_net": 3867.8700000000003,
+        "alternative_net": 2647.15,
+        "t_hat": 646.96484571172,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 513.01,
+        "t_hi": 536.23,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Installation (1 pcs)",
+        "delta": -78.65,
+        "winner_net": 228.65,
+        "alternative_net": 150.0,
+        "t_hat": 330.07919999231535,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 46.04,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 5,
+        "name": "Property and liability damage to electronics (1 pcs)",
+        "delta": -39.62,
+        "winner_net": 39.62,
+        "alternative_net": 0.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 39.62,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 6,
+        "name": "Property and liability damage to electronics - service (1 pcs)",
+        "delta": -39.62,
+        "winner_net": 39.62,
+        "alternative_net": 0.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 32.13,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 2,
+        "name": "Shipping (1 pcs)",
+        "delta": -19.8,
+        "winner_net": 19.8,
+        "alternative_net": 0.0,
+        "t_hat": 35.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 13.49,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 6886.62,
+    "replayed_actual_net": 6886.620000000002,
+    "oracle_net": 10827.469999999998,
+    "oracle_exact_net": 10827.469999999998,
+    "line_items": 7,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": -2876.0150000000017
+  },
+  "estimate": {
+    "n_scorable": 2,
+    "median_log_error": 0.4618814432700607,
+    "rmsle": 0.526280751718573
+  },
+  "cost_by_stage": {
+    "ok": 3302.85,
+    "charge-above-t": 0.0
+  }
+}

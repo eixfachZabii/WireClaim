@@ -1,0 +1,68 @@
+{
+  "game_id": 3,
+  "had_decision_log": false,
+  "log_schema": null,
+  "mechanisms": {
+    "income": 0.0,
+    "paid_on_accepts": 0.0,
+    "penalties": 0.0,
+    "net": 0.0,
+    "saved_by_rejecting": 761.72,
+    "lawyer_waste": 0.0,
+    "fraud_let_through": 0.0,
+    "strictness_net": 761.72
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "",
+      "t_lo": 0.0,
+      "t_hi": 100.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": null,
+      "rule": null,
+      "penalties_here": 0.0,
+      "stage": "no-decision-log",
+      "why": "Strategy 2 did not record this item; it may not have landed."
+    },
+    {
+      "index": 2,
+      "name": "",
+      "t_lo": 0.0,
+      "t_hi": 100.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": null,
+      "coverage_probability": null,
+      "channels": null,
+      "rule": null,
+      "penalties_here": 0.0,
+      "stage": "no-decision-log",
+      "why": "Strategy 2 did not record this item; it may not have landed."
+    }
+  ],
+  "counterfactual": {
+    "available": false,
+    "note": "No decision log for this Game, so no Proposal was recorded.",
+    "winner": null,
+    "strategies": {},
+    "drivers": []
+  },
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "no-decision-log": 0.0
+  }
+}

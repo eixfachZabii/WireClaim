@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from src.observability.timing import (
+from src.runtime.timing import (
     format_error_card,
     format_fraud_lock_card,
     format_skipped_strategy_card,

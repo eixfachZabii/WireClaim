@@ -1,0 +1,229 @@
+{
+  "game_id": 33,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 16756.36,
+    "paid_on_accepts": 1311.87,
+    "penalties": 15507.315,
+    "net": -62.82499999999891
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Damage assessment and inspection (1 flat rate)",
+      "t_lo": 535.5,
+      "t_hi": null,
+      "our_charge": 237.65,
+      "our_limit_bracket": [
+        137.0,
+        173.35
+      ],
+      "estimate_median": 354.96478698597673,
+      "coverage_probability": 0.975,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 5591.16,
+      "stage": "charge-far-below-t",
+      "why": "Charged 238 against t >= 536; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 2,
+      "name": "Indoor leak detection incl. measurement technician (1 flat rate)",
+      "t_lo": 836.78,
+      "t_hi": null,
+      "our_charge": 369.54,
+      "our_limit_bracket": [
+        50.0,
+        312.38
+      ],
+      "estimate_median": 561.2486080160911,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 9916.155,
+      "stage": "charge-far-below-t",
+      "why": "Charged 370 against t >= 837; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 3,
+      "name": "Floor covering removal incl. linoleum and skirting, (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 50.0,
+      "our_charge": 1041.32,
+      "our_limit_bracket": [
+        460.75,
+        Infinity
+      ],
+      "estimate_median": 1624.807680927191,
+      "coverage_probability": 0.935,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.94 but the item is worth about nothing (t < 50)."
+    },
+    {
+      "index": 4,
+      "name": "Catering for work crew (3 pcs)",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.08,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Technical drying (large-area, cavity and borehole) incl. (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 50.0,
+      "our_charge": 2000.0,
+      "our_limit_bracket": [
+        297.0,
+        Infinity
+      ],
+      "estimate_median": 3666.0605559646738,
+      "coverage_probability": 0.975,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.97 but the item is worth about nothing (t < 50)."
+    },
+    {
+      "index": 6,
+      "name": "Electricity for drying equipment (separately metered)2,412.1kWh",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.02,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -3038.495000000001,
+        "income": 12880.0,
+        "cost": 15918.495,
+        "items_priced": 6,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": -6062.824999999997,
+        "income": 10756.36,
+        "cost": 16819.184999999998,
+        "items_priced": 6,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": -3318.495000000001,
+        "income": 12600.0,
+        "cost": 15918.495,
+        "items_priced": 6,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 2,
+        "name": "Indoor leak detection incl. measurement technician (1 flat rate)",
+        "delta": 1883.7999999999984,
+        "winner_net": -4090.6349999999993,
+        "alternative_net": -2206.835000000001,
+        "t_hat": 561.2486080160911,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 836.78,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Damage assessment and inspection (1 flat rate)",
+        "delta": 1144.099999999999,
+        "winner_net": -1975.7599999999989,
+        "alternative_net": -831.6599999999999,
+        "t_hat": 354.96478698597673,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 535.5,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Floor covering removal incl. linoleum and skirting, (1 flat rate)",
+        "delta": -350.56999999999994,
+        "winner_net": 350.56999999999994,
+        "alternative_net": 0.0,
+        "t_hat": 1624.807680927191,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 0.0,
+        "t_hi": 50.0,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Technical drying (large-area, cavity and borehole) incl. (1 flat rate)",
+        "delta": 347.0,
+        "winner_net": -347.0,
+        "alternative_net": 0.0,
+        "t_hat": 3666.0605559646738,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 0.0,
+        "t_hi": 50.0,
+        "rule": "priced"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": -62.82500000000073,
+    "replayed_actual_net": -62.82499999999709,
+    "oracle_net": 12144.150000000003,
+    "oracle_exact_net": 20377.9,
+    "line_items": 6,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": 3024.3299999999963
+  },
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "charge-far-below-t": 15507.315,
+    "coverage-too-high": 0.0,
+    "ok": 0.0
+  }
+}

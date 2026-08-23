@@ -1,0 +1,315 @@
+{
+  "game_id": 36,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 118.87,
+      "coverage_probability": 0.11499999999999999,
+      "index": 1,
+      "limit": 0.0,
+      "name": "Disassembly and assembly service (1 pcs)",
+      "price_high": 360.0,
+      "price_low": 90.0,
+      "price_median": 180.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 522.59,
+      "coverage_probability": 0.5,
+      "index": 2,
+      "limit": 0.0,
+      "name": "Construction dryer (7 days)",
+      "price_high": 1160.0836729675796,
+      "price_low": 452.5535633623832,
+      "price_median": 724.5688373094717,
+      "quantity": 7.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.28612197117371135
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 32.34,
+      "coverage_probability": 0.44999999999999996,
+      "index": 3,
+      "limit": 0.0,
+      "name": "Rock wool pipe insulation (1 pcs)",
+      "price_high": 82.96466778365921,
+      "price_low": 26.272491400359456,
+      "price_median": 46.68713442566234,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 60.26,
+      "coverage_probability": 0.39,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Construction waste disposal (1 flat rate)",
+      "price_high": 154.58758462593485,
+      "price_low": 48.95338095341774,
+      "price_median": 86.99186698112699,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 174.34,
+      "coverage_probability": 0.04,
+      "index": 5,
+      "limit": 0.0,
+      "name": "Wall tile covering (2.78 m\u00b2)",
+      "price_high": 501.0845380629043,
+      "price_low": 134.9073756323204,
+      "price_median": 259.99999999999994,
+      "quantity": 2.78,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.39884084771008166
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 22.38,
+      "coverage_probability": 0.04,
+      "index": 6,
+      "limit": 0.0,
+      "name": "Wall levelling material (1 pcs)",
+      "price_high": 75.60864148142502,
+      "price_low": 16.201851746019646,
+      "price_median": 34.99999999999999,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4682203771875833
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 158.49,
+      "coverage_probability": 0.04,
+      "index": 7,
+      "limit": 0.0,
+      "name": "Rough renovation (2.78 m\u00b2)",
+      "price_high": 479.99999999999994,
+      "price_low": 119.99999999999999,
+      "price_median": 239.99999999999997,
+      "quantity": 2.78,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 44.75,
+      "coverage_probability": 0.04,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Silicone joints 3.6 linear m",
+      "price_high": 151.21728296285013,
+      "price_low": 32.40370349203931,
+      "price_median": 70.00000000000003,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4682203771875833
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 53.43,
+      "coverage_probability": 0.16499999999999998,
+      "index": 9,
+      "limit": 0.0,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 137.07423831179355,
+      "price_low": 43.40741478828329,
+      "price_median": 77.1364914887112,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 736.66,
+      "coverage_probability": 0.15000000000000002,
+      "index": 10,
+      "limit": 0.0,
+      "name": "Skilled worker hours (14 hrs)",
+      "price_high": 1889.7585911051985,
+      "price_low": 598.4314487105747,
+      "price_median": 1063.433576387514,
+      "quantity": 14.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    }
+  ],
+  "memory_items": 4,
+  "model_draws": 2,
+  "model_items": 10,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        210.0,
+        0.0
+      ],
+      "10": [
+        2100.0,
+        35.0
+      ],
+      "2": [
+        2100.0,
+        35.0
+      ],
+      "3": [
+        150.0,
+        6.67
+      ],
+      "4": [
+        150.0,
+        13.33
+      ],
+      "5": [
+        416.99999999999994,
+        35.0
+      ],
+      "6": [
+        150.0,
+        5.0
+      ],
+      "7": [
+        416.99999999999994,
+        35.0
+      ],
+      "8": [
+        540.0,
+        8.33
+      ],
+      "9": [
+        150.0,
+        6.67
+      ]
+    },
+    "strategy2": {
+      "1": [
+        118.87,
+        0.0
+      ],
+      "10": [
+        736.66,
+        0.0
+      ],
+      "2": [
+        522.59,
+        0.0
+      ],
+      "3": [
+        32.34,
+        0.0
+      ],
+      "4": [
+        60.26,
+        0.0
+      ],
+      "5": [
+        174.34,
+        0.0
+      ],
+      "6": [
+        22.38,
+        0.0
+      ],
+      "7": [
+        158.49,
+        0.0
+      ],
+      "8": [
+        44.75,
+        0.0
+      ],
+      "9": [
+        53.43,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        192.5,
+        0.0
+      ],
+      "10": [
+        900.0,
+        35.0
+      ],
+      "2": [
+        1050.0,
+        35.0
+      ],
+      "3": [
+        150.0,
+        10.0
+      ],
+      "4": [
+        150.0,
+        33.33
+      ],
+      "5": [
+        150.0,
+        26.67
+      ],
+      "6": [
+        150.0,
+        8.33
+      ],
+      "7": [
+        150.0,
+        26.67
+      ],
+      "8": [
+        540.0,
+        13.33
+      ],
+      "9": [
+        150.0,
+        10.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787430164.9520378,
+  "recorded_at": 1787430123.710762,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

@@ -1,0 +1,170 @@
+{
+  "game_id": 41,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 61321.229999999996,
+    "paid_on_accepts": 72.0,
+    "penalties": 81672.72,
+    "net": -20423.490000000005,
+    "saved_by_rejecting": 608.24,
+    "lawyer_waste": 27224.239999999998,
+    "fraud_let_through": 0.0,
+    "strictness_net": -26615.999999999996
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Translation from Spanish to English (2 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 27.0,
+      "our_charge": 99.63,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 139.99999999999994,
+      "coverage_probability": 0.015,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Material costs (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 1.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 90.675,
+      "coverage_probability": 0.0,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Compensation for robbery damage (1 pcs)",
+      "t_lo": 11130.9,
+      "t_hi": null,
+      "our_charge": 3826.35,
+      "our_limit_bracket": [
+        72.0,
+        1164.78
+      ],
+      "estimate_median": 5523.664522371174,
+      "coverage_probability": 0.955,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 81672.72,
+      "stage": "charge-far-below-t",
+      "why": "Charged 3826 against t >= 11131; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 4,
+      "name": "Shipping (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 4.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -79380.72,
+        "income": 2400.0,
+        "cost": 81780.72,
+        "items_priced": 4,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": -20423.49000000002,
+        "income": 61321.22999999998,
+        "cost": 81744.72,
+        "items_priced": 4,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": 86219.28,
+        "income": 168000.0,
+        "cost": 81780.72,
+        "items_priced": 4,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 3,
+        "name": "Compensation for robbery damage (1 pcs)",
+        "delta": 106742.40000000002,
+        "winner_net": -20523.120000000017,
+        "alternative_net": 86219.28,
+        "t_hat": 5523.664522371174,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 11130.9,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Translation from Spanish to English (2 hrs)",
+        "delta": -99.63,
+        "winner_net": 99.63,
+        "alternative_net": 0.0,
+        "t_hat": 139.99999999999994,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 27.0,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": -20423.490000000005,
+    "replayed_actual_net": -20423.49000000002,
+    "oracle_net": 123829.91999999994,
+    "oracle_exact_net": 123859.01999999995,
+    "line_items": 4,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": 106642.77000000002
+  },
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "charge-far-below-t": 81672.72,
+    "ok": 0.0
+  }
+}

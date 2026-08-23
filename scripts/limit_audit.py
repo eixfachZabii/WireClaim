@@ -70,7 +70,7 @@ except ModuleNotFoundError:  # pragma: no cover - depends on the layout of the d
 
 from dump_evidence import load as load_evidence  # noqa: E402
 
-from src.domain.pricing.engine import Evidence, _lognormal_quantile, implied_sigma  # noqa: E402
+from src.pricing.engine import Evidence, _lognormal_quantile, implied_sigma  # noqa: E402
 
 
 # ------------------------------------------------------------------------------- windows

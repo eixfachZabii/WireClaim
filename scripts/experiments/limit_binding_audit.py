@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from scripts.charge_buckets import ALL_GAMES, Row, dataset, snapshot  # noqa: E402
 from scripts.replay_payoffs import INF  # noqa: E402
 
-from src.domain.pricing.engine import (  # noqa: E402
+from src.pricing.engine import (  # noqa: E402
     CHARGE_BOUNDS,
     CHARGE_INTERCEPT,
     CHARGE_SLOPE,

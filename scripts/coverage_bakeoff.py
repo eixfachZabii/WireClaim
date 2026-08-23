@@ -1,4 +1,4 @@
-"""Two coverage estimators, head to head: Channel C's, and `src/services/coverage.py`'s.
+"""Two coverage estimators, head to head: Channel C's, and `src/evidence/policy/coverage.py`'s.
 
 The finding this answers
 -----------------------
@@ -11,7 +11,7 @@ been measured and both failed:
   because below the floor the one-third quantile of the posterior is already ~0. A posterior
   with 60% of its mass at zero genuinely has a zero bottom third.
 
-So the collapse *rule* is right and its **input** is suspect. `src/services/coverage.py` is a
+So the collapse *rule* is right and its **input** is suspect. `src/evidence/policy/coverage.py` is a
 second, independent reading of the same question -- one call per 8 Line Items, two samples
 averaged, a verbatim Policy quote required before a verdict may go below 1/3 -- and it is
 imported by nothing. This script decides whether it should be, in the only two currencies
@@ -33,7 +33,7 @@ What the sample is
 One row per (Game, Line Item) for every settled Game, carrying
 
 * the band and the Channel C coverage probability that were available at decision time,
-* `src/services/coverage.py`'s `p_covered` for the same item (`scripts/coverage_dump.py`),
+* `src/evidence/policy/coverage.py`'s `p_covered` for the same item (`scripts/coverage_dump.py`),
 * the Fair Value bracket recovered afterwards from the settled Transactions.
 
 Ground truth is `t_lo == 0`, i.e. **nobody was ever owed a euro on this Line Item**, which is
@@ -67,12 +67,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.case_loader import read_case  # noqa: E402
-from src.domain.pricing.engine import COVERAGE_FLOOR, Evidence, price_item  # noqa: E402
-from src.services.policy.coverage import (  # noqa: E402
+from src.pricing.engine import COVERAGE_FLOOR, Evidence, price_item  # noqa: E402
+from src.evidence.policy.coverage import (  # noqa: E402
     DEFAULT_P_COVERED,
     LIMIT_COLLAPSE,
 )
-from src.services.strategies.strategy2.blend import combine  # noqa: E402
+from src.strategies.strategy2.blend import combine  # noqa: E402
 from scripts.coverage_dump import load as load_coverage  # noqa: E402
 from scripts.coverage_dump import seconds as coverage_seconds  # noqa: E402
 from scripts.dump_evidence import load as load_evidence  # noqa: E402
@@ -113,7 +113,7 @@ class Row:
     name: str
     t_lo: float
     t_hi: float
-    #: `src/services/coverage.py`'s reading, or None when the Case was not dumped
+    #: `src/evidence/policy/coverage.py`'s reading, or None when the Case was not dumped
     p_coverage_module: float | None = None
 
     @property

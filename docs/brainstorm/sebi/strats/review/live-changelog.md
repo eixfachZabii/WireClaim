@@ -23,7 +23,7 @@ Game start times are `13:00:00Z + 757.575758 s x (id - 1)`.
 ## What Strategy 2 was predicted to do, before Game 21 settled
 
 Written down in advance so the comparison is honest. Replaying the cached model evidence
-through `src/domain/pricing/engine.py` and scoring with `scripts/replay_payoffs.py`, **Price Memory
+through `src/pricing/engine.py` and scoring with `scripts/replay_payoffs.py`, **Price Memory
 excluded**:
 
 - Over 15 Games where we actually scored **−324,706**, Strategy 2 replays at **+62,814**.

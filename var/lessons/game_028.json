@@ -1,0 +1,370 @@
+{
+  "game_id": 28,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 5446.63,
+    "paid_on_accepts": 148.5,
+    "penalties": 0.0,
+    "net": 5298.13
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Electrician labour checking and rewiring the flooded (12 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 402.95,
+      "our_charge": 771.08,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 1018.2337649086287,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.97 but the item is worth about nothing (t < 403)."
+    },
+    {
+      "index": 2,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 24.28,
+      "our_charge": 66.69,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 96.2742179911468,
+      "coverage_probability": 0.11499999999999999,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Procurement of a motor pump (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 49.5,
+      "our_charge": 225.57,
+      "our_limit_bracket": [
+        49.5,
+        Infinity
+      ],
+      "estimate_median": 319.99999999999994,
+      "coverage_probability": 0.92,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.92 but the item is worth about nothing (t < 50)."
+    },
+    {
+      "index": 4,
+      "name": "Submersible pump (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 49.5,
+      "our_charge": 179.56,
+      "our_limit_bracket": [
+        49.5,
+        Infinity
+      ],
+      "estimate_median": 265.3299832284321,
+      "coverage_probability": 0.92,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.92 but the item is worth about nothing (t < 50)."
+    },
+    {
+      "index": 5,
+      "name": "Water extraction from the flooded basement (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 49.5,
+      "our_charge": 306.35,
+      "our_limit_bracket": [
+        49.5,
+        Infinity
+      ],
+      "estimate_median": 434.7413023856831,
+      "coverage_probability": 0.955,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.95 but the item is worth about nothing (t < 50)."
+    },
+    {
+      "index": 6,
+      "name": "Small electrical materials for the rewiring (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 47.15,
+      "our_charge": 47.15,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 84.85281374238568,
+      "coverage_probability": 0.925,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.93 but the item is worth about nothing (t < 47)."
+    },
+    {
+      "index": 7,
+      "name": "Renew boiler system including flue gas system and (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 49.5,
+      "our_charge": 2000.0,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 4837.354648979127,
+      "coverage_probability": 0.47500000000000003,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Adjust supply pipework to fit the replacement boiler (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 49.5,
+      "our_charge": 380.52,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 581.3776741499455,
+      "coverage_probability": 0.465,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Dispose of the old boiler system 1 \u2013",
+      "t_lo": 0.0,
+      "t_hi": 49.5,
+      "our_charge": 239.22,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 364.6916505762093,
+      "coverage_probability": 0.495,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 10,
+      "name": "Vehicle costs",
+      "t_lo": 0.0,
+      "t_hi": 36.0,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": 1060.0,
+        "income": 1060.0,
+        "cost": 0.0,
+        "items_priced": 10,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 3298.1299999999997,
+        "income": 3446.6299999999997,
+        "cost": 148.5,
+        "items_priced": 10,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": -24.28,
+        "income": 0.0,
+        "cost": 24.28,
+        "items_priced": 10,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 1,
+        "name": "Electrician labour checking and rewiring the flooded (12 hrs)",
+        "delta": -1542.16,
+        "winner_net": 1542.16,
+        "alternative_net": 0.0,
+        "t_hat": 1018.2337649086287,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 0.0,
+        "t_hi": 402.95,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Submersible pump (1 pcs)",
+        "delta": -309.62,
+        "winner_net": 309.62,
+        "alternative_net": 0.0,
+        "t_hat": 265.3299832284321,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 49.5,
+        "rule": "priced"
+      },
+      {
+        "index": 6,
+        "name": "Small electrical materials for the rewiring (1 pcs)",
+        "delta": -141.45,
+        "winner_net": 141.45,
+        "alternative_net": 0.0,
+        "t_hat": 84.85281374238568,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 47.15,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -133.38,
+        "winner_net": 133.38,
+        "alternative_net": 0.0,
+        "t_hat": 96.2742179911468,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 24.28,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 10,
+        "name": "Vehicle costs",
+        "delta": -118.85999999999999,
+        "winner_net": 118.85999999999999,
+        "alternative_net": 0.0,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 0.0,
+        "t_hi": 36.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 9,
+        "name": "Dispose of the old boiler system 1 \u2013",
+        "delta": -89.22,
+        "winner_net": 239.22,
+        "alternative_net": 150.0,
+        "t_hat": 364.6916505762093,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 49.5,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 5,
+        "name": "Water extraction from the flooded basement (1 pcs)",
+        "delta": 58.14999999999998,
+        "winner_net": 256.85,
+        "alternative_net": 315.0,
+        "t_hat": 434.7413023856831,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 49.5,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Procurement of a motor pump (1 pcs)",
+        "delta": 33.93000000000001,
+        "winner_net": 176.07,
+        "alternative_net": 210.0,
+        "t_hat": 319.99999999999994,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 49.5,
+        "rule": "priced"
+      },
+      {
+        "index": 8,
+        "name": "Adjust supply pipework to fit the replacement boiler (1 flat rate)",
+        "delta": 4.480000000000018,
+        "winner_net": 380.52,
+        "alternative_net": 385.0,
+        "t_hat": 581.3776741499455,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 49.5,
+        "rule": "uncovered-free-option"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 5298.13,
+    "replayed_actual_net": 5298.129999999999,
+    "oracle_net": 6459.039999999998,
+    "oracle_exact_net": 8434.3,
+    "line_items": 10,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": -2238.1299999999997
+  },
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "coverage-too-high": 0.0,
+    "ok": 0.0
+  }
+}

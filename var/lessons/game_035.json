@@ -1,0 +1,716 @@
+{
+  "game_id": 35,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 53576.21,
+    "paid_on_accepts": 1551.88,
+    "penalties": 48723.42,
+    "net": 3300.9100000000035
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Indoor leak detection (1 pcs)",
+      "t_lo": 476.31,
+      "t_hi": 776.72,
+      "our_charge": 288.32,
+      "our_limit_bracket": [
+        157.2,
+        290.65
+      ],
+      "estimate_median": 416.2160981521788,
+      "coverage_probability": 0.96,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 3299.46,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 2,
+      "name": "Skilled worker hours (8 hrs)",
+      "t_lo": 705.36,
+      "t_hi": null,
+      "our_charge": 446.23,
+      "our_limit_bracket": [
+        0.0,
+        351.0
+      ],
+      "estimate_median": 644.1657351271305,
+      "coverage_probability": 0.88,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 10213.23,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Leak tracing and locating the defect",
+      "t_lo": 0.0,
+      "t_hi": 38.96,
+      "our_charge": 38.96,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 59.0,
+      "coverage_probability": 0.05,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Material for the work (1 pcs)",
+      "t_lo": 116.55,
+      "t_hi": 125.69,
+      "our_charge": 48.32,
+      "our_limit_bracket": [
+        28.0,
+        33.0
+      ],
+      "estimate_median": 69.75352804921027,
+      "coverage_probability": 0.82,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 751.5,
+      "stage": "charge-far-below-t",
+      "why": "Charged 48 against t >= 117; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 5,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 81.79,
+      "t_hi": 91.7,
+      "our_charge": 54.16,
+      "our_limit_bracket": [
+        34.47,
+        50.68
+      ],
+      "estimate_median": 78.19117957301566,
+      "coverage_probability": 0.87,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 908.73,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Room drying 30 m\u00b2 (1 pcs)",
+      "t_lo": 441.34,
+      "t_hi": 560.79,
+      "our_charge": 241.7,
+      "our_limit_bracket": [
+        15.85,
+        197.0
+      ],
+      "estimate_median": 348.9096139026836,
+      "coverage_probability": 0.92,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 4045.44,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Room dryer unit (1 pcs)",
+      "t_lo": 359.19,
+      "t_hi": null,
+      "our_charge": 174.13,
+      "our_limit_bracket": [
+        72.0,
+        162.0
+      ],
+      "estimate_median": 250.0,
+      "coverage_probability": 0.88,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 3639.48,
+      "stage": "charge-far-below-t",
+      "why": "Charged 174 against t >= 359; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 8,
+      "name": "Room drying 50 m\u00b2 (1 pcs)",
+      "t_lo": 346.91,
+      "t_hi": 360.0,
+      "our_charge": 290.29,
+      "our_limit_bracket": [
+        0.0,
+        8.22
+      ],
+      "estimate_median": 419.05209892569053,
+      "coverage_probability": 0.18,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 2559.84,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.18 so the Limit collapsed, but the item is worth at least 347."
+    },
+    {
+      "index": 9,
+      "name": "Room dryer unit (1 pcs)",
+      "t_lo": 24.0,
+      "t_hi": 45.35,
+      "our_charge": 174.13,
+      "our_limit_bracket": [
+        0.0,
+        24.0
+      ],
+      "estimate_median": 250.0,
+      "coverage_probability": 0.18,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 36.0,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.18 so the Limit collapsed, but the item is worth at least 24."
+    },
+    {
+      "index": 10,
+      "name": "Drying fan (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 28.18,
+      "our_charge": 69.93,
+      "our_limit_bracket": [
+        44.3,
+        Infinity
+      ],
+      "estimate_median": 100.94334782789988,
+      "coverage_probability": 0.78,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.78 but the item is worth about nothing (t < 28)."
+    },
+    {
+      "index": 11,
+      "name": "Wet insulation wool from basement (1 pcs)",
+      "t_lo": 197.2,
+      "t_hi": null,
+      "our_charge": 73.91,
+      "our_limit_bracket": [
+        0.0,
+        33.0
+      ],
+      "estimate_median": 106.69988083938911,
+      "coverage_probability": 0.18,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 1748.07,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.18 so the Limit collapsed, but the item is worth at least 197."
+    },
+    {
+      "index": 12,
+      "name": "Profipress elbow 90\u00b0 copper 28mm model 01 (5 pcs)",
+      "t_lo": 96.0,
+      "t_hi": null,
+      "our_charge": 11.67,
+      "our_limit_bracket": [
+        0.0,
+        21.17
+      ],
+      "estimate_median": 18.0,
+      "coverage_probability": 0.72,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1013.37,
+      "stage": "charge-far-below-t",
+      "why": "Charged 12 against t >= 96; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 13,
+      "name": "Profipress elbow 45\u00b0 copper 28mm model 02 (5 pcs)",
+      "t_lo": 96.0,
+      "t_hi": null,
+      "our_charge": 11.34,
+      "our_limit_bracket": [
+        0.0,
+        21.17
+      ],
+      "estimate_median": 18.0,
+      "coverage_probability": 0.55,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 862.14,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.55 so the Limit collapsed, but the item is worth at least 96."
+    },
+    {
+      "index": 14,
+      "name": "Transition piece 15x19mm (3 pcs)",
+      "t_lo": 68.1,
+      "t_hi": null,
+      "our_charge": 7.37,
+      "our_limit_bracket": [
+        0.0,
+        12.7
+      ],
+      "estimate_median": 12.0,
+      "coverage_probability": 0.7,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 503.01,
+      "stage": "charge-far-below-t",
+      "why": "Charged 7 against t >= 68; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 15,
+      "name": "Skilled worker hours (10.5 hrs)",
+      "t_lo": 629.41,
+      "t_hi": 709.2,
+      "our_charge": 565.58,
+      "our_limit_bracket": [
+        268.38,
+        461.0
+      ],
+      "estimate_median": 816.4676878518924,
+      "coverage_probability": 0.88,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 3451.05,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 16,
+      "name": "Vehicle costs (2 pcs)",
+      "t_lo": 164.52,
+      "t_hi": null,
+      "our_charge": 67.62,
+      "our_limit_bracket": [
+        41.1,
+        53.0
+      ],
+      "estimate_median": 97.61709343252737,
+      "coverage_probability": 0.85,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1548.075,
+      "stage": "charge-far-below-t",
+      "why": "Charged 68 against t >= 165; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 17,
+      "name": "Vehicle costs (2 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 41.1,
+      "our_charge": 67.62,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.61709343252737,
+      "coverage_probability": 0.05,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 18,
+      "name": "Skilled worker hours 14 \u2013",
+      "t_lo": 1099.5,
+      "t_hi": null,
+      "our_charge": 859.15,
+      "our_limit_bracket": [
+        18.12,
+        607.0
+      ],
+      "estimate_median": 1120.0,
+      "coverage_probability": 0.9,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 13149.54,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 19,
+      "name": "Material costs (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 33.0,
+      "our_charge": 120.6,
+      "our_limit_bracket": [
+        71.0,
+        Infinity
+      ],
+      "estimate_median": 174.09815793111085,
+      "coverage_probability": 0.83,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.83 but the item is worth about nothing (t < 33)."
+    },
+    {
+      "index": 20,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 81.79,
+      "t_hi": null,
+      "our_charge": 54.16,
+      "our_limit_bracket": [
+        29.07,
+        51.91
+      ],
+      "estimate_median": 78.19117957301566,
+      "coverage_probability": 0.83,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 994.485,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -32860.505,
+        "income": 17540.0,
+        "cost": 50400.505,
+        "items_priced": 20,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 3300.909999999996,
+        "income": 53576.20999999999,
+        "cost": 50275.299999999996,
+        "items_priced": 20,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": -35584.689999999995,
+        "income": 14746.0,
+        "cost": 50330.689999999995,
+        "items_priced": 20,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 18,
+        "name": "Skilled worker hours 14 \u2013",
+        "delta": -13746.399999999996,
+        "winner_net": 578.7399999999961,
+        "alternative_net": -13167.66,
+        "t_hat": 1120.0,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 1099.5,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Skilled worker hours (8 hrs)",
+        "delta": -7139.6799999999985,
+        "winner_net": -3073.550000000001,
+        "alternative_net": -10213.23,
+        "t_hat": 644.1657351271305,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 705.36,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 15,
+        "name": "Skilled worker hours (10.5 hrs)",
+        "delta": -4683.47,
+        "winner_net": 5329.85,
+        "alternative_net": 646.3800000000001,
+        "t_hat": 816.4676878518924,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 629.41,
+        "t_hi": 709.2,
+        "rule": "priced"
+      },
+      {
+        "index": 8,
+        "name": "Room drying 50 m\u00b2 (1 pcs)",
+        "delta": -4640.530000000001,
+        "winner_net": 2084.8,
+        "alternative_net": -2555.73,
+        "t_hat": 419.05209892569053,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 346.91,
+        "t_hi": 360.0,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 6,
+        "name": "Room drying 30 m\u00b2 (1 pcs)",
+        "delta": -3867.199999999999,
+        "winner_net": -194.09000000000106,
+        "alternative_net": -4061.29,
+        "t_hat": 348.9096139026836,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 441.34,
+        "t_hi": 560.79,
+        "rule": "priced"
+      },
+      {
+        "index": 7,
+        "name": "Room dryer unit (1 pcs)",
+        "delta": 1592.1499999999987,
+        "winner_net": -1080.9399999999991,
+        "alternative_net": 511.2099999999996,
+        "t_hat": 250.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 359.19,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 11,
+        "name": "Wet insulation wool from basement (1 pcs)",
+        "delta": 1250.94,
+        "winner_net": -565.51,
+        "alternative_net": 685.4300000000001,
+        "t_hat": 106.69988083938911,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 197.2,
+        "t_hi": null,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 16,
+        "name": "Vehicle costs (2 pcs)",
+        "delta": -1102.4700000000003,
+        "winner_net": -507.2549999999999,
+        "alternative_net": -1609.7250000000001,
+        "t_hat": 97.61709343252737,
+        "bucket": "t_hat < 100",
+        "t_lo": 164.52,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Indoor leak detection (1 pcs)",
+        "delta": -919.9450000000011,
+        "winner_net": 860.0100000000011,
+        "alternative_net": -59.934999999999945,
+        "t_hat": 416.2160981521788,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 476.31,
+        "t_hi": 776.72,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -866.5599999999996,
+        "winner_net": -102.64000000000044,
+        "alternative_net": -969.2,
+        "t_hat": 78.19117957301566,
+        "bucket": "t_hat < 100",
+        "t_lo": 81.79,
+        "t_hi": 91.7,
+        "rule": "priced"
+      },
+      {
+        "index": 20,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -866.5599999999996,
+        "winner_net": -182.9950000000007,
+        "alternative_net": -1049.5550000000003,
+        "t_hat": 78.19117957301566,
+        "bucket": "t_hat < 100",
+        "t_lo": 81.79,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Material for the work (1 pcs)",
+        "delta": -337.12000000000023,
+        "winner_net": -6.379999999999768,
+        "alternative_net": -343.5,
+        "t_hat": 69.75352804921027,
+        "bucket": "t_hat < 100",
+        "t_lo": 116.55,
+        "t_hi": 125.69,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Leak tracing and locating the defect",
+        "delta": 327.28,
+        "winner_net": 272.72,
+        "alternative_net": 600.0,
+        "t_hat": 59.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 38.96,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 10,
+        "name": "Drying fan (1 pcs)",
+        "delta": -229.44000000000005,
+        "winner_net": 201.26000000000005,
+        "alternative_net": -28.18,
+        "t_hat": 100.94334782789988,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 28.18,
+        "rule": "priced"
+      },
+      {
+        "index": 17,
+        "name": "Vehicle costs (2 pcs)",
+        "delta": -202.86,
+        "winner_net": 202.86,
+        "alternative_net": 0.0,
+        "t_hat": 97.61709343252737,
+        "bucket": "t_hat < 100",
+        "t_lo": 0.0,
+        "t_hi": 41.1,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 9,
+        "name": "Room dryer unit (1 pcs)",
+        "delta": -192.77999999999997,
+        "winner_net": 1008.78,
+        "alternative_net": 816.0,
+        "t_hat": 250.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 24.0,
+        "t_hi": 45.35,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 12,
+        "name": "Profipress elbow 90\u00b0 copper 28mm model 01 (5 pcs)",
+        "delta": -186.7199999999999,
+        "winner_net": -826.6500000000001,
+        "alternative_net": -1013.37,
+        "t_hat": 18.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 96.0,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 13,
+        "name": "Profipress elbow 45\u00b0 copper 28mm model 02 (5 pcs)",
+        "delta": -181.44000000000005,
+        "winner_net": -680.7,
+        "alternative_net": -862.1400000000001,
+        "t_hat": 18.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 96.0,
+        "t_hi": null,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 14,
+        "name": "Transition piece 15x19mm (3 pcs)",
+        "delta": -117.92000000000002,
+        "winner_net": -385.09,
+        "alternative_net": -503.01,
+        "t_hat": 12.0,
+        "bucket": "t_hat < 100",
+        "t_lo": 68.1,
+        "t_hi": null,
+        "rule": "priced"
+      },
+      {
+        "index": 19,
+        "name": "Material costs (1 pcs)",
+        "delta": -50.68999999999994,
+        "winner_net": 367.68999999999994,
+        "alternative_net": 317.0,
+        "t_hat": 174.09815793111085,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 33.0,
+        "rule": "priced"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 3300.909999999996,
+    "replayed_actual_net": 3300.909999999996,
+    "oracle_net": 51648.100000000006,
+    "oracle_exact_net": 53325.359999999986,
+    "line_items": 20,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": -36161.41499999999
+  },
+  "estimate": {
+    "n_scorable": 7,
+    "median_log_error": -0.1038159322725984,
+    "rmsle": 0.8092652881658767
+  },
+  "cost_by_stage": {
+    "ok": 36061.935,
+    "charge-far-below-t": 7455.4349999999995,
+    "coverage-too-low": 5206.05,
+    "coverage-too-high": 0.0
+  }
+}

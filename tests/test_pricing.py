@@ -1,7 +1,9 @@
 import math
 import unittest
 
-from src.domain.pricing.engine import (
+from src.pricing.engine import (
+    BIG_ITEM_CHARGE_SCALE,
+    BIG_ITEM_THRESHOLD,
     CHARGE_BOUNDS,
     LIMIT_CAP,
     CHARGE_INTERCEPT,
@@ -266,7 +268,7 @@ class MeasuredConstants(unittest.TestCase):
         per item, so none of it is reachable by moving `LIMIT_CEILING`.
 
         This test pins the identity, not the euros, so that the 2/3 quoted throughout
-        `src/domain/pricing/engine.py` cannot drift if the payoff table is ever restated.
+        `src/pricing/engine.py` cannot drift if the payoff table is ever restated.
         """
         charge = 1_000.0
         cost_of_rejecting_a_fair_charge = 1.5 * charge
@@ -425,13 +427,21 @@ class TheChargeIsUnconditional(unittest.TestCase):
         recoverable income against 4% for the middle bucket, i.e. mostly a statement that
         expensive items carry more euros. Discounting it scores -144,502 (x0.6), -43,584
         (x0.8) and -102 (x0.9) over 27 Games and is negative on Games 21-27 at every value.
-        Doubling the estimate must therefore double both numbers exactly.
+        Doubling the estimate must therefore double both numbers exactly -- everywhere
+        below `BIG_ITEM_THRESHOLD`. The one exception is measured in the opposite
+        direction to everything above: those figures are all *downward* multipliers on
+        `t_hat >= 500`, and re-running that exact cell today still loses (-17,033 at 1.25).
+        `BIG_ITEM_CHARGE_SCALE` raises the Charge on `t_hat >= 1,000` instead, where two
+        thirds of our estimates are already above `t` and earning nothing.
         """
-        for median in (10.0, 49.0, 51.0, 499.0, 501.0, 5000.0):
+        for median in (10.0, 49.0, 51.0, 499.0, 501.0, 999.0):
             one = price_item(self.band(median))
             two = price_item(self.band(median * 2))
             # delta rather than places: both numbers are rounded to the cent.
-            self.assertAlmostEqual(two.charge, one.charge * 2, delta=0.02, msg=str(median))
+            expected = one.charge * 2
+            if median * 2 >= BIG_ITEM_THRESHOLD:
+                expected *= BIG_ITEM_CHARGE_SCALE
+            self.assertAlmostEqual(two.charge, expected, delta=0.02, msg=str(median))
 
     def test_the_limit_is_deliberately_not_scale_free(self) -> None:
         """`LIMIT_CAP` breaks the scaling on purpose, and that is the whole point of it.
@@ -446,7 +456,9 @@ class TheChargeIsUnconditional(unittest.TestCase):
         huge = price_item(self.band(20_000.0))
 
         # delta scaled by the factor: both numbers are rounded to the cent first.
-        self.assertAlmostEqual(huge.charge, small.charge * 100, delta=1.0)
+        self.assertAlmostEqual(
+            huge.charge, small.charge * 100 * BIG_ITEM_CHARGE_SCALE, delta=1.0
+        )
         self.assertLess(huge.limit, small.limit * 100)
         self.assertLessEqual(huge.limit, LIMIT_CAP + 0.01)
 

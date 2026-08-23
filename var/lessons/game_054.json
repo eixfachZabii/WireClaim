@@ -1,0 +1,278 @@
+{
+  "game_id": 54,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 48025.6,
+    "paid_on_accepts": 24806.670000000002,
+    "penalties": 16277.25,
+    "net": 6941.679999999997,
+    "saved_by_rejecting": 11958.29,
+    "lawyer_waste": 5425.75,
+    "fraud_let_through": 1872.41,
+    "strictness_net": 4660.130000000001
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Air conditioning unit - kitchen (wall-fixed near the hob, (1 pcs)",
+      "t_lo": 2090.0,
+      "t_hi": null,
+      "our_charge": 1747.03,
+      "our_limit_bracket": [
+        1485.0,
+        1530.0
+      ],
+      "estimate_median": 2017.5838305409804,
+      "coverage_probability": 0.97,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 12869.4,
+      "stage": "estimate-too-low",
+      "why": "Estimated 2018 against a proven floor of t >= 2090; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 2,
+      "name": "Air conditioning unit - hallway (wall-fixed, surge (1 pcs)",
+      "t_lo": 1425.0,
+      "t_hi": 1445.0,
+      "our_charge": 1723.46,
+      "our_limit_bracket": [
+        1445.0,
+        Infinity
+      ],
+      "estimate_median": 1990.3694869695316,
+      "coverage_probability": 0.97,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 1723 against t < 1445, so every opponent owed us nothing."
+    },
+    {
+      "index": 3,
+      "name": "Split unit - study (ships with handheld wireless",
+      "t_lo": 0.0,
+      "t_hi": 45.0,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.01,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Installation - kitchen unit (1 pcs)",
+      "t_lo": 464.05,
+      "t_hi": 536.25,
+      "our_charge": 434.94,
+      "our_limit_bracket": [
+        433.42,
+        460.22
+      ],
+      "estimate_median": 627.8756503619568,
+      "coverage_probability": 0.965,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1386.4050000000002,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Installation - hallway unit (1 pcs)",
+      "t_lo": 460.22,
+      "t_hi": 536.25,
+      "our_charge": 434.94,
+      "our_limit_bracket": [
+        401.0,
+        437.41
+      ],
+      "estimate_median": 627.8756503619568,
+      "coverage_probability": 0.965,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2021.4450000000002,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Installation - study split unit",
+      "t_lo": 0.0,
+      "t_hi": 45.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.01,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Standard freight - replacement equipment pallet (over",
+      "t_lo": 33.5,
+      "t_hi": 65.41,
+      "our_charge": 162.6,
+      "our_limit_bracket": [
+        96.0,
+        Infinity
+      ],
+      "estimate_median": 233.66642891095842,
+      "coverage_probability": 0.89,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 163 against t < 65, so every opponent owed us nothing."
+    },
+    {
+      "index": 8,
+      "name": "Express delivery surcharge (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 3.2,
+      "our_charge": 68.51,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 108.16653826391972,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Vehicle costs \u2013 return visit",
+      "t_lo": 0.0,
+      "t_hi": 32.13,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.01,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 10,
+      "name": "Contractor administration fee (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 16.34,
+      "our_charge": 73.57,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 115.32562594670787,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Disposal of old unrelated boiler",
+      "t_lo": 0.0,
+      "t_hi": 13.0,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy2": {
+        "net": 6941.679999999986,
+        "income": 48025.599999999984,
+        "cost": 41083.92,
+        "items_priced": 12,
+        "items_missing": []
+      }
+    },
+    "drivers": [],
+    "reconstructs": true,
+    "actual_net": 6941.68,
+    "replayed_actual_net": 6941.679999999986,
+    "oracle_net": 40617.039999999986,
+    "oracle_exact_net": 40653.15999999998,
+    "line_items": 11,
+    "best_alternative": null,
+    "best_alternative_delta": 0.0
+  },
+  "estimate": {
+    "n_scorable": 4,
+    "median_log_error": 0.2792128643735191,
+    "rmsle": 0.8098654668290104
+  },
+  "cost_by_stage": {
+    "estimate-too-low": 12869.4,
+    "ok": 3407.8500000000004,
+    "charge-above-t": 0.0
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "game_id": 28,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 771.08,
+      "coverage_probability": 0.97,
+      "index": 1,
+      "limit": 305.47,
+      "name": "Electrician labour checking and rewiring the flooded (12 hrs)",
+      "price_high": 1429.0774295731824,
+      "price_low": 725.5030263193353,
+      "price_median": 1018.2337649086287,
+      "quantity": 12.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.20605444292873148
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 66.69,
+      "coverage_probability": 0.11499999999999999,
+      "index": 2,
+      "limit": 0.0,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 171.08264642982027,
+      "price_low": 54.17688610287527,
+      "price_median": 96.2742179911468,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 225.57,
+      "coverage_probability": 0.92,
+      "index": 3,
+      "limit": 96.0,
+      "name": "Procurement of a motor pump (1 pcs)",
+      "price_high": 543.8954147832302,
+      "price_low": 188.27148973265665,
+      "price_median": 319.99999999999994,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.32245348349096126
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 179.56,
+      "coverage_probability": 0.92,
+      "index": 4,
+      "limit": 79.6,
+      "name": "Submersible pump (1 pcs)",
+      "price_high": 499.8913035622423,
+      "price_low": 140.83061557248004,
+      "price_median": 265.3299832284321,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3850555688999104
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 306.35,
+      "coverage_probability": 0.955,
+      "index": 5,
+      "limit": 130.42,
+      "name": "Water extraction from the flooded basement (1 pcs)",
+      "price_high": 739.5423020734207,
+      "price_low": 255.56347415166024,
+      "price_median": 434.7413023856831,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3229667702790722
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 47.15,
+      "coverage_probability": 0.925,
+      "index": 6,
+      "limit": 25.46,
+      "name": "Small electrical materials for the rewiring (1 pcs)",
+      "price_high": 248.89117744967746,
+      "price_low": 28.928305429611868,
+      "price_median": 84.85281374238568,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.6541626808989845
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 2933.51,
+      "coverage_probability": 0.47500000000000003,
+      "index": 7,
+      "limit": 0.0,
+      "name": "Renew boiler system including flue gas system and (1 flat rate)",
+      "price_high": 11784.144993885538,
+      "price_low": 1985.7189479713272,
+      "price_median": 4837.354648979127,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.541268676111867
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 380.52,
+      "coverage_probability": 0.465,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Adjust supply pipework to fit the replacement boiler (1 flat rate)",
+      "price_high": 1187.9761083832184,
+      "price_low": 284.5175063831905,
+      "price_median": 581.3776741499455,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4344108217016722
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 239.22,
+      "coverage_probability": 0.495,
+      "index": 9,
+      "limit": 0.0,
+      "name": "Dispose of the old boiler system 1 \u2013",
+      "price_high": 741.2957736143057,
+      "price_low": 179.41556492563993,
+      "price_median": 364.6916505762093,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4312142837253999
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.0,
+      "index": 10,
+      "limit": 0.0,
+      "name": "Vehicle costs",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    }
+  ],
+  "memory_items": 2,
+  "model_draws": 2,
+  "model_items": 10,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        1800.0,
+        35.0
+      ],
+      "10": [
+        150.0,
+        0.0
+      ],
+      "2": [
+        150.0,
+        6.67
+      ],
+      "3": [
+        210.0,
+        35.0
+      ],
+      "4": [
+        367.5,
+        35.0
+      ],
+      "5": [
+        315.0,
+        35.0
+      ],
+      "6": [
+        150.0,
+        10.0
+      ],
+      "7": [
+        5425.0,
+        35.0
+      ],
+      "8": [
+        385.0,
+        35.0
+      ],
+      "9": [
+        150.0,
+        26.67
+      ]
+    },
+    "strategy2": {
+      "1": [
+        771.08,
+        305.47
+      ],
+      "10": [
+        39.62,
+        0.0
+      ],
+      "2": [
+        66.69,
+        0.0
+      ],
+      "3": [
+        225.57,
+        96.0
+      ],
+      "4": [
+        179.56,
+        79.6
+      ],
+      "5": [
+        306.35,
+        130.42
+      ],
+      "6": [
+        47.15,
+        25.46
+      ],
+      "7": [
+        2933.51,
+        0.0
+      ],
+      "8": [
+        380.52,
+        0.0
+      ],
+      "9": [
+        239.22,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        1800.0,
+        0.0
+      ],
+      "10": [
+        150.0,
+        35.0
+      ],
+      "2": [
+        150.0,
+        26.67
+      ],
+      "3": [
+        262.5,
+        35.0
+      ],
+      "4": [
+        402.5,
+        35.0
+      ],
+      "5": [
+        1190.0,
+        35.0
+      ],
+      "6": [
+        280.0,
+        35.0
+      ],
+      "7": [
+        9100.0,
+        0.0
+      ],
+      "8": [
+        840.0,
+        0.0
+      ],
+      "9": [
+        490.0,
+        35.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787424109.6619232,
+  "recorded_at": 1787424065.200365,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

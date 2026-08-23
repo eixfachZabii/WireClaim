@@ -1,0 +1,183 @@
+{
+  "game_id": 29,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 26937.34,
+    "paid_on_accepts": 422.53999999999996,
+    "penalties": 6691.679999999999,
+    "net": 19823.12
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Water extraction from the flooded plant room (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 100.0,
+      "our_charge": 176.85,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 265.3299832284321,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.98 but the item is worth about nothing (t < 100)."
+    },
+    {
+      "index": 2,
+      "name": "Renew the water-damaged boiler, flue and storage (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 57.3,
+      "our_charge": 2000.0,
+      "our_limit_bracket": [
+        100.0,
+        Infinity
+      ],
+      "estimate_median": 7138.627319029896,
+      "coverage_probability": 0.94,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.94 but the item is worth about nothing (t < 57)."
+    },
+    {
+      "index": 3,
+      "name": "Dispose of the old boiler system 1 \u2013",
+      "t_lo": 516.03,
+      "t_hi": null,
+      "our_charge": 239.22,
+      "our_limit_bracket": [
+        107.94,
+        181.0
+      ],
+      "estimate_median": 364.6916505762093,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 5837.655,
+      "stage": "charge-far-below-t",
+      "why": "Charged 239 against t >= 516; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 4,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 80.23,
+      "t_hi": 85.5,
+      "our_charge": 39.62,
+      "our_limit_bracket": [
+        0.0,
+        24.28
+      ],
+      "estimate_median": 0.0,
+      "coverage_probability": 0.08,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 854.025,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.08 so the Limit collapsed, but the item is worth at least 80."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": -1267.3999999999996,
+        "income": 5810.0,
+        "cost": 7077.4,
+        "items_priced": 4,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": -24176.880000000005,
+        "income": 6937.339999999998,
+        "cost": 31114.22,
+        "items_priced": 4,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 2,
+        "name": "Renew the water-damaged boiler, flue and storage (1 flat rate)",
+        "delta": 24157.3,
+        "winner_net": -24157.3,
+        "alternative_net": 0.0,
+        "t_hat": 7138.627319029896,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 0.0,
+        "t_hi": 57.3,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Vehicle costs (1 pcs)",
+        "delta": -621.78,
+        "winner_net": -220.10500000000002,
+        "alternative_net": -841.885,
+        "t_hat": 0.0,
+        "bucket": "no estimate",
+        "t_lo": 80.23,
+        "t_hi": 85.5,
+        "rule": "uncovered-free-option"
+      },
+      {
+        "index": 1,
+        "name": "Water extraction from the flooded plant room (1 pcs)",
+        "delta": -585.8999999999992,
+        "winner_net": 2475.899999999999,
+        "alternative_net": 1890.0,
+        "t_hat": 265.3299832284321,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 0.0,
+        "t_hi": 100.0,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Dispose of the old boiler system 1 \u2013",
+        "delta": -40.1399999999976,
+        "winner_net": -2275.375000000002,
+        "alternative_net": -2315.5149999999994,
+        "t_hat": 364.6916505762093,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 516.03,
+        "t_hi": null,
+        "rule": "priced"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 19823.120000000003,
+    "replayed_actual_net": 19823.119999999995,
+    "oracle_net": 4570.999999999997,
+    "oracle_exact_net": 4813.799999999997,
+    "line_items": 4,
+    "best_alternative": "strategy1",
+    "best_alternative_delta": 22909.480000000003
+  },
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "charge-far-below-t": 5837.655,
+    "coverage-too-low": 854.025,
+    "coverage-too-high": 0.0
+  }
+}

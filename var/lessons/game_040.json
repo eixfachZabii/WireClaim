@@ -1,0 +1,488 @@
+{
+  "game_id": 40,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 59187.97,
+    "paid_on_accepts": 6959.09,
+    "penalties": 30151.38,
+    "net": 22077.500000000004,
+    "saved_by_rejecting": 31944.589999999997,
+    "lawyer_waste": 10050.460000000001,
+    "fraud_let_through": 1089.47,
+    "strictness_net": 20804.659999999996
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Cleaning of affected floor areas in the utility room and (1 pcs)",
+      "t_lo": 98.77,
+      "t_hi": 109.56,
+      "our_charge": 114.64,
+      "our_limit_bracket": [
+        0.0,
+        80.0
+      ],
+      "estimate_median": 169.70562748477138,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 666.7950000000001,
+      "stage": "charge-above-t",
+      "why": "Charged 115 against t < 110, so every opponent owed us nothing."
+    },
+    {
+      "index": 2,
+      "name": "Inspection of the washing machine and supply/drain (1 pcs)",
+      "t_lo": 135.0,
+      "t_hi": 152.31,
+      "our_charge": 152.31,
+      "our_limit_bracket": [
+        91.38,
+        112.0
+      ],
+      "estimate_median": 220.00000000000009,
+      "coverage_probability": 0.955,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1464.3,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Removal and disposal of water-damaged skirting (1 pcs)",
+      "t_lo": 67.89,
+      "t_hi": 86.74,
+      "our_charge": 113.82,
+      "our_limit_bracket": [
+        67.89,
+        Infinity
+      ],
+      "estimate_median": 164.92422502470643,
+      "coverage_probability": 0.935,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 114 against t < 87, so every opponent owed us nothing."
+    },
+    {
+      "index": 4,
+      "name": "Replace skirting boards (1 pcs)",
+      "t_lo": 111.53,
+      "t_hi": 126.0,
+      "our_charge": 169.69,
+      "our_limit_bracket": [
+        126.0,
+        Infinity
+      ],
+      "estimate_median": 244.95663971208302,
+      "coverage_probability": 0.94,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 170 against t < 126, so every opponent owed us nothing."
+    },
+    {
+      "index": 5,
+      "name": "Moisture measurement of the utility room and hallway (1 pcs)",
+      "t_lo": 108.0,
+      "t_hi": 148.78,
+      "our_charge": null,
+      "our_limit_bracket": [
+        221.91,
+        Infinity
+      ],
+      "estimate_median": 520.0,
+      "coverage_probability": 0.965,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "estimate-too-high",
+      "why": "Estimated 520 against t < 149."
+    },
+    {
+      "index": 6,
+      "name": "Drying of the affected floor area (1 pcs)",
+      "t_lo": 233.13,
+      "t_hi": 248.59,
+      "our_charge": 233.13,
+      "our_limit_bracket": [
+        225.0,
+        Infinity
+      ],
+      "estimate_median": 336.55002522480345,
+      "coverage_probability": 0.975,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Drying unit rental (1 pcs)",
+      "t_lo": 53.0,
+      "t_hi": 69.49,
+      "our_charge": 69.49,
+      "our_limit_bracket": [
+        53.0,
+        Infinity
+      ],
+      "estimate_median": 100.31234609915236,
+      "coverage_probability": 0.895,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Skilled worker hours (4 hrs)",
+      "t_lo": 216.0,
+      "t_hi": 226.76,
+      "our_charge": 226.76,
+      "our_limit_bracket": [
+        216.0,
+        Infinity
+      ],
+      "estimate_median": 327.3407462657357,
+      "coverage_probability": 0.9450000000000001,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Transport of the high-value painting to the specialist (1 pcs)",
+      "t_lo": 156.44,
+      "t_hi": 177.75,
+      "our_charge": 120.32,
+      "our_limit_bracket": [
+        41.25,
+        108.24
+      ],
+      "estimate_median": 180.0,
+      "coverage_probability": 0.95,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1385.835,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 10,
+      "name": "Professional assessment of the high-value painting (1 pcs)",
+      "t_lo": 455.18,
+      "t_hi": 540.0,
+      "our_charge": 302.81,
+      "our_limit_bracket": [
+        300.0,
+        310.0
+      ],
+      "estimate_median": 437.13453281883403,
+      "coverage_probability": 0.985,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 2709.5699999999997,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Conservatory drying and stabilisation of the painting (1 pcs)",
+      "t_lo": 900.0,
+      "t_hi": 1162.4,
+      "our_charge": 538.28,
+      "our_limit_bracket": [
+        530.0,
+        559.42
+      ],
+      "estimate_median": 777.046980008802,
+      "coverage_probability": 0.975,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 10361.279999999999,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 12,
+      "name": "Full restoration of the painting (1 pcs)",
+      "t_lo": 2136.75,
+      "t_hi": 2879.8,
+      "our_charge": 1846.22,
+      "our_limit_bracket": [
+        408.36,
+        720.0
+      ],
+      "estimate_median": 2665.1698082426715,
+      "coverage_probability": 0.98,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 11931.66,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 13,
+      "name": "Return transport and rehanging of the restored (1 flat rate)",
+      "t_lo": 187.37,
+      "t_hi": 250.0,
+      "our_charge": 170.28,
+      "our_limit_bracket": [
+        41.25,
+        117.12
+      ],
+      "estimate_median": 259.99999999999994,
+      "coverage_probability": 0.965,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1631.94,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy1": {
+        "net": 14816.940000000002,
+        "income": 53764.5,
+        "cost": 38947.56,
+        "items_priced": 13,
+        "items_missing": []
+      },
+      "strategy2": {
+        "net": 22077.500000000007,
+        "income": 59187.97000000001,
+        "cost": 37110.47,
+        "items_priced": 13,
+        "items_missing": []
+      },
+      "strategy3": {
+        "net": 23262.440000000002,
+        "income": 62210.0,
+        "cost": 38947.56,
+        "items_priced": 13,
+        "items_missing": []
+      }
+    },
+    "drivers": [
+      {
+        "index": 11,
+        "name": "Conservatory drying and stabilisation of the painting (1 pcs)",
+        "delta": 4442.520000000004,
+        "winner_net": -2518.800000000003,
+        "alternative_net": 1923.7200000000012,
+        "t_hat": 777.046980008802,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 900.0,
+        "t_hi": 1162.4,
+        "rule": "priced"
+      },
+      {
+        "index": 8,
+        "name": "Skilled worker hours (4 hrs)",
+        "delta": -3228.88,
+        "winner_net": 2385.88,
+        "alternative_net": -843.0,
+        "t_hat": 327.3407462657357,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 216.0,
+        "t_hi": 226.76,
+        "rule": "priced"
+      },
+      {
+        "index": 6,
+        "name": "Drying of the affected floor area (1 pcs)",
+        "delta": -2257.4800000000014,
+        "winner_net": 2895.2800000000016,
+        "alternative_net": 637.8,
+        "t_hat": 336.55002522480345,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 233.13,
+        "t_hi": 248.59,
+        "rule": "priced"
+      },
+      {
+        "index": 12,
+        "name": "Full restoration of the painting (1 pcs)",
+        "delta": 2176.2999999999956,
+        "winner_net": 17199.500000000007,
+        "alternative_net": 19375.800000000003,
+        "t_hat": 2665.1698082426715,
+        "bucket": "t_hat >= 1k",
+        "t_lo": 2136.75,
+        "t_hi": 2879.8,
+        "rule": "priced"
+      },
+      {
+        "index": 13,
+        "name": "Return transport and rehanging of the restored (1 flat rate)",
+        "delta": -1905.1050000000005,
+        "winner_net": 1051.2900000000004,
+        "alternative_net": -853.815,
+        "t_hat": 259.99999999999994,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 187.37,
+        "t_hi": 250.0,
+        "rule": "priced"
+      },
+      {
+        "index": 5,
+        "name": "Moisture measurement of the utility room and hallway (1 pcs)",
+        "delta": 1476.705,
+        "winner_net": -1737.0,
+        "alternative_net": -260.2950000000001,
+        "t_hat": 520.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 108.0,
+        "t_hi": 148.78,
+        "rule": "priced"
+      },
+      {
+        "index": 9,
+        "name": "Transport of the high-value painting to the specialist (1 pcs)",
+        "delta": -1105.7449999999992,
+        "winner_net": 498.0349999999994,
+        "alternative_net": -607.7099999999998,
+        "t_hat": 180.0,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 156.44,
+        "t_hi": 177.75,
+        "rule": "priced"
+      },
+      {
+        "index": 10,
+        "name": "Professional assessment of the high-value painting (1 pcs)",
+        "delta": 1098.784999999998,
+        "winner_net": 582.880000000001,
+        "alternative_net": 1681.664999999999,
+        "t_hat": 437.13453281883403,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 455.18,
+        "t_hi": 540.0,
+        "rule": "priced"
+      },
+      {
+        "index": 1,
+        "name": "Cleaning of affected floor areas in the utility room and (1 pcs)",
+        "delta": 307.88,
+        "winner_net": 250.32500000000005,
+        "alternative_net": 558.205,
+        "t_hat": 169.70562748477138,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 98.77,
+        "t_hi": 109.56,
+        "rule": "priced"
+      },
+      {
+        "index": 7,
+        "name": "Drying unit rental (1 pcs)",
+        "delta": 210.64999999999998,
+        "winner_net": 597.97,
+        "alternative_net": 808.62,
+        "t_hat": 100.31234609915236,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 53.0,
+        "t_hi": 69.49,
+        "rule": "priced"
+      },
+      {
+        "index": 2,
+        "name": "Inspection of the washing machine and supply/drain (1 pcs)",
+        "delta": -59.549999999999955,
+        "winner_net": -641.8199999999999,
+        "alternative_net": -701.3699999999999,
+        "t_hat": 220.00000000000009,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 135.0,
+        "t_hi": 152.31,
+        "rule": "priced"
+      },
+      {
+        "index": 4,
+        "name": "Replace skirting boards (1 pcs)",
+        "delta": 51.664999999999736,
+        "winner_net": 857.8900000000002,
+        "alternative_net": 909.555,
+        "t_hat": 244.95663971208302,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 111.53,
+        "t_hi": 126.0,
+        "rule": "priced"
+      },
+      {
+        "index": 3,
+        "name": "Removal and disposal of water-damaged skirting (1 pcs)",
+        "delta": -22.804999999999723,
+        "winner_net": 656.0699999999997,
+        "alternative_net": 633.265,
+        "t_hat": 164.92422502470643,
+        "bucket": "t_hat 100-1k",
+        "t_lo": 67.89,
+        "t_hi": 86.74,
+        "rule": "priced"
+      }
+    ],
+    "reconstructs": true,
+    "actual_net": 22077.5,
+    "replayed_actual_net": 22077.500000000007,
+    "oracle_net": 62327.380000000034,
+    "oracle_exact_net": 62564.29000000004,
+    "line_items": 13,
+    "best_alternative": "strategy3",
+    "best_alternative_delta": 1184.939999999995
+  },
+  "estimate": {
+    "n_scorable": 13,
+    "median_log_error": 0.39112098390545275,
+    "rmsle": 0.5628770788585953
+  },
+  "cost_by_stage": {
+    "ok": 29484.584999999995,
+    "charge-above-t": 666.7950000000001,
+    "estimate-too-high": 0.0
+  }
+}

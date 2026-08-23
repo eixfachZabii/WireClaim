@@ -438,6 +438,27 @@ Minimal Python setup for the QuantCo Claim to Fame challenge.
 
 Submission is intentionally not implemented yet.
 
+## For anyone benchmarking this (the learning-loop record)
+
+Four directories under `var/` are committed. Together they say, per settled Game, what we
+estimated and why, what actually happened, and what the model literally replied:
+
+| path | one row per | what it carries |
+| --- | --- | --- |
+| `var/decisions/game_NNN.json` | Line Item | our `t̂`, the price band, coverage probability, which channels spoke, the pricing rule, the submitted Charge and Limit |
+| `var/lessons/game_NNN.json` | Game | the four-bucket money decomposition, the recovered Fair Value bracket per item, stage attribution, and what every strategy would have scored |
+| `var/reviews/game_NNN.md` | Game | the automated review of that Game's digest, with the Policy clause quoted |
+| `var/ai_log/game_NNN_<draw>.json` | model call | the raw reply, the model, the service tier and the wall clock |
+
+The ground truth to score against is **exact, not estimated**: `scripts/invert_fair_values.py`
+recovers a `[t_lo, t_hi)` bracket for every settled Line Item from public Transactions, and
+`--verify` asserts it reproduces every published net to the cent.
+
+Two things deliberately **not** committed. `var/transactions/` is 35 MB of cached *public*
+leaderboard rows — regenerate with `scripts/pull_transactions.py`. `var/cases/` is decrypted
+Case material; it is derivable from the archives plus a released key and is not ours to
+publish.
+
 ## Setup
 
 ```bash
@@ -460,7 +481,7 @@ That is the whole tournament loop. Leave both running.
 | `pixi run play` | The runner, under a supervisor. **Use this, not `start`.** `watch_games()` has no exception boundary, so an uncaught error ends the tournament rather than costing one Game; the supervisor turns that back into one Game. Logs to `var/runner.log`. | Once. Restart it after any change to `src/`, `.env`, or the constants — **the process caches them at boot and will not pick them up otherwise.** |
 | `pixi run watch` | Polls for settled Games, then per Game: tops up the Case extraction, rebuilds Price Memory from the newly recovered Fair Values, prints the learning digest, and runs a Claude review of it. | Once, alongside `play`. |
 | `pixi run start` | The bare runner, no supervisor. | Only for a foreground debug session. |
-| `pixi run test` | 329 unit tests. | Before any restart, after any edit. Green is the floor. |
+| `pixi run test` | 362 unit tests. | Before any restart, after any edit. Green is the floor. |
 | `pixi run case-0` | The permanent test Game — a dry run that costs nothing. | To sanity-check a change without waiting for a real Game. |
 | `pixi run cases` | Unzips every Case whose key has been released. | Rarely — `watch` already does it every poll. |
 | `pixi run learn` | Re-reads older Games by hand, e.g. `--games 26-33`. | After changing the analysis and wanting the old Games re-scored. |

@@ -1,0 +1,139 @@
+{
+  "game_id": 41,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 99.63,
+      "coverage_probability": 0.015,
+      "index": 1,
+      "limit": 0.0,
+      "name": "Translation from Spanish to English (2 hrs)",
+      "price_high": 232.1637353248779,
+      "price_low": 84.42317648177378,
+      "price_median": 139.99999999999994,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.30747748075333736
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 66.41,
+      "coverage_probability": 0.0,
+      "index": 2,
+      "limit": 0.0,
+      "name": "Material costs (1 pcs)",
+      "price_high": 139.3908259477404,
+      "price_low": 58.98491216403672,
+      "price_median": 90.675,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.26139817629179335
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 3826.35,
+      "coverage_probability": 0.955,
+      "index": 3,
+      "limit": 708.0,
+      "name": "Compensation for robbery damage (1 pcs)",
+      "price_high": 9815.744694645771,
+      "price_low": 3108.3601606248826,
+      "price_median": 5523.664522371174,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 39.62,
+      "coverage_probability": 0.0,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Shipping (1 pcs)",
+      "price_high": 0.0,
+      "price_low": 0.0,
+      "price_median": 0.0,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    }
+  ],
+  "memory_items": 2,
+  "model_draws": 2,
+  "model_items": 4,
+  "proposals": {
+    "strategy1": {
+      "1": [
+        300.0,
+        20.0
+      ],
+      "2": [
+        150.0,
+        0.0
+      ],
+      "3": [
+        150.0,
+        35.0
+      ],
+      "4": [
+        150.0,
+        0.0
+      ]
+    },
+    "strategy2": {
+      "1": [
+        99.63,
+        0.0
+      ],
+      "2": [
+        66.41,
+        0.0
+      ],
+      "3": [
+        3826.35,
+        708.0
+      ],
+      "4": [
+        39.62,
+        0.0
+      ]
+    },
+    "strategy3": {
+      "1": [
+        300.0,
+        26.67
+      ],
+      "2": [
+        150.0,
+        0.0
+      ],
+      "3": [
+        10500.0,
+        35.0
+      ],
+      "4": [
+        150.0,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787433930.669386,
+  "recorded_at": 1787433910.6458838,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

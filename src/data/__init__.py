@@ -2,8 +2,6 @@
 
 from src.data.models import (
     CaseData,
-    FairValueEstimate,
-    FairValueEstimates,
     FraudDecision,
     ItemPrice,
     LineItem,
@@ -12,8 +10,6 @@ from src.data.models import (
 
 __all__ = [
     "CaseData",
-    "FairValueEstimate",
-    "FairValueEstimates",
     "FraudDecision",
     "ItemPrice",
     "LineItem",

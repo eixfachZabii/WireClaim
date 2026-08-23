@@ -19,9 +19,9 @@ import logging
 from pathlib import Path
 
 from src.data.case_loader import read_case
-from src.domain.pricing.engine import Evidence
-from src.services.strategies.strategy2.channels import local_evidence
-from src.services.strategies.strategy2.model import request_evidence
+from src.pricing.engine import Evidence
+from src.strategies.strategy2.channels import local_evidence
+from src.strategies.strategy2.model import request_evidence
 
 logger = logging.getLogger(__name__)
 CACHE = Path("var/evidence")

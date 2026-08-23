@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import build_price_memory as bpm  # noqa: E402
-from src.domain.pricing.memory import PriceMemory, build_entries  # noqa: E402
+from src.evidence.memory import PriceMemory, build_entries  # noqa: E402
 
 ALL_GAMES = list(range(1, 37))
 FOLDS = [

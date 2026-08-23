@@ -1,0 +1,10 @@
+{
+ "game_id": 55,
+ "draw": "a7172e93",
+ "model": "gpt-5.6-terra",
+ "service_tier": "priority",
+ "elapsed_seconds": 5.83,
+ "recorded_at": 1787444559.757995,
+ "reply_characters": 371,
+ "reply": "{\"items\":[{\"line_item\":1,\"coverage_probability\":0.98,\"price_low\":380.0,\"price_median\":560.0,\"price_high\":780.0,\"clause\":\"The indemnity is the necessary cost of repairing the unit, comprising the replacement components, the labour and the ancillary work under 7.1.7(e). All areas of damage on the unit caused by the event are repaired together and settled as one loss.\"}]}"
+}

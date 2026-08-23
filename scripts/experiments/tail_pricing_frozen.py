@@ -1,6 +1,6 @@
-"""Frozen copy of `src/domain/pricing/engine.py` (HEAD, with LIMIT_CEILING at the re-measured 0.45).
+"""Frozen copy of `src/pricing/engine.py` (HEAD, with LIMIT_CEILING at the re-measured 0.45).
 
-Only for A/B measurement: `src/domain/pricing/engine.py` is owned by another agent and changed twice
+Only for A/B measurement: `src/pricing/engine.py` is owned by another agent and changed twice
 under a running sweep, once into a state that would not import. A prompt comparison has to
 hold the pricing constants fixed or it measures the wrong thing. Ship-facing numbers are
 re-run against the real module.

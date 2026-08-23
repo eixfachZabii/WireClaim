@@ -1,0 +1,275 @@
+{
+  "game_id": 54,
+  "items": [
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 1747.03,
+      "coverage_probability": 0.97,
+      "index": 1,
+      "limit": 1513.19,
+      "name": "Air conditioning unit - kitchen (wall-fixed near the hob, (1 pcs)",
+      "price_high": 3585.316903376006,
+      "price_low": 1135.365331144763,
+      "price_median": 2017.5838305409804,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568053
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 1723.46,
+      "coverage_probability": 0.97,
+      "index": 2,
+      "limit": 1492.78,
+      "name": "Air conditioning unit - hallway (wall-fixed, surge (1 pcs)",
+      "price_high": 3536.9560647610197,
+      "price_low": 1120.0508635458627,
+      "price_median": 1990.3694869695316,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.01,
+      "index": 3,
+      "limit": 0.0,
+      "name": "Split unit - study (ships with handheld wireless",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 434.94,
+      "coverage_probability": 0.965,
+      "index": 4,
+      "limit": 434.94,
+      "name": "Installation - kitchen unit (1 pcs)",
+      "price_high": 1115.7569506578193,
+      "price_low": 353.32769568231186,
+      "price_median": 627.8756503619568,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568053
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 434.94,
+      "coverage_probability": 0.965,
+      "index": 5,
+      "limit": 434.94,
+      "name": "Installation - hallway unit (1 pcs)",
+      "price_high": 1115.7569506578193,
+      "price_low": 353.32769568231186,
+      "price_median": 627.8756503619568,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568053
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.01,
+      "index": 6,
+      "limit": 0.0,
+      "name": "Installation - study split unit",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 162.6,
+      "coverage_probability": 0.89,
+      "index": 7,
+      "limit": 105.15,
+      "name": "Standard freight - replacement equipment pallet (over",
+      "price_high": 410.46986707506215,
+      "price_low": 133.01829045106336,
+      "price_median": 233.66642891095842,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3424972279097916
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 68.51,
+      "coverage_probability": 0.01,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Express delivery surcharge (1 flat rate)",
+      "price_high": 238.74712066316576,
+      "price_low": 49.005826614792355,
+      "price_median": 108.16653826391972,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.4812965707268237
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.01,
+      "index": 9,
+      "limit": 0.0,
+      "name": "Vehicle costs \u2013 return visit",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 73.57,
+      "coverage_probability": 0.01,
+      "index": 10,
+      "limit": 0.0,
+      "name": "Contractor administration fee (1 flat rate)",
+      "price_high": 250.40078027263957,
+      "price_low": 53.114850463000835,
+      "price_median": 115.32562594670787,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.47130887429845425
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 11,
+      "limit": 0.0,
+      "name": "Disposal of old unrelated boiler",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [],
+      "charge": 300.0,
+      "coverage_probability": null,
+      "index": 80,
+      "limit": 35.0,
+      "name": "kg) (1 pcs)",
+      "price_high": null,
+      "price_low": null,
+      "price_median": null,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uninformed-constants",
+      "sigma": null
+    }
+  ],
+  "memory_items": 8,
+  "model_draws": 2,
+  "model_items": 11,
+  "proposals": {
+    "strategy2": {
+      "1": [
+        1747.03,
+        1513.19
+      ],
+      "10": [
+        73.57,
+        0.0
+      ],
+      "11": [
+        64.06,
+        0.0
+      ],
+      "2": [
+        1723.46,
+        1492.78
+      ],
+      "3": [
+        64.06,
+        0.0
+      ],
+      "4": [
+        434.94,
+        434.94
+      ],
+      "5": [
+        434.94,
+        434.94
+      ],
+      "6": [
+        64.06,
+        0.0
+      ],
+      "7": [
+        162.6,
+        105.15
+      ],
+      "8": [
+        68.51,
+        0.0
+      ],
+      "80": [
+        300.0,
+        35.0
+      ],
+      "9": [
+        64.06,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787443774.290833,
+  "recorded_at": 1787443774.289954,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

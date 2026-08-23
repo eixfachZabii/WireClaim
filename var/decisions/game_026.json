@@ -1,0 +1,219 @@
+{
+  "game_id": 26,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 197.59,
+      "coverage_probability": 0.95,
+      "index": 1,
+      "limit": 86.53,
+      "name": "Disassembly and assembly service (1 pcs)",
+      "price_high": 527.208628859143,
+      "price_low": 157.8122880500669,
+      "price_median": 288.44410203711897,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3666231227872056
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 773.8,
+      "coverage_probability": 0.975,
+      "index": 2,
+      "limit": 314.3,
+      "name": "Construction dryer (7 days)",
+      "price_high": 1574.2933439910867,
+      "price_low": 697.2017027127912,
+      "price_median": 1047.6640682967034,
+      "quantity": 7.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.2475644450567098
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 32.34,
+      "coverage_probability": 0.87,
+      "index": 3,
+      "limit": 14.01,
+      "name": "Rock wool pipe insulation (1 pcs)",
+      "price_high": 82.96466778365921,
+      "price_low": 26.272491400359456,
+      "price_median": 46.68713442566234,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 60.31,
+      "coverage_probability": 0.835,
+      "index": 4,
+      "limit": 26.12,
+      "name": "Construction waste disposal (1 flat rate)",
+      "price_high": 154.72180157701834,
+      "price_low": 48.995883548646816,
+      "price_median": 87.06739557667055,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 33.04,
+      "coverage_probability": 0.9299999999999999,
+      "index": 5,
+      "limit": 15.59,
+      "name": "Wall levelling material (1 pcs)",
+      "price_high": 113.69630384160182,
+      "price_low": 23.74747382959393,
+      "price_median": 51.961524227066306,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.47600447795893874
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 225.57,
+      "coverage_probability": 0.9450000000000001,
+      "index": 6,
+      "limit": 96.0,
+      "name": "Rough renovation (2.78 m\u00b2)",
+      "price_high": 543.8954147832302,
+      "price_low": 188.27148973265665,
+      "price_median": 319.99999999999994,
+      "quantity": 2.78,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.32245348349096126
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 134.16,
+      "coverage_probability": 0.96,
+      "index": 7,
+      "limit": 59.7,
+      "name": "Mounting / service opening (1 pcs)",
+      "price_high": 378.4451012041605,
+      "price_low": 104.6386909858212,
+      "price_median": 198.99748742132394,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3907470034545409
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 229.93,
+      "coverage_probability": 0.18,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Premium large-format designer wall tiles 120 x 120 (5 pcs)",
+      "price_high": 1051.4951302735876,
+      "price_low": 148.3601735363345,
+      "price_median": 394.96835316263014,
+      "quantity": 5.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.5952356965334596
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 12.48,
+      "coverage_probability": 0.22,
+      "index": 9,
+      "limit": 0.0,
+      "name": "Premium grout (1 pcs)",
+      "price_high": 69.94066286883259,
+      "price_low": 7.506362943465235,
+      "price_median": 22.9128784747792,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.678387889345277
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 37.17,
+      "coverage_probability": 0.21000000000000002,
+      "index": 10,
+      "limit": 0.0,
+      "name": "Premium silicone sealant (12 m)",
+      "price_high": 120.66583057549136,
+      "price_low": 27.348255792557968,
+      "price_median": 57.445626465380286,
+      "quantity": 12.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.45117697293250963
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 50.2,
+      "coverage_probability": 0.75,
+      "index": 11,
+      "limit": 21.74,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 128.7835321022162,
+      "price_low": 40.7819898524297,
+      "price_median": 72.47101972066238,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 751.53,
+      "coverage_probability": 0.96,
+      "index": 12,
+      "limit": 325.47,
+      "name": "Skilled worker hours (14 hrs)",
+      "price_high": 1927.9025512951,
+      "price_low": 610.5105287917249,
+      "price_median": 1084.8985233882877,
+      "quantity": 14.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    }
+  ],
+  "memory_items": 4,
+  "model_draws": 2,
+  "model_items": 12,
+  "recorded_at": 1787422805.815043,
+  "schema": 1,
+  "strategy": "strategy2"
+}

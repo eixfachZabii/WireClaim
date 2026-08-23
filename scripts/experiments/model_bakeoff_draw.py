@@ -2,9 +2,9 @@
 
 Answers: does `gpt-5.6-terra` or `gpt-5.6-luna` read a Case better than the shipped
 `gpt-5.4-mini`? This script only draws and caches raw evidence -- unchanged
-`ENSEMBLE_PROMPTS` (`src/services/strategies/strategy2/prompts.py`), same
+`ENSEMBLE_PROMPTS` (`src/strategies/strategy2/prompts.py`), same
 `build_input_content` / `build_request_text` plumbing as the live path
-(`src/services/strategies/strategy2/model.py`), just an explicit `model=` instead of
+(`src/strategies/strategy2/model.py`), just an explicit `model=` instead of
 `get_model_name()`. Nothing in `src/` is touched or imported differently than the live
 path already does.
 
@@ -35,14 +35,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.api import get_llm_client, get_service_tier  # noqa: E402
 from src.data.case_loader import read_case  # noqa: E402
 from src.data.models import CaseData  # noqa: E402
-from src.services.policy.slice import slice_policy  # noqa: E402
-from src.services.strategies.strategy1.strategy import build_input_content  # noqa: E402
-from src.services.strategies.strategy2.model import (  # noqa: E402
+from src.evidence.policy.slice import slice_policy  # noqa: E402
+from src.legacy.strategy1.strategy import build_input_content  # noqa: E402
+from src.strategies.strategy2.model import (  # noqa: E402
     build_request_text,
     extract_json,
     parse_items,
 )
-from src.services.strategies.strategy2.prompts import PROMPT, PROMPT_UNANCHORED  # noqa: E402
+from src.strategies.strategy2.prompts import PROMPT, PROMPT_UNANCHORED  # noqa: E402
 
 CACHE = Path("var/experiments/model_bakeoff")
 LEGACY_MODEL_CACHE = Path("var/evidence")
