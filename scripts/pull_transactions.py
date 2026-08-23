@@ -56,7 +56,12 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 BASE = "https://c2f.public.quantco.cloud/leaderboard/api"
-CACHE = Path("var/transactions")
+#: Anchored to the repository root, not to the current working directory. `Path("var/...")`
+#: is resolved against cwd, so a caller that happened to run from `scripts/` forked the whole
+#: store into `scripts/var/transactions` -- 1,020 files and 41 MB of it, a second copy of the
+#: settled record that no longer has to agree with the first. A cache that silently depends on
+#: where you stood when you called it is the same failure as two invoice parsers.
+CACHE = Path(__file__).resolve().parent.parent / "var" / "transactions"
 
 #: Bump when the on-disk shape changes. A file without the current version is refused,
 #: because a file we cannot validate is exactly the thing that poisoned the analysis.

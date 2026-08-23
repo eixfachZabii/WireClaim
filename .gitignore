@@ -52,6 +52,15 @@ dist/
 var/*
 !var/cases/
 var/cases/*
+
+# The same stores, reached from anywhere else. `pull_transactions.py` used a cwd-relative
+# `Path("var/transactions")`, so a caller running from `scripts/` forked the whole cache into
+# `scripts/var/` -- and 862 of those files were then committed, because the rule above only
+# covers `var/` at the root. The path is anchored to the repository root now; this is the
+# belt to that braces.
+scripts/var/
+**/var/transactions/
+**/var/cases/
 !var/cases/.gitkeep
 
 # ...except the learning-loop record, which is the benchmarking corpus and is small.
