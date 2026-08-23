@@ -183,15 +183,15 @@ not the play since: re-base every team to zero at Game~20 and we are \textbf{2nd
 $9{,}702$.
 
 \onecolumn
-\IfFileExists{figures/balance-annotated-light.pdf}{\begin{figure}[h]
+\IfFileExists{figures/rebased-g20-light.pdf}{\begin{figure}[h]
 \centering
-\includegraphics[width=0.70\textwidth]{figures/balance-annotated-light.pdf}
-\caption{Cumulative net over 94 settled Games, all 17 teams; we are the heavy line. The deficit is
-Games 1--25, before the estimator was working; the slope after it is the method. Games 82--89 ran
-with the model channel returning 401 on every call.}
+\includegraphics[width=0.78\textwidth]{figures/rebased-g20-light.pdf}
+\caption{Every team re-based to zero at Game~20, when our estimator went live. Our cumulative net
+at Game~20 was $-354{,}171$, so the gap to the leaders is that hole and not the play since. At the
+conservative Game~26 anchor we are 3rd, top three inside $9{,}702$.}
 \end{figure}
-
 }{}
+
 \section*{\textcolor{accent}{Why we think we succeeded --- and where we did not}}
 \vspace{-0.4em}
 \begin{multicols}{2}
@@ -243,10 +243,6 @@ is still a loss.
 \item \textbf{Eight triple-weighted Games ran with the model dark and we did not notice.} It is the
 best evidence we have that the architecture works, and simultaneously an operational failure: no
 alert on \texttt{model\_draws=0}, during the most valuable Games of the tournament.
-\item \textbf{We were beaten on the thing we understood best.} We had written down that the Charge
-is a cliff and still sat above $\fair$ too often; a rival took $136{,}075$ off one Line Item by
-charging $22\%$ less. Knowing a mechanism and being calibrated to it are different achievements,
-and we only closed that at Game~63.
 \end{itemize}
 \end{multicols}
 
