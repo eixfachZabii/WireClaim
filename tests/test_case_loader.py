@@ -31,6 +31,36 @@ class CaseLoaderTests(unittest.TestCase):
         self.assertEqual([item.quantity for item in line_items], [14.0, 3.0])
         self.assertNotIn(2026, [item.index for item in line_items])
 
+    def test_a_two_word_unit_keeps_its_quantity_and_invents_no_position(self) -> None:
+        """Game 59 position 3, verbatim.
+
+        ``linear m`` was missing from the unit alternation, so the quantity fell back to
+        1.0 *and* the orphaned ``25`` was then read as a new POS number whose description
+        was the unit itself -- a tenth Line Item on a nine-item Case, which we charged on.
+        We charged 321.94 against a proven floor of t >= 1,036.19.
+        """
+        line_items = parse_invoice_text(
+            "POS. DESCRIPTION\n"
+            "1 Remove water-damaged laminate in living room 18 m²\n"
+            "3 Supply and install skirting boards (premium solid oak, 25 linear m\n"
+            "Created on 2026-08-21\n"
+        )
+
+        self.assertEqual([item.index for item in line_items], [1, 3])
+        self.assertEqual([item.quantity for item in line_items], [18.0, 25.0])
+        self.assertNotIn(25, [item.index for item in line_items])
+
+    def test_every_two_word_unit_in_the_settled_record_parses(self) -> None:
+        """``labor units`` (Case 47) and ``lines`` (Case 27) are the other two."""
+        line_items = parse_invoice_text(
+            "POS. DESCRIPTION\n"
+            "7 Service technician hours 9 labor units\n"
+            "8 Translation from Spanish to English 68 lines\n"
+            "Created on 2026-08-21\n"
+        )
+
+        self.assertEqual([item.quantity for item in line_items], [9.0, 68.0])
+
     def test_inline_dash_pair_marks_the_quantity_as_missing(self) -> None:
         line_items = parse_invoice_text(
             "POS. DESCRIPTION AMOUNT UNIT TOTAL\n"
