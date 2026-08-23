@@ -369,11 +369,12 @@ def main() -> None:
         logging.getLogger(http_logger).setLevel(logging.WARNING)
     try:
         if args.game_id is not None:
-            asyncio.run(run_game(args.game_id, dry_run=args.retry_dry))
+            operation = run_game(args.game_id, dry_run=args.retry_dry)
         elif args.retry_dry:
-            asyncio.run(retry_expired_games())
+            operation = retry_expired_games()
         else:
-            asyncio.run(watch_games())
+            operation = watch_games()
+        asyncio.run(_run_with_executor_cleanup(operation))
     except KeyboardInterrupt:
         logger.info("Stopping WireClaim runner.")
 
