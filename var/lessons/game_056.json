@@ -1,0 +1,129 @@
+{
+  "game_id": 56,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 936.36,
+    "paid_on_accepts": 303.96000000000004,
+    "penalties": 0.0,
+    "net": 632.4,
+    "saved_by_rejecting": 2353.15,
+    "lawyer_waste": 0.0,
+    "fraud_let_through": 0.0,
+    "strictness_net": 2353.15
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Disposal of shed roof timber and the broken glass (2 pcs)",
+      "t_lo": 87.12,
+      "t_hi": 118.49,
+      "our_charge": 156.06,
+      "our_limit_bracket": [
+        87.12,
+        Infinity
+      ],
+      "estimate_median": 239.99999999999997,
+      "coverage_probability": 0.98,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 156 against t < 118, so every opponent owed us nothing."
+    },
+    {
+      "index": 2,
+      "name": "Combined storm-clearance load: felled-tree green (3 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 45.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 898.610037780572,
+      "coverage_probability": 0.005,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Disposal of displaced paving grit (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 24.65,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 164.92422502470643,
+      "coverage_probability": 0.005,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Disposal of sieved topsoil from the churned-up ground1 pcs",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 184.93242008906938,
+      "coverage_probability": 0.005,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy2": {
+        "net": 632.3999999999999,
+        "income": 936.3599999999999,
+        "cost": 303.96000000000004,
+        "items_priced": 4,
+        "items_missing": []
+      }
+    },
+    "drivers": [],
+    "reconstructs": true,
+    "actual_net": 632.4,
+    "replayed_actual_net": 632.3999999999999,
+    "oracle_net": 1898.1200000000008,
+    "oracle_exact_net": 1898.1200000000008,
+    "line_items": 4,
+    "best_alternative": null,
+    "best_alternative_delta": 0.0
+  },
+  "estimate": {
+    "n_scorable": 1,
+    "median_log_error": 0.8478049333714263,
+    "rmsle": 0.8478049333714263
+  },
+  "cost_by_stage": {
+    "charge-above-t": 0.0,
+    "ok": 0.0
+  }
+}

@@ -1,0 +1,10 @@
+{
+ "game_id": 56,
+ "draw": "a7172e93",
+ "model": "gpt-5.6-terra",
+ "service_tier": "priority",
+ "elapsed_seconds": 7.76,
+ "recorded_at": 1787445275.5065641,
+ "reply_characters": 1232,
+ "reply": "{\"items\":[{\"line_item\":1,\"coverage_probability\":0.98,\"price_low\":100.0,\"price_median\":180.0,\"price_high\":320.0,\"clause\":\"The insurer reimburses the cost of clearing the insured site of the material arising and of routing it to disposal.\"},{\"line_item\":2,\"coverage_probability\":0.0,\"price_low\":550.0,\"price_median\":950.0,\"price_high\":1600.0,\"clause\":\"Where any element of a combined position is not indemnifiable, the position is not indemnified.\"},{\"line_item\":3,\"coverage_probability\":0.0,\"price_low\":90.0,\"price_median\":170.0,\"price_high\":300.0,\"clause\":\"In particular, the disposal of ground material as a clearance measure standing on its own - without reinstatement of insured property to which it is ancillary, and without the ground being made good - is not indemnified, however the material is described, processed or presented.\"},{\"line_item\":4,\"coverage_probability\":0.0,\"price_low\":100.0,\"price_median\":190.0,\"price_high\":330.0,\"clause\":\"In particular, the disposal of ground material as a clearance measure standing on its own - without reinstatement of insured property to which it is ancillary, and without the ground being made good - is not indemnified, however the material is described, processed or presented.\"}]}"
+}

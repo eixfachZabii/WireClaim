@@ -1,0 +1,101 @@
+{
+  "game_id": 56,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 156.06,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 108.0,
+      "name": "Disposal of shed roof timber and the broken glass (2 pcs)",
+      "price_high": 498.08606414446837,
+      "price_low": 115.6426652870442,
+      "price_median": 239.99999999999997,
+      "quantity": 2.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.4438504305886239
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 638.74,
+      "coverage_probability": 0.005,
+      "index": 2,
+      "limit": 0.0,
+      "name": "Combined storm-clearance load: felled-tree green (3 pcs)",
+      "price_high": 1494.696009525544,
+      "price_low": 540.243631383162,
+      "price_median": 898.610037780572,
+      "quantity": 3.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.30931851671690663
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 113.71,
+      "coverage_probability": 0.005,
+      "index": 3,
+      "limit": 0.0,
+      "name": "Disposal of displaced paving grit (1 pcs)",
+      "price_high": 296.5887602373091,
+      "price_low": 91.70947671191759,
+      "price_median": 164.92422502470643,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3567540471048015
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 127.3,
+      "coverage_probability": 0.005,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Disposal of sieved topsoil from the churned-up ground1 pcs",
+      "price_high": 333.93101091479787,
+      "price_low": 102.41636410559704,
+      "price_median": 184.93242008906938,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3592364473974431
+    }
+  ],
+  "memory_items": 0,
+  "model_draws": 2,
+  "model_items": 4,
+  "proposals": {
+    "strategy2": {
+      "1": [
+        156.06,
+        108.0
+      ],
+      "2": [
+        638.74,
+        0.0
+      ],
+      "3": [
+        113.71,
+        0.0
+      ],
+      "4": [
+        127.3,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787445276.6073012,
+  "recorded_at": 1787445276.6062322,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

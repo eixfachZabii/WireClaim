@@ -1,0 +1,210 @@
+{
+  "game_id": 58,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 169.2,
+      "coverage_probability": 0.03,
+      "index": 1,
+      "limit": 0.0,
+      "name": "Made-to-measure replacement glass pane (1 pcs)",
+      "price_high": 423.0458832812093,
+      "price_low": 138.99201557981874,
+      "price_median": 242.48711305964287,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.3383173722397098
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 33.73,
+      "coverage_probability": 0.03,
+      "index": 2,
+      "limit": 0.0,
+      "name": "Hole drilling (1 pcs)",
+      "price_high": 93.31462827366951,
+      "price_low": 26.523172687795707,
+      "price_median": 49.749371855331,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.38235808240800284
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 112.47,
+      "coverage_probability": 0.03,
+      "index": 3,
+      "limit": 0.0,
+      "name": "Installation of the new glass into the frame (1 pcs)",
+      "price_high": 272.02187359452097,
+      "price_low": 93.7424614537087,
+      "price_median": 159.68719422671313,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.32380888456919743
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.01,
+      "index": 4,
+      "limit": 0.0,
+      "name": "Disposal of broken glass",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 259.74,
+      "coverage_probability": 0.925,
+      "index": 5,
+      "limit": 174.98,
+      "name": "Repair of dented solid-wood side table (knocked over (1 flat rate)",
+      "price_high": 756.3891711206443,
+      "price_low": 199.8970976488021,
+      "price_median": 388.84444190447147,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.40448428509320933
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 6,
+      "limit": 0.0,
+      "name": "Touch-up of pre-existing scratches on a second cabinet",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 49.62,
+      "coverage_probability": 0.905,
+      "index": 7,
+      "limit": 49.62,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 127.30305354164514,
+      "price_low": 40.313165456574275,
+      "price_median": 71.63790240195112,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "charge": 64.06,
+      "coverage_probability": 0.0,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Vehicle costs \u2013 return visit",
+      "price_high": 194.0,
+      "price_low": 48.5,
+      "price_median": 97.0,
+      "quantity": 1.0,
+      "quantity_missing": true,
+      "rule": "uncovered-free-option",
+      "sigma": 0.42136606720969316
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 33.73,
+      "coverage_probability": 0.0,
+      "index": 9,
+      "limit": 0.0,
+      "name": "Administrative flat rate (1 flat rate)",
+      "price_high": 93.31462827366951,
+      "price_low": 26.523172687795707,
+      "price_median": 49.749371855331,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.38235808240800284
+    }
+  ],
+  "memory_items": 4,
+  "model_draws": 2,
+  "model_items": 9,
+  "proposals": {
+    "strategy2": {
+      "1": [
+        169.2,
+        0.0
+      ],
+      "2": [
+        33.73,
+        0.0
+      ],
+      "3": [
+        112.47,
+        0.0
+      ],
+      "4": [
+        64.06,
+        0.0
+      ],
+      "5": [
+        259.74,
+        174.98
+      ],
+      "6": [
+        64.06,
+        0.0
+      ],
+      "7": [
+        49.62,
+        49.62
+      ],
+      "8": [
+        64.06,
+        0.0
+      ],
+      "9": [
+        33.73,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787446800.1310122,
+  "recorded_at": 1787446800.128698,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}
