@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "18445bb7c1cd",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "case_analysis/pitch_figures.py",
+    "presentation/figures/balance-annotated-dark.pdf",
+    "presentation/figures/balance-annotated-dark.png",
+    "presentation/figures/balance-annotated-light.pdf",
+    "presentation/figures/balance-annotated-light.png",
+    "presentation/figures/consistency-dark.pdf",
+    "presentation/figures/consistency-light.pdf",
+    "presentation/figures/per-game-net-dark.pdf",
+    "presentation/figures/per-game-net-light.pdf",
+    "presentation/figures/rebased-g20-dark.pdf",
+    "presentation/figures/rebased-g20-light.pdf",
+    "presentation/slides.pdf",
+    "presentation/writeup-full.pdf",
+    "presentation/writeup.pdf"
+  ],
+  "sessions": [
+    {
+      "metadata": "/18/445bb7c1cd/0/metadata.json",
+      "transcript": "/18/445bb7c1cd/0/full.jsonl",
+      "compact_transcript": "/18/445bb7c1cd/0/transcript.jsonl",
+      "content_hash": "/18/445bb7c1cd/0/content_hash.txt",
+      "prompt": "/18/445bb7c1cd/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 26,
+    "cache_creation_tokens": 15610,
+    "cache_read_tokens": 2577383,
+    "output_tokens": 8292,
+    "api_call_count": 13
+  }
+}
