@@ -37,16 +37,6 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 
 | game | item | name | a (actual) | b (actual) | t (derived) | a/t | b/t | item net | source |
 |---|---|---|---|---|---|---|---|---|---|
-| 67 | 1 | Renew boiler system including flue gas system and (1   flat rate) | 10,343.65 | 708.00 | 16.50 | 626.89 | 42.91 | 3,925.35 | submitted |
-| 67 | 2 | Adjust supply pipework to fit the replacement boiler (1   flat rate) | 290.57 | 308.61 | 344.78 | 0.84 | 0.90 | 3,901.22 | submitted |
-| 67 | 3 | Dispose of the old boiler system (1   –) | 401.29 | 426.19 | 698.84 | 0.57 | 0.61 | -492.03 | submitted |
-| 67 | 4 | Vehicle costs (1   pcs) | 66.58 | 68.94 | 82.17 | 0.81 | 0.84 | 710.14 | submitted |
-| 67 | 5 | Electrician labour checking and rewiring the flooded (12   hrs) | 860.19 | 499.32 | 563.54 | 1.53 | 0.89 | 4,617.14 | submitted |
-| 67 | 6 | Small electrical materials for the rewiring (1   pcs) | 57.47 | 60.82 | 42.79 | 1.34 | 1.42 | 291.71 | submitted |
-| 67 | 7 | Water extraction from the flooded plant room (1   pcs) | 478.72 | 321.36 | 20.82 | 22.99 | 15.43 | 461.36 | submitted |
-| 67 | 8 | Procurement of a motor pump (1   pcs) | 150.06 | 0.00 | 16.50 | 9.09 | 0.00 | 0.00 | submitted |
-| 67 | 9 | Submersible pump (1   pcs) | 237.20 | 0.00 | 16.50 | 14.38 | 0.00 | 0.00 | submitted |
-| 67 | 10 | Vehicle costs (1   pcs) | 66.58 | 0.00 | 8.50 | 7.83 | 0.00 | 0.00 | submitted |
 | 68 | 1 | Replacement of stolen everyday clothing and personal (1   pcs) | 551.11 | 381.84 | 1,554.59 | 0.35 | 0.25 | -3,676.94 | submitted |
 | 68 | 2 | Replacement of a winter coat that had been worn only (1   pcs) | 223.11 | 144.00 | 499.12 | 0.45 | 0.29 | -827.83 | submitted |
 | 68 | 3 | Premium designer jacket to replace a stolen mid-range (1   pcs) | 256.20 | 211.55 | 855.00 | 0.30 | 0.25 | -66.74 | submitted |
@@ -176,12 +166,27 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 | 76 | 15 | - | 63.67 | 66.41 | 79.13 | 0.80 | 0.84 | -3.36 | reconstructed |
 | 76 | 16 | - | - | 10.72 | 10.72 | - | 1.00 | 0.00 | reconstructed |
 | 76 | 17 | - | 75.91 | 19.12 | 19.12 | 3.97 | 1.00 | 227.73 | reconstructed |
+| 77 | 1 | - | 48.93 | 51.48 | 51.48 | 0.95 | 1.00 | 539.41 | reconstructed |
+| 77 | 2 | - | 22.61 | 22.80 | 30.02 | 0.75 | 0.76 | 18.62 | reconstructed |
+| 77 | 3 | - | 233.71 | 243.12 | 287.49 | 0.81 | 0.85 | -668.10 | reconstructed |
+| 77 | 4 | - | 26.44 | 17.22 | 2.98 | 8.89 | 5.79 | 130.89 | reconstructed |
+| 77 | 5 | - | 58.03 | 59.04 | 80.99 | 0.72 | 0.73 | 51.94 | reconstructed |
+| 77 | 6 | - | 433.13 | 217.87 | 24.07 | 17.99 | 9.05 | -567.58 | reconstructed |
+| 77 | 7 | - | - | 22.50 | 22.50 | - | 1.00 | 0.00 | reconstructed |
+| 77 | 8 | - | 66.43 | 9.38 | 9.38 | 7.09 | 1.00 | 66.43 | reconstructed |
+| 77 | 9 | - | 73.14 | 12.00 | 12.00 | 6.09 | 1.00 | 73.14 | reconstructed |
+| 77 | 10 | - | 137.00 | 19.09 | 19.09 | 7.18 | 1.00 | 137.00 | reconstructed |
+| 77 | 11 | - | 56.95 | 7.20 | 7.20 | 7.91 | 1.00 | 56.95 | reconstructed |
+| 77 | 12 | - | 92.94 | 11.50 | 11.50 | 8.08 | 1.00 | 92.94 | reconstructed |
+| 77 | 13 | - | 255.01 | 14.47 | 14.47 | 17.62 | 1.00 | 255.01 | reconstructed |
+| 77 | 14 | - | 123.37 | 22.50 | 22.50 | 5.48 | 1.00 | 123.37 | reconstructed |
+| 77 | 15 | - | 248.63 | 90.00 | 90.00 | 2.76 | 1.00 | 497.26 | reconstructed |
+| 77 | 16 | - | - | 16.11 | 16.11 | - | 1.00 | 0.00 | reconstructed |
 
 Net per round:
 
 | game | net |
 |---|---|
-| 67 | 13,414.89 |
 | 68 | -9,719.85 |
 | 69 | 7,024.65 |
 | 70 | 3,361.93 |
@@ -191,6 +196,7 @@ Net per round:
 | 74 | 29,149.50 |
 | 75 | 9,589.55 |
 | 76 | 15,857.08 |
+| 77 | 807.27 |
 <!-- OURVALUES:END -->
 
 ## Number tables
