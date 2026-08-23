@@ -1,0 +1,24 @@
+The hundred games have finished. Retest all past 100 games and its resulst on our current strategy. (Save the leaderboard games) Find structural gaps of our strategy and fix them in a large creative way. Like our t estimation is bad? Write a entire new workflow for that and so on you can do it in a big sweep
+
+---
+
+'/Users/sebastianrogg/PycharmProjects/Hackathons  Projekte/WireClaim/docs/POSTMORTEM.md' I agree with it but I want to see it live. I want a fully analysis what would have happened if we had our optimized strategy from the start of 1 till 100 The cold start, not the ceiling
+
+Replaying all 100 Games with the finished Price Memory, letting a hit price the item outright, scores +855,591 against our real +224,840 — positive on all five folds, and first place. The caveat is larger than the result. And what our placement would have been assuming all other members acted same
+
+---
+
+commit and push all
+
+---
+
+so what values for a and b do we target in practice? while we still try t' = t in
+
+---
+
+So whats the bottleneck now? Getting t̂ closer to t is
+  the only lever that matters. Then lets look at how we do this. Create a strategy that is better at that and test it against the 100 games and replace that t estimator so then we have even higher returns or not?
+
+---
+
+Take the google adk instead. Look at wealth watcher how it works and take this as the ai we have a large token budget there
