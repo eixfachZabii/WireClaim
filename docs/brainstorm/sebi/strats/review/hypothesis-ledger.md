@@ -1477,3 +1477,77 @@ So the open question is well-posed and genuinely open: **can a model, shown eigh
 their settled prices, choose better than the 1.348 that lexical ranking manages alone — and reach
 past 0.60?** The gap between 1.348 and the 0.358 sitting inside those same eight candidates is
 the whole prize. It cannot be answered without a working model endpoint.
+
+## H29 ❌ A smarter model, asked a better question, still does not pay — and H28's spec called it in advance
+
+**Tested live on Google Gemini 3.1 Pro, 760 model calls, both arms on the same items in the same
+run.** The tournament's Azure deployment (`gpt-5.6-terra`) was decommissioned and returns 404, so
+the evidence layer had no reachable model; `src/api/adk.py` replaces it with a Google ADK runtime
+modelled on the sibling WealthWatcher project's proven pattern (`LlmAgent` + `output_schema` +
+`InMemoryRunner`).
+
+### The architecture
+
+The model is bad at absolute prices and ought to be better at relative ones, so the question was
+changed rather than the model (`src/evidence/comparative.py`): retrieve the eight most lexically
+similar **settled** Line Items, show them with their exactly-recovered Fair Values, and ask which
+one the unpriced item resembles **and by what multiple**. The model returns an anchor index, a
+ratio and a confidence — **never a price**. The engine multiplies. ADR 0001 applied to the one
+number it had never been applied to.
+
+### The control is what makes it readable
+
+Both arms ran on the same model, same items, same run, over the 105 bounded Line Items Price
+Memory misses:
+
+| arm | RMSLE | median log | median abs log |
+| --- | ---: | ---: | ---: |
+| DIRECT — "what is this worth in EUR?" (old framing) | 0.943 | 0.169 | 0.463 |
+| **ANCHORED — "which of these eight, and what ratio?"** | **0.867** | **0.091** | **0.375** |
+| best ensemble (geometric mean of the two) | 0.788 | 0.110 | 0.400 |
+
+The framing genuinely helps: ANCHORED beats DIRECT head-to-head on **60 %** of items, cuts the
+median absolute error from 0.463 to 0.375, and nearly removes the level bias. Note also that
+DIRECT at 0.943 is **better than the retired model's ~1.0** — without this control the
+architecture would have been credited with Gemini simply being a stronger model.
+
+### It loses money, exactly as the spec said it would
+
+H28 measured the bar at **sigma < 0.60**. ANCHORED is 0.867, so it was predicted to fail, and
+replayed over all 99 Games with the shipped Limit stack held intact
+(`scripts/experiments/comparative_replay.py`):
+
+| arm | weighted | vs actual | Games up/down | folds |
+| --- | ---: | ---: | ---: | ---: |
+| ACTUAL | 224,840 | — | — | — |
+| +DIRECT on the misses | −64,924 | **−289,764** | 29/59 | 0/4 |
+| +ANCHORED on the misses | 197,852 | **−26,988** | 38/49 | 2/4 |
+| +ENSEMBLE on the misses | 14,950 | −209,890 | 32/56 | 0/4 |
+| WARM store + ANCHORED | 828,602 | +603,762 | 52/46 | 4/4 |
+| **WARM store alone (H25)** | **855,591** | **+630,751** | 54/28 | 4/4 |
+
+Adding the new estimator to the warm store makes the warm store **worse** by 26,989. **H28's
+threshold predicted the sign of every row here before any of them was run**, which is the
+strongest evidence yet that the spec is the right instrument.
+
+### The most instructive number is the gap between the two arms
+
+DIRECT and ANCHORED differ by 0.076 in RMSLE and by **262,776 in euros**. That is R11: DIRECT's
+median log error is +0.169, so it systematically Charges *above* `t`, and the Charge is a cliff —
+`a = 1.01 t` costs 6,038,602 at the oracle. A small level bias is nearly free in log error and
+close to fatal in euros. Anyone comparing estimators on RMSLE alone will rank them wrongly.
+
+### What it means
+
+Not "the model is not smart enough". Gemini 3.1 Pro, given eight grounded anchors and asked only
+to compare, reaches 0.867 where the bar is 0.60. The items Price Memory misses are ones whose
+wording has never settled before, and **pricing them from wording alone appears to be intrinsically
+hard** — memory clears the bar at 0.458 only because it has *seen the answer* for that exact
+wording. That is a data problem, not an intelligence problem, and the lever is the one already
+measured: ship the store warm (+630,751, 4/4 folds).
+
+**Scope, honestly.** One model, one prompt design, one shortlist strategy (k = 8 by lexical
+overlap). A better shortlist is the untested half — `retrieval_ceiling.py` shows an oracle over
+those same eight reaches 0.358, so the anchors are often present and the failure is *selection*:
+the worst misses are confident picks of a wrong anchor (Game 19, ratio 1.00 at confidence 0.85,
+out by 17x). But 0.867 against a bar of 0.60 is not a tuning gap.

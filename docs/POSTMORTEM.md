@@ -400,9 +400,24 @@ multiplier is worth tens of thousands and is nearly flat in σ; the estimate is 
    means it is an evidence problem too.
 6. **Any replacement `t̂` estimator has a hard spec: σ < 0.60 on the Line Items Price Memory
    misses.** Below that it pays (0.458 → +118,864; 0.35 → +292,212), above it does not
-   (0.60 → −15,587). Robust on 4/4 folds. The model channel is at ~1.0 there. One candidate —
-   case-anchored recalibration — genuinely improves the estimate (0.887 → 0.756) and still does
-   **not** pay, because it does not cross 0.60. See H28.
+   (0.60 → −15,587). Robust on 4/4 folds. The model channel is at ~1.0 there.
+
+   Two candidates have now been built and measured against it, and the spec called both in
+   advance. **Case-anchored recalibration** improves the estimate (0.887 → 0.756) and does not
+   pay. **Comparative retrieval estimation** — a live Gemini 3.1 Pro shown eight settled Line
+   Items with their exact Fair Values and asked which the unpriced item resembles and by what
+   multiple — reaches **0.867**, beats a same-model direct-pricing control (0.943) on 60 % of
+   items, and still costs **−26,988**; stacked on the warm store it makes it *worse*. See
+   H28–H29.
+
+   The most useful number in that pair: DIRECT and ANCHORED differ by 0.076 in RMSLE and by
+   **262,776 in euros**, because DIRECT's small positive bias walks into R11's Charge cliff.
+   **Never rank estimators on log error alone.**
+
+   What it implies is not "the model needs to be smarter". The items memory misses are ones whose
+   wording has never settled; pricing those from wording alone looks intrinsically hard, and
+   memory clears the bar only because it has seen the answer. That is a data problem, and the
+   lever is the one already measured — ship the store warm.
 
 ---
 
