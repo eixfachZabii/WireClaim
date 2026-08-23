@@ -1,0 +1,1 @@
+Read the file var/cases/case_32/invoices.pdf and tell me the total number of line items you see, just the number.
