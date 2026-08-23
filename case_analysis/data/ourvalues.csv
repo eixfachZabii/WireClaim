@@ -1,0 +1,90 @@
+game,item,name,a (actual),b (actual),t (derived),a/t,b/t,item net,source
+58,1,Made-to-measure replacement glass pane (1 pcs),169.20,0.00,35.00,4.83,0.00,507.60,submitted
+58,2,Hole drilling (1 pcs),33.73,0.00,7.00,4.82,0.00,33.73,submitted
+58,3,Installation of the new glass into the frame (1 pcs),112.47,0.00,20.40,5.51,0.00,112.47,submitted
+58,4,Disposal of broken glass,64.06,0.00,8.00,8.01,0.00,192.18,submitted
+58,5,Repair of dented solid-wood side table (knocked over (1 flat rate),259.74,174.98,239.77,1.08,0.73,"-1,624.55",submitted
+58,6,Touch-up of pre-existing scratches on a second cabinet,64.06,0.00,0.00,-,-,0.00,submitted
+58,7,Vehicle costs (1 pcs),49.62,49.62,6.97,7.11,7.11,79.59,submitted
+58,8,Vehicle costs – return visit,64.06,0.00,0.00,-,-,0.00,submitted
+58,9,Administrative flat rate (1 flat rate),33.73,0.00,4.00,8.43,0.00,33.73,submitted
+59,1,Remove water-damaged laminate in living room (18 m²),299.23,299.23,540.00,0.55,0.55,-278.41,submitted
+59,2,Supply & install premium oak laminate incl. impact (18 m²),"1,428.18",701.77,"1,451.09",0.98,0.48,"3,211.92",submitted
+59,3,"Supply and install skirting boards (premium solid oak,",321.94,321.94,"1,036.19",0.31,0.31,"-3,546.22",submitted
+59,4,Disassembly and disposal of damaged floor tiles in (6 m²),350.57,211.50,315.53,1.11,0.67,-759.87,submitted
+59,5,Supply & install premium large-format Italian porcelain (6 m²),"1,200.66",569.03,"1,011.83",1.19,0.56,"-6,309.06",submitted
+59,6,Cleaning of entire apartment (1 flat rate),177.70,0.00,5.68,31.26,0.00,0.00,submitted
+59,7,Paint lower wall after water damage incl. surface (20 m²),524.94,320.86,619.72,0.85,0.52,311.08,submitted
+59,8,Full ceiling paint living room (15 m²),356.65,0.00,15.60,22.86,0.00,0.00,submitted
+59,9,Wallpapering work hallway (8 m²),350.77,0.00,0.00,-,-,0.00,submitted
+60,1,Speaker system (surge damaged) (1 pcs),281.49,281.49,140.75,2.00,2.00,"3,659.37",submitted
+60,2,"Premium replacement TV set (larger, higher-end than (1 pcs)","2,065.13",708.00,544.30,3.79,1.30,"-1,768.76",submitted
+60,3,HDMI cables and connectors,64.06,0.00,2.64,24.27,0.00,0.00,submitted
+60,4,Wall-mount bracket,64.06,0.00,2.80,22.88,0.00,0.00,submitted
+60,5,Remote control,64.06,0.00,2.28,28.10,0.00,0.00,submitted
+60,6,Games console (switched off and unplugged at the,64.06,0.00,0.00,-,-,0.00,submitted
+60,7,Shipping (1 pcs),26.95,0.00,0.00,-,-,0.00,submitted
+60,8,Installation (1 pcs),264.26,0.00,22.50,11.74,0.00,0.00,submitted
+60,9,Diagnostic inspection and surge-failure report for (2 pcs),418.48,0.00,15.50,27.00,0.00,0.00,submitted
+60,10,Wiring safety check of property distribution board,64.06,0.00,13.50,4.75,0.00,192.18,submitted
+60,11,Vehicle costs (1 pcs),51.75,0.00,1.45,35.81,0.00,155.25,submitted
+61,1,Painting the disturbed wall area and closing the wall (1   pcs),680.33,425.12,680.33,1.00,0.62,"3,358.26",submitted
+61,2,Vehicle costs (1   flat rate),50.34,50.34,78.85,0.64,0.64,-189.54,submitted
+61,3,Sealing material (1   pcs),15.98,15.98,24.46,0.65,0.65,31.33,submitted
+61,4,Stainless steel pipe (1   m),26.26,26.26,45.00,0.58,0.58,-251.99,submitted
+61,5,Rock wool pipe insulation (1   m),19.17,19.17,28.87,0.66,0.66,180.57,submitted
+61,6,Installer hours (1   hrs),72.71,42.75,88.30,0.82,0.48,-47.77,submitted
+61,7,Measuring device (1   pcs),64.12,0.00,2.55,25.15,0.00,64.12,submitted
+61,8,Service technician hours (9   hrs),587.66,587.66,839.00,0.70,0.70,-228.35,submitted
+61,9,Vehicle costs (1   pcs),50.34,0.00,6.14,8.20,0.00,151.02,submitted
+61,10,Construction dryer flat-rate charge (1   flat rate),370.53,370.53,585.00,0.63,0.63,"1,030.00",submitted
+61,11,Short saw blade (1   pcs),12.39,0.00,2.12,5.83,0.00,12.39,submitted
+61,12,Gunmetal (2   pcs),48.77,48.77,74.80,0.65,0.65,155.28,submitted
+61,13,Stainless steel pipe (1   m),26.26,0.00,45.00,0.58,0.00,-100.60,submitted
+61,14,"Pipe insulation shell, 100 cm long (1   m)",12.28,8.54,30.60,0.40,0.28,-49.43,submitted
+61,15,Service technician hours (9   hrs),587.66,0.00,800.00,0.73,0.00,16.05,submitted
+62,1,Renew boiler system including flue gas system and (1   flat rate),"10,349.89",0.00,"9,427.30",1.10,0.00,"-25,468.65",submitted
+62,2,Adjust supply pipework to fit the replacement boiler (1   flat rate),597.25,0.00,214.84,2.78,0.00,836.00,submitted
+62,3,Dispose of the old boiler system (1   flat rate),331.59,0.00,626.33,0.53,0.00,-349.50,submitted
+62,4,Vehicle costs (1   flat rate),58.95,0.00,84.42,0.70,0.00,87.59,submitted
+62,5,Installer hours (6   hrs),376.23,0.00,454.84,0.83,0.00,"2,728.35",submitted
+62,6,Vehicle costs (1   flat rate),58.95,0.00,40.34,1.46,0.00,360.57,submitted
+62,7,Procurement of a heat pump (1   flat rate),"8,617.22",0.00,"1,152.81",7.47,0.00,"2,278.22",submitted
+62,8,Submersible pump (1   pcs),134.79,0.00,16.50,8.17,0.00,134.79,submitted
+62,9,Vacuum water (1   flat rate),255.29,0.00,16.50,15.47,0.00,"1,787.03",submitted
+62,10,Small electrical materials for the rewiring (1   flat rate),90.82,0.00,50.54,1.80,0.00,329.91,submitted
+63,1,Air conditioning unit (kitchen) (1   pcs),"1,400.64","1,213.16",27.09,51.71,44.79,"-2,346.02",submitted
+63,2,Installation (1   pcs),419.76,419.76,38.25,10.97,10.97,"-1,389.48",submitted
+63,3,Floor console (1   pcs),62.90,62.90,9.75,6.45,6.45,71.77,submitted
+63,4,Freight shipping (1   pcs),40.25,40.25,5.76,6.99,6.99,-168.28,submitted
+64,1,Remove & reinstall water-damaged laminate incl. (1   flat rate),"1,765.28",708.00,"1,933.43",0.91,0.37,"3,851.78",submitted
+64,2,Remove & reinstall bathroom floor tiles incl. material (1   flat rate),"1,746.78",708.00,"1,059.07",1.65,0.67,"-3,862.19",submitted
+64,3,Prepare & repaint water-damaged lower living-room (20   m²),668.86,404.37,633.38,1.06,0.64,"-3,416.49",submitted
+65,1,-,43.63,29.95,51.80,0.84,0.58,464.82,reconstructed
+65,2,-,20.98,20.95,27.54,0.76,0.76,33.85,reconstructed
+65,3,-,199.01,181.58,291.34,0.68,0.62,"-1,930.74",reconstructed
+65,4,-,24.79,18.27,3.19,7.77,5.73,109.32,reconstructed
+65,5,-,31.55,31.74,42.34,0.75,0.75,398.08,reconstructed
+65,6,-,450.23,258.37,28.50,15.80,9.07,"-1,030.95",reconstructed
+65,7,-,289.21,22.50,22.50,12.85,1.00,289.21,reconstructed
+65,8,-,-,14.53,14.53,-,1.00,0.00,reconstructed
+65,9,-,-,12.00,12.00,-,1.00,0.00,reconstructed
+65,10,-,-,22.50,22.50,-,1.00,0.00,reconstructed
+65,11,-,-,7.50,7.50,-,1.00,0.00,reconstructed
+65,12,-,-,14.50,14.50,-,1.00,0.00,reconstructed
+65,13,-,-,0.00,0.00,-,-,0.00,reconstructed
+65,14,-,-,9.16,9.16,-,1.00,0.00,reconstructed
+65,15,-,215.88,30.55,30.55,7.07,1.00,431.76,reconstructed
+65,16,-,220.36,22.50,22.50,9.79,1.00,220.36,reconstructed
+66,1,-,"2,207.47",759.20,"2,207.47",1.00,0.34,"19,239.91",reconstructed
+66,2,-,597.29,415.69,326.66,1.83,1.27,-215.14,reconstructed
+67,1,-,"2,000.00","1,020.83",16.50,121.21,61.87,"3,925.35",reconstructed
+67,2,-,290.57,299.50,344.78,0.84,0.87,"3,901.22",reconstructed
+67,3,-,401.29,410.55,698.84,0.57,0.59,-492.03,reconstructed
+67,4,-,66.58,68.92,82.17,0.81,0.84,710.14,reconstructed
+67,5,-,860.19,563.54,563.54,1.53,1.00,"4,617.14",reconstructed
+67,6,-,57.47,61.45,42.79,1.34,1.44,291.71,reconstructed
+67,7,-,478.72,370.47,20.82,22.99,17.79,461.36,reconstructed
+67,8,-,-,16.50,16.50,-,1.00,0.00,reconstructed
+67,9,-,-,16.50,16.50,-,1.00,0.00,reconstructed
+67,10,-,-,8.50,8.50,-,1.00,0.00,reconstructed
