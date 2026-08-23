@@ -82,6 +82,7 @@ from src.strategies.fast_path import STANDARD_CHARGE, STANDARD_LIMIT
 from src.strategies.strategy2.blend import blend, combine
 from src.strategies.strategy2.channels import aggregate_class_discount, local_evidence
 from src.strategies.strategy2.constants import (
+    DRAW_GRACE_SECONDS,
     LLM_TIMEOUT_SECONDS,
     STRATEGY_NAME,
     SUBMISSION_RESERVE_SECONDS,
@@ -206,7 +207,10 @@ async def propose(case: CaseData, deadline: float | None = None) -> Proposal | N
         try:
             return await asyncio.wait_for(
                 asyncio.to_thread(request_evidence, case, timeout, prompt),
-                timeout=timeout + SUBMISSION_RESERVE_SECONDS,
+                # `DRAW_GRACE_SECONDS`, not the reserve. Adding the reserve back here cancelled
+                # it: `_draw_timeout` subtracts it precisely so the final PUT has room, and this
+                # guard handed it straight back to a hung draw. See Game 78.
+                timeout=timeout + DRAW_GRACE_SECONDS,
             )
         except Exception as error:
             # Never fatal, on either member. One framing surviving is most of the ensemble,

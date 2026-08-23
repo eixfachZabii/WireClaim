@@ -9,6 +9,7 @@ from src.pricing.engine import Evidence, price_item
 from src.strategies.strategy2.blend import blend as _blend, combine as _combine
 from src.strategies.strategy2.channels import aggregate_class_discount
 from src.strategies.strategy2.constants import (
+    DRAW_GRACE_SECONDS,
     LLM_TIMEOUT_SECONDS,
     SETTLED_MEDIAN,
     STRATEGY_NAME,
@@ -323,7 +324,32 @@ class ParseItemsTests(unittest.TestCase):
 class ProposeTests(unittest.TestCase):
     def test_strategy2_allows_a_55_second_request_window(self) -> None:
         self.assertEqual(LLM_TIMEOUT_SECONDS, 55.0)
-        self.assertEqual(SUBMISSION_RESERVE_SECONDS, 3.0)
+        self.assertEqual(SUBMISSION_RESERVE_SECONDS, 5.0)
+
+    def test_a_hung_draw_cannot_eat_the_submission_reserve(self) -> None:
+        """Game 78 submitted with 0.67 s left of a 60 s window, and this is why.
+
+        `_draw_timeout` subtracts `SUBMISSION_RESERVE_SECONDS` so the final PUT has room. The
+        outer `asyncio.wait_for` then added the same number straight back, so a draw that hung
+        ran to the wire and left nothing for pricing and posting. Had it been a second slower
+        the Fast Path would have stood, charging 1,200.00 on an item worth 8.59.
+
+        The guard must therefore expire *before* the deadline, not at it.
+        """
+        self.assertLess(DRAW_GRACE_SECONDS, SUBMISSION_RESERVE_SECONDS)
+
+        loop_now = 100.0
+        deadline = loop_now + 60.0
+        budget = min(LLM_TIMEOUT_SECONDS, deadline - loop_now - SUBMISSION_RESERVE_SECONDS)
+        outer_guard = budget + DRAW_GRACE_SECONDS
+
+        self.assertLessEqual(
+            loop_now + outer_guard,
+            deadline - (SUBMISSION_RESERVE_SECONDS - DRAW_GRACE_SECONDS),
+            "a hung draw must be killed with time left to price and post",
+        )
+        # The old arithmetic, kept as the thing that must never come back.
+        self.assertGreater(deadline, loop_now + budget + SUBMISSION_RESERVE_SECONDS - 0.001)
 
     def test_a_model_failure_still_produces_a_submission(self) -> None:
         """Submitting nothing is the most expensive thing we do: 139,904 over three Games."""

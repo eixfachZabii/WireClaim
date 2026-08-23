@@ -31,7 +31,26 @@ STRATEGY_NAME = "strategy2"
 LLM_TIMEOUT_SECONDS = 55.0
 
 #: Leave this much of the window for the final PUT after the last draw returns.
-SUBMISSION_RESERVE_SECONDS = 3.0
+#:
+#: Raised from 3.0 after Game 78, which submitted at **T+59.33 s of a 60 s window -- 0.67 s to
+#: spare** -- because one draw hung and the guard that was supposed to stop it did not. Had it
+#: been a second slower the Fast Path would have stood, and on that Case the Fast Path wanted
+#: 1,200.00 on a Line Item Strategy 2 priced at 8.59. A Charge that far above `t` earns nothing
+#: from anybody, so the Game would have scored near zero. Games 81-100 pay triple.
+SUBMISSION_RESERVE_SECONDS = 5.0
+
+#: How much longer the outer `asyncio.wait_for` waits than the HTTP call it wraps.
+#:
+#: This exists only so the inner timeout raises first and the log says *why* a draw died rather
+#: than "cancelled". It must stay far below `SUBMISSION_RESERVE_SECONDS`, because the outer guard
+#: is the one that actually binds when a call hangs without honouring its own timeout.
+#:
+#: It used to be `SUBMISSION_RESERVE_SECONDS` itself, which silently cancelled the reserve:
+#: `_draw_timeout` subtracts the reserve to protect the final PUT, and the outer guard added the
+#: same number straight back, so a hung draw was allowed to run to the wire with nothing left for
+#: pricing and posting. Game 78 is the arithmetic in full -- `min(55, 60 - 1.3 - 3) = 55`, outer
+#: guard `55 + 3 = 58`, draw killed at **58.016 s**, submission at 59.33 s.
+DRAW_GRACE_SECONDS = 0.5
 
 #: Median settled Fair Value. Used as the reference distribution in the prompt and as the
 #: band for an item we cannot price at all (`channels.worthless_evidence`).
