@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "a221810e8850",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "CLAUDE.md",
+    "data/price_memory.json",
+    "data/tournament/final_standings.json",
+    "data/tournament/matrix_raw.json",
+    "data/tournament/per_game_net.csv",
+    "data/tournament/standings.md",
+    "docs/POSTMORTEM.md",
+    "docs/brainstorm/sebi/strats/review/hypothesis-ledger.md",
+    "pixi.toml",
+    "scripts/archive_tournament.py",
+    "scripts/experiments/blend_weight_sweep.py",
+    "scripts/experiments/calibration_backtest.py",
+    "scripts/experiments/ceiling.py",
+    "scripts/experiments/counterfactual_standings.py",
+    "scripts/experiments/estimate_calibration.py",
+    "scripts/experiments/field_charge_law.py",
+    "scripts/experiments/limit_folds_100.py",
+    "scripts/experiments/limit_sweep_100.py",
+    "scripts/experiments/memory_first.py",
+    "scripts/experiments/price_of_sigma.py",
+    "scripts/postmortem.py",
+    "src/evidence/memory.py",
+    "src/pricing/calibration.py",
+    "tests/test_calibration.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/a2/21810e8850/0/metadata.json",
+      "transcript": "/a2/21810e8850/0/full.jsonl",
+      "compact_transcript": "/a2/21810e8850/0/transcript.jsonl",
+      "content_hash": "/a2/21810e8850/0/content_hash.txt",
+      "prompt": "/a2/21810e8850/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 410,
+    "cache_creation_tokens": 796131,
+    "cache_read_tokens": 51102029,
+    "output_tokens": 229049,
+    "api_call_count": 205
+  }
+}

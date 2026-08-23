@@ -1,0 +1,7 @@
+The hundred games have finished. Retest all past 100 games and its resulst on our current strategy. (Save the leaderboard games) Find structural gaps of our strategy and fix them in a large creative way. Like our t estimation is bad? Write a entire new workflow for that and so on you can do it in a big sweep
+
+---
+
+'/Users/sebastianrogg/PycharmProjects/Hackathons  Projekte/WireClaim/docs/POSTMORTEM.md' I agree with it but I want to see it live. I want a fully analysis what would have happened if we had our optimized strategy from the start of 1 till 100 The cold start, not the ceiling
+
+Replaying all 100 Games with the finished Price Memory, letting a hit price the item outright, scores +855,591 against our real +224,840 — positive on all five folds, and first place. The caveat is larger than the result. And what our placement would have been assuming all other members acted same

@@ -1,0 +1,119 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "a221810e8850",
+  "session_id": "b0aed7ad-fb63-40e6-bd96-b3858a8d5ae3",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-23T13:30:08.93654Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "save_step_count": 2,
+  "files_touched": [
+    "CLAUDE.md",
+    "data/price_memory.json",
+    "data/tournament/final_standings.json",
+    "data/tournament/matrix_raw.json",
+    "data/tournament/per_game_net.csv",
+    "data/tournament/standings.md",
+    "docs/POSTMORTEM.md",
+    "docs/brainstorm/sebi/strats/review/hypothesis-ledger.md",
+    "pixi.toml",
+    "scripts/archive_tournament.py",
+    "scripts/experiments/blend_weight_sweep.py",
+    "scripts/experiments/calibration_backtest.py",
+    "scripts/experiments/ceiling.py",
+    "scripts/experiments/counterfactual_standings.py",
+    "scripts/experiments/estimate_calibration.py",
+    "scripts/experiments/field_charge_law.py",
+    "scripts/experiments/limit_folds_100.py",
+    "scripts/experiments/limit_sweep_100.py",
+    "scripts/experiments/memory_first.py",
+    "scripts/experiments/price_of_sigma.py",
+    "scripts/postmortem.py",
+    "src/evidence/memory.py",
+    "src/pricing/calibration.py",
+    "tests/test_calibration.py"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5",
+  "turn_id": "05efb8fbe22d",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 410,
+    "cache_creation_tokens": 796131,
+    "cache_read_tokens": 51102029,
+    "output_tokens": 229049,
+    "api_call_count": 205
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01LrkKnKFLNSSWS5JNb1JgBf",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "artifact-design"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "05efb8fbe22d",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 797,
+        "end": 798,
+        "entry_ids": [
+          "9a2a36a0-24af-417d-859a-b8a2d246bc67"
+        ],
+        "tool_use_id": "toolu_01LrkKnKFLNSSWS5JNb1JgBf"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01LrkKnKFLNSSWS5JNb1JgBf"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: artifact-design",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-23T13:30:08.513957Z",
+    "agent_lines": 12723,
+    "agent_removed": 665,
+    "human_added": 543,
+    "human_modified": 107,
+    "human_removed": 0,
+    "total_committed": 13373,
+    "total_lines_changed": 14399,
+    "agent_percentage": 92.97867907493576,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 12253,
+      "agent_lines_removed": 665
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 12830,
+      "agent_lines_removed": 665
+    }
+  ]
+}
