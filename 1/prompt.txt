@@ -1,0 +1,63 @@
+<task-notification>
+<task-id>a9fd7a7dd602f537d</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-sebastianrogg-PycharmProjects-Hackathons---Projekte-WireClaim/f4712136-851d-4ce5-b4ec-4a709bd8517f/tasks/a9fd7a7dd602f537d.output</output-file>
+<status>completed</status>
+<summary>Agent "Refresh all data to G97" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Both changes applied, verified, and re-rendered clean.
+
+## Verification of your five claims — all five confirmed exactly
+
+Computed over G68–97 from `balance.csv`, population σ (ddof=0), unweighted per-Game nets:
+
+| claim | computed | verdict |
+|---|---|---|
+| our mean/σ = 0.689 | **0.6894** | ✅ |
+| rank 1 among positive-mean teams | **1st of 8** (8 teams have positive mean) | ✅ |
+| our σ = 11,041, 2nd-lowest of 17 | **11,041**, rank **2** | ✅ |
+| 4 losing Games, Codacabana 3 | **us 4, Codacabana 3** → second fewest | ✅ |
+| our worst Game = −9,720 | **−9,719.85** (G68) | ✅ |
+| 7 teams with a Game worse than −80,000 | **7**, strict and inclusive | ✅ |
+
+Top of the table: **Bin busy +0.6894** · Codacabana +0.6610 · eyay +0.5045 · error404 ai +0.5042 · TakeTheMoneyAndRun +0.1585. Our μ over the window is **7,611**.
+
+Three things worth knowing about the margins:
+- **"1st of the 8 profitable teams" is the same statement as "1st of all 17" here** — every unprofitable team has a negative ratio, so nobody is hidden by the filter. The figure headline therefore reads **"Best risk-adjusted return in the field"**, the stronger form, and it is literally what the chart shows.
+- **The σ claim is thin.** error404 ai is at 10,931 against our 11,041 — a gap of **110**, about 1 %. "2nd-lowest" is true but one Game could flip it.
+- **Nullpointer Naan lands at −79,999.76 again**, 24 cents above the line. Strict `&lt; −80,000` and inclusive `≤ −80,000` both give 7, so there is still no tie to handle — same as at 94 Games, where the old "or 8" hedge was already unfounded.
+
+## What I changed in `case_analysis/pitch_figures.py`
+
+1. **`span_x` fix, exactly as proposed** — `span_x = max(abs(ratio)) * 1.06`, `set_xlim(±span_x)`, `cx = {"losses": span_x + 0.30, "worst": span_x + 0.72}`. (It turned out this had already landed on disk before the earlier rejection; only the PNGs were stale.)
+2. **`CONSISTENCY_WINDOW` → `(68, 97)`**, with a comment recording *why* — that over the narrower 20-Game window we are 4th, not 1st, so nobody silently widens or narrows it later without seeing the trade.
+
+Two further edits I had to make to render it, both forced rather than chosen:
+
+3. **The accent line had to split into two.** Adding the σ-rank clause pushed it past the canvas edge — the first render read "…lost more than 80,000 in a sing". At fontsize 14.5 from x=0.215 only ~100 characters clear the right edge. It is now two lines at y=0.874 and y=0.836, both fully inside, no collision with the column headers.
+4. **The headline needed a rank-1 form.** `ordinal(1)` produced "**1st-best** risk-adjusted return in the field". It now reads "Best risk-adjusted return in the field" at rank 1 and keeps the "{N}th-best" form otherwise.
+
+## Printed values on the re-rendered figure
+
+- Title: **"Best risk-adjusted return in the field"**
+- Standfirst: **"per-Game net over the last thirty Games, 68–97 · all 17 teams · μ = 7,611, σ = 11,041, μ/σ = 0.689"**
+- Accent line 1: **"4 losing Games in 30; the worst cost −9,720.  2nd-lowest σ of all 17 teams."**
+- Accent line 2: **"Seven teams lost more than 80,000 in a single Game."**
+- Column header: **"losing Games (of 30)"** — it was already derived from the window, so it moved on its own.
+- Our row: **Bin busy · +0.69 · 4 · −9,720**
+
+Confirmed by opening both PNGs: **no collision** in either theme, nothing clipped, no "of 20" anywhere.
+
+## One side effect you should know about before the slides quote it
+
+`fig_per_game` reads the same `CONSISTENCY_WINDOW` constant for its bottom annotation, so `per-game-net-{dark,light}` changed too. Its arrow and caption now read **"G68–97: σ = 11,041 · 4 losing Games in 30 · worst −9,720"** instead of the old G78–97 / 20-Game version. I opened it — it renders clean and the arrow span correctly starts at G68. It is consistent with the new narrative, but if any slide or caption quotes that figure's numbers, they moved.
+
+`balance-annotated` and `rebased-g20` are unchanged in content (re-rendered byte-differently, identical numbers).
+
+## Scope
+
+Touched only `case_analysis/pitch_figures.py` and `presentation/figures/`. No doc, slide or `.tex`.
+
+Heads up on two things in `git status` that are **not mine**: `docs/GAME-AND-PROOFS.md` shows as modified (15 insertions, 13 deletions) and `README.md` shows as untracked. I did not edit either — presumably your parallel doc pass. My earlier `balance.py` `ncols`→`ncol` fix and the first round of figure changes are already in your commit `1671564`.</result>
+<usage><subagent_tokens>164378</subagent_tokens><tool_uses>13</tool_uses><duration_ms>232770</duration_ms></usage>
+</task-notification>
