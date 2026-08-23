@@ -1053,3 +1053,57 @@ Holding a measured +11k/Game rate beats an unmeasurable swing at it.
 **This is the top item for whoever has a validation loop and time.** The specific change: teach
 the coverage step that 7.1.5 has two halves, and that a description understating the wetted area
 does not narrow the *room-scope* extension for extraction, drying and reinstatement of finishes.
+
+---
+
+## H19 ❌ The model channel was dark for eight triple-weighted Games and we cannot prove it mattered
+
+Games **82-89 all ran with `model_draws=0`**. The Azure endpoint returned `401 - Access denied due
+to invalid subscription key or wrong API endpoint` on every call, for both ensemble draws and the
+Fast Path, across eight consecutive Games — every one of them weighted 3x. Those Games were priced
+by Price Memory and the fitted constants alone. It recovered by itself at Game 90.
+
+**Nothing broke, and that is the first result.** The degradation path held exactly as designed:
+the blind floor posted at T+0, Price Memory priced what it recognised, the fitted constants
+covered the rest, and eight Games banked **+254,092 weighted**. Rule 1 says the default submission
+is an incident and never a fallback; this is the eight-Game proof that the fallback chain beneath
+the model is real rather than aspirational.
+
+**The tempting conclusion is that the model channel is dead weight, and it does not survive a
+test.** Normalising by the oracle ceiling, because Case value swings twentyfold and raw per-Game
+nets cannot be compared:
+
+| | n | mean capture |
+| --- | ---: | ---: |
+| model dark | 9 | **28.4 %** |
+| model live | 57 | 17.5 % |
+
+A +10.8 point gap. But capture has a standard deviation of 34 % dark and **75 %** live, ranging
+from −296 % to +434 %, and a permutation test over 200,000 shuffles gives **p = 0.208**. One split
+in five is this lopsided by chance. Not actionable.
+
+**What the estimates say, with an honest caveat.** Bucketed on `t̂` — the only split knowable at
+submission time — every bucket estimates *high*: 2.36x under 100, 1.87x at 100-400, 1.73x at
+400-1000, 4.40x above 1000. That matters because five consecutive per-Game reviews (88, 89, 90,
+91, 92) each named `estimate-too-low` as the dominant stage and proposed raising estimates. The
+stage fires only when `t̂ < t_lo`, so **it selects the left tail by construction**, and acting on it
+would have repeated the regression artefact that already cost eight experiments.
+
+The caveat cuts at our own numbers too: that measurement filters to uncensored brackets, and an
+item is uncensored *because* somebody rightfully rejected it, which skews toward low `t`. It is
+the mirror image of the same selection. So the *levels* are not trustworthy either. What survives
+is the contrast under one filter, where both sides share the bias:
+
+    memory spoke    n=291    1.27x    RMSLE 1.39
+    model only      n=206    7.12x    RMSLE 2.30
+
+Consistent with the pre-existing `MEMORY_SIGMA = 0.43` against the model's realised RMSLE of
+1.66 / 1.82 / 2.20, and with exact-wording recall having reached **75 %** (807 of 1069 Line Items
+now seen in another Case). Coherent, mechanistically plausible, and still not licensed by a
+net-effect test at p = 0.208.
+
+**No change shipped.** With eight triple-weighted Games left, an unvalidated change to the channel
+blend is a bet against a measured noise floor, and the two changes tonight that looked strongest on
+paper — the coverage recalibration and this — were both killed by a second look. The honest summary
+is that Price Memory is measurably the better channel and we ran out of evidence, not that the
+model should be switched off.
