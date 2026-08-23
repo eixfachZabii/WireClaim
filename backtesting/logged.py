@@ -17,8 +17,8 @@ from backtesting.models import GameScore, HistoricalGame, Interval, Submission
 from backtesting.paths import RUN_SCHEMA_VERSION, RUNS
 from backtesting.reporting import print_summary, write_report
 from backtesting.scoring import reconstructed_submission, score_game
-from src.observability.decisions import load as load_decisions
-from src.observability.decisions import path_for, proposals
+from src.runtime.decisions import load as load_decisions
+from src.runtime.decisions import path_for, proposals
 
 
 def replay_logged(

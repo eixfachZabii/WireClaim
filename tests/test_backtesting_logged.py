@@ -18,7 +18,7 @@ from backtesting.models import (
     TeamDecision,
     Transaction,
 )
-from src.observability import decisions as decision_log
+from src.runtime import decisions as decision_log
 
 
 class LoggedReplayTests(unittest.TestCase):
