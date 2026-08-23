@@ -233,10 +233,24 @@ def _stage(item: dict, t_lo: float, t_hi: float, charge: float | None) -> tuple[
         # 12,155 and did contain the truth. So this is a centring failure, which is why
         # widening the band does not fix it and why it survives into the Charge, which is
         # taken as a factor of the median.
+        # The shortfall is quoted because the stage alone implies a severity it does not have.
+        # Game 76 tagged three items `estimate-too-low`, and one of them was a median of 597
+        # against a floor of 599 -- **0.3 % out**, carrying 3,434 of penalty. That is not an
+        # estimation failure, it is a Limit sitting a third of the way down a correct posterior,
+        # and a reader who sees only the label goes looking for the wrong bug. The per-Game
+        # reviews read this line and chase what it says.
+        #
+        # Deliberately *not* a threshold. The comment above records why: `charge-far-below-t`
+        # already gates on `0.5 * t_lo`, and that gate missed Game 44's watch by fifty-eight
+        # euros on an item carrying 85 % of the Game's penalty. Suppressing small shortfalls
+        # would rebuild exactly that trap. Every one still gets named; the reader now gets the
+        # number needed to triage them.
+        shortfall = (t_lo - median) / t_lo if t_lo > 0 else 0.0
         return (
             "estimate-too-low",
-            f"Estimated {median:.0f} against a proven floor of t >= {t_lo:.0f}; the Charge and "
-            f"the Limit are both taken from that median, so both landed low.",
+            f"Estimated {median:.0f} against a proven floor of t >= {t_lo:.0f} "
+            f"({shortfall:.1%} low); the Charge and the Limit are both taken from that median, "
+            f"so both landed low.",
         )
     return "ok", "Nothing obviously wrong with this item."
 
