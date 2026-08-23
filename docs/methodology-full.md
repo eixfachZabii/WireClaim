@@ -203,7 +203,7 @@ item being expensive. Any statistic conditioned on "censored" is selection on th
 
 ## 6. Where we stand, honestly
 
-Rank is a lagging indicator: Games 1–25 ran before the current estimator existed and cost
+Rank is a lagging indicator: Games 1–25 ran before the current estimator was working and cost
 322,595, which is the whole of our deficit. Judge the rate.
 
 Since the Charge fixes went live, the eight settled Games run

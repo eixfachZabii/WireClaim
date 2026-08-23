@@ -100,7 +100,7 @@ result driven by a few *Games*, never one driven by a few *items*.
   within **4.3 %** of the field leader.
 - **The distribution is tight, which is the part we would actually defend.** **2 losing Games in
   the last 20, the worst costing 3,941**; 4 losing Games in the last 30, the fewest of any team.
-  That is the **2nd-best risk-adjusted return in the field** (mean/σ = 0.72 vs 0.83). Five teams
+  That is the **2nd-best risk-adjusted return in the field** (mean/σ = 0.72 vs 0.83). Seven teams
   carry a single Game worse than −80,000; our deepest hole in thirty Games is −9,720. In an
   insurance book, the narrow distribution is the number that matters.
 - **The architecture degraded instead of failing.** Eight triple-weighted Games ran with the model
@@ -116,7 +116,9 @@ result driven by a few *Games*, never one driven by a few *items*.
 ## Did not succeed
 
 - **We spent the first quarter of the tournament building the instrument instead of scoring.**
-  Games 1–25 cost **−322,595**, which is larger than our entire current season net. Every point of
+  Strategy 2 first went live around Game 20, but Games 21–24 still submitted the fallback Limit
+  of 35 on every Line Item, so the estimator was not really working until Game 26. Games 1–25
+  cost **−322,595**, which is larger than our entire current season net. Every point of
   our deficit is there. The rate says the decision was right; the total says we paid full price
   for it.
 - **The estimate, not the strategy, is the entire remaining gap — and we found that out late.**

@@ -265,16 +265,16 @@ stopped looking for cleverness in the decision rules.
 
 
 % --- the hero figure, included only once the chart script has run -------------
-\IfFileExists{figures/balance-annotated-light.pdf}{%
-\begin{figure*}[t]
+\onecolumn
+\IfFileExists{figures/balance-annotated-light.pdf}{\begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{figures/balance-annotated-light.pdf}
-\caption{Cumulative net over 94 settled Games, all 17 teams. We are the heavy line. The deficit is
-Games 1--25, before the estimator existed; the slope after Game~26 is the method. Games 82--89 ran
+\caption{Cumulative net over 94 settled Games, all 17 teams; we are the heavy line. The deficit is
+Games 1--25, before the estimator was working; the slope after it is the method. Games 82--89 ran
 with the model channel returning 401 on every call.}
-\end{figure*}}{}
+\end{figure}
 
-\onecolumn
+}{}
 \section*{\textcolor{accent}{Why we think we succeeded --- and where we did not}}
 \vspace{-0.4em}
 \begin{multicols}{2}
@@ -288,7 +288,7 @@ Field rather than argued. Three claims we had written down as fact were falsifie
 of seventeen over the 69 Games since the estimator existed, within $4.3\%$ of the leader.
 \item \textbf{The distribution is tight, and that is the result we would defend.} Two losing Games
 in the last twenty, the worst costing $3{,}941$; four in the last thirty, fewest of any team.
-Mean-to-$\sigma$ of $0.72$, second best in the field, while five teams carry single Games worse
+Mean-to-$\sigma$ of $0.72$, second best in the field, while seven teams carry single Games worse
 than $-80{,}000$. In an insurance book the narrow distribution is the number that matters.
 \item \textbf{It degraded instead of failing.} Eight consecutive $3\times$-weighted Games ran with
 the model channel completely dark and still banked $+254{,}092$, because no scored number ever

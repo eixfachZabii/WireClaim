@@ -95,7 +95,7 @@ unbounded *because* nobody rightfully rejected, which is selection on the answer
 ## Where we stand, honestly
 
 Rank lags the strategy. **After nine Games we were 17th of 17 — last.** We are now **5th**, on
-+231,298 weighted. Games 1–25 ran before the current estimator existed and cost **322,595**, which
++231,298 weighted. Games 1–25 ran before the current estimator was working and cost **322,595**, which
 is larger than our entire current season net: the deficit *is* the learning curve.
 
 Judge the rate. Over the last twenty settled Games we are **2nd in the field** at **+6,897 per

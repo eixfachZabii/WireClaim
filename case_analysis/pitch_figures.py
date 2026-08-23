@@ -286,7 +286,7 @@ def fig_balance(th, games, teams, bal):
                 arrowprops=dict(arrowstyle="-", color=th["accent"], lw=1.6,
                                 shrinkA=10, shrinkB=5,
                                 connectionstyle="arc3,rad=0"))
-    ax.text(17.0, 250_000 - 0.048 * (ymax - ymin), "Games 9–12",
+    ax.text(17.0, 250_000 + 0.052 * (ymax - ymin), "Games 9–12",
             ha="left", va="center", fontsize=13.5, color=th["muted"], zorder=9)
 
     draw_dark_channel(ax, th, 0.843, 0.866,
@@ -445,12 +445,12 @@ def fig_per_game(th, mgames, nets):
                 textcoords=ax.get_xaxis_transform(),
                 arrowprops=dict(arrowstyle="<->", color=th["fg"], lw=1.4,
                                 alpha=0.8))
-    ax.text((lo - 0.5 + n) / 2, yb + 0.022,
+    ax.text(n + 0.6, yb + 0.028,
             f"G{lo}–{hi}:   σ = {pstdev(late):,.0f}   ·   "
             f"{sum(1 for v in late if v < 0)} losing Games in {len(late)}   ·   "
             f"worst {min(late):,.0f}".replace("-", "−"),
             transform=ax.get_xaxis_transform(),
-            ha="center", va="bottom", fontsize=15, color=th["fg"])
+            ha="right", va="bottom", fontsize=15, color=th["fg"])
 
     draw_dark_channel(ax, th, 0.085, 0.108, "G82–89 model channel dark")
 
