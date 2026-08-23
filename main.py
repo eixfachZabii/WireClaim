@@ -327,6 +327,13 @@ async def retry_expired_games(now: datetime | None = None) -> None:
         await run_game(int(game["id"]), dry_run=True)
 
 
+async def _run_with_executor_cleanup(operation: Awaitable[None]) -> None:
+    try:
+        await operation
+    finally:
+        await asyncio.get_running_loop().shutdown_default_executor()
+
+
 async def watch_games() -> None:
     games = sorted(
         await asyncio.to_thread(list_games),
