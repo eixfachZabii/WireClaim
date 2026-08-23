@@ -51,6 +51,7 @@ review-game = { cmd = "python scripts/review_game.py", env = { PYTHONPATH = "." 
 export = { cmd = "python scripts/export_runs.py", env = { PYTHONPATH = "." } }
 backtest-sync = { cmd = "python -m backtesting sync", env = { PYTHONPATH = "." } }
 backtest-run = { cmd = "python -m backtesting run --spec backtesting/specs/default.json", env = { PYTHONPATH = "." } }
+backtest-api = { cmd = "python -m backtesting serve-api", env = { PYTHONPATH = "." } }
 
 [pypi-dependencies]
 openai = ">=3.3.1, <4"
