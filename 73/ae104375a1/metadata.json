@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "73ae104375a1",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".nojekyll",
+    "index.html"
+  ],
+  "sessions": [
+    {
+      "metadata": "/73/ae104375a1/0/metadata.json",
+      "transcript": "/73/ae104375a1/0/full.jsonl",
+      "compact_transcript": "/73/ae104375a1/0/transcript.jsonl",
+      "content_hash": "/73/ae104375a1/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 12,
+    "cache_creation_tokens": 11010,
+    "cache_read_tokens": 1461154,
+    "output_tokens": 5692,
+    "api_call_count": 6
+  }
+}
