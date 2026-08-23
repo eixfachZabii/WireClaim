@@ -133,6 +133,24 @@ li b{color:var(--fg)}
 .slide.visible .reveal:nth-child(5){transition-delay:.37s}
 .slide.visible .reveal:nth-child(6){transition-delay:.45s}
 
+
+/* ---------- presenter script: hidden by default, N toggles ---------- */
+#notes{
+  position:fixed;left:0;right:0;bottom:0;z-index:100;display:none;
+  background:#111316f2;border-top:2px solid var(--accent);
+  padding:.7rem clamp(.8rem,2.4vw,2rem) .8rem;
+  backdrop-filter:blur(6px);
+  font-size:clamp(.72rem,1.15vw,.95rem);line-height:1.5;
+}
+#notes.on{display:block}
+#notes .row{display:flex;gap:1.1rem;align-items:baseline}
+#notes .clk{font-weight:800;color:var(--accent);white-space:nowrap;letter-spacing:.03em}
+#notes .clk.over{color:#F26D5B}
+#notes .el{color:var(--fg-3);font-size:.82em;white-space:nowrap}
+#notes ul{margin:.3rem 0 0;padding-left:1.05rem;display:flex;flex-direction:column;gap:.18rem}
+#notes b{color:#fff}
+@media print{#notes{display:none!important}}
+
 /* ---------- chrome ---------- */
 .progress{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:99;width:0;transition:width .25s var(--ease)}
 .dots{position:fixed;right:clamp(.5rem,1.4vw,1.3rem);top:50%;transform:translateY(-50%);z-index:98;display:flex;flex-direction:column;gap:.55rem}
@@ -151,7 +169,8 @@ li b{color:var(--fg)}
 <body>
 <div class="progress" id="progress"></div>
 <nav class="dots" id="dots" aria-label="Slide navigation"></nav>
-<div class="hint">← → to navigate</div>
+<div class="hint">← → to navigate &nbsp;·&nbsp; N for script</div>
+<div id="notes" aria-hidden="true"></div>
 <main id="deck">
 <!-- ═══════════ TITLE ═══════════ 0:00–0:10 -->
 <section class="slide" style="justify-content:flex-end">
@@ -423,6 +442,8 @@ class Deck{
     this.slides.forEach(s=>io.observe(s));
   }
   mark(i){
+    if(i>0&&t0===null)t0=Date.now();          // the five minutes start on the first advance
+    if(typeof paintNotes==='function')paintNotes(i);
     this.dots.forEach((d,j)=>d.setAttribute('aria-current',j===i?'true':'false'));
     document.getElementById('progress').style.width=((i+1)/this.slides.length*100)+'%';
   }
@@ -447,7 +468,47 @@ class Deck{
     },{passive:true});
   }
 }
-addEventListener('DOMContentLoaded',()=>new Deck());
+addEventListener('DOMContentLoaded',()=>{window.__deck=new Deck()});
+
+/* ============================================================
+   Presenter script. Hidden by default so it never reaches the
+   projector; N toggles it. The clock starts on the first advance
+   off the title, because that is when the five minutes start.
+   ============================================================ */
+const SCRIPT=[
+ {t:"0:00 → 0:10",end:10,l:["We're <b>Bin busy</b>.","<b>We stopped guessing what a claim is worth, and started measuring what it turned out to be worth.</b>"]},
+ {t:"0:10 → 0:50",end:50,l:["One rule decides this game. <b>Reject a fair claim and the other team still gets paid — and you pay a penalty on top.</b>","So a fair price is paid by all sixteen opponents. Too high, and only the few who accept pay you.","<b>It's a cliff, not a slope.</b> Game 62: a rival charged 22% less. Sixteen teams paid them, three paid us. That one item was 87% of their Game."]},
+ {t:"0:50 → 1:25",end:85,l:["The fair value is secret. <b>But once a Game settles you can work it out exactly.</b>","A rejection that still moved money proves the price was fair. A rejection at zero proves it was too high.","52,000 settled rows, every published result reproduced to the cent. <b>So every number today is measured, not argued.</b>"]},
+ {t:"1:25 → 1:55",end:115,l:["One rule: <b>the model reads, the engine prices.</b>","The model never outputs a price — it gives evidence: is this covered, the clause quoted word for word, a price range.","Plain code turns that into our two numbers. <b>A model that guesses a price can't be replayed. Evidence can.</b>"]},
+ {t:"1:55 → 2:30",end:150,l:["Four steps, sixty seconds per case.","The one-third isn't tuned, it's derived — <b>rejecting a fair claim costs one and a half times; rejecting a fraud costs nothing.</b>","It ran unattended all night. One team never submitted — <b>zero income all tournament, minus 2.9 million.</b>"]},
+ {t:"2:30 → 3:00",end:180,l:["Every grey line is a rival. We're the yellow one.","<b>After nine Games we were dead last — 17th of 17.</b>","The hole is Games 1 to 25, before the estimator worked. It cost us 322,595 — more than our whole season."]},
+ {t:"3:00 → 3:20",end:200,l:["Season total asks how much you ended up with. For us that's mostly the first nineteen Games.","<b>Zero everyone at Game 20, when our estimator went live, and ask how we've played since: second of seventeen.</b>"]},
+ {t:"3:20 → 3:50",end:230,l:["<b>The number we'd defend isn't the rate. It's the variance.</b>","Last thirty Games: second in the field for return per unit of risk, third-lowest volatility.","Our worst Game is −15,883. Seven teams carry one worse than −80,000. <b>In an insurance book that's the number that matters.</b>"]},
+ {t:"3:50 → 4:20",end:260,l:["First we measured our own noise: 26,622 over eighteen Games, about six thousand for one Game.","<b>So one good Game never justified a change.</b> Everything had to clear that bar across every Game.","And a control: the same change on the other channel loses 95,061. That's what makes it real."]},
+ {t:"4:20 → 4:40",end:280,l:["We tested twenty ideas and <b>rejected twelve</b>.","One we killed twenty minutes after shipping — the gain came from four line items out of 573. <b>Right number, wrong reason.</b>"]},
+ {t:"4:40 → 4:55",end:295,l:["One estimate feeds both numbers, so <b>one error is paid for twice</b>.","Too low, we reject a fair claim and pay the penalty. Too high, we earn nothing.","That's the whole remaining gap. First fix is calibrating the range — not another constant."]},
+ {t:"4:55 → 5:00",end:300,l:["<b>The model reads. The engine prices. The record decides.</b>","Thank you."]},
+];
+let t0=null;
+function mmss(s){const m=Math.floor(s/60);return m+":"+String(Math.floor(s%60)).padStart(2,"0")}
+function paintNotes(i){
+  const n=document.getElementById('notes'),s=SCRIPT[i];
+  if(!n||!s)return;
+  const el=t0?Math.floor((Date.now()-t0)/1000):0;
+  const over=t0&&el>s.end;
+  n.innerHTML='<div class="row"><span class="clk'+(over?' over':'')+'">'+s.t+'</span>'
+    +'<span class="el">'+(t0?'elapsed '+mmss(el)+(over?'  ·  OVER — move on':''):'clock starts on the next slide')+'</span></div>'
+    +'<ul><li>'+s.l.join('</li><li>')+'</li></ul>';
+}
+addEventListener('DOMContentLoaded',()=>{
+  const n=document.getElementById('notes');
+  addEventListener('keydown',e=>{
+    if(e.key==='n'||e.key==='N'){n.classList.toggle('on');paintNotes(window.__deck?window.__deck.i:0)}
+    if(e.key==='r'||e.key==='R'){t0=Date.now()}          // restart the clock
+  });
+  setInterval(()=>{if(n.classList.contains('on'))paintNotes(window.__deck?window.__deck.i:0)},1000);
+});
+
 </script>
 </body>
 </html>

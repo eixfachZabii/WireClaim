@@ -1,5 +1,10 @@
 # 5 minutes + 3 minutes Q&A — the run sheet
 
+> **Reading it out loud? Use [`SCRIPT.md`](SCRIPT.md), or press `N` in the deck.**
+> That is the only place carrying post-Game-100 numbers. **The timing table below still
+> quotes the pre-Game-100 figures** (0.69, −9,720, −354,171) — it is kept for the cutting
+> order and the Q&A prep, not for numbers to say on stage.
+
 **Deck:** `presentation/index.html` — **10 slides, cut to 5 minutes** (arrow keys / space). Backup slides for Q&A: `presentation/appendix.html` (20 slides, the full argument). **Paper:** `presentation/writeup.pdf`.
 **Judged write-up:** `WRITEUP.md` at the repo root.
 
