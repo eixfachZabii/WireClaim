@@ -55,6 +55,8 @@
 \begin{center}
 {\LARGE\bfseries WireClaim}
 
+\vspace{0.15em}{\footnotesize\textcolor{accent}{THE COMPLETE VERSION --- the two-page write-up is \texttt{writeup.pdf}}}
+
 \vspace{0.4em}
 {\large Recovering latent fair values from settled transactions}
 
@@ -136,10 +138,13 @@ No model output is ever a price. Models emit \emph{structured evidence} --- a co
 with the policy clause quoted verbatim, a price band, a quantity --- and deterministic code turns
 evidence into the posterior and the posterior into $(\charge,\limitv)$, combining channels by
 inverse-variance weighting in log space ($w_i=\sigma_i^{-2}$, $\sigma_{\text{memory}}=0.43$ against
-$\sigma_{\text{model}}=0.60$). \textbf{A prompt that emits a number cannot be swept, folded or
-replayed; a prompt that emits evidence can} --- which is what makes \S4 possible. It also degrades
-rather than fails: \textbf{Games 82--89, eight consecutive $3\times$-weighted Games, ran with the
-model endpoint returning 401 on every call} and still banked $+254{,}092$.
+$\sigma_{\text{model}}=0.60$).
+
+The reason is auditability under repetition: this ran unattended 100 times, once every 12.6
+minutes, in a 60-second window. \textbf{A prompt that emits a number cannot be swept, folded or
+replayed; a prompt that emits evidence can.} It also degrades rather than fails --- \textbf{Games
+82--89, eight consecutive $3\times$-weighted Games, ran with the model endpoint returning 401 on
+every call} and still banked $+254{,}092$.
 
 \section{Why our counterfactuals are measurements}
 
@@ -165,13 +170,48 @@ later}: it passed a real calibration table and all four folds, but a mechanism c
 moved \textbf{4 Line Items in 573}. A constant can be right about its data and wrong about its
 mechanism.
 
+\section{What we removed, and what we rejected}
+
+We also \emph{removed} a clamp. Until Game~66 the code enforced $\limitv\le\charge$; since
+$\limitv$ is a lower quantile of the same posterior $\charge$ is drawn from, this looks harmless
+and is not. Releasing it is worth $+19{,}273$ over 65 Games on all four folds and binds on $33\%$
+of items. Game~65 item~3 found it: our estimate was accurate to $1.4\%$, the clamp pinned
+$\limitv=\charge=199.01$, and thirteen \emph{fair} Charges between $201$ and $291$ were all
+wrongfully rejected --- $-4{,}953$ on one Line Item.
+
+A representative selection of the twelve rejections, each with the script that killed it: a global
+Charge multiplier below 1.0 (monotone loss, $-118{,}049$ at $\times0.9$); the exact argmax of
+expected income (loses in \textbf{all 15 cells} of a two-parameter sweep); four separate attacks on
+the Limit (the derived $\frac13$ is the argmax); reading the policy's exact EUR caps (the number is
+exact, the \emph{row} is not identifiable, $-5{,}905$); more ensemble draws (draw noise is
+$1.1\%$ of the error, a third draw buys $0.2\%$); and copying the best rival's $\charge/\fair$ and
+$\limitv/\fair$ ratios, which applied to our own $\est$ is $-280{,}000$ to $-380{,}000$.
+
+\textbf{Two traps, each of which cost a working session.} \emph{Conditioning on the outcome:}
+bucketed by what items \emph{turned out} to be worth, strictness pays $9.9{:}1$ under 100 and loses
+above 500 --- a compelling case for raising the Limit on expensive items. Bucketed by $\est$, the
+only split available at submission time, the gradient collapses: \textbf{of 23 items we believed
+were worth over 2{,}000, 14 were worth under half that}. \emph{Censoring:} a Fair Value bracket
+with no upper bound is unbounded \emph{because} nobody rightfully rejected, which correlates with
+the item being expensive --- so every $\sigma$ we quote is optimistic, and we say so.
+
 \section{Results}
 
-\noindent
-\textbf{G1--25}, before the estimator was working: $-322{,}595$ ($-12{,}904$/Game) --- our whole
-deficit. \textbf{G26--94}: $+362{,}531$ ($+5{,}254$/Game, \textbf{3rd of 17} by rate).
-\textbf{G75--94}: $+137{,}942$ ($+6{,}897$/Game, \textbf{2nd of 17}). Season, weighted:
-$+231{,}298$, \textbf{5th of 17}.
+\begin{table}[h]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrr}
+\toprule
+window & total & per Game & rate rank\\
+\midrule
+G1--25 \emph{(estimator not working)} & \textcolor{bad}{$-322{,}595$} & $-12{,}904$ & ---\\
+G26--94 \emph{(since)} & \textcolor{good}{$+362{,}531$} & $+5{,}254$ & \textbf{3 / 17}\\
+G75--94 \emph{(last twenty)} & \textcolor{good}{$+137{,}942$} & $+6{,}897$ & \textbf{2 / 17}\\
+\midrule
+season, weighted & \textcolor{good}{$+231{,}298$} & --- & \textbf{5 / 17}\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \noindent
 We were \textbf{17th of 17 --- last --- after nine Games}, and 5th from Game~76; the G1--25 deficit
@@ -182,7 +222,7 @@ last thirty, fewest of any team, for a mean-to-$\sigma$ of \textbf{0.72, second 
 \onecolumn
 \IfFileExists{figures/balance-annotated-light.pdf}{\begin{figure}[h]
 \centering
-\includegraphics[width=0.82\textwidth]{figures/balance-annotated-light.pdf}
+\includegraphics[width=\textwidth]{figures/balance-annotated-light.pdf}
 \caption{Cumulative net over 94 settled Games, all 17 teams; we are the heavy line. The deficit is
 Games 1--25, before the estimator was working; the slope after it is the method. Games 82--89 ran
 with the model channel returning 401 on every call.}

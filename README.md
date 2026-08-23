@@ -6,15 +6,17 @@ This repo is our entry to QuantCo's **Claim to Fame** challenge. This README is 
 single source of truth for _what the game is_, _how it is scored_, and _what we
 proved about how to beat it_. Read this before touching code.
 
-**Judging the submission? Start with [`WRITEUP.md`](WRITEUP.md)** — the write-up the organisers
-asked for: one page of approach, one page of why we think we succeeded and where we did not. The
-same argument set as a short paper, with the derivations, is
-[`presentation/writeup.pdf`](presentation/writeup.pdf).
+**Judging the submission? Start with [`presentation/writeup.pdf`](presentation/writeup.pdf)** —
+two pages: the approach with its derivations, then the record and a few bullets on why we think we
+succeeded and where we did not. If you want the strategy in full,
+[`presentation/writeup-full.pdf`](presentation/writeup-full.pdf) is the same argument with the
+rejected hypotheses and the two traps that cost us a working session.
 
 | where | what |
 | --- | --- |
-| [`WRITEUP.md`](WRITEUP.md) | **the judged write-up** — approach + succeeded/not-succeeded |
-| [`presentation/writeup.pdf`](presentation/writeup.pdf) | the same, as a 3-page paper with the maths ([source](presentation/writeup.tex)) |
+| [`presentation/writeup.pdf`](presentation/writeup.pdf) | **the write-up we submitted** — 2 pages ([source](presentation/writeup.tex)) |
+| [`presentation/writeup-full.pdf`](presentation/writeup-full.pdf) | the complete version, if you want the strategy ([source](presentation/writeup-full.tex)) |
+| [`WRITEUP.md`](WRITEUP.md) | the same argument in Markdown, for reading in the browser |
 | [`presentation/index.html`](presentation/index.html) | the pitch deck (arrow keys) |
 | [`presentation/RUNSHEET.md`](presentation/RUNSHEET.md) | the 5-minute run sheet and the Q&A answers |
 | [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | how we decided things, in one denser page |

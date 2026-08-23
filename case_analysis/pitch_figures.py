@@ -1,12 +1,13 @@
 """Publication-quality pitch/paper figures for team "Bin busy".
 
 Reads the already-computed series in ``case_analysis/data/`` (see
-``DATA_LAYOUT.md``) and writes three figures into ``presentation/figures/``,
+``DATA_LAYOUT.md``) and writes four figures into ``presentation/figures/``,
 each in a dark slide variant (PNG + PDF) and a light paper variant (PDF + PNG).
 
     FIG 1  balance-annotated   cumulative net, 94 settled Games, eras annotated
     FIG 2  consistency         risk-adjusted return (mean / sigma), Games 75-94
     FIG 3  per-game-net        our per-game net, era bands, rolling-10 mean
+    FIG 4  rebased-g20         cumulative net re-indexed to 0 at Game 20
 
 Every printed number is derived here from ``data/balance.csv`` /
 ``data/binbusy_money.csv`` -- nothing is hard-coded except the era boundaries
@@ -43,6 +44,8 @@ ERAS = [
 ]
 DARK_CHANNEL = (82, 89)  # model channel 401'd; model_draws = 0
 CONSISTENCY_WINDOW = (75, 94)
+REBASE_ANCHOR = 20       # Strategy 2 went live around here
+REBASE_SENSITIVITY = 26  # conservative cut: G21-24 shipped the fallback Limit of 35
 
 
 # --------------------------------------------------------------------------- #
@@ -176,16 +179,26 @@ def pstdev(xs):
 # shared: era bands
 # --------------------------------------------------------------------------- #
 
-def draw_eras(ax, th, xmax, label_frac, extra=None, fontsize=13):
-    """Background bands + two-line centred labels at ``label_frac`` (axes frac)."""
+def draw_eras(ax, th, xmax, label_frac, extra=None, fontsize=13, xmin=0.5,
+              min_label_span=8):
+    """Background bands + two-line centred labels at ``label_frac`` (axes frac).
+
+    ``xmin`` clips bands on the left (for a window that starts mid-tournament);
+    a band clipped below ``min_label_span`` Games keeps its fill but loses its
+    label, which would no longer be centred on the era it names.
+    """
     for i, (lo, hi, tag, name) in enumerate(ERAS):
-        x0, x1 = lo - 0.5, min(hi, xmax) + 0.5
+        x0, x1 = max(lo - 0.5, xmin), min(hi, xmax) + 0.5
+        if x1 <= x0:
+            continue
         last = i == len(ERAS) - 1
         ax.axvspan(x0, x1, color=th["band_accent"] if last else
                    (th["band_fill"] if i % 2 == 0 else th["bg"]),
                    lw=0, zorder=0)
-        if i:
+        if i and x0 > xmin:
             ax.axvline(x0, color=th["grid"], lw=0.9, zorder=1)
+        if x1 - x0 < min_label_span:
+            continue
         sub = name if extra is None else f"{name}{extra.get(i, '')}"
         ax.text((x0 + x1) / 2, label_frac, tag,
                 transform=ax.get_xaxis_transform(), ha="center", va="bottom",
@@ -475,6 +488,124 @@ def fig_per_game(th, mgames, nets):
 
 
 # --------------------------------------------------------------------------- #
+# FIG 4 -- rebased-g20
+# --------------------------------------------------------------------------- #
+
+def rebase(games, teams, bal, anchor):
+    """Every team re-indexed to 0 at ``anchor``; returns series + ranked totals."""
+    i = games.index(anchor)
+    xs = games[i:]
+    series = {t: [v - bal[t][i] for v in bal[t][i:]] for t in teams}
+    total = {t: series[t][-1] for t in teams}
+    n_played = len(xs) - 1                       # per-Game nets after the anchor
+    rate = {t: total[t] / n_played for t in teams}
+    by_total = sorted(teams, key=lambda t: -total[t])
+    by_rate = sorted(teams, key=lambda t: -rate[t])
+    return xs, series, total, rate, by_total, by_rate, n_played
+
+
+def fig_rebased(th, games, teams, bal):
+    apply_rc(th)
+    a = REBASE_ANCHOR
+    xs, series, total, rate, by_total, by_rate, n_played = rebase(
+        games, teams, bal, a)
+    last = games[-1]
+    rank = by_total.index(US) + 1
+    rank_rate = by_rate.index(US) + 1
+    top3 = by_total[:3]
+
+    # sensitivity: the conservative cut, for the standfirst
+    _, _, tot_s, _, by_total_s, _, _ = rebase(games, teams, bal,
+                                              REBASE_SENSITIVITY)
+    rank_s = by_total_s.index(US) + 1
+
+    fig, ax = plt.subplots(figsize=(16, 9))
+    fig.subplots_adjust(left=0.065, right=0.775, top=0.835, bottom=0.105)
+
+    ymin, ymax = -450_000, 500_000
+    ax.set_xlim(a - 0.8, last + 0.8)
+    ax.set_ylim(ymin, ymax)
+    off_axis = sum(1 for t in teams if total[t] < ymin)
+    worst = min(total.values())
+
+    draw_eras(ax, th, last, 0.955, xmin=a - 0.8)
+    ax.grid(axis="y", color=th["grid"], lw=0.9, alpha=0.9, zorder=1)
+    ax.axhline(0, color=th["muted"], lw=1.2, alpha=0.8, zorder=2)
+
+    for t in by_total:
+        if t == US:
+            continue
+        ax.plot(xs, series[t], color=th["rival"], lw=th["rival_lw"],
+                alpha=th["rival_alpha"], solid_capstyle="round", zorder=3)
+    ax.plot(xs, series[US], color=th["accent"], lw=4.2, solid_capstyle="round",
+            solid_joinstyle="round", zorder=8)
+
+    # the common origin
+    ax.plot([a], [0], marker="o", ms=8, mfc=th["bg"], mec=th["accent"],
+            mew=2.2, zorder=9)
+    ax.annotate(f"every team starts at 0\nat Game {a}", xy=(a, 0),
+                xytext=(a + 0.9, -305_000), ha="left", va="center",
+                fontsize=13.5, color=th["muted"], linespacing=1.35, zorder=9,
+                arrowprops=dict(arrowstyle="-", color=th["grid"], lw=1.1,
+                                shrinkA=4, shrinkB=8))
+
+    # right-end labels: the top 3 on the rebased measure, de-overlapped
+    spread = 0.052 * (ymax - ymin)
+    label_y = {top3[0]: 462_000, US: 382_000, top3[2]: 258_000}
+    if US not in label_y:                        # we are not top-3: own slot
+        label_y = {t: 462_000 - i * 1.55 * spread for i, t in enumerate(top3)}
+        label_y[US] = total[US]
+    for t in top3:
+        if t == US:
+            continue
+        ax.annotate(f"{by_total.index(t) + 1}   {t}   {eur(total[t])}",
+                    xy=(last, total[t]), xytext=(last + 2.6, label_y[t]),
+                    ha="left", va="center", fontsize=13, color=th["muted"],
+                    clip_on=False, zorder=7,
+                    arrowprops=dict(arrowstyle="-", color=th["grid"], lw=0.9,
+                                    shrinkA=0, shrinkB=2))
+
+    ax.annotate(US, xy=(last, total[US]),
+                xytext=(last + 2.6, label_y[US] + 0.10 * spread),
+                ha="left", va="bottom", fontsize=20, fontweight="bold",
+                color=th["accent"], clip_on=False, zorder=9,
+                arrowprops=dict(arrowstyle="-", color=th["accent"], lw=1.4,
+                                shrinkA=0, shrinkB=3))
+    ax.text(last + 2.6, label_y[US] - 0.10 * spread,
+            f"{ordinal(rank)} of {len(teams)}   {eur(total[US])}",
+            ha="left", va="top", fontsize=14, color=th["accent"], zorder=9)
+    ax.text(last + 2.6, label_y[US] - 0.10 * spread - 0.055 * (ymax - ymin),
+            f"{eur(rate[US])} per Game", ha="left", va="top", fontsize=12.5,
+            color=th["muted"], zorder=9)
+
+    draw_dark_channel(ax, th, 0.072, 0.095, "G82–89 model channel dark")
+
+    ticks = [-400_000, -200_000, 0, 200_000, 400_000]
+    ax.set_yticks(ticks)
+    ax.set_yticklabels([k(v) for v in ticks])
+    ax.set_xticks([a] + list(range(30, last + 1, 10)))
+    ax.set_xlabel("Game", fontsize=15, labelpad=6)
+    ax.set_ylabel(f"net since Game {a}  (€ thousands)", fontsize=15, labelpad=10)
+    strip_axes(ax, th)
+
+    fig.text(0.065, 0.962,
+             f"Indexed to Game {a}, when our estimator went live",
+             fontsize=34, fontweight="bold", color=th["fg"], va="top")
+    fig.text(0.065, 0.910,
+             f"cumulative net over Games {a}–{last}  ·  re-based to zero at "
+             f"Game {a}  ·  unweighted per-Game nets  ·  {off_axis} teams run "
+             f"off the bottom, to {worst/1e6:.2f}M".replace("-", "−"),
+             fontsize=14.5, color=th["muted"], va="top")
+    fig.text(0.065, 0.872,
+             f"{ordinal(rank)} of {len(teams)} over the {last - a} Games "
+             f"since — {eur(total[US])}, {eur(rate[US])} per Game.  Re-based at "
+             f"Game {REBASE_SENSITIVITY} instead, the conservative cut: "
+             f"{ordinal(rank_s)} of {len(teams)} at {eur(tot_s[US])}.",
+             fontsize=14.5, color=th["accent"], va="top")
+    return save(fig, f"rebased-g{a}", th)
+
+
+# --------------------------------------------------------------------------- #
 
 def main() -> None:
     games, teams, bal = load_balance()
@@ -486,6 +617,7 @@ def main() -> None:
         written += fig_balance(th, games, teams, bal)
         written += fig_consistency(th, games, teams, bal)
         written += fig_per_game(th, mgames, nets)
+        written += fig_rebased(th, games, teams, bal)
     for p in written:
         print("wrote", p)
 
