@@ -1,0 +1,35 @@
+Base directory for this skill: /Users/sebastianrogg/.claude/skills/grill-with-docs
+
+Run a `/grilling` session, using the `/domain-modeling` skill.
+
+
+ARGUMENTS: Its time for documentation of our challenge:  ok. can you rewrite our methodology.md it should simply explain our strategy with each
+  calculation that is done you can do a /useplant-uml again
+
+Good morning handymen/hanywomen and claims handlers 🌅
+
+We hope you had a good night 😊
+
+Reminder: pls be sure to write a short write up on your approach and check into your repository. 
+
+Additionally it would be nice if you could write in few bullets why you think your team has succeeded/not succeeded 
+
+Also be sure to NOT check in any of the claim data into your repositories
+
+Thank you and looking forward seeing you!
+Steffen — 10:03
+Hi, should we add the bullet points on a second page on the write up? In the repository root?
+Hailong [QuantCo] — 10:06
+Yes that sounds good 🙂
+The ~1 page is for orientation, won’t be extremely strict about it Reminder: Short write up on your approach
+
+Helloo hackers, just as a quick reminder, be sure to submit a short write up (~1 page) of your approach tomorrow. We will take that into account in determining the winner. You can just check it in your repository (once we approach the last games). 
+
+Also: Not even half the games have been played and the last 20 rounds will be weighted 3x, so things can still change 
+
+Good luck and good night 😊 
+
+
+/using-superpowers /plantuml-diagrams 
+
+It should be simply explained what we do, and emphasize on what we are the best for that fan out a subagent who looks at bin busy of on the rounds 23 onwards https://c2f.public.quantco.cloud/leaderboard/#matrix. Read more on the original docs '/Users/sebastianrogg/PycharmProjects/Hackathons  Projekte/WireClaim/docs' '/Users/sebastianrogg/PycharmProjects/Hackathons  Projekte/WireClaim/docs/Munich Agentic Hackathon - Kick off.pdf' '/Users/sebastianrogg/PycharmProjects/Hackathons  Projekte/WireClaim/docs/QuantCo Claim-to-Fame slides.pdf' on what to include in our write up like what made our solution so interesting. The math and stat idea? The t inversion and so on. And what are we best at? I mean we climbed from second to last to 5th team!! And we had pretty low standard devation It should be good. so create a root presentation/ which has the writeup start to back where and already /frontend-slides html for our pitch you can take time and do deep reserch this is a big task. ask questions if you have any
