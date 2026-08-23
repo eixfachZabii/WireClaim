@@ -6,6 +6,10 @@ This repo is our entry to QuantCo's **Claim to Fame** challenge. This README is 
 single source of truth for _what the game is_, _how it is scored_, and _what we
 proved about how to beat it_. Read this before touching code.
 
+**Judging the submission? Start with [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md)** — how we
+decided things, what we measured and rejected, and how to reproduce any number in it. This README
+is the reference for the game itself; that one is the argument.
+
 ---
 
 ## 1. The hard facts (verified against the live API, not the handout)
