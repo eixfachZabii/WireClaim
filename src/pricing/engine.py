@@ -798,7 +798,31 @@ LIMIT_CEILING = 0.45
 # stops beating the model's. Re-run `scripts/experiments/cap_ceiling_sweep.py` and
 # `fair_vs_overcharge_split.py`; if the fair-to-Overcharge ratio falls toward 1:1, revert to
 # `LIMIT_CEILING`.
-LIMIT_CEILING_MEMORY = 0.75
+#
+# ## Raised 0.75 -> 1.00 at Game 66, with the `b <= a` clamp released in the same change
+#
+# At 1.00 this ceiling stops being the binding constraint and the **derived** rule takes over.
+# That rule is not a fitted number: accepting costs `a` where wrongly rejecting costs `1.5a`,
+# so accepting beats rejecting exactly when `P(fair) > 2/3`, which makes the Limit the
+# one-third quantile of the posterior. A ceiling below that quantile is an override of the
+# arithmetic, and on memory-backed items -- where the wording has been watched settle and the
+# measured log error is 0.43 against the model's 0.6 prior and far worse realised error --
+# there is the least reason to override it. Sweeping to 1.30 scores *identically* to 1.00,
+# which is the proof that the quantile, not the ceiling, is now doing the work.
+#
+# +19,273 over 65 Games with the clamp released, positive on all four folds and with the best
+# `last20` of any cell measured (+3,611). See the note at the clamp in `price_item` for the
+# full table, the Game 65 worked example, and the honest caveat -- this is 40 % of the noise
+# floor and was shipped as a deliberate bet, not as a settled result.
+#
+# 1.00 rather than "no ceiling" because the value still asserts something worth enforcing: we
+# are never willing to pay more than our own median estimate of what the item is worth.
+LIMIT_CEILING_MEMORY = 1.00
+
+#: Whether `price_item` may return a Limit above its own Charge. They answer different
+#: questions -- "what am I willing to pay" against "what will the Field pay me" -- and nothing
+#: in the payoff table ties them. Released at Game 66; see the long note at the clamp itself.
+RELEASE_LIMIT_CLAMP = True
 
 #: An absolute ceiling on the Limit, in EUR, independent of the estimate.
 #:
@@ -1110,7 +1134,52 @@ def price_item(
     # every band. Worth knowing, because it also means the clamp was quietly doing the work
     # of the ceiling at the old 0.85 -- above a ceiling of about 0.80 the sweep is exactly
     # flat, because the Charge, not the ceiling, was setting the Limit.
-    limit = min(limit, charge)
+    #
+    # ## Released at Game 66, on exactly the condition set above
+    #
+    # "Revisit together with `LIMIT_CEILING`, not before." Both premises had expired: the
+    # ceiling is no longer 0.30, and with `LIMIT_CEILING_MEMORY` raised to 1.00 in the same
+    # change the clamp binds on **33 %** of Line Items rather than never.
+    #
+    # Game 65 Line Item 3 is why it was looked at. Memory-backed, `t_hat = 287` against a
+    # settled `t >= 291` -- a 1.4 % error, the most accurate Line Item on record -- and the
+    # clamp pinned `b` to `a` at 199.01 while the ceiling allowed 215.25 and the one-third
+    # quantile wanted 247. Thirteen opponents Charged 201.25 to 291.34, every one of them
+    # fair, and all thirteen were rejected: **-4,953 on one Line Item** of a Game whose whole
+    # net was -1,014.
+    #
+    # The mechanism generalises, and it is the opposite of reassuring. The Field Charges a
+    # median of ~0.73 x `t`, so its Charges cluster in `[0.7t, t]`, while ours sits at
+    # ~0.69 x `t_hat` by construction. Tying `b` to `a` therefore places our Limit below
+    # almost every fair Charge we will ever be shown -- and the *better* everyone's estimate,
+    # the more reliably it happens, because a well-estimated item is one where the Field's
+    # Charges cluster tightly just under the true `t`. Accuracy made this failure more likely.
+    #
+    # Measured -- `scripts/experiments/limit_clamp_release.py`, 65 Games, 727 Line Items:
+    #
+    #     clamp  ceil_mem      all      odd     even     <=45      >45   last20  folds+  bind%
+    #      on        0.75       +0       +0       +0       +0       +0       +0     0/4     0%
+    #      on        1.00  +10,120   +2,263   +7,857   +9,123     +998     +998     4/4    33%
+    #      off       1.00  +19,273   +3,980  +15,294  +15,662   +3,611   +3,611     4/4    33%  <- shipped
+    #
+    # Positive on all four folds and with the best `last20` of any cell measured. **Shipped as
+    # an explicit bet rather than as a result**, and the distinction matters: +19,273 over 65
+    # Games is 40 % of the +/-50,590 noise floor, and `last10` is -1,314. It was requested with
+    # that stated.
+    #
+    # What would falsify it: fraud let through rising. The risk is precisely the fat tail
+    # `LIMIT_CEILING_MEMORY` existed to catch -- Game 63's four memory-backed Line Items
+    # carried medians of 1,618 / 606 / 91 / 58 against Fair Values under 54 / 76 / 20 / 12, and
+    # a higher Limit on those buys more fraud, not less. Watch the digest's "fraud let through"
+    # line over Games 66+; if it grows while "lawyer waste" does not shrink at least as fast,
+    # revert this and `LIMIT_CEILING_MEMORY` together.
+    #
+    # Note for anyone reading the two constants side by side: with `LIMIT_CEILING_MEMORY` at
+    # 1.00 the one-third quantile is what binds, so 1.00 and 1.30 score *identically*. 1.00 is
+    # kept as the named value because it still says something true and worth enforcing -- we
+    # are never willing to pay more than our own median estimate of what the item is worth.
+    if not RELEASE_LIMIT_CLAMP:
+        limit = min(limit, charge)
     return Price(
         charge=round(max(charge, 0.0), 2),
         limit=round(max(limit, 0.0), 2),

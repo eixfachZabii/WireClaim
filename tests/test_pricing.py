@@ -144,12 +144,24 @@ class PriceItemTests(unittest.TestCase):
         self.assertGreater(wide.sigma, tight.sigma)
         # The Charge still retreats with the band; that channel is untouched.
         self.assertGreater(tight.charge, wide.charge)
-        # And so does the Limit, again. At a ceiling of 0.30 this was flat -- the ceiling
-        # bound at every width we see, so the band could not move the Limit at all. At 0.45
-        # the quantile binds on the narrow bands again, which is the point of pairing the
-        # ceiling with an absolute cap: the cap bounds the disaster, so the multiplicative
-        # term is free to sit where the posterior actually wants it.
-        self.assertGreater(tight.limit, wide.limit)
+        # The Limit does *not*, on a model-only item, and finding out why was worth more than
+        # the assertion. This line read `assertGreater(tight.limit, wide.limit)` and passed at
+        # a ceiling of 0.45 -- but not because the quantile had come back. Both bands take the
+        # ceiling (45.0 on a median of 100); the wide one was then pulled to 41.0 by the
+        # `b <= a` clamp, because its Charge had retreated to 41.0. **The band-to-Limit channel
+        # at 0.45 was the clamp wearing the ceiling's clothes.** Releasing the clamp at Game 66
+        # removes it and the Limit is flat in the width again, exactly as it was at 0.30.
+        self.assertEqual(tight.limit, wide.limit)
+        self.assertAlmostEqual(wide.limit, LIMIT_CEILING * 100.0, delta=0.01)
+        # Where the width still speaks is the memory-backed branch, and that is the defensible
+        # version of this trade: `LIMIT_CEILING_MEMORY` is 1.00, so the one-third quantile is
+        # what binds, and the band moves the Limit on exactly the items whose estimate has been
+        # watched settle. The signal is kept where it is trustworthy and dropped where the band
+        # is known to be uncalibrated (implied median sigma 0.375 against a realised RMSLE near
+        # 0.80, ranking the errors slightly backwards -- see `ImpliedSigmaTests`).
+        tight_memory = price_item(Evidence(1, 1.0, 95.0, 100.0, 105.0), memory_backed=True)
+        wide_memory = price_item(Evidence(1, 1.0, 20.0, 100.0, 500.0), memory_backed=True)
+        self.assertGreater(tight_memory.limit, wide_memory.limit)
 
     def test_a_proven_exclusion_zeroes_the_limit_but_keeps_the_charge(self) -> None:
         """An uncovered item is a free option: t = 0, so a rejected Charge costs nothing."""

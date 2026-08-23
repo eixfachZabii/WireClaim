@@ -269,6 +269,14 @@ above `t`.
   improving one is worth `37t`. Never leave the runner down. Restart only between Games —
   `main.py` loads code at import, so a code change needs a restart, and `supervise.sh`
   relaunches the child automatically when you kill it.
+- **"Between Games" means 60 s after `start_time`, not when `timing event=game status=completed`
+  appears.** A Game usually finishes in 10–25 s but its submission window stays open for the
+  full 60, and a restart inside that window makes the new process treat the Game as current: it
+  re-posts the blind floor and the `case_loaded` baseline **over** Strategy 2's prices, then
+  races to rebuild them. This happened at Game 66 — killed at T+25 s, the baseline overwrote a
+  finished submission, and Strategy 2 only re-landed at T+40 s with 20 s to spare. On a 2-item
+  Case that was fine; on a 31-item Case it would not have been. Wait for T+60 s. There are
+  ~700 s of genuinely idle time between Games; use them.
 - **The default submission is an incident, never a fallback.** `a = 0, b = 0` pays `1.5a` to
   every opponent on every Line Item. Any plausible number beats it.
 - **Always gross, always the whole Line Item.** Never net (÷1.19), never per-unit.
