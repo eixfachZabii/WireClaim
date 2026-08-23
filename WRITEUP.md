@@ -121,12 +121,19 @@ result driven by a few *Games*, never one driven by a few *items*.
   cost **−322,595**, which is larger than our entire current season net. Every point of
   our deficit is there. The rate says the decision was right; the total says we paid full price
   for it.
-- **The estimate, not the strategy, is the entire remaining gap — and we found that out late.**
-  `a = b = t` reaches **100.3 %** of the best possible play and is within 3 % on 70 of 70 Games,
-  while `a = b = t̂` scores **−50,140**. The **2,498,118** between them is pure estimation error.
-  We optimised the decision rules to their measured argmax and it barely mattered; the best
-  constant available anywhere in a full sweep moves the total by ~18k. Arguably we spent our
-  effort one layer too low.
+- **The estimate is the entire remaining gap, and it costs us twice.** Both numbers we submit are
+  functions of the *same* `t̂` — `a = k(σ)·t̂`, and `b` is a quantile of a posterior centred on `t̂`.
+  So one error is paid in **both** directions at once:
+  - `t̂` **too low** → `b` too low → we wrongfully reject a **fair** claim → we pay **1.5a**. That
+    is the lawyer fee, our largest single cost line, and it fires *only* on claims that were fair;
+    rejecting a genuine Overcharge is free.
+  - `t̂` **too high** → `a` crosses `t` → thirteen of sixteen opponents refuse it → we earn
+    **nothing** on an item we were owed money for. Crossing `t` costs roughly 5× the income.
+
+  `a = b = t` reaches **100.3 %** of the best possible play; `a = b = t̂` scores **−50,140**. The
+  **2,498,118** between them is not strategy and no decision rule reaches it. We optimised the
+  rules to their measured argmax and it barely mattered — the best constant available anywhere in
+  a full sweep moves the total by ~18k. We worked one layer too low.
 - **We diagnosed our largest open lever and deliberately did not ship it.** Policy clause 7.1.5
   has two halves — indemnity is confined to the affected parts, *but* "where an affected room was
   wetted as a whole, the whole of that room is treated as affected". The model reads only the
@@ -142,6 +149,25 @@ result driven by a few *Games*, never one driven by a few *items*.
   we still sat above `t` too often; `error404 ai` took 136,075 off a single Line Item by charging
   22 % lower than us. Knowing the mechanism and calibrating to it are different achievements, and
   we only closed the gap at Game 63.
+
+## What we would build next, in order
+
+1. **Calibrate the band — worth more than any constant in the engine.** The model asserts a median
+   σ of **0.375** against a realised RMSLE near **0.80**: overconfident by 2.1×. Worse, the width
+   carries *no signal* — split items by band width and the narrow third scores RMSLE 0.847 against
+   the wide third's 0.733, i.e. slightly **backwards**. So `k(σ)` multiplies a number that does not
+   measure what it claims to. The line is right; its input is not. This belongs in the evidence
+   layer, not the pricing engine.
+2. **Fix the coverage read.** Clause 7.1.5, second half. **+1,173/Game** if perfect, on all four
+   folds. A prompt problem, not a pricing one.
+3. **Separate the genuinely large items from the phantoms.** Of 23 items we believed were worth
+   over 2,000, **14 were worth under half that**. An observable splitting the 9 real ones would let
+   us charge confidently where it is safe — today we cannot, so we charge low everywhere, which is
+   correct on average and leaves money on every genuinely expensive item.
+4. **Widen Price Memory.** A wording we have watched settle has a measured log error of **0.43**
+   against the model's realised **1.66–2.20**, but memory reaches only ~22 % of Line Items. Every
+   point of coverage there is a direct reduction in σ — and by item 1, σ is what sets *both*
+   numbers.
 
 ---
 

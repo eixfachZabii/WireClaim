@@ -514,6 +514,32 @@ fitted constants covered the rest
   </div>
 </section>
 
+<!-- ═══════════ WHAT WE WOULD FIX ═══════════ -->
+<section class="slide">
+  <div class="marker"><b>09</b><span>What we would fix next</span></div>
+  <div class="slide-content">
+    <div class="kicker reveal">One estimate feeds both numbers — so one error is paid twice</div>
+    <div class="code reveal">        <b>a = k(σ)·t̂</b>                       <b>b = Q⅓( posterior centred on t̂ )</b>
+
+<span class="a">t̂ too LOW</span>   → b too low  → we wrongfully reject a <b>fair</b> claim → we pay <b>1.5a</b>
+              <span class="c">the lawyer fee — our largest cost line, and it fires ONLY on fair claims</span>
+
+<span class="a">t̂ too HIGH</span>  → a crosses t → 13 of 16 refuse it → we earn <b>nothing</b>
+              <span class="c">on an item we were owed money for. Crossing t costs ~5× the income.</span></div>
+    <div class="cols tight">
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <p class="reveal"><strong>That is the whole remaining gap.</strong> <em>a = b = t</em> reaches 100.3 % of optimal play; <em>a = b = t̂</em> scores −50,140. The <em>2,498,118</em> between them is estimation error, and no decision rule reaches it.</p>
+      </div>
+      <ul class="reveal">
+        <li><b>Calibrate the band</b> — asserted σ 0.375 vs realised 0.80, and the width does not even <i>order</i> the error. <b>Worth more than any constant in the engine.</b></li>
+        <li><b>The coverage read</b> — clause 7.1.5's second half. <b>+1,173/Game</b>, four folds.</li>
+        <li><b>Split the phantoms</b> — of 23 items we thought were worth &gt;2,000, <b>14 were worth under half</b>.</li>
+        <li><b>Widen Price Memory</b> — log error <b>0.43</b> vs the model's 1.66–2.20, but it reaches only 22 % of items.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <section class="slide" style="justify-content:flex-end">
   <div class="slide-content" style="flex:0 0 auto;gap:clamp(.5rem,2vh,1.4rem)">
     <div class="accent-rule reveal"></div>

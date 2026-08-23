@@ -33,9 +33,10 @@ the recovered `t` *revealed*; the twelve dead hypotheses are what the replay har
 | 3:35 | **06 · consistency** | "The number we'd actually defend isn't the rate, it's the variance." 2 losing Games in 20, worst −3,941. Second-best risk-adjusted return in the field. **In an insurance book the narrow distribution is the number that matters.** |
 | 4:05 | **07 · the bar** | A *measured* noise floor of 26,622 — ±6,275 for one Game, so no single Game ever justified a change. Four folds. And the control: the same change on the model channel is −95,061 and 0/4, which is what makes it a channel effect rather than "charge more". |
 | 4:40 | **08 · what we killed** | 12 of 20 hypotheses rejected — one **twenty minutes after it shipped**, because the mechanism check showed it touched 4 items in 573. |
+| 5:00 | **09 · what we'd fix** | "One estimate feeds both numbers, so one error is paid twice. Too low and the Limit wrongfully rejects a *fair* claim and we pay the 1.5× lawyer fee. Too high and the Charge crosses `t` and we earn nothing. **That's the whole remaining gap** — and the first fix is calibrating the band, not another constant." |
 | 5:05 | **close** | "The model reads. The engine prices. The record decides." |
 
-**If you are running long:** drop **04**'s right-hand column (talk over it), then **07**, then **05** (05b carries the standing on its own). Never cut **02** (the inversion) or **05b** — those are the entry and the payoff.
+**If you are running long:** drop **04**'s right-hand column (talk over it), then **07**, then **05** (05b carries the standing on its own). **09** can be answered in Q&A instead of presented — but if you have the 20 seconds, present it: "what would you do next" is the question a jury of claims people always asks, and having the answer costed and ordered is worth more than another result. Never cut **02** (the inversion) or **05b** — those are the entry and the payoff.
 
 **Say "top 3 either way", not "2nd".** Rebased at Game 20 we are 2nd of 17; at the conservative Game 26 anchor we are 3rd, with the top three inside 9,702. If a judge picks the anchor, you want to have picked it first. Useful detail: our per-Game rate is marginally *higher* from Game 26 than from 20, so Game 20 is not the flattering anchor it looks like.
 
@@ -59,6 +60,18 @@ Eight of our triple-weighted Games ran with it completely offline and still bank
 measured log error of a wording we have watched settle is 0.43; the model's realised error over
 the same Games is 1.66–2.20. We weight accordingly — and that weighting is itself a measurement,
 with the control that proves it (+80,613 on memory, −95,061 doing the same to the model).
+
+**"What would you improve with more time?"** — this is slide 09, and the answer is one idea, not
+a list. Both numbers are functions of the same `t̂`: `a = k(σ)·t̂`, and `b` is a quantile of a
+posterior centred on `t̂`. So a single estimation error is paid **twice, in opposite directions** —
+too low and the Limit wrongfully rejects a *fair* claim so we pay `1.5a` (the lawyer fee, our
+biggest cost line, and it only ever fires on claims that were fair); too high and the Charge
+crosses `t` so thirteen of sixteen refuse it and we earn nothing. `a = b = t` is 100.3 % of optimal
+and `a = b = t̂` is −50,140; the 2,498,118 between them is all estimator. First fix is **calibrating
+the band** — the model asserts σ 0.375 against a realised 0.80, and the width does not even *order*
+the error, so the Charge factor multiplies a number that measures nothing. Then coverage
+(+1,173/Game), then an observable that separates the 9 genuinely large items from the 14 phantoms,
+then widening Price Memory past the 22 % of items it reaches.
 
 **If asked what is broken:** clause 7.1.5. The model reads the first half and misses the
 whole-room drying provision. Game 74 lost €41,710 to it. Perfect coverage is worth +1,173/Game.

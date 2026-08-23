@@ -195,6 +195,46 @@ were worth over 2{,}000, 14 were worth under half that}. \emph{Censoring:} a Fai
 with no upper bound is unbounded \emph{because} nobody rightfully rejected, which correlates with
 the item being expensive --- so every $\sigma$ we quote is optimistic, and we say so.
 
+\section{What we would fix next, and why it is all one thing}
+
+Both numbers we submit are functions of the \emph{same} estimate. $\charge=k(\sigma)\,\est$ and
+$\limitv=Q_{1/3}$ of a posterior centred on $\est$. So a single estimation error is paid
+\textbf{twice, in opposite directions}, and this is the whole of our remaining gap:
+
+\begin{itemize}
+\item $\est$ \textbf{too low} $\Rightarrow$ $\limitv$ too low $\Rightarrow$ we wrongfully reject a
+\emph{fair} claim $\Rightarrow$ we pay $\mathbf{1.5\charge}$. The half-charge goes to nobody. This
+is the largest single line in our costs, and note it fires \emph{only} on claims that were fair ---
+rejecting a genuine Overcharge is free.
+\item $\est$ \textbf{too high} $\Rightarrow$ $\charge>\fair$ $\Rightarrow$ thirteen of sixteen
+opponents refuse it $\Rightarrow$ we earn \textbf{nothing} on an item we were owed money for.
+Crossing $\fair$ costs roughly $5\times$ the income.
+\end{itemize}
+
+\noindent
+That is why $\charge=\limitv=\fair$ reaches $100.3\%$ of optimal play while
+$\charge=\limitv=\est$ scores $-50{,}140$: the $2{,}498{,}118$ between them is not strategy, and no
+decision rule reaches it. In priority order, what we would build with more time:
+
+\begin{enumerate}
+\item \textbf{Calibrate the band --- worth more than any constant in the engine.} The model asserts
+a median $\sigma$ of $0.375$ against a realised RMSLE near $0.80$: overconfident by $2.1\times$.
+Worse, the width carries \emph{no signal} --- split items by band width and the narrow third scores
+RMSLE $0.847$ against the wide third's $0.733$, i.e.\ slightly \emph{backwards}. So $k(\sigma)$
+multiplies a number that does not measure what it claims to. The line is right; its input is not.
+\item \textbf{Fix the coverage read.} Policy clause 7.1.5 confines indemnity to the affected parts,
+\emph{but} adds that where a room was wetted as a whole, the whole room is treated as affected. The
+model reads the first half only. Game~74 returned coverage $0.01$--$0.05$ on 20 of 31 Line Items,
+$87\%$ of that Game's penalties. Perfect coverage is worth $+1{,}173$/Game on all four folds.
+\item \textbf{Separate the genuinely large items from the phantoms.} Of 23 items we believed worth
+over $2{,}000$, \textbf{14 were worth under half that}. An observable that splits the 9 real ones
+would let us charge confidently where it is safe --- today we cannot, so we charge low everywhere.
+\item \textbf{Widen the memory channel.} A wording we have watched settle has a measured log error
+of $\mathbf{0.43}$ against the model's realised $1.66$--$2.20$, but memory only reaches about
+$22\%$ of Line Items. Every point of coverage there is a direct reduction in $\sigma$ --- and by
+the first item above, $\sigma$ is what sets both numbers.
+\end{enumerate}
+
 \section{Results}
 
 \begin{table}[h]

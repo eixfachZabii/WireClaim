@@ -185,7 +185,7 @@ $9{,}702$.
 \onecolumn
 \IfFileExists{figures/balance-annotated-light.pdf}{\begin{figure}[h]
 \centering
-\includegraphics[width=0.82\textwidth]{figures/balance-annotated-light.pdf}
+\includegraphics[width=0.70\textwidth]{figures/balance-annotated-light.pdf}
 \caption{Cumulative net over 94 settled Games, all 17 teams; we are the heavy line. The deficit is
 Games 1--25, before the estimator was working; the slope after it is the method. Games 82--89 ran
 with the model channel returning 401 on every call.}
@@ -222,10 +222,18 @@ paid us $179{,}993$ across the season and collected $0.00$ from anyone.
 \item \textbf{We spent the first quarter of the tournament building the instrument instead of
 scoring.} Games 1--25 cost $-322{,}595$ --- more than our entire current season net. The rate says
 the decision was right; the total says we paid full price for it.
-\item \textbf{The estimate, not the strategy, is the whole remaining gap --- and we learned that
-late.} $\charge=\limitv=\fair$ reaches $100.3\%$ of optimal play; $\charge=\limitv=\est$ scores
-$-50{,}140$. The $2{,}498{,}118$ between them is pure estimation error. We tuned decision rules to
-their measured argmax and it barely mattered; arguably we worked one layer too low.
+\item \textbf{The estimate is the whole remaining gap, and it costs us twice.} Both numbers are
+functions of the same $\est$. Too low and $\limitv$ wrongfully rejects a \emph{fair} claim, so we
+pay $1.5\charge$ --- the lawyer fee, our largest cost line. Too high and $\charge$ crosses $\fair$,
+so thirteen of sixteen opponents refuse it and we earn nothing on an item we were owed for. One
+error, paid in both directions: $\charge{=}\limitv{=}\fair$ reaches $100.3\%$ of optimal play while
+$\charge{=}\limitv{=}\est$ scores $-50{,}140$. We tuned the decision rules to their measured argmax
+and it barely mattered --- we worked one layer too low.
+\item \textbf{The band is uncalibrated --- the fix we would make first.} The model asserts a median
+$\sigma$ of $0.375$ against a realised RMSLE near $0.80$, and the width does not even \emph{order}
+the error, so $k(\sigma)$ multiplies a number that does not measure what it claims to. Then the
+coverage read ($+1{,}173$/Game), an observable separating the 9 real items from the 14 phantoms
+among those we thought worth over $2{,}000$, and widening Price Memory past the $22\%$ it reaches.
 \item \textbf{We diagnosed our largest open lever and deliberately did not ship it.} Policy clause
 7.1.5 has two halves and the model reads only the first. Game~74 returned coverage $0.01$--$0.05$
 on 20 of 31 Line Items, for $87\%$ of that Game's penalties. Perfect coverage is worth
@@ -236,14 +244,14 @@ is still a loss.
 best evidence we have that the architecture works, and simultaneously an operational failure: no
 alert on \texttt{model\_draws=0}, during the most valuable Games of the tournament.
 \item \textbf{We were beaten on the thing we understood best.} We had written down that the Charge
-is a cliff and still sat above $\fair$ too often; a rival took $136{,}075$ off a single Line Item
-by charging $22\%$ lower than us. Knowing a mechanism and being calibrated to it are different
-achievements, and we only closed that gap at Game~63.
+is a cliff and still sat above $\fair$ too often; a rival took $136{,}075$ off one Line Item by
+charging $22\%$ less. Knowing a mechanism and being calibrated to it are different achievements,
+and we only closed that at Game~63.
 \end{itemize}
 \end{multicols}
 
-\vspace{0.6em}
-\noindent\rule{\linewidth}{0.4pt}\\[0.3em]
+\vspace{0.3em}
+\noindent\rule{\linewidth}{0.4pt}\\[0.15em]
 {\footnotesize\textbf{No claim data is checked into this repository} --- not the Cases, the invoice
 PDFs or the policies, and not the four derived paths that would reproduce them (raw model replies,
 per-Game reviews, the submission-time decision log and the settled lessons all carry policy wording
