@@ -990,3 +990,66 @@ Worth someone's time *if* the tournament were longer: carry an invoice id per Li
 at Game 72 with the 3× window opening at 81 — the whole family is ~500/Game of penalty against a
 ±6,275 single-Game floor, and it needs a parser change, a log schema change and an engine rule
 to collect it. Recorded so the size is known rather than guessed at next time.
+
+---
+
+## H18 ⚠️ Coverage is now the largest addressable leak, it is worth +1,173/Game, and no pricing rule reaches it
+
+Two consecutive per-Game reviews landed independently on the same clause, which is the bar this
+project sets for taking a pattern seriously.
+
+Game 74: coverage came back **0.01–0.05 on 20 of 31 Line Items**, collapsing the Limit to ~60 on
+items whose reconstructed floor ran to 1,505. That is **€41,710 of €47,770 total penalties, 87 %**,
+and it clears the ±6,275 single-Game floor by 6.6×. Game 75: item 10, skirting boards over 15 m,
+Charged 253 against `t ≥ 609`.
+
+Both trace to `policy.txt` 7.1.5. The model reads its first half — *"Indemnity is confined to
+those parts of the insured property that were themselves affected"* — against a description
+saying *"an area of maybe a square meter or so"*, and prices the invoice as if only a square
+metre were covered. It misses the extension in the same clause: *"Where an affected room was
+wetted as a whole, the whole of that room is treated as affected for the purposes of extraction,
+drying and the reinstatement of its finishes."* The Field pays the whole room; we price a corner.
+
+**The leak is large and it grew.** Penalty attributed to `coverage-too-low`, by window:
+
+| window | coverage-too-low | all penalty | share |
+| --- | ---: | ---: | ---: |
+| G26–50 | −37,206 | −585,955 | 6 % |
+| G51–65 | −157,117 | −331,274 | **47 %** |
+| G66–75 | −61,712 | −203,281 | 30 % |
+
+−256,036 over the record, the largest attributed stage after the untagged remainder. Note the
+column is one-sided by construction: `coverage-too-high` shows €0 because being generous costs
+*accepts*, not penalties. So the honest measure is the oracle, which prices both directions.
+
+**Oracle coverage — the truth substituted for the model's probability — is +86,775 over 74
+Games, `+1,173/Game`, positive on all four folds and +22,010 on the last ten**, against a
+±53,978 floor. That is a real lever and among the largest still open.
+
+**And no pricing-side rule reaches it.** The natural candidate: 29 of Game 74's 31 items were
+memory-backed, so the wording had been *watched settle*, which ought to override a coverage
+probability of 0.01. Flooring coverage on memory-backed items, swept:
+
+| floor | all | odd | even | ≤50 | >50 | last10 | folds+ |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.40–0.60 | +0 | +0 | +0 | +0 | +0 | +0 | 0/4 |
+| 0.70 | −2,974 | −3,443 | +468 | −1,656 | −1,319 | −2,459 | 1/4 |
+| 0.80 | −591 | −5,348 | +4,757 | +1,731 | −2,321 | −3,611 | 2/4 |
+| 0.90 | +536 | −1,752 | +2,288 | −1,777 | +2,313 | +345 | 2/4 |
+
+Anything under 0.67 is inert — `COVERAGE_FLOOR` is `1 − LIMIT_QUANTILE = 2/3`, so a lower floor
+cannot lift the Limit off zero at all. Above it, the gain on wrongly-collapsed items is paid back
+in accepts on the items where the low coverage was *right*. Memory certifies price, not coverage;
+50 of 158 repeated wordings flip between `t = 0` and `t > 0`, which is why the store returns
+price only, and it is why this shortcut cannot work.
+
+**Not attempted, deliberately.** The fix is a coverage-prompt change and it cannot be validated
+offline — scoring it needs fresh model calls on settled Cases, which is the runner's quota. At
+Game 75 with the 3× weighting opening at 81, the trade is asymmetric: the upside is some fraction
+of +1,173/Game, the downside is that coverage already drives 30–47 % of penalties so a regression
+is expensive, and we would be unable to tell which we had until the weighted window was underway.
+Holding a measured +11k/Game rate beats an unmeasurable swing at it.
+
+**This is the top item for whoever has a validation loop and time.** The specific change: teach
+the coverage step that 7.1.5 has two halves, and that a description understating the wetted area
+does not narrow the *room-scope* extension for extraction, drying and reinstatement of finishes.
