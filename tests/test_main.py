@@ -214,6 +214,21 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("Traceback", logs.output[0])
 
 
+class ExecutorCleanupTests(unittest.IsolatedAsyncioTestCase):
+    async def test_executor_is_shutdown_when_the_operation_is_cancelled(self) -> None:
+        loop = Mock()
+        loop.shutdown_default_executor = AsyncMock()
+
+        async def cancelled() -> None:
+            raise asyncio.CancelledError
+
+        with patch.object(main.asyncio, "get_running_loop", return_value=loop):
+            with self.assertRaises(asyncio.CancelledError):
+                await main._run_with_executor_cleanup(cancelled())
+
+        loop.shutdown_default_executor.assert_awaited_once_with()
+
+
 class MainTests(unittest.TestCase):
     def test_interrupt_stops_runner_cleanly(self) -> None:
         args = argparse.Namespace(game_id=None, retry_dry=False)
