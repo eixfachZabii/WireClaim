@@ -144,7 +144,7 @@ def aggregate_class_discount(
 def local_evidence(case: CaseData) -> dict[int, Evidence]:
     """Channels A and B together, keyed by Line Item index. Never raises."""
     try:
-        from src.evidence.memory import PriceMemory, load, lookup
+        from src.evidence.memory import PriceMemory, load, lookup, policy_fingerprint
     except Exception:  # pragma: no cover - the memory channel is optional
         return {}
 
@@ -176,6 +176,10 @@ def local_evidence(case: CaseData) -> dict[int, Evidence]:
                 line_item.name,
                 unit=unit_of(line_item.name),
                 quantity=max(line_item.quantity, 1.0),
+                # Prefer observations from Cases running this same Policy document. The
+                # wording key cannot tell two sub-limit regimes apart; see
+                # `_restrict_to_policy` in src/evidence/memory.py for the measurement.
+                policy_hash=policy_fingerprint(getattr(case, "policy_text", "")),
             )
         except Exception as error:
             logger.warning(
