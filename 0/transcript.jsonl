@@ -1,0 +1,2 @@
+{"v":1,"agent":"claude-code","cli_version":"0.10.2","type":"user","ts":"2026-08-22T19:41:47.905Z","content":[{"id":"60178f58-c829-4123-b1bd-d8fe576a80bd","text":"hello from stdin, reply with just OK"}]}
+{"v":1,"agent":"claude-code","cli_version":"0.10.2","type":"assistant","ts":"2026-08-22T19:41:49.746Z","id":"msg_011CeJMeTpsVFQCaPfoJ9t5o","input_tokens":2,"output_tokens":4,"content":[{"text":"OK","type":"text"}]}
