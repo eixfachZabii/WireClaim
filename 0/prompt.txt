@@ -1,0 +1,40 @@
+<task-notification>
+<task-id>a6578fd102955f21c</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-sebastianrogg-PycharmProjects-Hackathons---Projekte-WireClaim/b5f152d2-6670-465a-a0a5-b47d7736ff24/tasks/a6578fd102955f21c.output</output-file>
+<status>completed</status>
+<summary>Agent "Rebased-at-G20 chart" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>FIG 4 is in, rendered, and visually checked in both themes.
+
+## The five numbers (unweighted raw per-Game nets, balance.csv, Games 1–94 settled)
+
+**1. Our rebased total G20→94: `+394,107.68` — rank 2 of 17.**
+
+**2. Top 3 on the G20-rebased measure:**
+
+| # | team | rebased total G20→94 |
+| --- | --- | --- |
+| 1 | Codacabana | +420,940.90 |
+| 2 | **Bin busy** | **+394,107.68** |
+| 3 | error404 ai | +336,794.16 |
+| 4 | eyay | +300,810.48 |
+
+We are 26,833 behind first and 57,313 clear of third. eyay — the season leader — is 4th on this measure.
+
+**3. Our rebased per-Game rate: `+5,325.78` over the 74 Games after the anchor — rank 2 of 17.** (Codacabana 5,688.39; error404 ai 4,551.27; eyay 4,065.01.) Same ordering as the totals, since the window is identical for everyone.
+
+**4. Rebased vs. season ranking — yes, it differs, and in our favour.** Season-total we are 5th of 17 (+39,936). Rebased at G20 we are 2nd. The three teams above us on the season are eyay (1st → 4th), Codacabana (2nd → 1st) and error404 ai (3rd → 3rd); TakeTheMoneyAndRun goes 4th → 5th. The whole of our season deficit is pre-G20: our cumulative net at G20 was −354,171, and the entire gap to the leaders is that hole, not the play since.
+
+**5. G26 sensitivity — the story survives, one place weaker.** Rebased at G26: `+366,461.74`, **rank 3 of 17**, `+5,389.14` per Game (also 3rd, over 68 Games). Codacabana 376,164 (1st), error404 ai 371,681 (2nd), us 366,462 (3rd) — the top three are within 9,702 of each other, so 2nd and 3rd are effectively a coin flip at that anchor. Safe stage line: **top 3 either way; 2nd from Game 20, 3rd from Game 26, and the three leaders are within 10k on the conservative cut.** Note our per-Game *rate* is actually slightly higher from G26 (5,389 vs 5,326) — the G21–25 stretch was mildly dilutive, so G20 is not as generous an anchor as feared.
+
+## Figures
+
+`presentation/figures/rebased-g20-{dark,light}.{png,pdf}` — matches FIG 1's palette, 16:9, era bands (G26–62, G63–80, G81–100 accent) with the pre-G26 sliver filled but deliberately unlabelled, the G82–89 dark-channel marker, 16 rivals as thin grey lines with no legend, thick accent line for us. Right-end labels de-overlapped with leader lines: `1 Codacabana +420,941` / `Bin busy — 2nd of 17 +394,108, +5,326 per Game · 2nd` / `3 error404 ai +336,794`. Subtitle states "unweighted per-Game nets" and that 9 teams run off the bottom to −2.25M. Opened both PNGs at full size: nothing clipped, nothing overlapping. Two issues found and fixed on the way — the subtitle ran off the right edge, and a blanket `−` substitution had turned the hyphens in "re-based"/"per-Game" into minus signs.
+
+## Two things worth knowing
+
+- `case_analysis/pitch_figures.py` gained `fig_rebased()` plus a reusable `rebase()` helper and two constants (`REBASE_ANCHOR = 20`, `REBASE_SENSITIVITY = 26`). The only shared code I touched is `draw_eras()`, which took an optional `xmin` clip and a `min_label_span` guard — both default to no-ops, and I verified FIG 1–3 re-render **byte-identical** PNGs. Their PDFs only differ by the embedded CreationDate, so I restored those six to keep the diff to what I meant to change.
+- **The repo moved under me during this task.** HEAD went from `4bf4af5` to `652cee1` ("Split the write-up…"), five commits, and that work swept up an *earlier* render of the rebased figures. The current files on disk are the final version and are uncommitted — if you commit before the pitch, make sure `presentation/figures/rebased-g20-*` goes in, or the deck will pick up the intermediate render with the clipped subtitle.</result>
+<usage><subagent_tokens>96117</subagent_tokens><tool_uses>23</tool_uses><duration_ms>309683</duration_ms></usage>
+</task-notification>
