@@ -1,0 +1,232 @@
+{
+  "game_id": 59,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 43791.58,
+    "paid_on_accepts": 5744.32,
+    "penalties": 45417.825,
+    "net": -7370.564999999995,
+    "saved_by_rejecting": 3553.21,
+    "lawyer_waste": 15139.274999999998,
+    "fraud_let_through": 0.0,
+    "strictness_net": -11586.064999999999
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Remove water-damaged laminate in living room (18 m\u00b2)",
+      "t_lo": 540.0,
+      "t_hi": null,
+      "our_charge": 299.23,
+      "our_limit_bracket": [
+        273.68,
+        301.7
+      ],
+      "estimate_median": 431.96104929041866,
+      "coverage_probability": 0.98,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 3602.79,
+      "stage": "estimate-too-low",
+      "why": "Estimated 432 against a proven floor of t >= 540; the Charge and the Limit are both taken from that median, so both landed low."
+    },
+    {
+      "index": 2,
+      "name": "Supply & install premium oak laminate incl. impact (18 m\u00b2)",
+      "t_lo": 1451.09,
+      "t_hi": null,
+      "our_charge": 1428.18,
+      "our_limit_bracket": [
+        108.26,
+        717.68
+      ],
+      "estimate_median": 1559.4870951694343,
+      "coverage_probability": 0.94,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 19530.704999999998,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 3,
+      "name": "Supply and install skirting boards (premium solid oak,",
+      "t_lo": 1036.19,
+      "t_hi": null,
+      "our_charge": 321.94,
+      "our_limit_bracket": [
+        273.01,
+        361.25
+      ],
+      "estimate_median": 464.74655160538566,
+      "coverage_probability": 0.85,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 7907.97,
+      "stage": "charge-far-below-t",
+      "why": "Charged 322 against t >= 1036; the difference was forfeited from every opponent."
+    },
+    {
+      "index": 4,
+      "name": "Disassembly and disposal of damaged floor tiles in (6 m\u00b2)",
+      "t_lo": 280.5,
+      "t_hi": 350.57,
+      "our_charge": 350.57,
+      "our_limit_bracket": [
+        195.0,
+        228.5
+      ],
+      "estimate_median": 470.00000000000006,
+      "coverage_probability": 0.985,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 1114.1100000000001,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Supply & install premium large-format Italian porcelain (6 m\u00b2)",
+      "t_lo": 823.0,
+      "t_hi": 1200.66,
+      "our_charge": 1200.66,
+      "our_limit_bracket": [
+        565.03,
+        655.5
+      ],
+      "estimate_median": 1264.5157175772865,
+      "coverage_probability": 0.92,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 5310.285,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Cleaning of entire apartment (1 flat rate)",
+      "t_lo": 0.0,
+      "t_hi": 11.37,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 248.19347291981725,
+      "coverage_probability": 0.025,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Paint lower wall after water damage incl. surface (20 m\u00b2)",
+      "t_lo": 619.72,
+      "t_hi": null,
+      "our_charge": 524.94,
+      "our_limit_bracket": [
+        136.0,
+        342.0
+      ],
+      "estimate_median": 713.0217387990351,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 7951.965,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Full ceiling paint living room (15 m\u00b2)",
+      "t_lo": 0.0,
+      "t_hi": 31.2,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 495.98387070548984,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Wallpapering work hallway (8 m\u00b2)",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 474.763098818769,
+      "coverage_probability": 0.01,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy2": {
+        "net": -7370.565000000002,
+        "income": 43791.58,
+        "cost": 51162.145000000004,
+        "items_priced": 10,
+        "items_missing": []
+      }
+    },
+    "drivers": [],
+    "reconstructs": true,
+    "actual_net": -7370.564999999995,
+    "replayed_actual_net": -7370.565000000002,
+    "oracle_net": 43907.53000000003,
+    "oracle_exact_net": 43907.53000000003,
+    "line_items": 9,
+    "best_alternative": null,
+    "best_alternative_delta": 0.0
+  },
+  "estimate": {
+    "n_scorable": 2,
+    "median_log_error": 0.31069586410659095,
+    "rmsle": 0.32285446386067285
+  },
+  "cost_by_stage": {
+    "ok": 33907.065,
+    "charge-far-below-t": 7907.97,
+    "estimate-too-low": 3602.79
+  }
+}

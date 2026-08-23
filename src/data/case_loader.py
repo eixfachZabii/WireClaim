@@ -12,13 +12,29 @@ ARCHIVE_DIR = Path("[PUBLIC] EHL Cases/cases")
 OUTPUT_DIR = Path("var/cases")
 _NUMBERED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s*(?:[.)]|[-–])\s*(?P<name>\S.*)$")
 _SPACED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s+(?P<name>\S.*)$")
+#: Every unit the invoices actually print. Multi-word units come FIRST: the alternation is
+#: ordered, and a bare ``m`` placed ahead of ``linear m`` would never let the longer one win.
+#:
+#: Getting this list short cost a Line Item. Game 59 position 3 read
+#: ``Supply and install skirting boards (premium solid oak,   25   linear m``. ``linear m``
+#: was not here, so ``_TRAILING_QUANTITY`` did not match, the quantity fell back to 1.0, and
+#: ``_SPACED_LINE_ITEM`` then read the orphaned ``25`` as a *new POS number* whose description
+#: was the word ``linear m`` -- inventing a tenth Line Item on a nine-item Case and charging
+#: on it. We charged 321.94 against a proven floor of t >= 1,036.19.
+#:
+#: The record contains exactly three such units across five Cases: ``linear m`` (18, 36, 59),
+#: ``labor units`` (47, twice) and ``lines`` (27).
+_UNIT_ALTERNATION = (
+    r"linear\s+m|lin\.?\s*m|lfm|labou?r\s+units?|lines|"
+    r"pcs|hrs?|m2|m²|m|kg|days?|units?|flat rate"
+)
 _TRAILING_QUANTITY = re.compile(
-    r"\s+(?P<quantity>\d+(?:[.,]\d+)?)\s+(?P<unit>pcs|hrs?|m2|m²|m|kg|days?|units?|flat rate)\s*$",
+    rf"\s+(?P<quantity>\d+(?:[.,]\d+)?)\s+(?P<unit>{_UNIT_ALTERNATION})\s*$",
     re.IGNORECASE,
 )
 _TRAILING_DASHES = re.compile(r"\s+[-–—]\s+[-–—]\s*$")
 _DASH_ONLY_ROW = re.compile(r"^[-–—]\s+[-–—]$")
-_UNIT_ONLY = re.compile(r"^(?:pcs|hrs?|m2|m²|m|kg|days?|units?|flat rate)$", re.IGNORECASE)
+_UNIT_ONLY = re.compile(rf"^(?:{_UNIT_ALTERNATION})$", re.IGNORECASE)
 IMAGE_SUFFIXES = frozenset({".png", ".jpg", ".jpeg", ".webp"})
 
 

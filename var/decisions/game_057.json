@@ -1,0 +1,298 @@
+{
+  "game_id": 57,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 1924.55,
+      "coverage_probability": 0.97,
+      "index": 1,
+      "limit": 708.0,
+      "name": "Bicycle frame replacement (1 pcs)",
+      "price_high": 3586.654962331831,
+      "price_low": 1304.836971816586,
+      "price_median": 2163.330765278393,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.30733796219151677
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 242.58,
+      "coverage_probability": 0.97,
+      "index": 2,
+      "limit": 159.35,
+      "name": "Bicycle brake replacement (1 pcs)",
+      "price_high": 647.2547704589525,
+      "price_low": 193.7413298801674,
+      "price_median": 354.1186241925154,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.36663102453731083
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 35.85,
+      "coverage_probability": 0.95,
+      "index": 3,
+      "limit": 25.85,
+      "name": "Shipping (1 pcs)",
+      "price_high": 131.2089245423426,
+      "price_low": 25.150728210831826,
+      "price_median": 57.445626465380286,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.5020984941615041
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 54.5,
+      "coverage_probability": 0.935,
+      "index": 4,
+      "limit": 54.5,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 139.80336566902537,
+      "price_low": 44.27164985290535,
+      "price_median": 78.67226737012719,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 115.61,
+      "coverage_probability": 0.96,
+      "index": 5,
+      "limit": 115.61,
+      "name": "Assembly costs (1 pcs)",
+      "price_high": 296.56444645103943,
+      "price_low": 93.91331366931495,
+      "price_median": 166.88723702765057,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 26.51,
+      "coverage_probability": 0.95,
+      "index": 6,
+      "limit": 20.12,
+      "name": "Miscellaneous items (1 pcs)",
+      "price_high": 114.52085148289143,
+      "price_low": 17.46406854387373,
+      "price_median": 44.72135954999579,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.5716143985801242
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 30.27,
+      "coverage_probability": 0.945,
+      "index": 7,
+      "limit": 30.27,
+      "name": "Apprentice hours (1 hrs)",
+      "price_high": 77.65036222292939,
+      "price_low": 24.589605771175314,
+      "price_median": 43.69658791085178,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 56.31,
+      "coverage_probability": 0.955,
+      "index": 8,
+      "limit": 56.31,
+      "name": "Skilled worker hours (1 hrs)",
+      "price_high": 144.43971586858171,
+      "price_low": 45.73984678541799,
+      "price_median": 81.28130457588777,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 57.0,
+      "coverage_probability": 0.97,
+      "index": 9,
+      "limit": 57.0,
+      "name": "Vehicle costs (1 pcs)",
+      "price_high": 146.2274954042441,
+      "price_low": 46.3059844405329,
+      "price_median": 82.287350953637,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568053
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 95.77,
+      "coverage_probability": 0.925,
+      "index": 10,
+      "limit": 95.77,
+      "name": "Assembly costs (1 pcs)",
+      "price_high": 245.6763823709566,
+      "price_low": 77.79854744845574,
+      "price_median": 138.25073486550377,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 15.79,
+      "coverage_probability": 0.935,
+      "index": 11,
+      "limit": 12.32,
+      "name": "Miscellaneous items (1 pcs)",
+      "price_high": 74.37838407428532,
+      "price_low": 10.083574809193733,
+      "price_median": 27.386127875258303,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.6073731062151813
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 30.27,
+      "coverage_probability": 0.9299999999999999,
+      "index": 12,
+      "limit": 30.27,
+      "name": "Apprentice hours (1 hrs)",
+      "price_high": 77.65036222292939,
+      "price_low": 24.589605771175314,
+      "price_median": 43.69658791085178,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 58.58,
+      "coverage_probability": 0.955,
+      "index": 13,
+      "limit": 58.58,
+      "name": "Skilled worker hours (1 hrs)",
+      "price_high": 150.2797108210536,
+      "price_low": 47.58920291816418,
+      "price_median": 84.5676749872323,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.34951136485680523
+    }
+  ],
+  "memory_items": 8,
+  "model_draws": 2,
+  "model_items": 13,
+  "proposals": {
+    "strategy2": {
+      "1": [
+        1924.55,
+        708.0
+      ],
+      "10": [
+        95.77,
+        95.77
+      ],
+      "11": [
+        15.79,
+        12.32
+      ],
+      "12": [
+        30.27,
+        30.27
+      ],
+      "13": [
+        58.58,
+        58.58
+      ],
+      "2": [
+        242.58,
+        159.35
+      ],
+      "3": [
+        35.85,
+        25.85
+      ],
+      "4": [
+        54.5,
+        54.5
+      ],
+      "5": [
+        115.61,
+        115.61
+      ],
+      "6": [
+        26.51,
+        20.12
+      ],
+      "7": [
+        30.27,
+        30.27
+      ],
+      "8": [
+        56.31,
+        56.31
+      ],
+      "9": [
+        57.0,
+        57.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787446042.971806,
+  "recorded_at": 1787446042.971297,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

@@ -104,6 +104,15 @@ you can re-run them, but do not re-argue them without new data.
 | Charge conditioned on channel, sigma, unit, quantity | every downward multiplier loses; held-out delta −15,354 | `engine.py` docstring |
 | `b` above `t̂` | flips to a monotone loss when swept against `t̂` rather than `t` | `CLAUDE.md` table |
 
+**One row above has since been narrowed, at Game 55.** "Perfect coverage on big items" is
+still +23,021 and still inside the floor — but that is the *big-item* bucket. Over **all**
+Line Items, with `memory_backed` passed the way the engine actually passes it (the coverage
+bakeoff omitted it, and the two commits that made it matter landed at Games 37 and 40), the
+coverage oracle is **+41,076 over 55 Games**: 33 Games won to 3 lost, +21,416 with its two
+best Games removed, and positive on both held-out windows. Coverage is *not* a closed lever;
+`src/evidence/policy/coverage.py` is still not the way to open it, and that half is now
+evidenced on 626 Line Items rather than 339. See **H4** in the hypothesis ledger.
+
 **Oracle ceilings on big items, for calibration of where effort is worth spending:**
 `b = t` is worth **+176,532**; `a = t` is worth **+417,729**. The Charge is the lever, by 2.4×.
 

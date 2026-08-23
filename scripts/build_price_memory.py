@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import functools
 import math
 import os
 import re
@@ -56,6 +57,7 @@ from src.evidence.memory import (  # noqa: E402
     is_per_unit,
     normalise,
     normalise_unit,
+    policy_fingerprint,
 )
 
 CASES_DIR = ROOT / "[PUBLIC] EHL Cases" / "cases"
@@ -204,6 +206,19 @@ def observations(
     return records
 
 
+@functools.lru_cache(maxsize=None)
+def _policy_hash(game_id: int) -> str:
+    """Fingerprint of this Case's Policy, so the store can tell two regimes apart.
+
+    Hashes the decoded *text*, never the file bytes, so it agrees with what the live
+    pipeline computes from ``case.policy_text``.
+    """
+    path = CASES_DIR / f"case_{game_id:02d}" / "policy.txt"
+    if not path.exists():
+        return ""
+    return policy_fingerprint(path.read_text(encoding="utf-8", errors="replace"))
+
+
 def _record(game_id: int, item: Mapping[str, Any], t_low: float, t_high: float) -> dict[str, Any]:
     unit = infer_unit(item["name"], item["unit"])
     quantity = float(item["quantity"]) or 1.0
@@ -224,6 +239,7 @@ def _record(game_id: int, item: Mapping[str, Any], t_low: float, t_high: float) 
         "basis": "per_unit" if per_unit else "gross",
         "value": total / quantity if per_unit else total,
         "bounded": math.isfinite(t_high),
+        "policy_hash": _policy_hash(game_id),
     }
 
 
@@ -353,15 +369,38 @@ def _write_atomically(target: Path, text: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--games", default="1-14")
+    parser.add_argument(
+        "--games",
+        default=None,
+        help=(
+            "Game range, e.g. '1-56'. Defaults to every extracted Case, which is what a "
+            "rebuild almost always wants. This used to default to '1-14' and silently "
+            "truncated the store to the first fourteen Games -- it has bitten us twice, "
+            "once mid-Game while the runner was live."
+        ),
+    )
     parser.add_argument("--cases", type=Path, default=CASES_DIR)
     parser.add_argument("--out", type=Path, default=OUT_PATH)
     parser.add_argument("--evaluate", action="store_true", help="leave-one-out accuracy")
     parser.add_argument("--no-write", action="store_true")
     args = parser.parse_args()
 
-    start, _, end = args.games.partition("-")
-    games = list(range(int(start), int(end or start) + 1))
+    if args.games is None:
+        found = sorted(
+            int(m.group(1))
+            for d in args.cases.iterdir()
+            if d.is_dir() and (m := re.fullmatch(r"case_(\d+)", d.name))
+        )
+        # case_0 is the permanent dry-run Game; it has no settled Transactions to
+        # bracket against and raises rather than yielding an empty record.
+        found = [g for g in found if g >= 1]
+        if not found:
+            parser.error(f"no extracted Cases under {args.cases}; pass --games explicitly")
+        games = list(range(min(found), max(found) + 1))
+        print(f"--games not given; defaulting to every extracted Case: {games[0]}-{games[-1]}")
+    else:
+        start, _, end = args.games.partition("-")
+        games = list(range(int(start), int(end or start) + 1))
 
     records = observations(games, cases_dir=args.cases)
     payload = memory_payload(records, games)

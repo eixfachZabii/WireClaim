@@ -1,0 +1,227 @@
+{
+  "game_id": 59,
+  "items": [
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 299.23,
+      "coverage_probability": 0.98,
+      "index": 1,
+      "limit": 299.23,
+      "name": "Remove water-damaged laminate in living room (18 m\u00b2)",
+      "price_high": 767.6098649173413,
+      "price_low": 243.079664074109,
+      "price_median": 431.96104929041866,
+      "quantity": 18.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 1428.18,
+      "coverage_probability": 0.94,
+      "index": 2,
+      "limit": 701.77,
+      "name": "Supply & install premium oak laminate incl. impact (18 m\u00b2)",
+      "price_high": 2394.9719517474255,
+      "price_low": 1015.4607440081116,
+      "price_median": 1559.4870951694343,
+      "quantity": 18.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.2607991109861184
+    },
+    {
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "charge": 321.94,
+      "coverage_probability": 0.85,
+      "index": 3,
+      "limit": 321.94,
+      "name": "Supply and install skirting boards (premium solid oak,",
+      "price_high": 825.870847116037,
+      "price_low": 261.52921850109857,
+      "price_median": 464.74655160538566,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.3495113648568051
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 350.57,
+      "coverage_probability": 0.985,
+      "index": 4,
+      "limit": 211.5,
+      "name": "Disassembly and disposal of damaged floor tiles in (6 m\u00b2)",
+      "price_high": 687.6419601716985,
+      "price_low": 321.2427582878205,
+      "price_median": 470.00000000000006,
+      "quantity": 6.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.2313286328531783
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 1200.66,
+      "coverage_probability": 0.92,
+      "index": 5,
+      "limit": 569.03,
+      "name": "Supply & install premium large-format Italian porcelain (6 m\u00b2)",
+      "price_high": 1759.7108799459982,
+      "price_low": 908.6719973278052,
+      "price_median": 1264.5157175772865,
+      "quantity": 6.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.20088772393431545
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 177.7,
+      "coverage_probability": 0.025,
+      "index": 6,
+      "limit": 0.0,
+      "name": "Cleaning of entire apartment (1 flat rate)",
+      "price_high": 405.08688218453034,
+      "price_low": 152.0661436080254,
+      "price_median": 248.19347291981725,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.29780729073020634
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 524.94,
+      "coverage_probability": 0.97,
+      "index": 7,
+      "limit": 320.86,
+      "name": "Paint lower wall after water damage incl. surface (20 m\u00b2)",
+      "price_high": 1080.7792730269769,
+      "price_low": 470.40132308987154,
+      "price_median": 713.0217387990351,
+      "quantity": 20.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.25284237074601973
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 356.65,
+      "coverage_probability": 0.01,
+      "index": 8,
+      "limit": 0.0,
+      "name": "Full ceiling paint living room (15 m\u00b2)",
+      "price_high": 800.4423997716445,
+      "price_low": 307.33004657197137,
+      "price_median": 495.98387070548984,
+      "quantity": 15.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.29095511676427854
+    },
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 350.77,
+      "coverage_probability": 0.01,
+      "index": 9,
+      "limit": 0.0,
+      "name": "Wallpapering work hallway (8 m\u00b2)",
+      "price_high": 712.811792573802,
+      "price_low": 316.2125014600724,
+      "price_median": 474.763098818769,
+      "quantity": 8.0,
+      "quantity_missing": false,
+      "rule": "uncovered-free-option",
+      "sigma": 0.24705257127095173
+    },
+    {
+      "channels": [],
+      "charge": 300.0,
+      "coverage_probability": null,
+      "index": 25,
+      "limit": 35.0,
+      "name": "linear m",
+      "price_high": null,
+      "price_low": null,
+      "price_median": null,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "uninformed-constants",
+      "sigma": null
+    }
+  ],
+  "memory_items": 2,
+  "model_draws": 2,
+  "model_items": 9,
+  "proposals": {
+    "strategy2": {
+      "1": [
+        299.23,
+        299.23
+      ],
+      "2": [
+        1428.18,
+        701.77
+      ],
+      "25": [
+        300.0,
+        35.0
+      ],
+      "3": [
+        321.94,
+        321.94
+      ],
+      "4": [
+        350.57,
+        211.5
+      ],
+      "5": [
+        1200.66,
+        569.03
+      ],
+      "6": [
+        177.7,
+        0.0
+      ],
+      "7": [
+        524.94,
+        320.86
+      ],
+      "8": [
+        356.65,
+        0.0
+      ],
+      "9": [
+        350.77,
+        0.0
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787447556.86598,
+  "recorded_at": 1787447556.865132,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

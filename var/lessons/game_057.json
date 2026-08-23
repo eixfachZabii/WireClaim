@@ -1,0 +1,319 @@
+{
+  "game_id": 57,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 7012.09,
+    "paid_on_accepts": 5335.5,
+    "penalties": 1853.9850000000001,
+    "net": -177.39499999999998,
+    "saved_by_rejecting": 11091.749999999996,
+    "lawyer_waste": 617.995,
+    "fraud_let_through": 3626.51,
+    "strictness_net": 6847.244999999995
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Bicycle frame replacement (1 pcs)",
+      "t_lo": 102.0,
+      "t_hi": 350.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        592.45,
+        Infinity
+      ],
+      "estimate_median": 2163.330765278393,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "estimate-too-high",
+      "why": "Estimated 2163 against t < 350."
+    },
+    {
+      "index": 2,
+      "name": "Bicycle brake replacement (1 pcs)",
+      "t_lo": 128.01,
+      "t_hi": 135.76,
+      "our_charge": 242.58,
+      "our_limit_bracket": [
+        144.47,
+        Infinity
+      ],
+      "estimate_median": 354.1186241925154,
+      "coverage_probability": 0.97,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 243 against t < 136, so every opponent owed us nothing."
+    },
+    {
+      "index": 3,
+      "name": "Shipping (1 pcs)",
+      "t_lo": 25.0,
+      "t_hi": 27.91,
+      "our_charge": 35.85,
+      "our_limit_bracket": [
+        25.0,
+        Infinity
+      ],
+      "estimate_median": 57.445626465380286,
+      "coverage_probability": 0.95,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 36 against t < 28, so every opponent owed us nothing."
+    },
+    {
+      "index": 4,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 21.0,
+      "t_hi": 31.68,
+      "our_charge": 54.5,
+      "our_limit_bracket": [
+        52.62,
+        Infinity
+      ],
+      "estimate_median": 78.67226737012719,
+      "coverage_probability": 0.935,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 54 against t < 32, so every opponent owed us nothing."
+    },
+    {
+      "index": 5,
+      "name": "Assembly costs (1 pcs)",
+      "t_lo": 130.0,
+      "t_hi": 152.0,
+      "our_charge": 115.61,
+      "our_limit_bracket": [
+        100.22,
+        119.0
+      ],
+      "estimate_median": 166.88723702765057,
+      "coverage_probability": 0.96,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 929.28,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Miscellaneous items (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 4.25,
+      "our_charge": 26.51,
+      "our_limit_bracket": [
+        19.69,
+        Infinity
+      ],
+      "estimate_median": 44.72135954999579,
+      "coverage_probability": 0.95,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.95 but the item is worth about nothing (t < 4)."
+    },
+    {
+      "index": 7,
+      "name": "Apprentice hours (1 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 22.15,
+      "our_charge": 30.27,
+      "our_limit_bracket": [
+        27.0,
+        Infinity
+      ],
+      "estimate_median": 43.69658791085178,
+      "coverage_probability": 0.945,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.94 but the item is worth about nothing (t < 22)."
+    },
+    {
+      "index": 8,
+      "name": "Skilled worker hours (1 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 50.69,
+      "our_charge": 56.31,
+      "our_limit_bracket": [
+        53.0,
+        Infinity
+      ],
+      "estimate_median": 81.28130457588777,
+      "coverage_probability": 0.955,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.95 but the item is worth about nothing (t < 51)."
+    },
+    {
+      "index": 9,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 21.0,
+      "t_hi": 31.68,
+      "our_charge": 57.0,
+      "our_limit_bracket": [
+        52.25,
+        Infinity
+      ],
+      "estimate_median": 82.287350953637,
+      "coverage_probability": 0.97,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 57 against t < 32, so every opponent owed us nothing."
+    },
+    {
+      "index": 10,
+      "name": "Assembly costs (1 pcs)",
+      "t_lo": 130.0,
+      "t_hi": 152.0,
+      "our_charge": 95.77,
+      "our_limit_bracket": [
+        80.16,
+        118.0
+      ],
+      "estimate_median": 138.25073486550377,
+      "coverage_probability": 0.925,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 924.705,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Miscellaneous items (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 4.25,
+      "our_charge": 15.79,
+      "our_limit_bracket": [
+        4.25,
+        Infinity
+      ],
+      "estimate_median": 27.386127875258303,
+      "coverage_probability": 0.935,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.94 but the item is worth about nothing (t < 4)."
+    },
+    {
+      "index": 12,
+      "name": "Apprentice hours (1 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 27.0,
+      "our_charge": 30.27,
+      "our_limit_bracket": [
+        27.0,
+        Infinity
+      ],
+      "estimate_median": 43.69658791085178,
+      "coverage_probability": 0.9299999999999999,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.93 but the item is worth about nothing (t < 27)."
+    },
+    {
+      "index": 13,
+      "name": "Skilled worker hours (1 hrs)",
+      "t_lo": 0.0,
+      "t_hi": 53.0,
+      "our_charge": 58.58,
+      "our_limit_bracket": [
+        53.0,
+        Infinity
+      ],
+      "estimate_median": 84.5676749872323,
+      "coverage_probability": 0.955,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.95 but the item is worth about nothing (t < 53)."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy2": {
+        "net": -177.39500000000044,
+        "income": 7012.089999999998,
+        "cost": 7189.484999999999,
+        "items_priced": 13,
+        "items_missing": []
+      }
+    },
+    "drivers": [],
+    "reconstructs": true,
+    "actual_net": -177.39499999999953,
+    "replayed_actual_net": -177.39500000000044,
+    "oracle_net": 9850.060000000001,
+    "oracle_exact_net": 11214.779999999999,
+    "line_items": 13,
+    "best_alternative": null,
+    "best_alternative_delta": 0.0
+  },
+  "estimate": {
+    "n_scorable": 7,
+    "median_log_error": 0.9877016228511639,
+    "rmsle": 1.146608196527056
+  },
+  "cost_by_stage": {
+    "ok": 1853.9850000000001,
+    "estimate-too-high": 0.0,
+    "charge-above-t": 0.0,
+    "coverage-too-high": 0.0
+  }
+}
