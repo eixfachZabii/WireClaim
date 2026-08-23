@@ -12,10 +12,10 @@ reject. The live invariant is now structural and simpler: estimate one ``t`` and
 ``a = b = t_hat``.
 
 The estimate retains Strategy 2's measured ideas: shade below a noisy median, vary that
-shade by magnitude, and treat the expensive tail separately. The coarse factors are frozen
-across calibration (Games 26-53), validation (54-61), and extension (62-67) slices. Proven
-dash-quantity exclusions alone collapse to zero; Strategy 2's generic zero-Limit label is
-not an exclusion verdict.
+shade by magnitude, and treat the expensive tail separately. When Strategy 2 has no price
+evidence at all, the primary invoice position gets a capital-loss prior and later positions
+get a small-parts prior. Proven dash-quantity exclusions alone collapse to zero; Strategy
+2's generic zero-Limit label is not an exclusion verdict.
 """
 
 from __future__ import annotations
@@ -36,6 +36,7 @@ from src.strategies.strategy5.constants import (
     LOW_VALUE_THRESHOLD,
     MID_VALUE_FACTOR,
     MID_VALUE_THRESHOLD,
+    PRIMARY_UNINFORMED_FAIR_VALUE,
     STRATEGY_NAME,
     UNINFORMED_FAIR_VALUE,
 )
@@ -46,6 +47,7 @@ def price_evidence(
     *,
     confirmed_uncovered: bool = False,
     uninformed: bool = False,
+    primary_uninformed: bool = False,
 ) -> tuple[float, float]:
     """Return one coherent ``t_hat`` as both ``(a, b)``.
 
@@ -56,7 +58,12 @@ def price_evidence(
     if confirmed_uncovered:
         return 0.0, 0.0
     if uninformed:
-        return UNINFORMED_FAIR_VALUE, UNINFORMED_FAIR_VALUE
+        estimate = (
+            PRIMARY_UNINFORMED_FAIR_VALUE
+            if primary_uninformed
+            else UNINFORMED_FAIR_VALUE
+        )
+        return estimate, estimate
     median = max(evidence.with_defaults().price_median, 0.0)
     if median < LOW_VALUE_THRESHOLD:
         factor = LOW_VALUE_FACTOR
@@ -99,6 +106,7 @@ def proposal_from_decisions(
         return None
 
     prices: list[ItemPrice] = []
+    primary_index = min(expected) if expected else None
     for index in sorted(expected):
         raw = raw_items[index]
         evidence = _evidence_from_decision(index, raw)
@@ -106,6 +114,7 @@ def proposal_from_decisions(
             evidence,
             confirmed_uncovered=bool(raw.get("quantity_missing")),
             uninformed=raw.get("price_median") is None,
+            primary_uninformed=index == primary_index,
         )
         prices.append(ItemPrice(index, charge, limit, STRATEGY_NAME))
     return Proposal(STRATEGY_NAME, tuple(prices))
