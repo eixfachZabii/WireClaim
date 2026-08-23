@@ -128,6 +128,8 @@ from invert_fair_values import brackets  # noqa: E402
 from pull_transactions import (  # noqa: E402
     AmbiguousMatrix,
     completed_games,
+    cell_agrees,
+    game_weight,
     identity_net,
     matrix,
     teams,
@@ -312,10 +314,11 @@ def snapshot(game_id: int, us: str = US, *, use_cache: bool = True) -> GameSnaps
         # another Game entirely. Unusable; rebuild from the rows.
 
     mine, cell = authoritative_net(game_id, us)
-    if cell is not None and abs(mine - cell) > 0.01:
+    if cell is not None and not cell_agrees(mine, cell):
         raise UnreconstructableGame(
             f"G{game_id} {us}: rows give {mine:.2f} but /matrix publishes {cell:.2f} "
-            f"-- the Game does not reconstruct and must not be scored against"
+            f"(ratio {cell / mine if mine else float('nan'):.3f}) -- the Game does not "
+            f"reconstruct and must not be scored against"
         )
 
     team_names = teams()

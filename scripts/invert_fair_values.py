@@ -41,6 +41,7 @@ from pull_transactions import (
     AmbiguousMatrix,
     completed_games,
     identity_net,
+    cell_agrees,
     matrix,
     teams,
     transactions,
@@ -109,7 +110,7 @@ def verify(
     for team in team_names:
         got = identity_net(transactions(team, game_id), team)
         want = None if published is None else published.get(team, {}).get(game_id)
-        if want is not None and abs(got - want) > 0.01:
+        if want is not None and not cell_agrees(got, want):
             failures.append(f"{team} g{game_id}: got {got:.2f}, published {want:.2f}")
     return failures
 

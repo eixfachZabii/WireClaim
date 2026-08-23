@@ -47,6 +47,35 @@ exists — and **most of it is estimate quality** (§4a). But note H14 in the le
 *decision* constant was still worth +79,240 as late as Game 63, so "every rule has been swept
 to its optimum" was itself overstated. Re-sweep a constant when the record doubles.
 
+### The final 20 Games are weighted 3×, announced mid-tournament
+
+> "The final 20 of our 100 rounds will receive 3× weighting. During these rounds, every payment
+> will be tripled — money you pay to others; money you receive from others; and any penalties
+> you incur. The weighted amounts will be reflected in the Games and Standings tabs. **The
+> Transactions tab will remain unchanged.** … the final 20 rounds will now account for
+> approximately 35% of the total weighted sum of t-values."
+
+Four consequences, in order of how easy they are to get wrong:
+
+1. **No constant changes.** The multiplier is uniform across every payment in a Game, so it
+   scales that Game's net by 3 and leaves the per-Game argmax untouched — maximising `3N` and
+   maximising `N` have the same solution. Nothing in `engine.py` should move because of this.
+2. **It nearly blinded the learning loop.** `identity_net` is arithmetic over the Transactions,
+   which stay unweighted, while the `/matrix` cell triples — and both
+   `replay_payoffs.snapshot()` and `invert_fair_values.verify()` fail a Game whose identity and
+   cell disagree. Every Game from 81 would have been "unreconstructable" and dropped from
+   `usable_games()`, the pooled counterfactual and every sweep. Fixed by
+   `pull_transactions.cell_agrees()`, which accepts a cell at either 1× or 3× and still rejects
+   anything else. Tested in `FinalRoundWeightingTests`, because the path cannot fire before
+   Game 81 and that is the worst moment to discover it was refactored away.
+3. **Reading the leaderboard across the boundary needs care.** From Game 81 the `/matrix` cells
+   are weighted. Any per-Game rate that mixes Games ≤80 with ≥81 must divide the later cells by
+   3, or it will silently rank the field wrong. `game_weight(game_id)` is there for it.
+4. **Uptime is worth 3× in the weighted window, and so is a mistake.** Break-even uptime, the
+   value of rescuing a Game, and the downside of the Limit bet all triple. The practical rule:
+   **finish experimenting before Game 81 and spend the last 20 Games stable.** At Game 70 that
+   is roughly eleven Games, about two and a quarter hours, of remaining runway.
+
 ### The payoff clause that reframes everything — read this before touching any Charge
 
 The issuer is paid on a **wrongful rejection too**:

@@ -835,3 +835,65 @@ which is what that column measures, while a high `t_hat` produces accept-payment
 different column. The wording split that prompted it (multi-item aggregate versus single named or
 listed article, from Game 68's "several unscheduled" at `t ≥ 2,234` against "one high-value ring
 listed" at `t ∈ [2421, 2850)`) reaches **n = 7 and n = 3**. Not testable. §4a stays open.
+
+---
+
+## H16 ❌ "Operation Nightfall" — there is no AFK team to exploit, and a dark Reviewer pays us *less*
+
+Proposed at Game 68: scan the last ten Games for teams that are offline, then run a strategy
+that exploits them for quick wins. **Measured on Games 58–68, and it fails on three independent
+grounds — the first of which is structural, not economic.**
+
+**1. There is no targeting surface.** The submission payload is
+`{"index", "charge_price", "acceptance_limit"}` (`src/api/tournament.py:177`). One Charge and one
+Limit per Line Item, broadcast to all sixteen opponents. **The API has no per-team field**, so no
+strategy can price one opponent differently from another. "Exploit the AFK teams" can only mean
+"move the number everyone sees", which is a global recalibration and is what H12/H14 already
+measured.
+
+**2. A dark Reviewer is a *worse* customer than an awake one, not a better one.** The clause that
+decides this is `replay_payoffs.py:20` — on a wrongful rejection the reviewer pays `1.5a` but the
+**issuer receives `a`**; the `0.5a` is burned by the lawyer and never reaches us. So our income on
+a fair Charge is `a` whether they accept or reject, and darkness cannot raise it. It can only
+remove the Overcharge-acceptance term. Measured over G58–68, every row where we were the Issuer:
+
+| reviewer | state | income to us | €/row |
+| --- | --- | ---: | ---: |
+| makalu | DARK | 12,436 | 124.4 |
+| OPUSMOPUS | DARK | 12,436 | 124.4 |
+| Alpha | reviewer-dark | 12,436 | 124.4 |
+| awake mean (13 teams) | awake | 18,725 | 182.5 |
+
+The three figures are **identical to the cent** — the fair floor, exactly what R7 predicts — and a
+dark team is worth **32 % less** per row than an awake one. There is no surplus to extract.
+
+**3. The Field is not dark.** `dark_team_census.py --games 58-68`: 3 of 16 median
+(3,3,2,3,3,3,3,2,2,4,4), persistently makalu and OPUSMOPUS, corroborated by identical nets in all
+eleven Games. This reproduces **H12**'s G44–57 finding on a fresh window; rule 9's "mostly dark"
+premise stays falsified.
+
+**The intuitive version of this idea is not neutral, it is the Game 62 loss.** "Dark teams can't
+punish an Overcharge, so raise the Charge" is backwards: above `t` a dark Reviewer pays **zero**,
+so darkness makes an Overcharge *worse* than against an awake Field that accepts ~17 % of them.
+That is H14, where 10,349.89 against `t ∈ [8505, 10350)` drew 3 payers to error404 ai's 8,504.71
+drawing 16.
+
+**Where the recent window's money actually goes.** G58–68 net **−4,496** (4th of 17, reconciles to
+the published leaderboard to the cent), decomposed over our Reviewer side: income 280,305, paid on
+accepts 40,035, **lawyer penalty 244,765 — 86 % of all cost**. The two largest penalty sources are
+**Teamers (29,087) and error404 ai (27,558)** — and they are the *only* two teams positive in this
+window (+130,039 and +123,251). They are not exploiting anyone's absence; they price just under `t`
+and collect `a` from all sixteen. **We are the harvested party, and the harvesters are the accurate
+teams, not the awake ones.**
+
+That is not a Limit problem either — `limit_ceiling_sweep.py` re-run at Game 68 (67 Games, floor
+±51,362) still has nothing passing four folds, best `model 0.50` at **+1,304 = 2.5 % of the floor**,
+and every value above 0.45 negative on `>40`. **H13 and H15 confirmed on seven more Games.** Of the
+244,765, about 163,177 is money we owed anyway; only the `0.5a` excess is reachable, and no
+multiplier reaches it.
+
+**Verdict: no `src/` change. Nothing was shipped.** The lever remains estimate quality on the
+Issuer side — H15's Game 68 finding (`t_hat` 2–2.5× too low on theft/contents items, ~47,000 of
+income forfeited, zero of eleven Line Items memory-backed) is worth an order of magnitude more than
+anything on the Reviewer side, and it is the same conclusion H3 and H8 reached from other
+directions.
