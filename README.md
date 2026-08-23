@@ -6,9 +6,20 @@ This repo is our entry to QuantCo's **Claim to Fame** challenge. This README is 
 single source of truth for _what the game is_, _how it is scored_, and _what we
 proved about how to beat it_. Read this before touching code.
 
-**Judging the submission? Start with [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md)** — the
-one-page write-up: how we decided things, what we measured and rejected, and how to reproduce any
-number in it. The appendix with every table is [`docs/methodology-full.md`](docs/methodology-full.md).
+**Judging the submission? Start with [`WRITEUP.md`](WRITEUP.md)** — the write-up the organisers
+asked for: one page of approach, one page of why we think we succeeded and where we did not. The
+same argument set as a short paper, with the derivations, is
+[`presentation/writeup.pdf`](presentation/writeup.pdf).
+
+| where | what |
+| --- | --- |
+| [`WRITEUP.md`](WRITEUP.md) | **the judged write-up** — approach + succeeded/not-succeeded |
+| [`presentation/writeup.pdf`](presentation/writeup.pdf) | the same, as a 3-page paper with the maths ([source](presentation/writeup.tex)) |
+| [`presentation/index.html`](presentation/index.html) | the pitch deck (arrow keys) |
+| [`presentation/RUNSHEET.md`](presentation/RUNSHEET.md) | the 5-minute run sheet and the Q&A answers |
+| [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | how we decided things, in one denser page |
+| [`docs/methodology-full.md`](docs/methodology-full.md) | the appendix, with every table |
+
 This README is the reference for the game itself; those are the argument.
 
 ---
