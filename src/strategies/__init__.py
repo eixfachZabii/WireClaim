@@ -24,6 +24,20 @@ STRATEGY_PRIORITIES = {
     "strategy3": 2,
     "strategy4": 2,
     "strategy2": 3,
+    "jonas": 0,
 }
 
-__all__ = ["STRATEGY_PRIORITIES"]
+#: Sources that run and are logged in full but must **never** reach a Submission, whatever
+#: order they answer in. A priority of 0 is not enough on its own, and the reason is worth
+#: stating because it is the whole point of this set: `StrategyRouter.register` rejects a
+#: *lower* priority, not an equal one, and `_current_priority` starts at -1. So a track at
+#: priority 0 that answered first would be adopted, and would still be the Submission on any
+#: Game where Strategy 2 timed out or returned empty -- which has happened (Game 46 lost both
+#: ensemble draws, Game 49 lost one to an HTTP 429).
+#:
+#: A shadow track still appears in the decision log and therefore in the `pixi run learn`
+#: comparison, so it can be scored against Strategy 2 over the settled record without ever
+#: being able to cost a Game while it is being evaluated.
+SHADOW_STRATEGIES: frozenset[str] = frozenset({"jonas"})
+
+__all__ = ["SHADOW_STRATEGIES", "STRATEGY_PRIORITIES"]

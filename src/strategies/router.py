@@ -24,7 +24,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 
 from src.data.models import CaseData, Proposal
 from src.runtime.decisions import record_proposals
-from src.strategies import STRATEGY_PRIORITIES
+from src.strategies import SHADOW_STRATEGIES, STRATEGY_PRIORITIES
 from src.legacy.strategy1 import propose as strategy1
 from src.strategies.strategy2 import propose as strategy2
 from src.legacy.strategy3 import propose as strategy3
@@ -36,7 +36,7 @@ Strategy = Callable[..., Awaitable[Proposal | None]]
 # `STRATEGY_PRIORITIES` is re-exported for the callers that already import it from here.
 # It is defined in `src.strategies` because it describes the tracks rather than
 # the router, and because two copies of it had already drifted apart.
-__all__ = ["STRATEGY_PRIORITIES", "StrategyRouter"]
+__all__ = ["SHADOW_STRATEGIES", "STRATEGY_PRIORITIES", "StrategyRouter"]
 
 
 class StrategyRouter:
@@ -99,6 +99,11 @@ class StrategyRouter:
 
     def register(self, proposal: Proposal | None) -> Proposal | None:
         if proposal is None or proposal.is_empty:
+            return None
+        if proposal.source in SHADOW_STRATEGIES:
+            # Logged, compared, never submitted -- and deliberately checked before the
+            # priority arithmetic rather than expressed as a low number, because `register`
+            # rejects a lower priority and not an equal one. See `SHADOW_STRATEGIES`.
             return None
         priority = STRATEGY_PRIORITIES.get(proposal.source, 0)
         if priority < self._current_priority:

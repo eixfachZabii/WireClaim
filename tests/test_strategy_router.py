@@ -37,6 +37,39 @@ class StrategyRouterTests(unittest.TestCase):
         self.assertIsNone(router.register(proposal("strategy3", 300.0)))
         self.assertEqual(router.current.source, "strategy2")
 
+    def test_a_shadow_strategy_is_never_submitted_even_when_it_answers_alone(self) -> None:
+        """The case a low priority alone does not cover.
+
+        `register` rejects a *lower* priority, not an equal one, and `_current_priority`
+        starts at -1. So a shadow track at priority 0 that answers first -- or answers alone,
+        on a Game where Strategy 2 timed out or returned empty, which has happened twice --
+        would otherwise become the Submission.
+        """
+        router = StrategyRouter()
+
+        self.assertIsNone(router.register(proposal("jonas", charge=100.0)))
+        self.assertIsNone(router.current)
+
+    def test_a_shadow_strategy_cannot_displace_or_follow_strategy2(self) -> None:
+        router = StrategyRouter()
+
+        router.register(proposal("strategy2", charge=50.0))
+        self.assertIsNone(router.register(proposal("jonas", charge=100.0)))
+        self.assertEqual(router.current.source, "strategy2")
+
+    def test_a_shadow_strategy_is_still_recorded_for_comparison(self) -> None:
+        """Logged but not submitted -- otherwise it cannot be scored against Strategy 2."""
+        router = StrategyRouter()
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(decision_log, "DECISIONS_DIR", Path(directory)):
+                router.register(proposal("strategy2", charge=50.0))
+                router._capture(7, proposal("jonas", charge=100.0))
+
+                recorded = proposals(load(7))
+
+        self.assertIn("jonas", recorded)
+        self.assertEqual(router.current.source, "strategy2")
+
     def test_an_unknown_source_loses_to_every_known_strategy(self) -> None:
         router = StrategyRouter(strategies=())
         router.register(proposal("strategy1", 100.0))

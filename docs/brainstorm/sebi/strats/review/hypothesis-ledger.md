@@ -557,6 +557,141 @@ Whatever closes the gap is on the too-low, censored, magnitude side. Stop lookin
 
 ---
 
+## H11 ✅ Price Memory keys on wording; the Policy text is the key it was missing
+
+**The failure, exactly.** One entry of 239 pools observations from two different Policies:
+
+```
+'compensation for robbery damage'  ->  games [27, 41]   values [3011.08, 11130.90]
+pooled geometric mean the store returns: 5,789
+   vs 3,011 (G27) = 1.92x too HIGH      vs 11,131 (G41) = 0.52x too LOW
+```
+
+Byte-identical wording, a 3.70x spread, and the pooled anchor is wrong in **both** directions.
+At Game 41 the store held only G27's 3,011, and that is the anchor that pulled a correct read
+down to 5,524 — **81,673 of penalty on one Line Item.**
+
+**Why the wording cannot separate them, and what can.** Cases 10, 41, 44 and 53 share
+`policy.txt` byte for byte (`md5 4fa9117f`); Case 27 is a different document (`fa547b5e`).
+That hash partitions exactly along Part 11.1: the shared Policy says the affected items belong
+"partly to classes for which sub-limits are agreed ... **and partly to the general class under
+4.2.1**", and 11.2 pays a class carrying no sub-limit **in full**; Case 27's says only
+"classes of property for which sub-limits are agreed". The settlements follow with no overlap —
+3,000 (bounded, at the cap) against 7,225 / 8,626 / 9,361 / 11,131 (all unbounded).
+
+**Measured, `scripts/experiments/policy_hash_memory.py`, leave-one-out over all 57 Cases:**
+
+| arm | n | recall | sigma | mean abs log | bias |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| baseline (wording only) | 309 | 69% | 0.453 | 0.274 | +0.049 |
+| same-hash only | 196 | 44% | **0.389** | 0.234 | **+0.009** |
+| **prefer-hash** | 309 | **69%** | **0.425** | 0.252 | +0.038 |
+
+`prefer-hash` — same-Policy observations when they hit, the full store when they miss — is
+better than baseline on sigma in **all four folds at identical recall**: ODD 0.530→0.521,
+EVEN 0.361→0.300, EARLY 0.452→0.435, LATE 0.455→**0.416**. The gain is largest LATE because
+the store accrues same-hash priors as it grows, so it improves over the remaining Games.
+`same-hash` alone nearly eliminates the channel's upward bias (+0.049 → +0.009).
+
+**Scope, honestly.** This is leave-one-out sigma on the memory channel, not net euros. By the
+sigma-sensitivity table (~2,780 per 0.01) 0.028 is worth roughly 8k, inside the noise floor
+**as a total**. Its value is that it removes a catastrophic mechanism rather than moving a
+level. **15 Policy hashes are shared across 43 of 57 Cases**, and the invoice sweep found
+independently that **76% of all identified damage sits in Games whose Policy text had already
+appeared in an earlier settled Case** — including Game 44's watch, estimated at 6,840 when
+Case 10, same hash and settled 34 Games earlier, had already proven a floor of **7,225** on
+the identically-named line.
+
+**Proposed `src/` change:** prefer same-`md5(policy.txt)` observations in
+`src/evidence/memory.py`, falling back to the pooled store. One change, validated 4/4 folds,
+no recall cost. Not yet priced through `replay_payoffs.py`.
+
+---
+
+## H12 ❌ The three-regime model — Games 44–81 are **not** "mostly dark"
+
+`CLAUDE.md` rule 9 states the tournament has three regimes and that Games ~44–81 the Field is
+"mostly dark", which would make an honest harvest the only play and overcharging worthless
+against `b = 0`. **Measured, and it is inverted.**
+
+Dark = a reviewer whose total accepted **amount** is zero for the whole Game. (Counting
+*accepts* instead is wrong: a team with `b = 0` still accepts every `a = 0` Charge, so a
+count-based filter reports zero dark teams everywhere. That mistake was made and caught here.)
+
+| Game | dark of 17 | | Game | dark of 17 |
+| ---: | ---: | --- | ---: | ---: |
+| **28** | **13** | | 50 | 2 |
+| **36** | **15** | | 53 | 6 |
+| 41 | 8 | | 54 | 2 |
+| 46 | 2 | | 55 | 4 |
+| 47–50 | 2–3 | | 56, 57 | 3, 3 |
+
+The two genuinely dark Games in the record are **28 and 36 — both inside the window rule 9
+calls "awake"** — and the 44+ window the rule calls "mostly dark" runs at a median of **3 of
+17**. Reproduced independently from the cached Transactions of all 17 teams, row counts
+verified against `17 x 16 x 2 x n_line_items` for every Game.
+
+**The action does not change, but the reason does.** An acceptance curve measured over the last
+five Games shows `p(accept)` falling smoothly and significantly across `a/t` 0.5 → 1.5
+(non-overlapping CIs in every window), which is what correctly-pricing awake reviewers produce —
+not an asleep field. Above 1.5x the buckets hold 8–149 unique Charges and are inflated by
+**survivorship bias**: a Charge rejected by all 16 reviewers is unrecoverable and drops out of
+every bucket rather than counting as a zero. Correcting for the real-money share pulls
+`p(>2.5x)` from 17.2% to 13.8% (last five), 21.9% to 13.7% (G26–40), 25.8% to 19.2% (G41–50).
+
+**Verdict: do not raise the Charge.** The Field's own median `a/t` is 0.68 / 0.74 / 0.71 across
+the three windows, matching the standing ~0.73 measurement, and our shipped `0.7 * t_hat` sits
+inside the only region of this data that is trustworthy. Rule 9's *conclusion* for this stretch
+survives; its *premise* does not, and a wrong reason in a shared doc propagates.
+
+---
+
+## H13 ❌ `LIMIT_CEILING = 0.45` is fitted to the wrong estimator — no, it still holds
+
+**Game 59 raised it, and it looked damning.** Four expensive, correctly-priced Line Items drew
+45,418 of lawyer waste with **zero** rightful rejections between them. Item 2 held a Limit of
+701.77 — exactly `0.45 x 1559.49`, the ceiling binding — against a true `t >= 1451`, and
+wrongly rejected **12 of 16** fair Charges. The Game's Limit ledger was **0.2 : 1**
+saved-to-wasted against a 2.2–2.6 : 1 record average.
+
+The suspicion was reasonable: 0.45 was fitted before the Price Memory basis fix (5f6dcc3),
+the Policy key (d0ef2c6) and the parser reconciliation (c6a079f, which changed nine
+quantities and removed two invented Line Items). A ceiling swept on a biased estimator
+absorbs that bias.
+
+**Measured — `scripts/experiments/limit_ceiling_sweep.py`, 60 Games, noise floor ±48,605:**
+
+| ceiling | all | odd | even | ≤40 | >40 | last8 | folds+ |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.40 | −1,080 | −481 | −599 | −69 | −1,011 | −451 | 0/4 |
+| **0.45 (shipped)** | — | — | — | — | — | — | — |
+| 0.50 | +902 | +348 | +553 | +1,939 | **−1,038** | −228 | 3/4 |
+| 0.60 | +3,803 | −2,403 | +6,207 | +5,737 | **−1,934** | +931 | 2/4 |
+| 0.80 | +4,593 | −2,119 | +6,712 | +4,759 | **−166** | +1,937 | 2/4 |
+
+**Nothing passes four folds, and every value above 0.45 is negative on `>40` — the recent
+half, which is exactly the window the suspicion was about.** The largest total gain, +4,593,
+is an order of magnitude inside the noise floor. On `last8` (Games 53–60, the window
+containing Game 59 itself) the best available is +1,937 against the 45,418 that prompted the
+question.
+
+The engine docstring states its own falsification condition — "three or four consecutive
+settled Games where 0.60 beats 0.45 on that window alone". It is **not met**: 0.60 scores
+−1,934 on `>40` and +931 on `last8`.
+
+Loosening the Price Memory ceiling was tested in the same sweep and is worse: 0.75 → 0.60
+costs **−28,854**, and 0.90 reaches +3,538 on 2/4 folds.
+
+**Game 59 was a bad draw, not a mis-set constant.** A Case whose expensive items are all
+covered *and* correctly priced is the exact shape this ceiling is worst at, and such Cases are
+rare enough that paying for them beats loosening for everyone. No `src/` change.
+
+Worth recording separately from the verdict: the baseline replay is **+243,635 over Games
+≤40 and only +15,563 over the twenty Games after**, with `last8` at **−6,135**. Whatever is
+draining the recent window, this constant is not it.
+
+---
+
 ## Standing measurements worth not re-deriving
 
 | quantity | value |
