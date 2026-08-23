@@ -692,6 +692,91 @@ draining the recent window, this constant is not it.
 
 ---
 
+## H14 ✅ Above `t` the income is not nothing — `BIG_ITEM_CHARGE_SCALE` was betting that it is
+
+**Shipped: `1.25 → 1.0` at Game 63.** The largest single change of the night, and the reason it
+was found is that the payoff table has a clause everyone here had underweighted.
+
+The issuer is paid on a **wrongful rejection too**. So for `a <= t` the income is `a` from
+*every* opponent, whatever their Limits — a Reviewer who rejects a fair Charge still owes it,
+plus the lawyer. Above `t` a rejection is rightful and pays nothing, so the income is `a`
+times only the handful who accept. Measured on Game 62: **16 payers versus 3.** Crossing `t`
+costs about 5× the income, and raising the Charge is precisely the operation that moves
+in-band items across.
+
+The constant's own justification was the opposite: *"on an item already above `t` the income
+is ~0 whatever we Charge, so raising it costs nothing."* It even conceded the exposure — *"the
+in-band items are the only real risk, since a scale can push them across the cliff. At 1.25
+most stay in band"* — and that is the half that was wrong.
+
+**Game 62, Line Item 1, "Renew boiler system including flue gas system", `t ∈ [8505, 10350)`:**
+
+| team | Charge | payers | income on that one item |
+| --- | ---: | ---: | ---: |
+| `error404 ai` | 8,504.71 | **16 of 16** | **136,075** — 87% of their whole Game |
+| us | 10,349.89 | 3 of 16 | 31,050 |
+
+The unscaled Charge was `charge_factor(σ) × 11,736.69 = 8,280` — fair. The 1.25 lifted it one
+step past the ceiling. Their net that Game was +101,531; ours was −17,276.
+
+**Measured — `scripts/experiments/big_charge_floor_sweep.py`, 63 Games, noise floor ±49,805
+(±35,496 within a half-fold), delta against the shipped 1.25:**
+
+| rule | all | odd | even | ≤40 | >40 | crossings |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| scale 0.90 | +25,869 | −2,168 | +28,037 | +1,821 | +24,049 | 11→fair, 0→over |
+| **scale 1.00 (shipped)** | **+79,240** | −6,318 | +85,559 | +5,490 | +73,750 | **9→fair, 0→over** |
+| scale 1.10 | +72,900 | −19,201 | +92,100 | −5,355 | +78,255 | 4→fair, 0→over |
+| scale 1.25 (was) | — | — | — | — | — | — |
+| floor 0.20 | +90,273 | +3,314 | +86,959 | +15,123 | +75,151 | 9→fair, 1→over |
+| floor 0.30 | +109,198 | +24,527 | +84,671 | +28,635 | +80,563 | 9→fair, 1→over |
+| floor 0.35 | +85,594 | +22,037 | +63,557 | +4,804 | +80,790 | 9→fair, 1→over |
+| floor 0.40 | +103,492 | +41,284 | +62,208 | +8,418 | +95,074 | 9→fair, 1→over |
+| scale+floor 0.30 | +20,215 | +19,048 | +1,167 | +19,048 | +1,167 | 0→fair, 1→over |
+
++79,240 clears the floor, and the mechanism is one-directional: **nine Line Items move from
+Overcharge to fair, none the other way.** The odd fold is −6,318 against ±35,496 — 18% of its
+own noise floor, which is flat, not negative. The fit that chose 1.25 was +36,525 at n=26
+against ±31,996; it only just passed then and it reverses on 2.4× the sample.
+
+**The documented falsifier was not what tripped.** It said to revert if "proven too high" fell
+near 50%. Re-measured over Games 26–63 the tail is still **67% proven too high, 15% too low,
+n=33, median `t_hat/t` 3.03** — the shape it was fitted on. The prose above the number was
+wrong, not the direction balance. Worth remembering: a constant can be right about its data
+and wrong about its mechanism.
+
+**Read `big_charge_sweep.py`'s `floor` family carefully before quoting it.** Its `price()`
+never applies `BIG_ITEM_CHARGE_SCALE` in that branch, so `floor f` means "*drop the 1.25* and
+add a floor at `f × price_high`", and `floor 0.0` is exactly `scale 1.0`. Its headline
++109,198 is therefore mostly the multiplier, not the floor: keeping the 1.25 *and* adding the
+floor (`scale+floor 0.30`) collapses to +20,215.
+
+### Two negatives from the same session, recorded so they are not re-argued
+
+**❌ The infinite Cap in `replay_payoffs.py` is not biasing our Charge constants.** Its
+docstring justifies `c = ∞` on "zero cap_conflicts in Games 1–14", which expired —
+`rivals.py` pins `c = max(4t, 2000)`, and Game 62 item 7 shows it binding (we Charged
+8,617.22, the one acceptor paid exactly 4,840.00 = `4t`, so `t = 1,210` against our `t_hat` of
+9,500). It looked like every Charge-raising rule was being flattered. It is not:
+`scripts/experiments/big_charge_sweep_capped.py` scores all 12 rules × 5 folds with the Cap
+enforced and the tables are **identical to the cent**. The Cap can only bind on an *accepted*
+Overcharge, and the reconstructed Field's Limits essentially never accept one that large.
+Only one (Game, Line Item) in the whole record has our recovered Charge above `max(4t, 2000)`.
+
+**❌ Codacabana's ratios are not copyable — the gap to them is estimate quality.** They lead
+the field on the recent window at **+9,848/Game (G42–61) against our +4,597**, and
+`current_winners_study.py --decompose` (reconciles to the identity to the cent) splits the
+125,881 gap over G42–62 into: **+170,140 more fair income** for them, and an accept-side
+policy worth **−4,672** net (they pay 177,400 more on accepts to avoid 172,728 of lawyer —
+i.e. nothing, deep inside the noise floor). Their fair capture is 60.4% of the honest ceiling
+against our 47.6%. But their `a/t` median is *higher* than ours (1.06 vs 0.98) with a tighter
+p25 (0.83 vs 0.72), which is a statement about their **estimate**, not their multiplier —
+applying their ratios to our own `t_hat` loses **−279,916 (a only) to −380,338 (a and b)**
+over 63 Games. R5c again: a rival's ratio measured against `t` is not a rule you can apply to
+`t_hat`.
+
+---
+
 ## Standing measurements worth not re-deriving
 
 | quantity | value |

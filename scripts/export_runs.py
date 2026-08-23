@@ -61,9 +61,18 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from src.strategies import STRATEGY_PRIORITIES  # noqa: E402
+
 DECISIONS = ROOT / "var" / "decisions"
 LESSONS = ROOT / "var" / "lessons"
 OUT_DIR = ROOT / "var" / "export"
+
+#: Derived from the priority table rather than listed here, so a new track appears in the
+#: export the moment the router can log it. Listing them by hand is how `strategy4` was
+#: missing from this file for its whole first Game, and the same duplication is what put two
+#: drifted copies of `STRATEGY_PRIORITIES` in the codebase before it was pulled into one
+#: place. Sorted by priority so the columns read winner-first.
+TRACKS = tuple(sorted(STRATEGY_PRIORITIES, key=lambda s: (-STRATEGY_PRIORITIES[s], s)))
 
 #: A real Game id is three digits. The test suite uses four so its fixtures can never be
 #: mistaken for a settled Game -- see `tests/test_strategy2.py`.
@@ -101,12 +110,7 @@ COLUMNS = [
     "stage",
     "why",
     # the counterfactual: what every Strategy would have submitted
-    "strategy1_charge",
-    "strategy1_limit",
-    "strategy2_charge",
-    "strategy2_limit",
-    "strategy3_charge",
-    "strategy3_limit",
+    *[f"{source}_{field}" for source in TRACKS for field in ("charge", "limit")],
     # convenience ratios, all guarded against a zero denominator
     "charge_over_t_lo",
     "limit_over_t_lo",
@@ -210,7 +214,7 @@ def rows() -> list[dict[str, Any]]:
                 "t_hat_over_t_point": _ratio(item.get("price_median"), t_point),
                 "decision_log_partial": partial,
             }
-            for source in ("strategy1", "strategy2", "strategy3"):
+            for source in TRACKS:
                 charge, limit = _proposal(proposals, source, index)
                 row[f"{source}_charge"] = charge
                 row[f"{source}_limit"] = limit

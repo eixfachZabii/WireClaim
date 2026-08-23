@@ -17,31 +17,54 @@ Leaderboard (`https://c2f.public.quantco.cloud/leaderboard/#matrix`, read via
 `https://c2f.public.quantco.cloud/leaderboard/api/matrix` — the endpoint the page itself
 calls; do not enumerate others):
 
-**7th of 17, at −184,428.** `eyay` leads at +279,327.
+**6th of 17, at −185,639** (read at Game 62). `eyay` still leads on total at +269,524 — but
+**their rate has collapsed and the field has reordered.** Per-Game net over the twenty Games
+`/matrix` actually publishes:
 
-The deficit is entirely historical. Per-Game net by window, ours against the top of the field:
+| team | total | G42–61 | per Game, G42–61 |
+| --- | ---: | ---: | ---: |
+| **Codacabana** | +88,302 | +196,964 | **+9,848** ← the team to beat |
+| Non Deterministic | +19,517 | +122,245 | +6,112 |
+| **Bin busy** | **−185,639** | +91,937 | **+4,597** |
+| TakeTheMoneyAndRun | +119,079 | +58,961 | +2,948 |
+| eyay | +269,524 | +24,463 | **+1,223** |
+| error404 ai | +93,849 | −41,465 | −2,073 |
 
-| team | G1–25 | G26–40 | G41–55 | per Game, G41–55 |
-| --- | ---: | ---: | ---: | ---: |
-| **Bin busy** | **−322,595** | +65,442 | +72,725 | **+4,848** |
-| eyay | +101,677 | +44,216 | +133,433 | **+8,896** |
-| error404 ai | +13,779 | +51,805 | +47,587 | +3,172 |
-| TakeTheMoneyAndRun | +67,577 | −37,274 | +73,911 | +4,927 |
-
-Games 1–25 ran before Strategy 2 landed and cost 322,595. Since Game 26 we are profitable and
-mid-pack. **That is the whole story of our rank, and it means rank is a lagging indicator —
-judge every change on the per-Game rate, never on position.**
+Games 1–25 ran before Strategy 2 landed and cost 322,595. Since Game 26 we are profitable.
+**Rank is a lagging indicator — judge every change on the per-Game rate, never on position.**
+By rate we are 3rd, not 6th. Do not read eyay's total as the target either: Codacabana passes
+them around Game 82 at current rates.
 
 ### The arithmetic of first place, stated plainly
 
-Closing 463,755 over the ~45 remaining Games requires **beating eyay by ~10,300 per Game**.
-We currently trail them by 4,048 per Game. So first place needs our rate to roughly triple,
-not improve at the margin.
+Against **Codacabana**, not eyay: we trail them by 273,941 and by 5,251 per Game, with ~37
+Games left. First place needs roughly **+17,000 per Game against our +4,597** — a factor of
+3.7, not a marginal gain.
 
-Is that reachable? `learn_from_game.py` puts the oracle ceiling at **+1,140,327 over the 30
-Games with a decision log**, about 38,000 a Game, against our +138,167. So yes, the headroom
-exists — and **all of it is estimate quality**. Every decision rule has been swept to its
-measured optimum (§3). Do not spend the night on constants.
+Is that reachable? `learn_from_game.py` puts the oracle ceiling at **+1,390,707 over the 37
+Games with a decision log** (37,586 a Game) against our +119,680 (3,235). So yes, the headroom
+exists — and **most of it is estimate quality** (§4a). But note H14 in the ledger: one
+*decision* constant was still worth +79,240 as late as Game 63, so "every rule has been swept
+to its optimum" was itself overstated. Re-sweep a constant when the record doubles.
+
+### The payoff clause that reframes everything — read this before touching any Charge
+
+The issuer is paid on a **wrongful rejection too**:
+
+```
+a <= t, accepted    reviewer pays a         issuer gets a
+a <= t, rejected    reviewer pays 1.5a      issuer gets a    <-- issuer is STILL PAID
+a >  t, accepted    reviewer pays min(a,c)  issuer gets min(a,c)
+a >  t, rejected    nothing
+```
+
+So **a fair Charge is owed by all sixteen opponents whatever their Limits**, while an
+Overcharge is paid only by the few who accept — 16 payers against 3, measured on Game 62.
+Crossing `t` costs about **5× the income**, which makes the Charge a cliff and not a slope, and
+makes any rule that raises `a` on the items we estimate worst actively dangerous. It is how
+`error404 ai` took 101,531 out of Game 62: they Charged 8,504.71 on one Line Item worth
+`t ∈ [8505, 10350)` and were owed it sixteen times — 136,075, or 87% of their Game — while our
+10,349.89 on the same item earned 31,050.
 
 **Be honest about this in your reporting.** If the rate does not move, say so. A confident
 narrative about a change that did not clear the noise floor is worse than no change.
@@ -98,7 +121,9 @@ you can re-run them, but do not re-argue them without new data.
 | --- | --- | --- |
 | Lift `LIMIT_CAP` (708) on big items | **−62,278**, negative on all four folds | `scripts/experiments/big_item_coverage.py` |
 | Perfect coverage on big items | +23,021 — inside the ±46,111 floor; worth **89 euros** on Game 53 | same |
-| Raise `BIG_ITEM_CHARGE_SCALE` above 1.25 | 1.25 is the argmax; nothing passes four folds | `scripts/experiments/big_charge_sweep.py` |
+| ~~Raise `BIG_ITEM_CHARGE_SCALE` above 1.25~~ | still true upward — but **1.25 itself was wrong**, see below | `scripts/experiments/big_charge_sweep.py` |
+| Enforce the payment Cap in the replay harness | changes **nothing**: all 12 rules × 5 folds identical to the cent | `scripts/experiments/big_charge_sweep_capped.py` |
+| Copy Codacabana's `a/t` and `b/t` onto our `t_hat` | **−279,916 to −380,338** over 63 Games; their ratio is a statement about their estimate | `current_winners_study.py --counterfactual` |
 | A second big-fish tier above the threshold | every cell 2/4 folds or worse | `scripts/experiments/big_fish_tier.py` |
 | Hold the Limit off zero in the coverage dead zone | +1,089 over 54 Games; Game 53's share is +88 | `scripts/experiments/big_dead_zone.py` |
 | Charge conditioned on channel, sigma, unit, quantity | every downward multiplier loses; held-out delta −15,354 | `engine.py` docstring |
@@ -112,6 +137,17 @@ coverage oracle is **+41,076 over 55 Games**: 33 Games won to 3 lost, +21,416 wi
 best Games removed, and positive on both held-out windows. Coverage is *not* a closed lever;
 `src/evidence/policy/coverage.py` is still not the way to open it, and that half is now
 evidenced on 626 Line Items rather than 339. See **H4** in the hypothesis ledger.
+
+**A second row was reversed outright, at Game 63 — `BIG_ITEM_CHARGE_SCALE` is now 1.0.** Its
+own falsifier ("revert if 'proven too high' falls near 50%") was *not* tripped: the tail is
+still 67% too high, 15% too low, n=33. The sentence above the number was what failed — "on an
+item already above `t` the income is ~0 whatever we Charge, so raising it costs nothing." A
+wrongful rejection still owes the issuer, so income above `t` is a factor of ~5 lower, not
+zero, and the multiplier was pushing in-band items over the cliff. Re-swept at n=63: **1.0
+beats 1.25 by +79,240, with nine Line Items moving from Overcharge to fair and none the other
+way.** See **H14**. The lesson generalises past this constant: *a constant can be right about
+its data and wrong about its mechanism*, and every one of these was fitted on a smaller record
+than you now have. When the record doubles, re-sweep.
 
 **Oracle ceilings on big items, for calibration of where effort is worth spending:**
 `b = t` is worth **+176,532**; `a = t` is worth **+417,729**. The Charge is the lever, by 2.4×.
