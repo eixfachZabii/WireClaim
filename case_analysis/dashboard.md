@@ -37,15 +37,6 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 
 | game | item | name | a (actual) | b (actual) | t (derived) | a/t | b/t | item net | source |
 |---|---|---|---|---|---|---|---|---|---|
-| 59 | 1 | Remove water-damaged laminate in living room (18 m²) | 299.23 | 299.23 | 540.00 | 0.55 | 0.55 | -278.41 | submitted |
-| 59 | 2 | Supply & install premium oak laminate incl. impact (18 m²) | 1,428.18 | 701.77 | 1,451.09 | 0.98 | 0.48 | 3,211.92 | submitted |
-| 59 | 3 | Supply and install skirting boards (premium solid oak, | 321.94 | 321.94 | 1,036.19 | 0.31 | 0.31 | -3,546.22 | submitted |
-| 59 | 4 | Disassembly and disposal of damaged floor tiles in (6 m²) | 350.57 | 211.50 | 315.53 | 1.11 | 0.67 | -759.87 | submitted |
-| 59 | 5 | Supply & install premium large-format Italian porcelain (6 m²) | 1,200.66 | 569.03 | 1,011.83 | 1.19 | 0.56 | -6,309.06 | submitted |
-| 59 | 6 | Cleaning of entire apartment (1 flat rate) | 177.70 | 0.00 | 5.68 | 31.26 | 0.00 | 0.00 | submitted |
-| 59 | 7 | Paint lower wall after water damage incl. surface (20 m²) | 524.94 | 320.86 | 619.72 | 0.85 | 0.52 | 311.08 | submitted |
-| 59 | 8 | Full ceiling paint living room (15 m²) | 356.65 | 0.00 | 15.60 | 22.86 | 0.00 | 0.00 | submitted |
-| 59 | 9 | Wallpapering work hallway (8 m²) | 350.77 | 0.00 | 0.00 | - | - | 0.00 | submitted |
 | 60 | 1 | Speaker system (surge damaged) (1 pcs) | 281.49 | 281.49 | 140.75 | 2.00 | 2.00 | 3,659.37 | submitted |
 | 60 | 2 | Premium replacement TV set (larger, higher-end than (1 pcs) | 2,065.13 | 708.00 | 544.30 | 3.79 | 1.30 | -1,768.76 | submitted |
 | 60 | 3 | HDMI cables and connectors | 64.06 | 0.00 | 2.64 | 24.27 | 0.00 | 0.00 | submitted |
@@ -89,51 +80,58 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 | 64 | 1 | Remove & reinstall water-damaged laminate incl. (1   flat rate) | 1,765.28 | 708.00 | 1,933.43 | 0.91 | 0.37 | 3,851.78 | submitted |
 | 64 | 2 | Remove & reinstall bathroom floor tiles incl. material (1   flat rate) | 1,746.78 | 708.00 | 1,059.07 | 1.65 | 0.67 | -3,862.19 | submitted |
 | 64 | 3 | Prepare & repaint water-damaged lower living-room (20   m²) | 668.86 | 404.37 | 633.38 | 1.06 | 0.64 | -3,416.49 | submitted |
-| 65 | 1 | - | 43.63 | 29.95 | 51.80 | 0.84 | 0.58 | 464.82 | reconstructed |
-| 65 | 2 | - | 20.98 | 20.95 | 27.54 | 0.76 | 0.76 | 33.85 | reconstructed |
-| 65 | 3 | - | 199.01 | 181.58 | 291.34 | 0.68 | 0.62 | -1,930.74 | reconstructed |
-| 65 | 4 | - | 24.79 | 18.27 | 3.19 | 7.77 | 5.73 | 109.32 | reconstructed |
-| 65 | 5 | - | 31.55 | 31.74 | 42.34 | 0.75 | 0.75 | 398.08 | reconstructed |
-| 65 | 6 | - | 450.23 | 258.37 | 28.50 | 15.80 | 9.07 | -1,030.95 | reconstructed |
-| 65 | 7 | - | 289.21 | 22.50 | 22.50 | 12.85 | 1.00 | 289.21 | reconstructed |
-| 65 | 8 | - | - | 14.53 | 14.53 | - | 1.00 | 0.00 | reconstructed |
-| 65 | 9 | - | - | 12.00 | 12.00 | - | 1.00 | 0.00 | reconstructed |
-| 65 | 10 | - | - | 22.50 | 22.50 | - | 1.00 | 0.00 | reconstructed |
-| 65 | 11 | - | - | 7.50 | 7.50 | - | 1.00 | 0.00 | reconstructed |
-| 65 | 12 | - | - | 14.50 | 14.50 | - | 1.00 | 0.00 | reconstructed |
-| 65 | 13 | - | - | 0.00 | 0.00 | - | - | 0.00 | reconstructed |
-| 65 | 14 | - | - | 9.16 | 9.16 | - | 1.00 | 0.00 | reconstructed |
-| 65 | 15 | - | 215.88 | 30.55 | 30.55 | 7.07 | 1.00 | 431.76 | reconstructed |
-| 65 | 16 | - | 220.36 | 22.50 | 22.50 | 9.79 | 1.00 | 220.36 | reconstructed |
-| 66 | 1 | - | 2,207.47 | 759.20 | 2,207.47 | 1.00 | 0.34 | 19,239.91 | reconstructed |
-| 66 | 2 | - | 597.29 | 415.69 | 326.66 | 1.83 | 1.27 | -215.14 | reconstructed |
-| 67 | 1 | - | 2,000.00 | 1,020.83 | 16.50 | 121.21 | 61.87 | 3,925.35 | reconstructed |
-| 67 | 2 | - | 290.57 | 299.50 | 344.78 | 0.84 | 0.87 | 3,901.22 | reconstructed |
-| 67 | 3 | - | 401.29 | 410.55 | 698.84 | 0.57 | 0.59 | -492.03 | reconstructed |
-| 67 | 4 | - | 66.58 | 68.92 | 82.17 | 0.81 | 0.84 | 710.14 | reconstructed |
-| 67 | 5 | - | 860.19 | 563.54 | 563.54 | 1.53 | 1.00 | 4,617.14 | reconstructed |
-| 67 | 6 | - | 57.47 | 61.45 | 42.79 | 1.34 | 1.44 | 291.71 | reconstructed |
-| 67 | 7 | - | 478.72 | 370.47 | 20.82 | 22.99 | 17.79 | 461.36 | reconstructed |
-| 67 | 8 | - | - | 16.50 | 16.50 | - | 1.00 | 0.00 | reconstructed |
-| 67 | 9 | - | - | 16.50 | 16.50 | - | 1.00 | 0.00 | reconstructed |
-| 67 | 10 | - | - | 8.50 | 8.50 | - | 1.00 | 0.00 | reconstructed |
-| 68 | 1 | - | 551.11 | 387.06 | 1,554.59 | 0.35 | 0.25 | -3,676.94 | reconstructed |
-| 68 | 2 | - | 223.11 | 142.48 | 499.12 | 0.45 | 0.29 | -827.83 | reconstructed |
-| 68 | 3 | - | 256.20 | 224.55 | 855.00 | 0.30 | 0.26 | -66.74 | reconstructed |
-| 68 | 4 | - | 540.60 | 48.88 | 2,234.00 | 0.24 | 0.02 | -6,490.81 | reconstructed |
-| 68 | 5 | - | 5,941.79 | 525.39 | 2,635.50 | 2.25 | 0.20 | 734.12 | reconstructed |
-| 68 | 6 | - | - | 0.00 | 0.00 | - | - | 0.00 | reconstructed |
-| 68 | 7 | - | 15.94 | 2.70 | 2.70 | 5.90 | 1.00 | 15.94 | reconstructed |
-| 68 | 8 | - | - | 8.00 | 8.00 | - | 1.00 | 0.00 | reconstructed |
-| 68 | 9 | - | 309.24 | 226.46 | 177.61 | 1.74 | 1.28 | -25.73 | reconstructed |
-| 68 | 10 | - | 266.69 | 179.06 | 140.25 | 1.90 | 1.28 | 618.14 | reconstructed |
-| 68 | 11 | - | - | 10.62 | 10.62 | - | 1.00 | 0.00 | reconstructed |
+| 65 | 1 | Filling valve (internal frost-burst fitting) (1   pcs) | 43.63 | 43.63 | 51.80 | 0.84 | 0.84 | 464.82 | submitted |
+| 65 | 2 | Connection hose (1   pcs) | 20.98 | 20.98 | 27.54 | 0.76 | 0.76 | 33.85 | submitted |
+| 65 | 3 | Senior installer hours (3   hrs) | 199.01 | 199.01 | 291.34 | 0.68 | 0.68 | -1,930.74 | submitted |
+| 65 | 4 | Auxiliary and cleaning material (1   pcs) | 24.79 | 18.44 | 3.19 | 7.77 | 5.78 | 109.32 | submitted |
+| 65 | 5 | Vehicle costs (1   pcs) | 31.55 | 31.55 | 42.34 | 0.75 | 0.75 | 398.08 | submitted |
+| 65 | 6 | Thermal imaging camera (leak detection) (1   pcs) | 450.23 | 267.74 | 28.50 | 15.80 | 9.39 | -1,030.95 | submitted |
+| 65 | 7 | Facade frost damage from outdoor freeze-thaw (1   pcs) | 289.21 | 0.00 | 22.50 | 12.85 | 0.00 | 289.21 | submitted |
+| 65 | 8 | Loose plaster removal (1   pcs) | 292.78 | 0.00 | 14.53 | 20.16 | 0.00 | 0.00 | submitted |
+| 65 | 9 | Base plaster (1   pcs) | 91.37 | 0.00 | 12.00 | 7.61 | 0.00 | 0.00 | submitted |
+| 65 | 10 | Premium insulated render system (upgrade on former (1   pcs) | 3,919.93 | 0.00 | 22.50 | 174.22 | 0.00 | 0.00 | submitted |
+| 65 | 11 | Newly plastered substrate (1   pcs) | 63.22 | 0.00 | 7.50 | 8.43 | 0.00 | 0.00 | submitted |
+| 65 | 12 | Facade paint (4 coats) (1   pcs) | 114.10 | 0.00 | 14.50 | 7.87 | 0.00 | 0.00 | submitted |
+| 65 | 13 | Repaint of undamaged elevations (1   flat rate) | 1,269.33 | 0.00 | 0.00 | - | - | 0.00 | submitted |
+| 65 | 14 | Priming (1   pcs) | 147.17 | 0.00 | 9.16 | 16.06 | 0.00 | 0.00 | submitted |
+| 65 | 15 | Painter hours (5   hrs) | 215.88 | 0.00 | 30.55 | 7.07 | 0.00 | 431.76 | submitted |
+| 65 | 16 | Flat rate (1   pcs) | 220.36 | 0.00 | 22.50 | 9.79 | 0.00 | 220.36 | submitted |
+| 66 | 1 | Replacement of stolen household contents (clothing, (1   pcs) | 2,207.47 | 708.00 | 2,207.47 | 1.00 | 0.32 | 19,239.91 | submitted |
+| 66 | 2 | Emergency repair and re-securing of the forced entry (1   pcs) | 597.29 | 399.34 | 326.66 | 1.83 | 1.22 | -215.14 | submitted |
+| 67 | 1 | Renew boiler system including flue gas system and (1   flat rate) | 10,343.65 | 708.00 | 16.50 | 626.89 | 42.91 | 3,925.35 | submitted |
+| 67 | 2 | Adjust supply pipework to fit the replacement boiler (1   flat rate) | 290.57 | 308.61 | 344.78 | 0.84 | 0.90 | 3,901.22 | submitted |
+| 67 | 3 | Dispose of the old boiler system (1   –) | 401.29 | 426.19 | 698.84 | 0.57 | 0.61 | -492.03 | submitted |
+| 67 | 4 | Vehicle costs (1   pcs) | 66.58 | 68.94 | 82.17 | 0.81 | 0.84 | 710.14 | submitted |
+| 67 | 5 | Electrician labour checking and rewiring the flooded (12   hrs) | 860.19 | 499.32 | 563.54 | 1.53 | 0.89 | 4,617.14 | submitted |
+| 67 | 6 | Small electrical materials for the rewiring (1   pcs) | 57.47 | 60.82 | 42.79 | 1.34 | 1.42 | 291.71 | submitted |
+| 67 | 7 | Water extraction from the flooded plant room (1   pcs) | 478.72 | 321.36 | 20.82 | 22.99 | 15.43 | 461.36 | submitted |
+| 67 | 8 | Procurement of a motor pump (1   pcs) | 150.06 | 0.00 | 16.50 | 9.09 | 0.00 | 0.00 | submitted |
+| 67 | 9 | Submersible pump (1   pcs) | 237.20 | 0.00 | 16.50 | 14.38 | 0.00 | 0.00 | submitted |
+| 67 | 10 | Vehicle costs (1   pcs) | 66.58 | 0.00 | 8.50 | 7.83 | 0.00 | 0.00 | submitted |
+| 68 | 1 | Replacement of stolen everyday clothing and personal (1   pcs) | 551.11 | 381.84 | 1,554.59 | 0.35 | 0.25 | -3,676.94 | submitted |
+| 68 | 2 | Replacement of a winter coat that had been worn only (1   pcs) | 223.11 | 144.00 | 499.12 | 0.45 | 0.29 | -827.83 | submitted |
+| 68 | 3 | Premium designer jacket to replace a stolen mid-range (1   pcs) | 256.20 | 211.55 | 855.00 | 0.30 | 0.25 | -66.74 | submitted |
+| 68 | 4 | Stolen jewellery - several unscheduled everyday (1   pcs) | 540.60 | 0.00 | 2,234.00 | 0.24 | 0.00 | -6,490.81 | submitted |
+| 68 | 5 | Stolen jewellery - one high-value ring listed on the (1   pcs) | 5,941.79 | 708.00 | 2,635.50 | 2.25 | 0.27 | 734.12 | submitted |
+| 68 | 6 | Claimed antique brooch with no receipt, photograph or (1   pcs) | 401.29 | 0.00 | 0.00 | - | - | 0.00 | submitted |
+| 68 | 7 | Personal mileage to and from the police station to (1   flat rate) | 15.94 | 0.00 | 2.70 | 5.90 | 0.00 | 15.94 | submitted |
+| 68 | 8 | Time spent compiling and reporting the claim (1   flat rate) | 120.59 | 0.00 | 8.00 | 15.07 | 0.00 | 0.00 | submitted |
+| 68 | 9 | Emergency boarding of the forced entry door on the (1   flat rate) | 309.24 | 195.63 | 177.61 | 1.74 | 1.10 | -25.73 | submitted |
+| 68 | 10 | Replacement lock and cylinder for the forced door (1   flat rate) | 266.69 | 171.00 | 140.25 | 1.90 | 1.22 | 618.14 | submitted |
+| 68 | 11 | Cleaning of muddy footprints tracked through the (1   –) | 103.11 | 0.00 | 10.62 | 9.70 | 0.00 | 0.00 | submitted |
+| 69 | 1 | - | 1,031.26 | 660.44 | 1,293.12 | 0.80 | 0.51 | 5,718.20 | reconstructed |
+| 69 | 2 | - | - | 18.28 | 18.28 | - | 1.00 | 0.00 | reconstructed |
+| 69 | 3 | - | 182.41 | 71.25 | 166.53 | 1.10 | 0.43 | 831.79 | reconstructed |
+| 69 | 4 | - | 93.34 | 56.39 | 114.77 | 0.81 | 0.49 | 30.33 | reconstructed |
+| 69 | 5 | - | - | 14.50 | 14.50 | - | 1.00 | 0.00 | reconstructed |
+| 69 | 6 | - | - | 0.00 | 0.00 | - | - | 0.00 | reconstructed |
+| 69 | 7 | - | 395.01 | 32.50 | 32.50 | 12.15 | 1.00 | 395.01 | reconstructed |
+| 69 | 8 | - | 24.66 | 4.00 | 4.00 | 6.17 | 1.00 | 49.32 | reconstructed |
 
 Net per round:
 
 | game | net |
 |---|---|
-| 59 | -7,370.56 |
 | 60 | 2,238.04 |
 | 61 | 4,131.32 |
 | 62 | -17,275.69 |
@@ -143,6 +141,7 @@ Net per round:
 | 66 | 19,024.77 |
 | 67 | 13,414.89 |
 | 68 | -9,719.85 |
+| 69 | 7,024.65 |
 <!-- OURVALUES:END -->
 
 ## Number tables
