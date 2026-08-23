@@ -183,8 +183,20 @@ The gap that remains is entirely `t̂`. The oracle ceiling over the 47 Games wit
 several directions and sits at its measured optimum; none of the remaining headroom is reachable
 by a constant.
 
-**What we would do next, in order.** Carry an invoice id per Line Item, which turns "one travel
-charge per trade invoice" from a leaky ordinal heuristic into a deterministic rule (H17). Find an
+**What we would do next, in order.** Fix the coverage step's reading of policy clause 7.1.5,
+which has two halves: indemnity is confined to the affected parts, *but* "where an affected room
+was wetted as a whole, the whole of that room is treated as affected for the purposes of
+extraction, drying and the reinstatement of its finishes." The model reads the first half against
+a description saying "an area of maybe a square meter or so" and prices a corner of a room the
+Field pays out in full. Game 74 returned coverage of 0.01–0.05 on 20 of 31 Line Items for
+**€41,710, 87 % of that Game's penalties**, and Game 75 repeated it on a different Case.
+Perfect coverage is worth **+1,173 per Game** over 74 Games, positive on all four folds — and no
+pricing-side rule reaches it, because memory certifies a price and not a coverage verdict (H18).
+We did not attempt it: it is a prompt change, it cannot be validated without spending the
+runner's model quota on settled Cases, and it would have landed six Games before the 3× window
+with no way to tell a fix from a regression until the weighted Games were underway. Then carry an
+invoice id per Line Item, which turns "one travel charge per trade invoice" from a leaky ordinal
+heuristic into a deterministic rule (H17). Find an
 observable that separates the 9 genuinely-large items from the 14 phantoms in the `t̂ ≥ 2,000`
 bucket — a targeted second reading is instrumented and logging as of Game 72, deliberately unable
 to change a price until the evidence earns it. And calibrate the band: the model asserts a median
