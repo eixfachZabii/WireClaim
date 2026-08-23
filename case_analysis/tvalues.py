@@ -2,6 +2,10 @@
 performers of those games their Charge a, Limit b (interval midpoint), a/t, b/t
 and the net income/payment on that item.
 
+Bin busy's a and b are our ACTUAL submitted values from var/export/line_items.csv
+(columns charge_decided / limit_decided) where available; other teams' values are
+reconstructed from the public settled data.
+
 t per item is the rule-inversion bracket from analyze.py ([t_lo, t_hi), t_point).
 net per item = amounts received as Issuer − amounts paid as Reviewer (accepted
 payouts + 1.5a lawyer penalties on rejected fair Charges).
@@ -25,8 +29,24 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
+EXPORT_CSV = Path(__file__).resolve().parent.parent / "var" / "export" / "line_items.csv"
 TEAM = "Bin busy"
 TOP_N = 3
+
+
+def our_submissions() -> dict[tuple[int, int], tuple[float, float]]:
+    """(game_id, line_item_index) -> (charge_decided, limit_decided)."""
+    result: dict[tuple[int, int], tuple[float, float]] = {}
+    if not EXPORT_CSV.exists():
+        return result
+    with EXPORT_CSV.open() as f:
+        for row in csv.DictReader(f):
+            try:
+                key = (int(row["game_id"]), int(row["line_item_index"]))
+                result[key] = (float(row["charge_decided"]), float(row["limit_decided"]))
+            except (KeyError, ValueError):
+                continue
+    return result
 
 
 def b_mid(interval: dict | None) -> float | None:
@@ -67,6 +87,7 @@ def main() -> None:
 
     analysis = json.loads((DATA_DIR / "analysis.json").read_text())
     games = analysis["games"][-args.games:]
+    ours = our_submissions()
 
     nets_by_game: dict[int, dict[tuple[int, str], float]] = {}
     totals: dict[str, float] = {}
@@ -98,8 +119,11 @@ def main() -> None:
             row = [str(gid), str(li["line_item_index"]), bracket,
                    "-" if t is None else f"{t:,.0f}"]
             for name in show:
-                a = li["charges_a"].get(name)
-                b = b_mid(li["limits_b"].get(name))
+                if name == TEAM and (gid, li["line_item_index"]) in ours:
+                    a, b = ours[(gid, li["line_item_index"])]
+                else:
+                    a = li["charges_a"].get(name)
+                    b = b_mid(li["limits_b"].get(name))
                 net = nets_by_game[gid].get((li["line_item_index"], name))
                 row += [fmt(a), fmt(b), ratio(a, t), ratio(b, t), fmt(net)]
             png_rows.append(row)
@@ -128,7 +152,7 @@ def main() -> None:
     ax.set_title(
         f"Derived t per line item — last {len(games)} settled games: "
         f"a, b, a/t, b/t and net income/payment per item — "
-        f"{TEAM} vs. best of these games ({', '.join(top)})",
+        f"{TEAM} (actual submitted a/b) vs. best of these games ({', '.join(top)})",
         fontsize=11, fontweight="bold", pad=12,
     )
     fig.savefig(DATA_DIR / "tvalues.png", dpi=140, bbox_inches="tight")
