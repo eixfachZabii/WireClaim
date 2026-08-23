@@ -153,10 +153,12 @@ def dry_run_submit(game_id: int, submissions: list[dict[str, float | int]], time
     return []
 
 
-async def run_game(game_id: int, dry_run: bool = False) -> None:
+async def run_game(
+    game_id: int, dry_run: bool = False, run_seconds: float = RUN_SECONDS
+) -> None:
     run_started_at = start_timer()
     loop = asyncio.get_running_loop()
-    deadline = loop.time() + RUN_SECONDS
+    deadline = loop.time() + run_seconds
     coordinator = (
         SubmissionCoordinator(game_id, deadline, submitter=dry_run_submit)
         if dry_run
@@ -303,6 +305,14 @@ def parse_time(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
 
 
+def game_duration(game: dict) -> float:
+    try:
+        duration = float(game.get("duration_seconds", RUN_SECONDS))
+    except (TypeError, ValueError):
+        return RUN_SECONDS
+    return duration if duration > 0 else RUN_SECONDS
+
+
 async def retry_expired_games(now: datetime | None = None) -> None:
     games = sorted(
         await asyncio.to_thread(list_games),
@@ -311,12 +321,16 @@ async def retry_expired_games(now: datetime | None = None) -> None:
     reference_time = now or datetime.now(timezone.utc)
     for game in games:
         start_time = parse_time(str(game["start_time"]))
-        if start_time + timedelta(seconds=RUN_SECONDS) > reference_time:
+        duration = game_duration(game)
+        if start_time + timedelta(seconds=duration) > reference_time:
             logger.info("Stopping dry retry before Game %s at %s.", game["id"], start_time.isoformat())
             return
         logger.info("\n\n\n################ CASE %s ##################\n\n\n", game["id"])
         logger.info("Dry retry for expired Game %s.", game["id"])
-        await run_game(int(game["id"]), dry_run=True)
+        if duration == RUN_SECONDS:
+            await run_game(int(game["id"]), dry_run=True)
+        else:
+            await run_game(int(game["id"]), dry_run=True, run_seconds=duration)
 
 
 async def watch_games() -> None:
@@ -328,14 +342,18 @@ async def watch_games() -> None:
     for game in games:
         game_id = int(game["id"])
         start_time = parse_time(str(game["start_time"]))
+        duration = game_duration(game)
         now = datetime.now(timezone.utc)
-        if start_time + timedelta(seconds=RUN_SECONDS) <= now:
+        if start_time + timedelta(seconds=duration) <= now:
             continue
         wait_seconds = (start_time - now).total_seconds()
         if wait_seconds > 0:
             logger.info("Game %s starts at %s.", game_id, start_time.isoformat())
             await asyncio.sleep(wait_seconds)
-        await run_game(game_id)
+        if duration == RUN_SECONDS:
+            await run_game(game_id)
+        else:
+            await run_game(game_id, run_seconds=duration)
 
 
 def main() -> None:

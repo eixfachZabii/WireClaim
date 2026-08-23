@@ -1,7 +1,7 @@
 import argparse
 import asyncio
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -188,6 +188,29 @@ class RetryDryTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("gateway read timed out", logs.output[0])
         self.assertIn("Strategies continue", logs.output[0])
         self.assertNotIn("Traceback", logs.output[0])
+
+
+class GameDurationTests(unittest.IsolatedAsyncioTestCase):
+    def test_live_games_keep_the_sixty_second_default(self) -> None:
+        self.assertEqual(main.game_duration({"id": 1}), main.RUN_SECONDS)
+        self.assertEqual(main.game_duration({"id": 1, "duration_seconds": "invalid"}), main.RUN_SECONDS)
+
+    async def test_backtesting_duration_is_passed_to_the_same_runner(self) -> None:
+        start = datetime.now(timezone.utc) - timedelta(seconds=120)
+        games = [
+            {
+                "id": 49,
+                "start_time": start.isoformat().replace("+00:00", "Z"),
+                "duration_seconds": 3600.0,
+            }
+        ]
+        run_game = AsyncMock()
+        with patch.object(main, "list_games", return_value=games), patch.object(
+            main, "run_game", run_game
+        ):
+            await main.watch_games()
+
+        run_game.assert_awaited_once_with(49, run_seconds=3600.0)
 
 
 class MainTests(unittest.TestCase):
