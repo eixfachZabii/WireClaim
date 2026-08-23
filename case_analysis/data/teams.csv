@@ -1529,3 +1529,71 @@ game,rank,team,net,med_a_over_t,med_b_over_t,inc_fair,inc_over,inc_penalty,paid_
 90,15,OPUSMOPUS,-58191.38,,0.19,0.0,0.0,0.0,0.0,58191.38,lost money (biggest leak: lawyer fees)
 90,16,harissa eagles,-58191.38,,0.19,0.0,0.0,0.0,0.0,58191.38,lost money (biggest leak: lawyer fees)
 90,17,makalu,-58191.38,,0.19,0.0,0.0,0.0,0.0,58191.38,lost money (biggest leak: lawyer fees)
+91,1,Codacabana,13126.74,1.023,0.963,7499.55,2467.35,23382.69,3987.31,2403.16,won via 1.5a penalties from strict reviewers
+91,2,Teamers,7269.32,1.047,1.0,9083.15,3661.74,13251.09,1043.11,5144.43,won via 1.5a penalties from strict reviewers
+91,3,TakeTheMoneyAndRun,4925.02,0.824,0.518,9982.0,1603.0,14418.0,3373.59,5594.3,won via 1.5a penalties from strict reviewers
+91,4,error404 ai,3089.12,1.243,1.959,8443.8,3376.7,15564.36,8431.62,0.0,won via 1.5a penalties from strict reviewers + tight Limit (no lawyer fees)
+91,5,eyay,2710.73,1.198,0.941,9693.15,3086.94,13002.69,2380.01,14237.7,won via 1.5a penalties from strict reviewers
+91,6,AsianSuperNerds,2635.77,1.316,0.808,9968.64,3323.24,12598.88,2375.89,14774.79,won via 1.5a penalties from strict reviewers
+91,7,Oasis,2380.52,1.165,1.0,8422.65,4775.5,11816.55,1130.86,16210.93,won via 1.5a penalties from strict reviewers
+91,8,Bin busy,1104.47,1.15,0.614,9329.11,3904.09,11150.73,499.65,20085.53,won via 1.5a penalties from strict reviewers
+91,9,Non Deterministic,-831.89,1.062,0.905,10483.55,2779.24,9953.89,1354.95,19819.01,lost money (biggest leak: lawyer fees)
+91,10,TBD,-1969.18,1.625,1.435,8717.52,4058.81,7224.72,3762.96,5517.09,lost money (biggest leak: lawyer fees)
+91,11,Trust Nobody,-1983.14,1.168,2.653,8440.08,2479.04,13875.44,10807.79,0.0,lost money (biggest leak: accepted Overcharges)
+91,12,Claims Renaissance,-8652.74,0.537,0.548,10497.07,802.23,5245.97,1119.15,23094.51,lost money (biggest leak: lawyer fees)
+91,13,Alpha,-10957.75,0.737,0.638,4562.2,1052.46,3386.6,853.46,6713.19,lost money (biggest leak: lawyer fees)
+91,14,Nullpointer Naan,-13721.94,3.431,0.193,4680.0,3750.0,3160.0,0.0,25311.94,lost money (biggest leak: lawyer fees)
+91,15,OPUSMOPUS,-26046.94,,0.184,0.0,0.0,0.0,0.0,26046.94,lost money (biggest leak: lawyer fees)
+91,16,harissa eagles,-26046.94,,0.184,0.0,0.0,0.0,0.0,26046.94,lost money (biggest leak: lawyer fees)
+91,17,makalu,-26046.94,,0.184,0.0,0.0,0.0,0.0,26046.94,lost money (biggest leak: lawyer fees)
+92,1,Codacabana,20695.52,0.59,0.827,10759.46,0.0,31595.1,820.0,1835.58,won via 1.5a penalties from strict reviewers
+92,2,Oasis,15492.18,0.64,0.645,12291.3,0.0,25695.9,0.0,5984.66,won via 1.5a penalties from strict reviewers
+92,3,eyay,14752.43,0.407,0.345,13189.94,0.0,25511.98,0.0,10482.05,won via 1.5a penalties from strict reviewers
+92,4,TakeTheMoneyAndRun,10670.69,0.464,1.0,13746.0,0.0,19006.0,0.0,3761.89,won via 1.5a penalties from strict reviewers
+92,5,Teamers,9886.27,0.361,0.659,11116.92,0.0,21373.16,0.0,5280.29,won via 1.5a penalties from strict reviewers
+92,6,Non Deterministic,8598.66,0.624,0.341,14459.22,0.0,21387.82,0.0,19843.44,won via 1.5a penalties from strict reviewers
+92,7,error404 ai,-129.71,0.343,1.0,10380.04,0.0,14447.16,1430.65,6610.85,lost money (biggest leak: lawyer fees)
+92,8,Bin busy,-3940.55,0.338,0.277,14521.62,0.0,11578.7,0.0,26393.39,lost money (biggest leak: lawyer fees)
+92,9,AsianSuperNerds,-4703.0,0.348,0.273,12740.39,301.3,12217.53,0.0,25943.26,lost money (biggest leak: lawyer fees)
+92,10,TBD,-8378.73,0.366,0.368,10466.0,0.0,11150.0,0.0,25414.16,lost money (biggest leak: lawyer fees)
+92,11,Nullpointer Naan,-13355.44,1.454,0.426,2850.0,5315.0,6270.0,0.0,16458.31,lost money (biggest leak: lawyer fees)
+92,12,Alpha,-13653.74,0.433,0.564,7568.67,0.0,7480.77,3100.0,11008.29,lost money (biggest leak: lawyer fees)
+92,13,Claims Renaissance,-15508.41,0.159,0.193,12132.57,0.0,4634.31,0.0,31346.63,lost money (biggest leak: lawyer fees)
+92,14,Trust Nobody,-25512.32,0.201,0.509,3726.0,0.0,3692.88,265.65,30764.66,lost money (biggest leak: lawyer fees)
+92,15,OPUSMOPUS,-34311.51,,0.071,0.0,0.0,0.0,0.0,34311.51,lost money (biggest leak: lawyer fees)
+92,16,harissa eagles,-34311.51,,0.071,0.0,0.0,0.0,0.0,34311.51,lost money (biggest leak: lawyer fees)
+92,17,makalu,-34311.51,,0.071,0.0,0.0,0.0,0.0,34311.51,lost money (biggest leak: lawyer fees)
+93,1,error404 ai,4566.24,2.469,1.196,4381.24,3058.54,6729.16,4364.5,0.0,won via 1.5a penalties from strict reviewers + tight Limit (no lawyer fees)
+93,2,Bin busy,3719.77,2.09,1.024,2857.03,5589.64,3102.01,1396.34,2617.23,won via Overcharges the Field swallowed
+93,3,Teamers,3663.09,1.559,1.086,2975.03,3856.51,4744.97,1913.34,1649.92,won via 1.5a penalties from strict reviewers
+93,4,Codacabana,2577.68,2.709,1.0,3633.75,3433.79,4466.25,2585.26,2833.51,won via 1.5a penalties from strict reviewers
+93,5,Non Deterministic,1823.36,1.982,1.0,2445.67,6697.32,2270.97,2686.3,3799.48,won via Overcharges the Field swallowed
+93,6,Oasis,1048.12,1.391,1.0,4323.6,2574.9,2761.2,1234.22,5662.66,won via honest Charges the Field accepted
+93,7,TakeTheMoneyAndRun,841.59,1.267,0.51,4841.0,1949.0,2007.0,33.25,7252.68,won via honest Charges the Field accepted
+93,8,eyay,195.08,3.41,1.0,3249.6,3511.36,4480.8,4910.52,2060.14,won via 1.5a penalties from strict reviewers
+93,9,Nullpointer Naan,-106.09,0.635,1.017,4649.66,1056.87,2722.18,2902.53,481.2,lost money (biggest leak: accepted Overcharges)
+93,10,Alpha,-1095.85,2.108,1.017,3552.76,3440.94,2626.44,3779.7,4169.67,lost money (biggest leak: lawyer fees)
+93,11,Trust Nobody,-1714.4,1.632,5.291,4222.8,2235.6,3726.0,6203.7,777.88,lost money (biggest leak: accepted Overcharges)
+93,12,AsianSuperNerds,-3575.17,2.66,1.0,3570.97,2305.34,3117.99,5060.2,5984.19,lost money (biggest leak: lawyer fees)
+93,13,Claims Renaissance,-4115.01,1.351,1.0,2747.18,2306.25,2396.34,4762.9,3572.23,lost money (biggest leak: accepted Overcharges)
+93,14,TBD,-4384.87,3.135,1.162,965.0,4692.0,1355.0,4875.29,2201.94,lost money (biggest leak: accepted Overcharges)
+93,15,OPUSMOPUS,-8898.9,,0.233,0.0,0.0,0.0,0.0,8898.9,lost money (biggest leak: lawyer fees)
+93,16,harissa eagles,-8898.9,,0.233,0.0,0.0,0.0,0.0,8898.9,lost money (biggest leak: lawyer fees)
+93,17,makalu,-8898.9,,0.233,0.0,0.0,0.0,0.0,8898.9,lost money (biggest leak: lawyer fees)
+94,1,Bin busy,2591.64,4.285,1.0,1506.61,656.38,5644.91,0.0,4547.75,won via 1.5a penalties from strict reviewers
+94,2,Teamers,1569.01,1.568,1.079,637.5,1139.33,4462.5,689.26,457.5,won via 1.5a penalties from strict reviewers
+94,3,Codacabana,1309.39,2.584,1.0,1926.75,361.87,4238.85,632.14,2471.94,won via 1.5a penalties from strict reviewers
+94,4,TBD,1223.25,4.232,1.0,305.0,900.0,4575.0,714.44,0.0,won via 1.5a penalties from strict reviewers + tight Limit (no lawyer fees)
+94,5,Non Deterministic,1186.68,2.488,1.0,2098.56,538.15,3875.04,18.64,4597.41,won via 1.5a penalties from strict reviewers
+94,6,eyay,632.3,3.824,1.0,2387.7,756.1,3069.9,389.21,4157.94,won via 1.5a penalties from strict reviewers
+94,7,error404 ai,613.9,5.944,1.0,2277.5,957.33,2805.22,1596.51,0.0,won via 1.5a penalties from strict reviewers + tight Limit (no lawyer fees)
+94,8,TakeTheMoneyAndRun,103.51,2.315,1.0,2106.0,535.0,2326.0,54.73,2815.37,won via 1.5a penalties from strict reviewers
+94,9,Alpha,46.71,0.796,1.0,2460.0,473.04,2660.0,336.65,4147.11,won via 1.5a penalties from strict reviewers
+94,10,AsianSuperNerds,-736.54,7.394,1.0,1258.05,1466.59,2767.71,719.6,4840.79,lost money (biggest leak: lawyer fees)
+94,11,Oasis,-1098.51,2.0,1.75,1296.0,968.4,2160.0,884.84,2120.3,lost money (biggest leak: lawyer fees)
+94,12,Claims Renaissance,-1615.46,0.522,1.0,3065.25,0.0,954.75,0.0,5218.2,lost money (biggest leak: lawyer fees)
+94,13,Nullpointer Naan,-2821.69,2.106,3.28,2241.65,428.48,600.91,1247.65,2626.29,lost money (biggest leak: lawyer fees)
+94,14,Trust Nobody,-4701.48,5.282,9.895,2070.0,414.0,579.6,2311.0,4417.11,lost money (biggest leak: lawyer fees)
+94,15,OPUSMOPUS,-6220.97,,1.0,0.0,0.0,0.0,0.0,6220.97,lost money (biggest leak: lawyer fees)
+94,16,harissa eagles,-6220.97,,1.0,0.0,0.0,0.0,0.0,6220.97,lost money (biggest leak: lawyer fees)
+94,17,makalu,-6220.97,,1.0,0.0,0.0,0.0,0.0,6220.97,lost money (biggest leak: lawyer fees)
