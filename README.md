@@ -17,9 +17,11 @@ Four files. Nothing else on this page is required reading.
 | | open this | what it is | time |
 | --- | --- | --- | --- |
 | **1** | **[`presentation/writeup.pdf`](presentation/writeup.pdf)** | **the write-up we submitted** — 2 pages: the approach and its derivations, then the record and where we fell short | 4 min |
-| **2** | [`presentation/index.html`](presentation/index.html) | the pitch deck — *download and open in a browser*, arrow keys to advance | 5 min |
+| **2** | **[the pitch deck, live](https://eixfachzabii.github.io/WireClaim/)** | hosted — opens in the browser, arrow keys to advance. Source: [`presentation/index.html`](presentation/index.html) | 5 min |
 | **3** | [`WRITEUP.md`](WRITEUP.md) | the same argument in Markdown, so you can read it **right here in GitHub** without downloading anything | 4 min |
 | **4** | [`presentation/writeup-full.pdf`](presentation/writeup-full.pdf) | the complete version — the rejected hypotheses and the two traps that cost us a working session | 12 min |
+
+Prefer a file to a browser? The deck is also exported page-by-page as [`presentation/slides.pdf`](presentation/slides.pdf).
 
 Everything below is a **map**. Jump to whatever you want to check.
 
