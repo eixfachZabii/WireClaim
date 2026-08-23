@@ -28,13 +28,16 @@ the recovered `t` *revealed*; the twelve dead hypotheses are what the replay har
 | 0:50 | **02 · the unlock** | A rejection carrying money proves `a ≤ t`; a rejection at zero proves `a > t`. That brackets `t` for every Line Item ever played. 52,224 rows, every published net reproduced to the cent. **So every number in this pitch is a measurement, not an argument.** |
 | 1:30 | **03 · architecture** | No model output is ever a price. Models emit evidence — coverage probability, the clause quoted verbatim, a price band — deterministic code prices it. A prompt that emits a number can't be replayed; one that emits evidence can. |
 | 2:10 | **04 · the arithmetic + the clock** | Four steps, one slide. Point at the ⅓: *derived, not tuned* — rejecting a fair claim costs 1.5a, a fraudulent one costs nothing. Then the 60-second clock, and `makalu`: paid us 179,993, collected 0.00. |
-| 2:50 | **05 · last place to 5th** | Let the chart breathe. Every rival is a grey line. **17th of 17 after nine Games.** The deficit is Games 1–25, before the estimator was working. Last twenty Games: 2nd in the field by rate. |
+| 2:50 | **05 · last place to 5th** | Let the chart breathe. Every rival is a grey line. **17th of 17 after nine Games.** The deficit is Games 1–25, before the estimator was working. |
+| 3:20 | **05b · indexed to Game 20** | The payoff. "Season total asks how much money we ended up with — for us that's mostly a question about Games 1 to 19. Our net at Game 20 was **−354,171**; the whole gap to the leaders is that hole. Zero everyone at Game 20 and ask how we've played *since we started playing*: **2nd of 17.**" |
 | 3:35 | **06 · consistency** | "The number we'd actually defend isn't the rate, it's the variance." 2 losing Games in 20, worst −3,941. Second-best risk-adjusted return in the field. **In an insurance book the narrow distribution is the number that matters.** |
 | 4:05 | **07 · the bar** | A *measured* noise floor of 26,622 — ±6,275 for one Game, so no single Game ever justified a change. Four folds. And the control: the same change on the model channel is −95,061 and 0/4, which is what makes it a channel effect rather than "charge more". |
 | 4:40 | **08 · what we killed** | 12 of 20 hypotheses rejected — one **twenty minutes after it shipped**, because the mechanism check showed it touched 4 items in 573. |
 | 5:05 | **close** | "The model reads. The engine prices. The record decides." |
 
-**If you are running long:** drop **04**'s right-hand column (talk over it), then **07**. Never cut **02** (the inversion) or **05** (the chart) — those are the entry.
+**If you are running long:** drop **04**'s right-hand column (talk over it), then **07**, then **05** (05b carries the standing on its own). Never cut **02** (the inversion) or **05b** — those are the entry and the payoff.
+
+**Say "top 3 either way", not "2nd".** Rebased at Game 20 we are 2nd of 17; at the conservative Game 26 anchor we are 3rd, with the top three inside 9,702. If a judge picks the anchor, you want to have picked it first. Useful detail: our per-Game rate is marginally *higher* from Game 26 than from 20, so Game 20 is not the flattering anchor it looks like.
 
 **Backup slides in `appendix.html`** for Q&A: the two traps (conditioning on the outcome, censoring), the R10/makalu slide in full, the 8 dark Games, the ceiling (`a=b=t` at 100.3 %), and what we would build next.
 
