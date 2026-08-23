@@ -43,6 +43,17 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 **1. The default submission is an incident, never a fallback.** `a = 0, b = 0` does not score zero — `b = 0` wrongfully rejects every fair claim, so we pay `1.5a` to every opponent on every Line Item (R7). A team that goes dark becomes a **money fountain** for everyone awake: `+t` to them, `−1.5t` to us, per item, per Game (R10). Any plausible number beats the default. If the pipeline has nothing, it still submits something.
 
+**1a. Never commit claim data, and never commit anything derived that reproduces it.** The
+repository is public and the organisers attach a **ranking penalty** to checking in their invoice
+PDFs or policies. The Cases are ignored, and so are four derived paths that carry the same content:
+`var/ai_log/` (raw model replies — the `clause` field quotes `policy.txt` verbatim, and 805 of them
+were once tracked), `var/reviews/`, `var/decisions/` and `var/lessons/` (invoice Line Item names),
+plus `var/export/`. All of them stay on disk and regenerate with `pixi run watch` / `pixi run
+export`, so the learning loop is unaffected. Two things to know if you are auditing this: a scan for
+`"clause"` in the parsed JSON returns **zero** because the clause sits inside an escaped `reply`
+string — search for real policy sentences instead — and `git rm --cached` alone is not enough,
+because history is exactly what a public repository exposes.
+
 **1b. The learning loop runs itself. Two terminals, two commands, for the whole tournament.**
 
 ```bash

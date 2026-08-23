@@ -244,13 +244,30 @@ class MatrixIndexingTests(unittest.TestCase):
             pt.matrix_game_ids(payload)
 
     def test_every_published_cell_equals_the_identity_over_the_rows(self) -> None:
-        """The identity is authoritative; agreeing with it is what makes a cell trustworthy."""
+        """The identity is authoritative; agreeing with it is what makes a cell trustworthy.
+
+        Via `cell_agrees`, because from Game 82 the two disagree *by design*: the standings
+        triple the final rounds while the Transactions tab keeps the original amounts. Measured
+        against the live matrix, the ratio is 1.000 through Game 80 and exactly 3.000 from 82
+        onward (Game 81 scored 0.00 for almost the whole field, so it shows nothing either way).
+
+        This assertion used a raw `assertAlmostEqual` and kept passing after the weighting
+        landed, because the matrix is a trailing twenty-Game window and no weighted Game had
+        entered it yet. The production paths -- `snapshot` and `invert_fair_values.verify` --
+        were converted at the time; this one was missed, and only failed once the window filled.
+        A synthetic test of `cell_agrees` is not the same as exercising it on the live path.
+        """
         table, _ = MATRIX or ({}, [])
         for game_id in pt.matrix_game_ids():
             with self.subTest(game=game_id):
                 rows = pt.transactions(rp.US, game_id)
-                self.assertAlmostEqual(
-                    pt.identity_net(rows, rp.US), table[rp.US][game_id], places=1
+                identity = pt.identity_net(rows, rp.US)
+                cell = table[rp.US][game_id]
+                self.assertTrue(
+                    pt.cell_agrees(identity, cell),
+                    f"identity {identity:,.2f} vs published cell {cell:,.2f} "
+                    f"(ratio {cell / identity if identity else float('nan'):.3f}) "
+                    f"-- expected 1x or 3x",
                 )
 
 

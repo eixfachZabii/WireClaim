@@ -737,6 +737,29 @@ enforced somewhere in code, and each one is the residue of a specific loss.
    this invariant survives its quantity handling.
 5. **Index = the printed invoice POS number, gaps included.** Never renumber by row ordinal.
    Case 11's invoice skips POS 12 and so does the settled Game.
+6. **A hung model call must die with time left to price and post.** `_draw_timeout` subtracts
+   `SUBMISSION_RESERVE_SECONDS` from the deadline so the final PUT has room, and the outer
+   `asyncio.wait_for` may exceed that budget only by `DRAW_GRACE_SECONDS` — a value that exists
+   solely so the inner HTTP timeout raises first and the log says *why* a draw died. The guard
+   used to add the whole reserve back, cancelling itself: Game 78 submitted at **T+59.33 s of a
+   60 s window**, and a second more would have left the Fast Path standing at 1,200.00 on a Line
+   Item worth 8.59. Measured after the fix, with both draws hanging: 55.50 s, 4.50 s of margin,
+   every Line Item still priced.
+7. **Exactly one runner.** `scripts/supervise.sh` refuses to start if a `main.py` is already
+   alive (`pgrep`, checked first because a lock cannot see a runner that predates it) or if a
+   live PID holds `var/supervise.lock` (a `mkdir` mutex, atomic everywhere, and macOS has no
+   `flock`). Two runners do not double coverage: both PUT to the same Game, so the Submission
+   becomes a race won by whichever finished last, and both fire the two-draw ensemble — four
+   model calls in one 60-second window, which is what cost Game 46 both draws and Game 49 a 429.
+   A stale lock from a `kill -9` is cleared rather than honoured, because failing toward darkness
+   would be worse than the bug being fixed.
+8. **QuantCo's claim data never enters the repository.** Not the Cases, and not anything derived
+   that reproduces them: `var/ai_log/` (raw model replies, whose `clause` field quotes
+   `policy.txt` verbatim), `var/reviews/`, `var/decisions/` and `var/lessons/` (invoice Line Item
+   names) are generated locally and ignored, as is `var/export/`. The repository is public and
+   checking in claim data carries a ranking penalty. All of it regenerates from the API:
+   `pixi run watch` rebuilds the decision log and lessons, `pixi run export` the Line Item table.
+   Single-sentence clause quotations in documentation are citation and are kept deliberately.
 
 ---
 
