@@ -646,6 +646,52 @@ survives; its *premise* does not, and a wrong reason in a shared doc propagates.
 
 ---
 
+## H13 ❌ `LIMIT_CEILING = 0.45` is fitted to the wrong estimator — no, it still holds
+
+**Game 59 raised it, and it looked damning.** Four expensive, correctly-priced Line Items drew
+45,418 of lawyer waste with **zero** rightful rejections between them. Item 2 held a Limit of
+701.77 — exactly `0.45 x 1559.49`, the ceiling binding — against a true `t >= 1451`, and
+wrongly rejected **12 of 16** fair Charges. The Game's Limit ledger was **0.2 : 1**
+saved-to-wasted against a 2.2–2.6 : 1 record average.
+
+The suspicion was reasonable: 0.45 was fitted before the Price Memory basis fix (5f6dcc3),
+the Policy key (d0ef2c6) and the parser reconciliation (c6a079f, which changed nine
+quantities and removed two invented Line Items). A ceiling swept on a biased estimator
+absorbs that bias.
+
+**Measured — `scripts/experiments/limit_ceiling_sweep.py`, 60 Games, noise floor ±48,605:**
+
+| ceiling | all | odd | even | ≤40 | >40 | last8 | folds+ |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.40 | −1,080 | −481 | −599 | −69 | −1,011 | −451 | 0/4 |
+| **0.45 (shipped)** | — | — | — | — | — | — | — |
+| 0.50 | +902 | +348 | +553 | +1,939 | **−1,038** | −228 | 3/4 |
+| 0.60 | +3,803 | −2,403 | +6,207 | +5,737 | **−1,934** | +931 | 2/4 |
+| 0.80 | +4,593 | −2,119 | +6,712 | +4,759 | **−166** | +1,937 | 2/4 |
+
+**Nothing passes four folds, and every value above 0.45 is negative on `>40` — the recent
+half, which is exactly the window the suspicion was about.** The largest total gain, +4,593,
+is an order of magnitude inside the noise floor. On `last8` (Games 53–60, the window
+containing Game 59 itself) the best available is +1,937 against the 45,418 that prompted the
+question.
+
+The engine docstring states its own falsification condition — "three or four consecutive
+settled Games where 0.60 beats 0.45 on that window alone". It is **not met**: 0.60 scores
+−1,934 on `>40` and +931 on `last8`.
+
+Loosening the Price Memory ceiling was tested in the same sweep and is worse: 0.75 → 0.60
+costs **−28,854**, and 0.90 reaches +3,538 on 2/4 folds.
+
+**Game 59 was a bad draw, not a mis-set constant.** A Case whose expensive items are all
+covered *and* correctly priced is the exact shape this ceiling is worst at, and such Cases are
+rare enough that paying for them beats loosening for everyone. No `src/` change.
+
+Worth recording separately from the verdict: the baseline replay is **+243,635 over Games
+≤40 and only +15,563 over the twenty Games after**, with `last8` at **−6,135**. Whatever is
+draining the recent window, this constant is not it.
+
+---
+
 ## Standing measurements worth not re-deriving
 
 | quantity | value |

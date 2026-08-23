@@ -1,0 +1,279 @@
+{
+  "game_id": 60,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 6071.93,
+    "paid_on_accepts": 3833.89,
+    "penalties": 0.0,
+    "net": 2238.0400000000004,
+    "saved_by_rejecting": 15945.990000000002,
+    "lawyer_waste": 0.0,
+    "fraud_let_through": 2452.31,
+    "strictness_net": 13493.680000000002
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Speaker system (surge damaged) (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 281.49,
+      "our_charge": 281.49,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 406.35216156654985,
+      "coverage_probability": 0.97,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "coverage-too-high",
+      "why": "Coverage came back 0.97 but the item is worth about nothing (t < 281)."
+    },
+    {
+      "index": 2,
+      "name": "Premium replacement TV set (larger, higher-end than (1 pcs)",
+      "t_lo": 500.0,
+      "t_hi": 588.59,
+      "our_charge": 2065.13,
+      "our_limit_bracket": [
+        662.14,
+        Infinity
+      ],
+      "estimate_median": 2244.994432064365,
+      "coverage_probability": 0.94,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 0.0,
+      "stage": "charge-above-t",
+      "why": "Charged 2065 against t < 589, so every opponent owed us nothing."
+    },
+    {
+      "index": 3,
+      "name": "HDMI cables and connectors",
+      "t_lo": 0.0,
+      "t_hi": 5.28,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.08,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 4,
+      "name": "Wall-mount bracket",
+      "t_lo": 0.0,
+      "t_hi": 5.6,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.07,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 5,
+      "name": "Remote control",
+      "t_lo": 0.0,
+      "t_hi": 4.56,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.08,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 6,
+      "name": "Games console (switched off and unplugged at the",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.01,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 7,
+      "name": "Shipping (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 38.90899375442148,
+      "coverage_probability": 0.0,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 8,
+      "name": "Installation (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 45.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 381.478866785711,
+      "coverage_probability": 0.0,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 9,
+      "name": "Diagnostic inspection and surge-failure report for (2 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 31.0,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 581.3776741499455,
+      "coverage_probability": 0.005,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 10,
+      "name": "Wiring safety check of property distribution board",
+      "t_lo": 0.0,
+      "t_hi": 27.0,
+      "our_charge": 64.06,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 97.0,
+      "coverage_probability": 0.0,
+      "channels": [
+        "A:no-quantity",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    },
+    {
+      "index": 11,
+      "name": "Vehicle costs (1 pcs)",
+      "t_lo": 0.0,
+      "t_hi": 2.89,
+      "our_charge": 51.75,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 74.70505543942464,
+      "coverage_probability": 0.0,
+      "channels": [
+        "B:memory",
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy2": {
+        "net": 2238.039999999999,
+        "income": 6071.929999999999,
+        "cost": 3833.8900000000003,
+        "items_priced": 11,
+        "items_missing": []
+      }
+    },
+    "drivers": [],
+    "reconstructs": true,
+    "actual_net": 2238.0400000000004,
+    "replayed_actual_net": 2238.039999999999,
+    "oracle_net": 10549.699999999999,
+    "oracle_exact_net": 12711.170000000002,
+    "line_items": 11,
+    "best_alternative": null,
+    "best_alternative_delta": 0.0
+  },
+  "estimate": {
+    "n_scorable": 1,
+    "median_log_error": 1.4169669407364145,
+    "rmsle": 1.4169669407364145
+  },
+  "cost_by_stage": {
+    "coverage-too-high": 0.0,
+    "charge-above-t": 0.0,
+    "ok": 0.0
+  }
+}
