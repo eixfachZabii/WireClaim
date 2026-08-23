@@ -1,0 +1,68 @@
+{
+  "game_id": 55,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 6079.68,
+    "paid_on_accepts": 386.75,
+    "penalties": 8974.95,
+    "net": -3282.0200000000004,
+    "saved_by_rejecting": 0.0,
+    "lawyer_waste": 2991.6499999999996,
+    "fraud_let_through": 0.0,
+    "strictness_net": -2991.6499999999996
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Laptop accidental damage repair (cracked screen and (1 pcs)",
+      "t_lo": 1125.0,
+      "t_hi": null,
+      "our_charge": 379.98,
+      "our_limit_bracket": [
+        210.0,
+        329.0
+      ],
+      "estimate_median": 518.459255872629,
+      "coverage_probability": 0.9550000000000001,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "priced",
+      "penalties_here": 8974.95,
+      "stage": "charge-far-below-t",
+      "why": "Charged 380 against t >= 1125; the difference was forfeited from every opponent."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy2": {
+        "net": -3282.0200000000023,
+        "income": 6079.6799999999985,
+        "cost": 9361.7,
+        "items_priced": 1,
+        "items_missing": []
+      }
+    },
+    "drivers": [],
+    "reconstructs": true,
+    "actual_net": -3282.0200000000004,
+    "replayed_actual_net": -3282.0200000000023,
+    "oracle_net": 11629.95,
+    "oracle_exact_net": 11629.95,
+    "line_items": 1,
+    "best_alternative": null,
+    "best_alternative_delta": 0.0
+  },
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "charge-far-below-t": 8974.95
+  }
+}
