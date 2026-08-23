@@ -181,7 +181,13 @@ def _mechanisms(
     return mechanisms
 
 
-def _stage(item: dict, t_lo: float, t_hi: float, charge: float | None) -> tuple[str, str]:
+def _stage(
+    item: dict,
+    t_lo: float,
+    t_hi: float,
+    charge: float | None,
+    limit_hi: float | None = None,
+) -> tuple[str, str]:
     """Name the stage that went wrong, and say why. This is the whole point of the script."""
     if item is None:
         return "no-decision-log", "Strategy 2 did not record this item; it may not have landed."
@@ -252,6 +258,33 @@ def _stage(item: dict, t_lo: float, t_hi: float, charge: float | None) -> tuple[
             f"({shortfall:.1%} low); the Charge and the Limit are both taken from that median, "
             f"so both landed low.",
         )
+    if (
+        covered
+        and limit_hi is not None
+        and t_lo > 0
+        and limit_hi < t_lo
+    ):
+        # `ok` was the largest bucket in the whole record -- 40 % of all penalty, under the words
+        # "Nothing obviously wrong with this item." It was wrong about that. Of the `ok` items
+        # that cost money, **91 % had a Limit whose upper bound sat below the proven Fair Value
+        # floor**; at 1,000 euros of penalty or more it is 98 %, carrying 99 % of the money. Every
+        # one of the ten most expensive `ok` items had a Limit that could not have accepted the
+        # claim at any price the Field offered.
+        #
+        # Be precise about what this stage is. Lawyer cost arises exactly when `b < a <= t`, so a
+        # penalised item having `b < t` is very close to definitional, and this is a **labelling**
+        # fix rather than a newly found lever. Its value is that the digest stops saying "nothing
+        # wrong" about the single largest source of cost, and the per-Game reviews stop spending
+        # their attention elsewhere. Game 94 is what prompted it: six items, all tagged `ok`,
+        # 4,548 of penalty, and the review had to work out for itself that the Limit was the cause.
+        #
+        # It deliberately sits last, so every diagnosis with a real mechanism -- a Charge above
+        # `t`, a collapsed coverage verdict, a centring miss -- still wins the label.
+        return (
+            "limit-below-floor",
+            f"Limit reached only {limit_hi:.0f} against a proven floor of t >= {t_lo:.0f}, so "
+            f"rejecting was mechanical: no Charge the Field made could have been accepted.",
+        )
     return "ok", "Nothing obviously wrong with this item."
 
 
@@ -269,7 +302,9 @@ def analyse(game_id: int, team_names: list[str], *, with_replay: bool = True) ->
         t_lo, t_hi = table[index]
         decision = by_index.get(index)
         charge = charges.get(index)
-        stage, why = _stage(decision, t_lo, t_hi, charge)
+        bracket = limits.get(index)
+        limit_hi = bracket[1] if isinstance(bracket, (list, tuple)) and len(bracket) > 1 else None
+        stage, why = _stage(decision, t_lo, t_hi, charge, limit_hi)
         # Penalties attributable to this item: 1.5x every fair Charge we rejected.
         penalty = sum(
             1.5 * r["amount"]
