@@ -18,6 +18,7 @@ LLM_TIMEOUT_SECONDS = 55.0
 
 #: Leave this much of the window for the final PUT after the last draw returns.
 SUBMISSION_RESERVE_SECONDS = 3.0
+LIMIT_FACTOR = 1.5
 
 #: Median Fair Value over the 148 settled Line Items with a bounded bracket. Used as a
 #: prior in the prompt and as the last-resort price when no channel has anything to say.

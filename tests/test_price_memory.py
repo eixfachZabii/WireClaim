@@ -67,6 +67,16 @@ ITEMS
 Created on 21 Aug 2026                                                    Page 1 / 1
 """
 
+MULTI_PAGE_INVOICE_FIXTURE = INVOICE_FIXTURE + """\
+
+Page 2 / 2
+
+ 6       Final site cleaning                                   1   flat rate
+10 Short saw blade
+
+Created on 21 Aug 2026                                                    Page 2 / 2
+"""
+
 
 def memory_from(observations):
     return PriceMemory.from_dict({"entries": build_entries(observations)})
@@ -282,6 +292,14 @@ class TestInvoiceParsing(unittest.TestCase):
 
     def test_every_pos_number_is_found(self):
         self.assertEqual(sorted(self.items), [1, 2, 3, 4, 5])
+
+    def test_items_continue_after_a_page_footer(self):
+        items = builder.parse_invoice_text(MULTI_PAGE_INVOICE_FIXTURE)
+
+        self.assertEqual(sorted(items), [1, 2, 3, 4, 5, 6, 10])
+        self.assertEqual(items[6]["name"], "Final site cleaning")
+        self.assertEqual(items[6]["unit"], "flat rate")
+        self.assertEqual(items[10]["name"], "Short saw blade")
 
     def test_quantity_and_unit_are_read_from_their_own_columns(self):
         self.assertEqual(self.items[1]["quantity"], 8.0)

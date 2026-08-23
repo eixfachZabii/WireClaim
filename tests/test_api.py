@@ -81,6 +81,68 @@ class APITests(unittest.TestCase):
         ):
             self.assertEqual(api.get_decryption_key(7), "released")
 
+    def test_keys_use_base_url_and_submissions_use_backend_url(self) -> None:
+        environment = {
+            "TEAM_API_KEY": "test-key",
+            "BASE_URL": "https://keys.example.test/",
+            "BACKEND_URL": "10.183.176.119",
+        }
+        with patch.dict(os.environ, environment, clear=True), patch.object(
+            api,
+            "urlopen",
+            return_value=Response(b'{"decryption_key": "released"}'),
+        ) as key_request:
+            self.assertEqual(api.get_decryption_key(7), "released")
+        with patch.dict(os.environ, environment, clear=True), patch.object(
+            api,
+            "urlopen",
+            return_value=Response(b'[{"charge_price": 50.0}]'),
+        ) as submission_request:
+            api.submit_price(7, 50.0, 80.0)
+
+        self.assertEqual(
+            key_request.call_args.args[0].full_url,
+            "https://keys.example.test/api/games/7/key",
+        )
+        self.assertEqual(
+            submission_request.call_args.args[0].full_url,
+            "http://10.183.176.119/api/games/7/submissions",
+        )
+
+    def test_network_log_contains_method_and_destination_without_secrets_or_payload(self) -> None:
+        environment = {
+            "TEAM_API_KEY": "secret-test-key",
+            "BASE_URL": "https://keys.example.test",
+            "BACKEND_URL": "10.183.176.119:8765",
+        }
+        with self.assertLogs("src.api.tournament", level="INFO") as logs, patch.dict(
+            os.environ, environment, clear=True
+        ):
+            with patch.object(
+                api,
+                "urlopen",
+                return_value=Response(b'{"decryption_key": "released"}'),
+            ):
+                api.get_decryption_key(7)
+            with patch.object(
+                api,
+                "urlopen",
+                return_value=Response(b'[{"charge_price": 50.0}]'),
+            ):
+                api.submit_price(7, 50.0, 80.0)
+
+        output = "\n".join(logs.output)
+        self.assertIn(
+            "network_request method=GET destination=https://keys.example.test/api/games/7/key",
+            output,
+        )
+        self.assertIn(
+            "network_request method=PUT destination=http://10.183.176.119:8765/api/games/7/submissions",
+            output,
+        )
+        self.assertNotIn("secret-test-key", output)
+        self.assertNotIn("acceptance_limit", output)
+
     def test_missing_team_key(self) -> None:
         with patch.dict(os.environ, {}, clear=True), self.assertRaises(RuntimeError):
             api.list_games()

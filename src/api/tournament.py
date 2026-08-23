@@ -17,12 +17,15 @@ If a case has only 1 line item, `index` is simply 1 (default).
 Configuration & Environment Variables:
 ---------------------------------------
 - `TEAM_API_KEY`: Team token sent in the `X-API-Key` HTTP header.
-- `BASE_URL`: Base competition URL (default: `https://c2f.public.quantco.cloud`).
+- `BASE_URL`: Game-list and decryption-key URL (default: `https://c2f.public.quantco.cloud`).
+- `BACKEND_URL`: Submission backend URL (falls back to `BASE_URL`).
 """
 
 from __future__ import annotations
 
+import ipaddress
 import json
+import logging
 import math
 import os
 import urllib.request
@@ -47,6 +50,7 @@ except ImportError:
                 os.environ.setdefault(k.strip(), v.strip().strip('"\''))
 
 DEFAULT_BASE_URL = "https://c2f.public.quantco.cloud"
+logger = logging.getLogger(__name__)
 
 
 class APIError(RuntimeError):
@@ -67,17 +71,41 @@ def _get_urlopen():
         return urllib.request.urlopen
 
 
+def _normalize_base_url(value: str) -> str:
+    url = value.strip().rstrip("/")
+    if not url:
+        raise ValueError("Tournament base URL must not be empty")
+    if "://" in url:
+        scheme = url.partition("://")[0].lower()
+        if scheme not in {"http", "https"}:
+            raise ValueError(f"Unsupported tournament URL scheme: {scheme}")
+        return url
+    host = url.partition("/")[0].partition(":")[0]
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        scheme = "http" if host.casefold() == "localhost" else "https"
+    else:
+        scheme = "http" if address.is_private or address.is_loopback else "https"
+    return f"{scheme}://{url}"
+
+
 def _get_config(
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
+    *,
+    submission: bool = False,
 ) -> Tuple[str, str]:
-    """Resolve API key and base URL from arguments or environment variables."""
+    """Resolve API key and the read or submission base URL."""
     key = (api_key or os.environ.get("TEAM_API_KEY", "")).strip()
     if not key:
         raise RuntimeError("TEAM_API_KEY is missing; copy .env.example to .env")
 
-    url = (base_url or os.environ.get("BASE_URL") or DEFAULT_BASE_URL).rstrip("/")
-    return key, url
+    configured = base_url
+    if configured is None and submission:
+        configured = os.environ.get("BACKEND_URL")
+    configured = configured or os.environ.get("BASE_URL") or DEFAULT_BASE_URL
+    return key, _normalize_base_url(configured)
 
 
 def _validate_price(name: str, value: float) -> float:
@@ -95,8 +123,10 @@ def _validate_price(name: str, value: float) -> float:
 def _get(path: str, api_key: Optional[str] = None, base_url: Optional[str] = None, timeout: float = 10.0) -> Any:
     """Send a GET request to the tournament backend."""
     key, url = _get_config(api_key, base_url)
+    destination = f"{url}{path}"
+    logger.info("network_request method=GET destination=%s", destination)
     request = Request(
-        f"{url}{path}",
+        destination,
         headers={"X-API-Key": key, "Accept": "application/json"},
     )
     try:
@@ -115,10 +145,12 @@ def _put(
     timeout: float = 10.0,
 ) -> Any:
     """Send a PUT request to the tournament backend with JSON body."""
-    key, url = _get_config(api_key, base_url)
+    key, url = _get_config(api_key, base_url, submission=True)
+    destination = f"{url}{path}"
+    logger.info("network_request method=PUT destination=%s", destination)
     body = json.dumps(data).encode("utf-8")
     request = Request(
-        f"{url}{path}",
+        destination,
         data=body,
         headers={"X-API-Key": key, "Content-Type": "application/json", "Accept": "application/json"},
         method="PUT",

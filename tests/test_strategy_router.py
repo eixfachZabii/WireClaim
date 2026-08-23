@@ -17,6 +17,11 @@ def proposal(source: str, charge: float, index: int = 1) -> Proposal:
 
 
 class StrategyRouterTests(unittest.TestCase):
+    def test_default_runner_starts_only_strategy5(self) -> None:
+        router = StrategyRouter()
+
+        self.assertEqual(router._strategies, (strategy_router.strategy5,))
+
     def test_strategy2_outranks_the_others_in_either_arrival_order(self) -> None:
         """Strategy 2 is the only one with constants fitted to the reconstructed Fair
         Values, so it wins regardless of which strategy finishes first."""

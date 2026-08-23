@@ -92,7 +92,7 @@ class StrategyRouter:
     ) -> None:
         self._strategies = (
             # strategy1,
-            strategy2,
+            # strategy2,
             # strategy3,
             # strategy4,
             strategy5,

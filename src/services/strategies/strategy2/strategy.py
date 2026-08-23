@@ -82,6 +82,7 @@ from src.services.strategies.fast_path import STANDARD_CHARGE, STANDARD_LIMIT
 from src.services.strategies.strategy2.blend import blend, combine
 from src.services.strategies.strategy2.channels import local_evidence
 from src.services.strategies.strategy2.constants import (
+    LIMIT_FACTOR,
     LLM_TIMEOUT_SECONDS,
     STRATEGY_NAME,
     SUBMISSION_RESERVE_SECONDS,
@@ -91,6 +92,10 @@ from src.services.strategies.strategy2.prompts import ENSEMBLE_PROMPTS
 from src.observability.timing import log_timing, start_timer
 
 logger = logging.getLogger(__name__)
+
+
+def _scaled_limit(limit: float) -> float:
+    return round(limit * LIMIT_FACTOR, 2)
 
 
 def _uninformed_price(index: int) -> ItemPrice:
@@ -105,7 +110,7 @@ def _uninformed_price(index: int) -> ItemPrice:
     return ItemPrice(
         index=index,
         charge_price=STANDARD_CHARGE,
-        acceptance_limit=STANDARD_LIMIT,
+        acceptance_limit=_scaled_limit(STANDARD_LIMIT),
         source=STRATEGY_NAME,
     )
 
@@ -149,7 +154,7 @@ def build_proposal(
             item_price = ItemPrice(
                 index=line_item.index,
                 charge_price=price.charge,
-                acceptance_limit=price.limit,
+                acceptance_limit=_scaled_limit(price.limit),
                 source=STRATEGY_NAME,
             )
             rule = "uncovered-free-option" if price.limit == 0.0 else "priced"

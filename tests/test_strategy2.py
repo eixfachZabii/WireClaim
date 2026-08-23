@@ -5,9 +5,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.data.models import CaseData, LineItem
-from src.domain.pricing.engine import Evidence
+from src.domain.pricing.engine import Evidence, price_item
 from src.services.strategies.strategy2.blend import blend as _blend, combine as _combine
 from src.services.strategies.strategy2.constants import (
+    LIMIT_FACTOR,
     LLM_TIMEOUT_SECONDS,
     STRATEGY_NAME,
     SUBMISSION_RESERVE_SECONDS,
@@ -18,6 +19,7 @@ from src.services.strategies.strategy2.prompts import (
     PROMPT,
     PROMPT_UNANCHORED,
 )
+from src.services.strategies.fast_path import STANDARD_LIMIT
 from src.services.strategies.strategy2.strategy import build_proposal, propose
 
 
@@ -57,6 +59,18 @@ class BuildProposalTests(unittest.TestCase):
 
         self.assertLess(proposal.prices[0].charge_price, 100.0)
 
+    def test_the_limit_is_multiplied_by_one_and_a_half(self) -> None:
+        evidence = Evidence(1, 0.95, 80.0, 100.0, 125.0)
+        expected = price_item(evidence)
+
+        proposal = build_proposal(case_with(LineItem(1, "Drying fan")), {1: evidence}, {})
+
+        self.assertEqual(LIMIT_FACTOR, 1.5)
+        self.assertEqual(
+            proposal.prices[0].acceptance_limit,
+            round(expected.limit * LIMIT_FACTOR, 2),
+        )
+
     def test_a_dash_quantity_item_gets_a_zero_limit_but_still_charges(self) -> None:
         """20 of 20 such Line Items in the settled Games were worth nothing."""
         case = case_with(LineItem(1, "Vehicle costs", quantity_missing=True))
@@ -86,6 +100,10 @@ class BuildProposalTests(unittest.TestCase):
 
         self.assertIsNotNone(proposal)
         self.assertEqual(set(proposal.by_index()), {1})
+        self.assertEqual(
+            proposal.prices[0].acceptance_limit,
+            round(STANDARD_LIMIT * LIMIT_FACTOR, 2),
+        )
 
     def test_a_case_with_no_line_items_yields_nothing(self) -> None:
         self.assertIsNone(build_proposal(case_with(), {}, {}))

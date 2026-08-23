@@ -60,8 +60,7 @@ CASES_DIR = ROOT / "[PUBLIC] EHL Cases" / "cases"
 OUT_PATH = ROOT / "var" / "price_memory.json"
 TRANSACTION_CACHE = ROOT / "var" / "transactions"
 
-_ROW = re.compile(r"^\s*(?P<index>\d{1,3})\s{2,}(?P<name>\S.*?)\s*$")
-_SECTION_END = ("INVOICE NO", "CREATED ON", "PAGE ", "ITEMS")
+_ROW = re.compile(r"^\s*(?P<index>\d{1,3})\s+(?P<name>\S.*?)\s*$")
 _STANDALONE = {"INVOICE", "FROM", "TO"}
 
 
@@ -106,7 +105,7 @@ def parse_invoice_text(text: str) -> dict[int, dict[str, Any]]:
             amount_column = found if found >= 0 else None
             continue
         stripped = raw.strip()
-        if stripped.upper().startswith(_SECTION_END) or stripped.upper() in _STANDALONE:
+        if stripped.upper().startswith("INVOICE NO") or stripped.upper() in _STANDALONE:
             in_items, last_index = False, None
             continue
         if not in_items or not stripped:
