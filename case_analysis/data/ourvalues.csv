@@ -1,21 +1,4 @@
 game,item,name,a (actual),b (actual),t (derived),a/t,b/t,item net,source
-62,1,Renew boiler system including flue gas system and (1   flat rate),"10,349.89",0.00,"9,427.30",1.10,0.00,"-25,468.65",submitted
-62,2,Adjust supply pipework to fit the replacement boiler (1   flat rate),597.25,0.00,214.84,2.78,0.00,836.00,submitted
-62,3,Dispose of the old boiler system (1   flat rate),331.59,0.00,626.33,0.53,0.00,-349.50,submitted
-62,4,Vehicle costs (1   flat rate),58.95,0.00,84.42,0.70,0.00,87.59,submitted
-62,5,Installer hours (6   hrs),376.23,0.00,454.84,0.83,0.00,"2,728.35",submitted
-62,6,Vehicle costs (1   flat rate),58.95,0.00,40.34,1.46,0.00,360.57,submitted
-62,7,Procurement of a heat pump (1   flat rate),"8,617.22",0.00,"1,152.81",7.47,0.00,"2,278.22",submitted
-62,8,Submersible pump (1   pcs),134.79,0.00,16.50,8.17,0.00,134.79,submitted
-62,9,Vacuum water (1   flat rate),255.29,0.00,16.50,15.47,0.00,"1,787.03",submitted
-62,10,Small electrical materials for the rewiring (1   flat rate),90.82,0.00,50.54,1.80,0.00,329.91,submitted
-63,1,Air conditioning unit (kitchen) (1   pcs),"1,400.64","1,213.16",27.09,51.71,44.79,"-2,346.02",submitted
-63,2,Installation (1   pcs),419.76,419.76,38.25,10.97,10.97,"-1,389.48",submitted
-63,3,Floor console (1   pcs),62.90,62.90,9.75,6.45,6.45,71.77,submitted
-63,4,Freight shipping (1   pcs),40.25,40.25,5.76,6.99,6.99,-168.28,submitted
-64,1,Remove & reinstall water-damaged laminate incl. (1   flat rate),"1,765.28",708.00,"1,933.43",0.91,0.37,"3,851.78",submitted
-64,2,Remove & reinstall bathroom floor tiles incl. material (1   flat rate),"1,746.78",708.00,"1,059.07",1.65,0.67,"-3,862.19",submitted
-64,3,Prepare & repaint water-damaged lower living-room (20   m²),668.86,404.37,633.38,1.06,0.64,"-3,416.49",submitted
 65,1,Filling valve (internal frost-burst fitting) (1   pcs),43.63,43.63,51.80,0.84,0.84,464.82,submitted
 65,2,Connection hose (1   pcs),20.98,20.98,27.54,0.76,0.76,33.85,submitted
 65,3,Senior installer hours (3   hrs),199.01,199.01,291.34,0.68,0.68,"-1,930.74",submitted
@@ -82,3 +65,59 @@ game,item,name,a (actual),b (actual),t (derived),a/t,b/t,item net,source
 71,16,-,-,0.00,0.00,-,-,0.00,reconstructed
 71,17,-,-,14.00,14.00,-,1.00,0.00,reconstructed
 71,18,-,163.14,109.68,22.76,7.17,4.82,-153.26,reconstructed
+72,1,-,457.57,413.25,598.80,0.76,0.69,"2,821.84",reconstructed
+72,2,-,453.31,490.87,522.50,0.87,0.94,"2,678.20",reconstructed
+72,3,-,199.48,210.82,259.69,0.77,0.81,"1,500.19",reconstructed
+72,4,-,60.42,66.06,82.31,0.73,0.80,390.90,reconstructed
+72,5,-,402.97,231.81,330.28,1.22,0.70,-267.59,reconstructed
+72,6,-,-,0.00,0.00,-,-,0.00,reconstructed
+72,7,-,-,0.00,0.00,-,-,0.00,reconstructed
+72,8,-,60.42,65.41,79.13,0.76,0.83,398.69,reconstructed
+73,1,-,96.84,106.60,107.52,0.90,0.99,"1,150.36",reconstructed
+73,2,-,227.37,230.87,292.80,0.78,0.79,"1,020.74",reconstructed
+73,3,-,88.13,16.07,16.07,5.49,1.00,176.26,reconstructed
+73,4,-,35.24,32.75,37.14,0.95,0.88,467.43,reconstructed
+73,5,-,68.33,65.50,62.16,1.10,1.05,236.36,reconstructed
+73,6,-,51.57,49.16,114.00,0.45,0.43,-203.69,reconstructed
+73,7,-,169.59,148.62,216.22,0.78,0.69,518.51,reconstructed
+73,8,-,147.79,153.38,144.39,1.02,1.06,-336.23,reconstructed
+73,9,-,439.10,290.12,439.11,1.00,0.66,"2,623.26",reconstructed
+73,10,-,-,0.00,0.00,-,-,0.00,reconstructed
+73,11,-,62.24,44.12,51.95,1.20,0.85,-275.23,reconstructed
+73,12,-,60.42,63.70,89.42,0.68,0.71,284.85,reconstructed
+73,13,-,866.60,610.83,"1,332.50",0.65,0.46,-282.93,reconstructed
+73,14,-,291.88,33.50,85.42,3.42,0.39,670.41,reconstructed
+73,15,-,189.21,14.20,82.84,2.28,0.17,349.37,reconstructed
+73,16,-,-,11.71,11.71,-,1.00,0.00,reconstructed
+73,17,-,64.06,13.85,13.85,4.63,1.00,128.12,reconstructed
+74,1,-,370.54,404.11,465.50,0.80,0.87,"3,548.71",reconstructed
+74,2,-,230.14,30.00,240.00,0.96,0.12,"1,673.65",reconstructed
+74,3,-,115.49,40.98,136.49,0.85,0.30,858.08,reconstructed
+74,4,-,97.83,27.32,159.16,0.61,0.17,855.39,reconstructed
+74,5,-,192.50,122.25,264.86,0.73,0.46,160.02,reconstructed
+74,6,-,58.31,52.50,82.25,0.71,0.64,185.77,reconstructed
+74,7,-,154.05,38.00,158.99,0.97,0.24,"1,569.76",reconstructed
+74,8,-,111.17,28.50,159.57,0.70,0.18,902.42,reconstructed
+74,9,-,496.67,30.00,587.64,0.85,0.05,"4,011.23",reconstructed
+74,10,-,153.32,30.00,131.16,1.17,0.23,381.60,reconstructed
+74,11,-,122.97,30.00,111.48,1.10,0.27,-215.48,reconstructed
+74,12,-,98.30,23.62,79.15,1.24,0.30,428.92,reconstructed
+74,13,-,170.63,121.23,190.74,0.89,0.64,"1,208.46",reconstructed
+74,14,-,104.64,91.89,111.98,0.93,0.82,706.72,reconstructed
+74,15,-,519.78,30.00,519.78,1.00,0.06,"4,676.08",reconstructed
+74,16,-,224.64,30.00,"1,504.76",0.15,0.02,"-5,295.00",reconstructed
+74,17,-,368.45,30.00,505.57,0.73,0.06,"2,963.69",reconstructed
+74,18,-,161.20,30.00,364.26,0.44,0.08,444.71,reconstructed
+74,19,-,558.06,30.00,558.06,1.00,0.05,"4,237.27",reconstructed
+74,20,-,361.90,30.00,337.70,1.07,0.09,"-1,929.71",reconstructed
+74,21,-,123.43,30.00,177.07,0.70,0.17,535.75,reconstructed
+74,22,-,65.53,21.75,56.77,1.15,0.38,-91.11,reconstructed
+74,23,-,-,42.75,42.75,-,1.00,0.00,reconstructed
+74,24,-,173.76,30.00,186.91,0.93,0.16,"1,237.12",reconstructed
+74,25,-,102.16,27.64,27.64,3.70,1.00,204.32,reconstructed
+74,26,-,-,30.00,30.00,-,1.00,0.00,reconstructed
+74,27,-,323.40,30.00,30.00,10.78,1.00,323.40,reconstructed
+74,28,-,206.84,30.00,30.00,6.89,1.00,413.68,reconstructed
+74,29,-,490.75,30.00,490.75,1.00,0.06,"4,623.74",reconstructed
+74,30,-,398.33,30.00,30.00,13.28,1.00,398.33,reconstructed
+74,31,-,131.94,29.73,29.73,4.44,1.00,131.94,reconstructed
