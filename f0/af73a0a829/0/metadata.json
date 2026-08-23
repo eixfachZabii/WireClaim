@@ -1,0 +1,93 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "f0af73a0a829",
+  "session_id": "c537157f-6367-4919-a5c7-67997a60ec5c",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-23T09:42:21.818402Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "case_analysis/dashboard.md",
+    "case_analysis/data/analysis.json",
+    "case_analysis/data/balance.csv",
+    "case_analysis/data/balance.png",
+    "case_analysis/data/binbusy_money.csv",
+    "case_analysis/data/binbusy_money.png",
+    "case_analysis/data/dashboard.png",
+    "case_analysis/data/ourvalues.csv",
+    "case_analysis/data/table_averages.csv",
+    "case_analysis/data/table_averages.png",
+    "case_analysis/data/table_binbusy.csv",
+    "case_analysis/data/table_binbusy.png",
+    "case_analysis/data/teams.csv",
+    "case_analysis/data/teams.png",
+    "case_analysis/data/tvalues.csv",
+    "case_analysis/data/tvalues.png",
+    "presentation/figures/balance-annotated-dark.pdf",
+    "presentation/figures/balance-annotated-dark.png",
+    "presentation/figures/balance-annotated-light.pdf",
+    "presentation/figures/balance-annotated-light.png",
+    "presentation/figures/consistency-dark.pdf",
+    "presentation/figures/consistency-dark.png",
+    "presentation/figures/consistency-light.pdf",
+    "presentation/figures/consistency-light.png",
+    "presentation/figures/per-game-net-dark.pdf",
+    "presentation/figures/per-game-net-dark.png",
+    "presentation/figures/per-game-net-light.pdf",
+    "presentation/figures/per-game-net-light.png",
+    "presentation/figures/rebased-g20-dark.pdf",
+    "presentation/figures/rebased-g20-dark.png",
+    "presentation/figures/rebased-g20-light.pdf",
+    "presentation/figures/rebased-g20-light.png"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5",
+  "turn_id": "2290056a20cc",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 2,
+    "cache_creation_tokens": 25997,
+    "cache_read_tokens": 26166,
+    "output_tokens": 1360,
+    "api_call_count": 1
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-23T09:42:21.812588Z",
+    "agent_lines": 0,
+    "agent_removed": 62,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 351749,
+    "total_committed": 102,
+    "total_lines_changed": 351811,
+    "agent_percentage": 0.017623098766098844,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 358509,
+      "user_lines_removed": 351749,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "case_analysis/data/analysis.json": 358230,
+        "case_analysis/data/balance.csv": 99,
+        "case_analysis/data/binbusy_money.csv": 1,
+        "case_analysis/data/table_averages.csv": 97,
+        "case_analysis/data/table_binbusy.csv": 65,
+        "case_analysis/data/teams.csv": 17
+      },
+      "user_removed_per_file": {
+        "case_analysis/data/analysis.json": 351491,
+        "case_analysis/data/balance.csv": 98,
+        "case_analysis/data/table_averages.csv": 96,
+        "case_analysis/data/table_binbusy.csv": 64
+      }
+    }
+  ]
+}

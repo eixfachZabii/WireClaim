@@ -1,0 +1,57 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "f0af73a0a829",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "case_analysis/dashboard.md",
+    "case_analysis/data/analysis.json",
+    "case_analysis/data/balance.csv",
+    "case_analysis/data/balance.png",
+    "case_analysis/data/binbusy_money.csv",
+    "case_analysis/data/binbusy_money.png",
+    "case_analysis/data/dashboard.png",
+    "case_analysis/data/ourvalues.csv",
+    "case_analysis/data/table_averages.csv",
+    "case_analysis/data/table_averages.png",
+    "case_analysis/data/table_binbusy.csv",
+    "case_analysis/data/table_binbusy.png",
+    "case_analysis/data/teams.csv",
+    "case_analysis/data/teams.png",
+    "case_analysis/data/tvalues.csv",
+    "case_analysis/data/tvalues.png",
+    "presentation/figures/balance-annotated-dark.pdf",
+    "presentation/figures/balance-annotated-dark.png",
+    "presentation/figures/balance-annotated-light.pdf",
+    "presentation/figures/balance-annotated-light.png",
+    "presentation/figures/consistency-dark.pdf",
+    "presentation/figures/consistency-dark.png",
+    "presentation/figures/consistency-light.pdf",
+    "presentation/figures/consistency-light.png",
+    "presentation/figures/per-game-net-dark.pdf",
+    "presentation/figures/per-game-net-dark.png",
+    "presentation/figures/per-game-net-light.pdf",
+    "presentation/figures/per-game-net-light.png",
+    "presentation/figures/rebased-g20-dark.pdf",
+    "presentation/figures/rebased-g20-dark.png",
+    "presentation/figures/rebased-g20-light.pdf",
+    "presentation/figures/rebased-g20-light.png"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f0/af73a0a829/0/metadata.json",
+      "transcript": "/f0/af73a0a829/0/full.jsonl",
+      "compact_transcript": "/f0/af73a0a829/0/transcript.jsonl",
+      "content_hash": "/f0/af73a0a829/0/content_hash.txt",
+      "prompt": "/f0/af73a0a829/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2,
+    "cache_creation_tokens": 25997,
+    "cache_read_tokens": 26166,
+    "output_tokens": 1360,
+    "api_call_count": 1
+  }
+}
