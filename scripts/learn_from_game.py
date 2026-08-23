@@ -81,6 +81,7 @@ from replay_payoffs import (  # noqa: E402
 
 from src.runtime.decisions import load as load_decisions  # noqa: E402
 from src.runtime.decisions import proposals as logged_proposals  # noqa: E402
+from src.strategies import STRATEGY_PRIORITIES  # noqa: E402
 
 US = "Bin busy"
 LESSONS_DIR = Path("var/lessons")
@@ -652,6 +653,19 @@ def pooled(reports: list[dict]) -> dict:
     Two strategies are only compared on the Games where **both** were recorded — an unpaired
     total would credit whichever strategy happened to be logged on the expensive Cases. The
     per-item losses are bucketed on our own estimate `t_hat`, never on the true `t`.
+
+    The pairing is **against a reference track**, not an intersection across every track, and
+    that distinction is the whole reason this function was rewritten. It used to keep only the
+    Games where *all* sources had a net. Strategy 4 landed at Game 62, so on its first Game
+    that intersection became empty and the digest reported `+0 over the 0 shared Game(s)` for
+    every track at once — 37 Games of accumulated evidence blanked by adding one experiment.
+    Pairing each track against the reference costs nothing when the tracks are coeval and
+    degrades gracefully when they are not: a new track is simply compared over the handful of
+    Games it has, with its own `n` printed next to it.
+
+    The reference is the track with the most Games recorded, ties broken by priority — in
+    practice Strategy 2, which is also the only track the router may submit, so "how does this
+    compare to what we actually sent" is the question a reader wants answered anyway.
     """
     usable = [
         r
@@ -666,19 +680,39 @@ def pooled(reports: list[dict]) -> dict:
                 nets.setdefault(source, {})[report["game_id"]] = data["net"]
 
     games = sorted({g for by_game in nets.values() for g in by_game})
+    reference = (
+        max(nets, key=lambda s: (len(nets[s]), STRATEGY_PRIORITIES.get(s, 0))) if nets else None
+    )
+    overlap = (
+        {source: sorted(set(by_game) & set(nets[reference])) for source, by_game in nets.items()}
+        if reference
+        else {}
+    )
+    #: The Games where every track answered. Reported for honesty about the sample, but no
+    #: longer the denominator of anything -- see the docstring.
     shared = [g for g in games if all(g in by_game for by_game in nets.values())] if nets else []
 
     per_source = {
         source: {
             "games": len(by_game),
             "total": sum(by_game.values()),
-            "total_on_shared": sum(by_game[g] for g in shared if g in by_game),
+            "shared_games": len(overlap[source]),
+            "total_on_shared": sum(by_game[g] for g in overlap[source]),
+            "reference_on_shared": sum(nets[reference][g] for g in overlap[source]),
         }
         for source, by_game in sorted(nets.items())
     }
+    # "Best on N" is counted only over the Games where a track actually had a rival, and the
+    # denominator is carried alongside it. A track logged alone in a Game has not won it.
     wins: dict[str, int] = {}
-    for game_id in shared:
-        best = max(nets, key=lambda s: nets[s][game_id])
+    contested: dict[str, int] = {}
+    for game_id in games:
+        contenders = {s: by_game[game_id] for s, by_game in nets.items() if game_id in by_game}
+        if len(contenders) < 2:
+            continue
+        for source in contenders:
+            contested[source] = contested.get(source, 0) + 1
+        best = max(contenders, key=lambda s: contenders[s])
         wins[best] = wins.get(best, 0) + 1
 
     buckets: dict[str, dict[str, float]] = {}
@@ -695,13 +729,33 @@ def pooled(reports: list[dict]) -> dict:
             key = "winner_gave_away" if driver["delta"] > 0 else "winner_won"
             row[key] += abs(driver["delta"])
 
-    leader = max(per_source, key=lambda s: per_source[s]["total_on_shared"]) if shared else None
-    runner_up = None
+    # The headline is the reference against its strongest challenger, measured on that
+    # challenger's own overlap -- so the sample size behind the verdict is the challenger's,
+    # and it is printed. `_noise_floor` is evaluated at that same n rather than at the
+    # all-tracks intersection, which was how a 1-Game track used to make every lead read as
+    # decided over zero Games.
+    leader = reference
+    challengers = {
+        source: data
+        for source, data in per_source.items()
+        if source != reference and data["shared_games"] > 0
+    }
+    # Ranked by the *delta* to the reference on each challenger's own overlap, not by raw
+    # total: two challengers scored over different windows have incomparable totals, which is
+    # the same error this function was rewritten to remove.
+    runner_up = (
+        max(
+            challengers,
+            key=lambda s: challengers[s]["total_on_shared"] - challengers[s]["reference_on_shared"],
+        )
+        if challengers
+        else None
+    )
     lead = 0.0
-    if leader and len(per_source) > 1:
-        others = {s: d["total_on_shared"] for s, d in per_source.items() if s != leader}
-        runner_up = max(others, key=lambda s: others[s])
-        lead = per_source[leader]["total_on_shared"] - others[runner_up]
+    lead_games = 0
+    if runner_up:
+        lead_games = per_source[runner_up]["shared_games"]
+        lead = per_source[runner_up]["reference_on_shared"] - per_source[runner_up]["total_on_shared"]
 
     return {
         "games_with_counterfactual": [r["game_id"] for r in usable],
@@ -709,13 +763,16 @@ def pooled(reports: list[dict]) -> dict:
             r["game_id"] for r in reports if not (r.get("counterfactual") or {}).get("available")
         ],
         "shared_games": shared,
+        "reference": reference,
         "per_source": per_source,
         "wins_on_shared": dict(sorted(wins.items(), key=lambda kv: -kv[1])),
+        "contested_games": contested,
         "leader": leader,
         "runner_up": runner_up,
         "lead_over_runner_up": lead,
-        "noise_floor": _noise_floor(len(shared)),
-        "decisive": bool(shared) and abs(lead) > _noise_floor(len(shared)),
+        "lead_games": lead_games,
+        "noise_floor": _noise_floor(lead_games),
+        "decisive": bool(lead_games) and abs(lead) > _noise_floor(lead_games),
         "loss_by_bucket": dict(sorted(buckets.items(), key=lambda kv: -kv[1]["winner_gave_away"])),
         "actual_total": sum(r["counterfactual"]["actual_net"] for r in usable),
         "oracle_total": sum(r["counterfactual"]["oracle_exact_net"] for r in usable),
@@ -755,17 +812,29 @@ def pooled_digest(pool: dict) -> str:
             ]
         )
 
-    shared = pool["shared_games"]
+    reference = pool["reference"]
     lines += [
         f"Scored on {len(pool['games_with_counterfactual'])} Game(s); "
-        f"{len(shared)} of them recorded every strategy, and only those are compared.",
+        f"{len(pool['shared_games'])} of them recorded every track. Each track below is "
+        f"compared against `{reference}` over the Games **both** were recorded in, so a newly "
+        f"added track shrinks its own sample and nobody else's.",
         "",
     ]
     for source, data in sorted(pool["per_source"].items(), key=lambda kv: -kv[1]["total_on_shared"]):
+        contested = pool["contested_games"].get(source, 0)
+        if source == reference:
+            lines.append(
+                f"- `{source}` {data['total']:+,.0f} over all {data['games']} Game(s) it was "
+                f"recorded in — the reference; best on {pool['wins_on_shared'].get(source, 0)} "
+                f"of the {contested} Game(s) where it had a rival"
+            )
+            continue
+        delta = data["total_on_shared"] - data["reference_on_shared"]
         lines.append(
-            f"- `{source}` {data['total_on_shared']:+,.0f} over the {len(shared)} shared Game(s) "
-            f"({data['total']:+,.0f} over all {data['games']} it was recorded in), "
-            f"best on {pool['wins_on_shared'].get(source, 0)}"
+            f"- `{source}` {data['total_on_shared']:+,.0f} against `{reference}`'s "
+            f"{data['reference_on_shared']:+,.0f} over the {data['shared_games']} Game(s) both "
+            f"were recorded in ({delta:+,.0f}) — {data['total']:+,.0f} over all "
+            f"{data['games']}; best on {pool['wins_on_shared'].get(source, 0)} of {contested}"
         )
     lines += [
         "",
@@ -777,16 +846,16 @@ def pooled_digest(pool: dict) -> str:
         lines += [
             "",
             f"`{pool['leader']}` leads `{pool['runner_up']}` by {pool['lead_over_runner_up']:,.0f} "
-            f"over {len(shared)} Game(s), which {verdict} the {pool['noise_floor']:,.0f} noise "
-            f"floor at that sample size. "
+            f"over the {pool['lead_games']} Game(s) both were recorded in, which {verdict} the "
+            f"{pool['noise_floor']:,.0f} noise floor at that sample size. "
             + (
                 "Treat it as measured."
                 if pool["decisive"]
                 else "So the priority order is not yet justified by evidence — keep it and keep measuring."
             )
             + (
-                f" On {len(shared)} Game(s) only; re-read this line as more settle."
-                if len(shared) < 5
+                f" On {pool['lead_games']} Game(s) only; re-read this line as more settle."
+                if pool["lead_games"] < 5
                 else ""
             ),
         ]
