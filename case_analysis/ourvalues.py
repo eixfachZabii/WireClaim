@@ -29,18 +29,28 @@ START = "<!-- OURVALUES:START -->"
 END = "<!-- OURVALUES:END -->"
 
 
-def our_submissions() -> dict[tuple[int, int], tuple[float, float]]:
-    result: dict[tuple[int, int], tuple[float, float]] = {}
+def our_submissions() -> tuple[
+    dict[tuple[int, int], tuple[float, float]], dict[tuple[int, int], str]
+]:
+    """Read the freshest export on every run: (game, item) -> (a, b) and -> name."""
+    values: dict[tuple[int, int], tuple[float, float]] = {}
+    names: dict[tuple[int, int], str] = {}
     if not EXPORT_CSV.exists():
-        return result
+        return values, names
     with EXPORT_CSV.open() as f:
         for row in csv.DictReader(f):
             try:
                 key = (int(row["game_id"]), int(row["line_item_index"]))
-                result[key] = (float(row["charge_decided"]), float(row["limit_decided"]))
             except (KeyError, ValueError):
                 continue
-    return result
+            name = (row.get("name") or "").strip()
+            if name:
+                names[key] = name
+            try:
+                values[key] = (float(row["charge_decided"]), float(row["limit_decided"]))
+            except (KeyError, ValueError):
+                continue
+    return values, names
 
 
 def b_mid(interval: dict | None) -> float | None:
@@ -84,9 +94,9 @@ def main() -> None:
 
     analysis = json.loads((DATA_DIR / "analysis.json").read_text())
     games = analysis["games"][-args.games:]
-    ours = our_submissions()
+    ours, names = our_submissions()
 
-    header = ["game", "item", "a (actual)", "b (actual)", "t (derived)",
+    header = ["game", "item", "name", "a (actual)", "b (actual)", "t (derived)",
               "a/t", "b/t", "item net", "source"]
     rows: list[list[str]] = []
     round_nets: dict[int, float] = {}
@@ -105,7 +115,8 @@ def main() -> None:
             t = li["t_point"]
             net = item_net(tx, index)
             round_nets[gid] = round_nets.get(gid, 0.0) + net
-            rows.append([str(gid), str(index), fmt(a), fmt(b), fmt(t),
+            rows.append([str(gid), str(index),
+                         names.get((gid, index), "-"), fmt(a), fmt(b), fmt(t),
                          ratio(a, t), ratio(b, t), fmt(net), source])
 
     with (DATA_DIR / "ourvalues.csv").open("w", newline="") as f:
@@ -117,7 +128,7 @@ def main() -> None:
     lines.append("| " + " | ".join(header) + " |")
     lines.append("|" + "---|" * len(header))
     for row in rows:
-        lines.append("| " + " | ".join(row) + " |")
+        lines.append("| " + " | ".join(cell.replace("|", "/") for cell in row) + " |")
     lines += ["", "Net per round:", ""]
     lines.append("| game | net |")
     lines.append("|---|---|")
