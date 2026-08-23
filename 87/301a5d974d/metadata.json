@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "87301a5d974d",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CLAUDE.md",
+    "README.md",
+    "backtesting/README.md",
+    "case_analysis/analyze.py",
+    "case_analysis/dashboard.md",
+    "case_analysis/fetch_data.py",
+    "docs/ARCHITECTURE.md",
+    "docs/CONTEXT.md",
+    "docs/GAME-AND-PROOFS.md",
+    "docs/brainstorm/sebi/INDEX.md",
+    "docs/brainstorm/sebi/strats/review/hypothesis-ledger.md",
+    "docs/handoffs/ORCHESTRATOR.md",
+    "main.py",
+    "scripts/charge_buckets.py",
+    "scripts/experiments/tail_pricing_frozen.py",
+    "scripts/experiments/upward_charge_sweep.py",
+    "scripts/limit_audit.py",
+    "scripts/limit_margin.py",
+    "src/evidence/policy/coverage.py",
+    "src/pricing/engine.py",
+    "src/strategies/strategy2/blend.py",
+    "src/strategies/strategy2/channels.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/87/301a5d974d/0/metadata.json",
+      "transcript": "/87/301a5d974d/0/full.jsonl",
+      "compact_transcript": "/87/301a5d974d/0/transcript.jsonl",
+      "content_hash": "/87/301a5d974d/0/content_hash.txt",
+      "prompt": "/87/301a5d974d/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 118,
+    "cache_creation_tokens": 132024,
+    "cache_read_tokens": 6438607,
+    "output_tokens": 58885,
+    "api_call_count": 59
+  }
+}
