@@ -1,19 +1,4 @@
 game,item,name,a (actual),b (actual),t (derived),a/t,b/t,item net,source
-61,1,Painting the disturbed wall area and closing the wall (1   pcs),680.33,425.12,680.33,1.00,0.62,"3,358.26",submitted
-61,2,Vehicle costs (1   flat rate),50.34,50.34,78.85,0.64,0.64,-189.54,submitted
-61,3,Sealing material (1   pcs),15.98,15.98,24.46,0.65,0.65,31.33,submitted
-61,4,Stainless steel pipe (1   m),26.26,26.26,45.00,0.58,0.58,-251.99,submitted
-61,5,Rock wool pipe insulation (1   m),19.17,19.17,28.87,0.66,0.66,180.57,submitted
-61,6,Installer hours (1   hrs),72.71,42.75,88.30,0.82,0.48,-47.77,submitted
-61,7,Measuring device (1   pcs),64.12,0.00,2.55,25.15,0.00,64.12,submitted
-61,8,Service technician hours (9   hrs),587.66,587.66,839.00,0.70,0.70,-228.35,submitted
-61,9,Vehicle costs (1   pcs),50.34,0.00,6.14,8.20,0.00,151.02,submitted
-61,10,Construction dryer flat-rate charge (1   flat rate),370.53,370.53,585.00,0.63,0.63,"1,030.00",submitted
-61,11,Short saw blade (1   pcs),12.39,0.00,2.12,5.83,0.00,12.39,submitted
-61,12,Gunmetal (2   pcs),48.77,48.77,74.80,0.65,0.65,155.28,submitted
-61,13,Stainless steel pipe (1   m),26.26,0.00,45.00,0.58,0.00,-100.60,submitted
-61,14,"Pipe insulation shell, 100 cm long (1   m)",12.28,8.54,30.60,0.40,0.28,-49.43,submitted
-61,15,Service technician hours (9   hrs),587.66,0.00,800.00,0.73,0.00,16.05,submitted
 62,1,Renew boiler system including flue gas system and (1   flat rate),"10,349.89",0.00,"9,427.30",1.10,0.00,"-25,468.65",submitted
 62,2,Adjust supply pipework to fit the replacement boiler (1   flat rate),597.25,0.00,214.84,2.78,0.00,836.00,submitted
 62,3,Dispose of the old boiler system (1   flat rate),331.59,0.00,626.33,0.53,0.00,-349.50,submitted
@@ -79,3 +64,21 @@ game,item,name,a (actual),b (actual),t (derived),a/t,b/t,item net,source
 69,7,-,395.01,32.50,32.50,12.15,1.00,395.01,reconstructed
 69,8,-,24.66,4.00,4.00,6.17,1.00,49.32,reconstructed
 70,1,-,"1,058.30",669.21,"1,400.00",0.76,0.48,"3,361.93",reconstructed
+71,1,-,991.57,875.70,"1,185.60",0.84,0.74,"2,399.63",reconstructed
+71,2,-,-,6.00,6.00,-,1.00,0.00,reconstructed
+71,3,-,-,4.00,4.00,-,1.00,0.00,reconstructed
+71,4,-,50.02,6.99,149.88,0.33,0.05,63.55,reconstructed
+71,5,-,71.52,76.75,62.46,1.15,1.23,-124.65,reconstructed
+71,6,-,-,294.00,294.00,-,1.00,0.00,reconstructed
+71,7,-,245.55,10.98,685.10,0.36,0.02,227.37,reconstructed
+71,8,-,-,4.00,4.00,-,1.00,0.00,reconstructed
+71,9,-,572.53,380.03,617.34,0.93,0.62,"5,146.74",reconstructed
+71,10,-,"3,651.82","3,671.65","3,912.31",0.93,0.94,"30,102.60",reconstructed
+71,11,-,-,178.50,178.50,-,1.00,0.00,reconstructed
+71,12,-,-,75.27,60.29,-,1.25,-428.98,reconstructed
+71,13,-,-,64.37,4.00,-,16.09,-356.16,reconstructed
+71,14,-,-,9.00,9.00,-,1.00,0.00,reconstructed
+71,15,-,-,20.54,20.54,-,1.00,0.00,reconstructed
+71,16,-,-,0.00,0.00,-,-,0.00,reconstructed
+71,17,-,-,14.00,14.00,-,1.00,0.00,reconstructed
+71,18,-,163.14,109.68,22.76,7.17,4.82,-153.26,reconstructed
