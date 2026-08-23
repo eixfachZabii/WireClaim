@@ -265,6 +265,19 @@ realised error.
 
 ---
 
+## 8. What is deliberately not in this repository
+
+QuantCo's claim data is theirs. The Cases, the invoice PDFs and the policies are not checked in,
+and neither is anything derived that reproduces them: the raw model replies (`var/ai_log/`, whose
+`clause` field quotes `policy.txt` verbatim), the per-Game reviews, the submission-time decision
+log and the settled lessons all carry either policy wording or invoice Line Item text, so all four
+are generated locally and ignored.
+
+Everything in this document is therefore reproducible but not pre-baked: with a team API key,
+`pixi run watch` rebuilds the decision log and lessons from the settled Transactions, and
+`pixi run export` rebuilds the Line Item table. Short quotations of a single clause appear where
+the argument needs them, as citation rather than as an archive.
+
 ## 8. Reproducing any claim here
 
 ```bash
