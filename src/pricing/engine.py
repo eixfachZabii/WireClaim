@@ -476,6 +476,54 @@ BIG_ITEM_CHARGE_SCALE = 1.0
 # under 54 / 76 / 20 / 12, is a warning shot -- this constant is the first thing to revert.
 CHARGE_TRUST_MEMORY = 1.15
 
+# The model's coverage probability is not calibrated, and it is wrong in one direction in the
+# band that decides whether the Limit survives at all. Bucketed on the **stated** probability --
+# knowable at submission time, so no conditioning on the outcome -- against a proven non-zero
+# Fair Value floor:
+#
+#     stated p      items   proven covered   stated mid    gap
+#     0.00-0.05       144        15 %             2 %     +12 %
+#     0.05-0.20        28        43 %            12 %     +30 %
+#     0.20-0.40        13        62 %            30 %     +32 %
+#     0.40-0.60        26        54 %            50 %      +4 %
+#     0.60-0.80        14        93 %            70 %     +23 %
+#     0.80-0.95       172        86 %            88 %      -1 %
+#     0.95-1.01       143        89 %            98 %      -9 %
+#
+# Well calibrated at the top, badly under-confident from 0.05 to 0.80. That matters because
+# `COVERAGE_FLOOR` collapses the Limit to zero at 2/3, so an item the model calls 0.60 -- and
+# which is empirically 93 % covered -- gets a Limit of zero. **55 of the 211 Line Items below
+# the threshold turned out to be covered**, every one of them zeroed on an item worth money.
+# Note the empirical column *understates* coverage: an item nobody wrongfully rejected shows
+# `t_lo = 0` even when it was covered, so the real gap is wider than the table shows.
+#
+# `p ** COVERAGE_CALIBRATION` is the correction. It leaves a confident verdict alone
+# (`0.95 -> 0.96`) and lifts the under-confident middle (`0.30 -> 0.43`, `0.60 -> 0.70`), which
+# is the shape of the error rather than a uniform nudge. Swept through the real payoff table
+# over 75 Games:
+#
+#     gamma      all      odd     even     <=50      >50   last15   folds+
+#      0.8    +1,599     +511   +1,088     +673     +926     +907      4/4
+#      0.7    +5,057   +2,296   +2,760   +1,889   +3,168   +3,035      4/4   <- shipped
+#      0.6    +6,182   +3,704   +2,478   +1,392   +4,790   +4,729      4/4
+#      0.5    +3,283   +3,581     -298   -2,183   +5,466   +5,405      2/4
+#
+# 0.8, 0.7 and 0.6 pass all four folds with **no negative cell anywhere**; 0.5 and below break
+# on the early half. 0.7 is the middle of that plateau rather than its edge, which is how
+# `CHARGE_TRUST_MEMORY` was chosen for the same reason: the neighbour outside a plateau is a
+# cliff, and the differences within one are far inside the +-54,342 floor.
+#
+# **Be honest about the size.** +5,057 over 75 Games is 9 % of the noise floor. The replay is
+# not the argument here; the calibration table is, and the replay is the check that correcting a
+# real miscalibration does not cost money elsewhere. It does not: raising the Limit on the middle
+# band buys some Overcharges back, and the net is positive on every window measured.
+#
+# What would falsify it: the calibration table flattening. Re-run the bucketing in
+# `scripts/experiments/` after another twenty Games; if the 0.05-0.80 rows come back inside a few
+# points of their stated midpoints, the model has learned to calibrate and this correction should
+# go back to 1.0 rather than double-counting.
+COVERAGE_CALIBRATION = 0.7
+
 LIMIT_QUANTILE = 1.0 / 3.0
 
 # A guard against the model claiming precision it does not have. The quantile above is
@@ -1080,6 +1128,12 @@ def price_item(
     filled = evidence.with_defaults()
     sigma = implied_sigma(filled.price_low, filled.price_median, filled.price_high)
     covered = 0.0 if confirmed_uncovered else filled.coverage_probability
+    if covered > 0.0:
+        # See `COVERAGE_CALIBRATION`: the stated probability is well calibrated above 0.8 and
+        # badly under-confident from 0.05 to 0.80, which is exactly the band `COVERAGE_FLOOR`
+        # uses to decide whether the Limit exists at all. A proven exclusion still means zero --
+        # this only rescales a probability, it never invents one.
+        covered = covered**COVERAGE_CALIBRATION
 
     # The Charge assumes the item is covered. That is deliberate and it is free: if the
     # item turns out to be worthless the Charge simply gets rejected at no cost, whereas

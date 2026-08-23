@@ -9,6 +9,7 @@ from src.pricing.engine import (
     LIMIT_CAP,
     CHARGE_INTERCEPT,
     CHARGE_SLOPE,
+    COVERAGE_CALIBRATION,
     COVERAGE_FLOOR,
     LIMIT_CEILING,
     LIMIT_QUANTILE,
@@ -110,10 +111,20 @@ class PriceItemTests(unittest.TestCase):
         old floor of 1/3 got right only by accident -- via the -8 clamp in
         `_normal_quantile` -- and now gets right by construction. Worth +21 euros over 23
         Games, i.e. nothing; shipped for the exactness, not the money.
+
+        The threshold now applies to the **calibrated** probability, not the stated one. The
+        rule is unchanged -- collapse when the zero mass alone fills the bottom third -- but
+        `COVERAGE_CALIBRATION` corrects a measured under-confidence first, and the correction is
+        largest in exactly this band. A stated 0.60 is empirically 93 % covered (n=14), so it
+        becomes 0.70 and the Limit now survives. That is the point of the change, so the
+        assertion moves with it rather than being deleted: the boundary is asserted on both
+        sides in calibrated terms.
         """
+        collapses = (2.0 / 3.0) ** (1.0 / COVERAGE_CALIBRATION)  # ~0.564 stated
         self.assertEqual(price_item(self.confident(500.0, coverage=0.30)).limit, 0.0)
-        self.assertEqual(price_item(self.confident(500.0, coverage=0.60)).limit, 0.0)
-        self.assertEqual(price_item(self.confident(500.0, coverage=2.0 / 3.0)).limit, 0.0)
+        self.assertEqual(price_item(self.confident(500.0, coverage=collapses - 0.01)).limit, 0.0)
+        self.assertGreater(price_item(self.confident(500.0, coverage=collapses + 0.01)).limit, 0.0)
+        self.assertGreater(price_item(self.confident(500.0, coverage=0.60)).limit, 0.0)
         self.assertGreater(price_item(self.confident(500.0, coverage=0.95)).limit, 0.0)
 
     def test_the_limit_falls_as_coverage_doubt_rises(self) -> None:
@@ -383,7 +394,9 @@ class TheCeilingIsWhatBinds(unittest.TestCase):
                 self.assertGreaterEqual(price.charge, 0.0)
                 self.assertGreaterEqual(price.limit, 0.0)
                 self.assertLessEqual(price.limit, price.charge)
-                if coverage <= COVERAGE_FLOOR:
+                # Calibrated, because that is what the floor now tests. See
+                # `COVERAGE_CALIBRATION` and the note in the collapse test above.
+                if coverage**COVERAGE_CALIBRATION <= COVERAGE_FLOOR:
                     self.assertEqual(price.limit, 0.0, (sigma, coverage))
 
 
