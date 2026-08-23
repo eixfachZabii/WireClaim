@@ -9,7 +9,8 @@ whether that Game supported it, contradicted it, or said nothing — with euros.
 hypothesis to a change only when the replay over **all** settled Games agrees, or it clears
 the noise floor on a held-out split.
 
-Statuses: 🔬 open · ✅ confirmed and shipped · ❌ falsified · 💤 dormant (no evidence either way)
+Statuses: 🔬 open · ✅ confirmed and shipped · ❌ falsified · ⚠️ partly falsified, read the
+amendment first · 💤 dormant (no evidence either way)
 
 ---
 
@@ -45,6 +46,13 @@ the number we already have. Charging and accepting at `t` outright would be 811,
 
 Open question: which *evidence* closes it — a better coverage read, a second opinion on the
 expensive items only, or Price Memory reaching further than 22% of items.
+
+**Two thirds of that question are now answered (H4, Game 55).** A better coverage read is worth
+**+41,076** over 55 Games — 33 Games won to 3 lost, +21,416 with its two best Games stripped,
+positive on both held-out windows. A *second opinion* is not the way to get it: where the two
+independent Policy readings disagree, Channel C is right 19 of 54 and `coverage.py` 12 of 39,
+both worse than a coin flip. The prize is real and it needs evidence Channel C does not have —
+the discarded verbatim `clause` is the nearest untested candidate. See H4.
 
 ## H5b ❌ "41% of our Charges are unrecoverable" — mostly an artefact, and the fix loses money
 
@@ -129,7 +137,115 @@ i.e. too low, while on charged items `a/t` is 0.99, i.e. too high. **The estimat
 scattered, not biased**, which is precisely why a global multiplier cannot win and why 0.75
 lands in a trough.
 
-## H4 ❌ Coverage is **not** the lever, and my own case for it was arithmetic I got wrong
+## H4 ⚠️ Coverage — half falsified at Game 55: the lever is real, `coverage.py` is still not it
+
+**Read this section before the one below it.** H4 was decided at Game 30 and its central
+number was measured through a pricing engine we stopped running seven Games later. Re-run
+over 55 Games with the engine we actually ship, **a perfect coverage oracle is worth
++41,076**, not the +10,557 recorded below — and unlike that figure it is robust:
+
+| window | n | oracle | noise floor |
+| --- | ---: | ---: | ---: |
+| all | 55 | **+41,076** | ±46,536 |
+| G31–45, never seen by the original verdict | 15 | **+5,893** | ±24,302 |
+| G46–55, held out | 10 | **+4,607** | ±19,843 |
+
+It wins **33 Games and loses 3**, and stripping its two best Games still leaves **+21,416**.
+The "inside the noise floor" objection that closed H4 does not survive that split — and that
+floor is calibrated on unpaired Game-to-Game variation, while this is a paired counterfactual
+on identical Games against an identical Field.
+
+### What was actually wrong: `memory_backed` was never passed
+
+H4's whole argument was one sentence — *un-collapsing a Limit recovers nothing, because the
+Limit that replaces the zero is still `min(0.45 × median, 708)`, which sits below the Field's
+Charges on exactly those items.* That was true when it was written and stopped being true
+eighty-two minutes later:
+
+| when | Game | what landed |
+| --- | ---: | --- |
+| 22-08 21:26 `b21f3a7` | **30** | H4's verdict recorded; dump window ends at 30 |
+| 22-08 22:48 `be2361f` | **37** | `LIMIT_CEILING_MEMORY`: 0.45 → **0.75** on memory-backed items |
+| 22-08 23:36 `6589feb` | **40** | `LIMIT_CAP` (708) **removed** from memory-backed items |
+
+The original entry's own worked example is the proof. It reported *Game 10: Limit 0 → 708
+against 61,302 of penalty, recovers 282.* Re-run through today's engine, that item — the
+stolen watch, `t ≥ 7,225` — goes **Limit 0 → 5,228 and recovers 10,872**, because 708 was
+`LIMIT_CAP` and the cap is gone on memory-backed items. Same Case, same Field, same coverage
+verdict; a 38× difference in what the collapse costs.
+
+`coverage_bakeoff.submission()` called `price_item(evidence, confirmed_uncovered=...)` and
+never passed `memory_backed` — its `Row` did not even carry `channels` to pass. **51 % of
+graded rows are memory-backed.** On those rows the thing that made un-collapsing worthless is
+gone, so every euro in the table was computed against an engine that no longer exists. Same
+30 Games, same rows, same estimators, the flag being the only difference:
+
+| estimator | `memory_backed` omitted | as we actually price |
+| --- | ---: | ---: |
+| channel C (shipped) | +0 | +0 |
+| `coverage.py` | +50 | +14,844 |
+| oracle | +10,849 | **+30,575** |
+
+Fixed at `scripts/coverage_bakeoff.py` (`Row.channels`, `Row.memory_backed`, both row
+builders, `submission`). Two adjacent traps found with it and also fixed: `--games` defaulted
+to the literal `"1-30"` and silently held every table at 30 Games after `ALL_GAMES` grew, and
+the euro table's window labels were hardcoded strings that survived the windows moving.
+
+**The reusable mistake is not the flag, it is the shelf life.** A euro measurement is taken
+against a specific pricing function. Change a constant in that function and every recorded
+verdict downstream of it is stale, silently, with no test to fail. `submission` now prices
+through exactly the flags `strategy.build_proposal` passes, so it moves when the engine moves.
+
+### `coverage.py` still does not capture it — and this half is now better evidenced
+
+The parked parallel Policy reader was the obvious candidate for the reopened prize. It is not:
+
+| estimator | all 55 | ex-best-2 | won/lost | G31–45 | G46–55 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `coverage.py` | +13,065 | **−4,754** | 17/18 | −1,473 | −306 |
+| `max(C, coverage.py)` | +11,643 | −240 | 18/8 | +696 | +103 |
+| `mean` | +945 | −3,059 | 14/9 | −2,220 | +44 |
+| `min` | +1,422 | −6,535 | 8/15 | −2,169 | −409 |
+| `flat 0.9` | −5,433 | −17,157 | 13/27 | −5,683 | −5,839 |
+| **oracle** | **+41,076** | **+21,416** | **33/3** | **+5,893** | **+4,607** |
+
+`coverage.py`'s entire total is **one Game** (G10, +10,873); it loses more Games than it wins
+and is negative on both windows it had never seen. `max` is the only variant that holds out at
+all, and it holds out at +696 and +103 — a rounding error on a 334,440 baseline.
+
+The confusion matrix says why, and it is the cleanest result here. At the 2/3 threshold that
+actually zeroes the Limit, over 626 Line Items of which 201 are truly worthless:
+
+| cell | n | correct |
+| --- | ---: | ---: |
+| both readings flag | 136 | 130 (**96 %**) |
+| only Channel C flags | 54 | 19 (**35 %**) |
+| only `coverage.py` flags | 39 | 12 (**31 %**) |
+| neither flags | 397 | 357 (**90 %**) |
+
+Where the two readings agree they are 90–96 % right; where they disagree **both are worse than
+a coin flip**. A second independent read of the same Policy produces disagreement, not
+accuracy, so no blend of the two can reach the oracle's +41,076. `flat 0.9` at −5,433 rules out
+the opposite reading: Channel C's verdict is doing real work, it is just not doing enough.
+
+**Status.** "Coverage is not the lever" — **falsified**. "`coverage.py` is not the tool" —
+**confirmed, and on a wider sample than the original**. The +41,076 belongs to H3: it needs
+evidence Channel C does not currently have, not a second opinion on the evidence it has.
+
+**The nearest untested candidate.** Strategy 2 asks the model for `clause` — "the Policy
+sentence that decides coverage, quoted verbatim" — and `model.parse_items` discards the field
+without reading it. Graded against `is_policy_quote` over the 149 clauses in the logged raw
+replies (G48–55): **91 are verbatim in the Policy, 58 are not**, and only 19 carry exclusion
+language at all, because the model quotes the *indemnifying* clause by default. So there is a
+free per-item confidence signal on the coverage verdict, already generated, already logged,
+never parsed — and it is untested in euros. Ask for `exclusion_quote` separately before
+concluding anything about the gate's recall.
+
+### Original entry (Game 30), superseded above and kept for its method
+
+Its measurements are sound *for the engine of the time* and its reasoning on the
+false-collapse conflation is still the reusable part. Its euro verdict is not.
+
 
 **A perfect coverage oracle is worth +10,557 over 30 Games**, inside the ±34,369 noise floor at
 that sample size. Nothing about coverage can pay at today's constants. `coverage.py` stays
@@ -385,6 +501,148 @@ underpriced censored item from a catastrophically overpriced one in the same mag
 **No `src/` change proposed.** Third independent confirmation tonight (after H2's fitted
 recalibration and `upward-charge.md`'s conditional Charge multiplier) that no deterministic
 function of the `t_hat` we already have closes the gap — it belongs to the evidence layer.
+
+---
+
+## H10 ❌ "Combined position" wording flags the big items that are worth nothing — real signal, no money
+
+**Game 56 raised it.** Its policy names the device explicitly: a *combined position* is
+"a single line of an invoice that covers more than one operation, more than one kind of
+material, or more than one part of the insured property, and that does not state separately
+what falls to each" (1.3), and 7.1.10 declines the whole line if any element fails —
+"The indemnifiable elements are not extracted from it and are not estimated, because the
+position does not state what falls to each." We priced Case 56's items 2–4 to zero correctly
+on exactly this reading.
+
+**The observable**, computable at submission time from the wording alone: the Line Item name
+matches `flat rate` or `incl.|including|combined|together with`.
+
+**It separates, and significantly — but only inside the big band.** Over Games 26–53,
+bucketed on our own `t_hat` (never on the answer):
+
+| band | signature | n | worth nothing (`t_hi < 100`) | distinct Games |
+| --- | --- | ---: | ---: | ---: |
+| `t_hat >= 1k` | yes | 9 | 5 (56%) | 6 |
+| `t_hat >= 1k` | no | 16 | **0 (0%)** | 13 |
+| `t_hat 100–1k` | yes | 20 | 3 (15%) | 13 |
+| `t_hat 100–1k` | no | 149 | 36 (24%) | 22 |
+
+Fisher one-sided **p = 0.0024** on the big band, carried by 6 distinct Games, and it fires on
+**none** of the four too-low items that hold the 242,027 of penalty. So it is not a disguised
+restatement of H9's two-item overfit.
+
+**And it cannot pay, because it is a strict subset of something already measured.**
+`big_item_coverage.py`'s `+oracle` arm replaces coverage with *the truth* on every
+`t_hat >= BIG_ITEM_THRESHOLD` item — the perfect version of this rule. Re-run at Game 56:
+
+```
+637 Line Items over 56 Games; 50 with t_hat >= 1,000
+noise floor over 56 Games: +/-46,957
++oracle coverage         +23,021   (odd +9,473, even +13,548, <=40 +20,906, >40 +2,115)
+```
+
+**+23,021 against a ±46,957 floor.** Perfect coverage on big items is inside the noise floor,
+so an imperfect proxy for it — 5 right and 4 wrong out of 9 flagged — has a ceiling strictly
+below a number that already does not clear. Confirmed independently by the Issuer side: the
+total penalty on all five flagged worth-nothing items is **exactly 0**, which is R6c working
+as designed. Being high on a worthless item is free.
+
+The only live sliver is the Reviewer side — we carried a Limit of 2,141.59 on G29 i2
+(`t_hi = 57`) and `LIMIT_CAP` 708 twice in G33 on items worth ≤50 — but `+cap off (big)` is
+**−62,278**, negative on all four folds, so that door is already shut from the other side.
+
+**No `src/` change proposed.** The value of this entry is the inversion: it is the fourth
+independent confirmation that the *too-high* half of the big-item bucket is capped at noise.
+Whatever closes the gap is on the too-low, censored, magnitude side. Stop looking here.
+
+---
+
+## H11 ✅ Price Memory keys on wording; the Policy text is the key it was missing
+
+**The failure, exactly.** One entry of 239 pools observations from two different Policies:
+
+```
+'compensation for robbery damage'  ->  games [27, 41]   values [3011.08, 11130.90]
+pooled geometric mean the store returns: 5,789
+   vs 3,011 (G27) = 1.92x too HIGH      vs 11,131 (G41) = 0.52x too LOW
+```
+
+Byte-identical wording, a 3.70x spread, and the pooled anchor is wrong in **both** directions.
+At Game 41 the store held only G27's 3,011, and that is the anchor that pulled a correct read
+down to 5,524 — **81,673 of penalty on one Line Item.**
+
+**Why the wording cannot separate them, and what can.** Cases 10, 41, 44 and 53 share
+`policy.txt` byte for byte (`md5 4fa9117f`); Case 27 is a different document (`fa547b5e`).
+That hash partitions exactly along Part 11.1: the shared Policy says the affected items belong
+"partly to classes for which sub-limits are agreed ... **and partly to the general class under
+4.2.1**", and 11.2 pays a class carrying no sub-limit **in full**; Case 27's says only
+"classes of property for which sub-limits are agreed". The settlements follow with no overlap —
+3,000 (bounded, at the cap) against 7,225 / 8,626 / 9,361 / 11,131 (all unbounded).
+
+**Measured, `scripts/experiments/policy_hash_memory.py`, leave-one-out over all 57 Cases:**
+
+| arm | n | recall | sigma | mean abs log | bias |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| baseline (wording only) | 309 | 69% | 0.453 | 0.274 | +0.049 |
+| same-hash only | 196 | 44% | **0.389** | 0.234 | **+0.009** |
+| **prefer-hash** | 309 | **69%** | **0.425** | 0.252 | +0.038 |
+
+`prefer-hash` — same-Policy observations when they hit, the full store when they miss — is
+better than baseline on sigma in **all four folds at identical recall**: ODD 0.530→0.521,
+EVEN 0.361→0.300, EARLY 0.452→0.435, LATE 0.455→**0.416**. The gain is largest LATE because
+the store accrues same-hash priors as it grows, so it improves over the remaining Games.
+`same-hash` alone nearly eliminates the channel's upward bias (+0.049 → +0.009).
+
+**Scope, honestly.** This is leave-one-out sigma on the memory channel, not net euros. By the
+sigma-sensitivity table (~2,780 per 0.01) 0.028 is worth roughly 8k, inside the noise floor
+**as a total**. Its value is that it removes a catastrophic mechanism rather than moving a
+level. **15 Policy hashes are shared across 43 of 57 Cases**, and the invoice sweep found
+independently that **76% of all identified damage sits in Games whose Policy text had already
+appeared in an earlier settled Case** — including Game 44's watch, estimated at 6,840 when
+Case 10, same hash and settled 34 Games earlier, had already proven a floor of **7,225** on
+the identically-named line.
+
+**Proposed `src/` change:** prefer same-`md5(policy.txt)` observations in
+`src/evidence/memory.py`, falling back to the pooled store. One change, validated 4/4 folds,
+no recall cost. Not yet priced through `replay_payoffs.py`.
+
+---
+
+## H12 ❌ The three-regime model — Games 44–81 are **not** "mostly dark"
+
+`CLAUDE.md` rule 9 states the tournament has three regimes and that Games ~44–81 the Field is
+"mostly dark", which would make an honest harvest the only play and overcharging worthless
+against `b = 0`. **Measured, and it is inverted.**
+
+Dark = a reviewer whose total accepted **amount** is zero for the whole Game. (Counting
+*accepts* instead is wrong: a team with `b = 0` still accepts every `a = 0` Charge, so a
+count-based filter reports zero dark teams everywhere. That mistake was made and caught here.)
+
+| Game | dark of 17 | | Game | dark of 17 |
+| ---: | ---: | --- | ---: | ---: |
+| **28** | **13** | | 50 | 2 |
+| **36** | **15** | | 53 | 6 |
+| 41 | 8 | | 54 | 2 |
+| 46 | 2 | | 55 | 4 |
+| 47–50 | 2–3 | | 56, 57 | 3, 3 |
+
+The two genuinely dark Games in the record are **28 and 36 — both inside the window rule 9
+calls "awake"** — and the 44+ window the rule calls "mostly dark" runs at a median of **3 of
+17**. Reproduced independently from the cached Transactions of all 17 teams, row counts
+verified against `17 x 16 x 2 x n_line_items` for every Game.
+
+**The action does not change, but the reason does.** An acceptance curve measured over the last
+five Games shows `p(accept)` falling smoothly and significantly across `a/t` 0.5 → 1.5
+(non-overlapping CIs in every window), which is what correctly-pricing awake reviewers produce —
+not an asleep field. Above 1.5x the buckets hold 8–149 unique Charges and are inflated by
+**survivorship bias**: a Charge rejected by all 16 reviewers is unrecoverable and drops out of
+every bucket rather than counting as a zero. Correcting for the real-money share pulls
+`p(>2.5x)` from 17.2% to 13.8% (last five), 21.9% to 13.7% (G26–40), 25.8% to 19.2% (G41–50).
+
+**Verdict: do not raise the Charge.** The Field's own median `a/t` is 0.68 / 0.74 / 0.71 across
+the three windows, matching the standing ~0.73 measurement, and our shipped `0.7 * t_hat` sits
+inside the only region of this data that is trustworthy. Rule 9's *conclusion* for this stretch
+survives; its *premise* does not, and a wrong reason in a shared doc propagates.
 
 ---
 

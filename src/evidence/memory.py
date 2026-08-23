@@ -43,6 +43,7 @@ Usage::
 from __future__ import annotations
 
 import json
+import hashlib
 import math
 import re
 import statistics
@@ -51,6 +52,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping
 
 __all__ = [
+    "policy_fingerprint",
     "DEFAULT_PATH",
     "PER_UNIT_UNITS",
     "SIGMA_LOG",
@@ -88,6 +90,17 @@ PER_UNIT_UNITS = frozenset(
 #: Leave-one-out dispersion of ``log(predicted / t)`` over Cases 1-14, exact-wording
 #: hits, per-unit rule on. Use it to widen a band, not to pretend one is tight.
 SIGMA_LOG = 0.43
+
+
+def policy_fingerprint(policy_text: str | None) -> str:
+    """Stable short hash of a Case's Policy document.
+
+    Both sides of the memory hash the *text*, never the file bytes, so the builder and the
+    live lookup agree regardless of how the file was read off disk.
+    """
+    if not policy_text:
+        return ""
+    return hashlib.md5(policy_text.encode("utf-8")).hexdigest()[:8]
 
 _DASHES = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2212\u2043"), "-")
 _ALNUM = re.compile(r"[^a-z0-9]+")
@@ -258,6 +271,49 @@ class _Entry:
     samples: tuple[Mapping[str, Any], ...]
 
 
+
+def _restrict_to_policy(entry: _Entry, policy_hash: str) -> _Entry | None:
+    """The same entry, narrowed to observations from Cases sharing this Policy document.
+
+    Returns ``None`` — meaning "use the pooled entry unchanged" — whenever narrowing would
+    be groundless: no hash to match on, a pre-provenance store whose samples carry none, or
+    no same-Policy observation to fall back to.
+
+    Why this exists. The store keys on wording, and on some Line Items the wording does not
+    determine the value. ``compensation for robbery damage`` pooled Game 27's 3,011 with
+    Game 41's 11,131 — a 3.70x spread in one entry — and returned their geometric mean,
+    5,789, which is 1.92x too high for one Case and 0.52x too low for the other. The two
+    Games run different Policies: Cases 10/41/44/53 share one document byte for byte, and
+    Case 27 is another. That split is Part 11.1 — the shared Policy places the affected
+    items "partly ... in the general class under 4.2.1", which 11.2 pays **in full**, while
+    Case 27's confines them to classes carrying sub-limits, and it settled at the cap.
+
+    Measured leave-one-out over all 57 settled Cases
+    (``scripts/experiments/policy_hash_memory.py``): preferring same-Policy observations and
+    falling back to the pool takes sigma from **0.453 to 0.425 at identical 69 % recall**,
+    and is the better arm in all four folds (ODD .530->.521, EVEN .361->.300, EARLY
+    .452->.435, LATE .455->**.416**). The same-Policy-only arm reaches sigma 0.389 and
+    nearly erases the channel's upward bias (+0.049 -> +0.009) at 44 % recall, which is why
+    the shipped rule prefers rather than requires. The gain is largest LATE because the
+    store accrues same-Policy priors as it grows.
+    """
+    if not policy_hash or not entry.samples:
+        return None
+    kept = [s for s in entry.samples if s.get("policy_hash") == policy_hash]
+    if not kept or len(kept) == len(entry.samples):
+        return None
+    return _Entry(
+        key=entry.key,
+        display_name=entry.display_name,
+        values=tuple(float(s["value"]) for s in kept),
+        games=tuple(sorted({int(s["game"]) for s in kept})),
+        units=tuple(str(s.get("unit", "")) for s in kept),
+        advisory_zero_observations=entry.advisory_zero_observations,
+        advisory_zero_games=entry.advisory_zero_games,
+        samples=tuple(kept),
+    )
+
+
 class PriceMemory:
     """Loaded Price Memory. Cheap to construct, safe when the store is missing."""
 
@@ -283,6 +339,7 @@ class PriceMemory:
         name: str,
         unit: str | None = None,
         quantity: float = 1.0,
+        policy_hash: str = "",
     ) -> PriceMemoryHit | None:
         """Price band for this wording, or ``None`` on a miss.
 
@@ -298,6 +355,10 @@ class PriceMemory:
                 entry, match = self._merge(candidates), "core"
         if entry is None or not entry.values:
             return None
+
+        restricted = _restrict_to_policy(entry, policy_hash)
+        if restricted is not None:
+            entry, match = restricted, f"{match}+policy"
 
         unit = normalise_unit(infer_unit(name, unit))
         normalised = self._normalised_samples(entry, unit, quantity)
@@ -463,12 +524,17 @@ def load(path: str | Path | None = None, refresh: bool = False) -> PriceMemory:
     return _DEFAULT
 
 
-def lookup(name: str, unit: str | None = None, quantity: float = 1.0) -> PriceMemoryHit | None:
+def lookup(
+    name: str,
+    unit: str | None = None,
+    quantity: float = 1.0,
+    policy_hash: str = "",
+) -> PriceMemoryHit | None:
     """Price band for a Line Item wording from settled Games, or ``None`` on a miss.
 
     Price only. Says nothing about coverage — see the module docstring.
     """
-    return load().lookup(name, unit=unit, quantity=quantity)
+    return load().lookup(name, unit=unit, quantity=quantity, policy_hash=policy_hash)
 
 
 def build_entries(observations: Iterable[Mapping[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -507,6 +573,7 @@ def build_entries(observations: Iterable[Mapping[str, Any]]) -> dict[str, dict[s
                     "t_low": observation.get("t_low"),
                     "t_high": observation.get("t_high"),
                     "basis": observation.get("basis", "gross"),
+                    "policy_hash": observation.get("policy_hash", ""),
                 }
             )
         else:
