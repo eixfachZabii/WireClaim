@@ -293,9 +293,12 @@ def fig_balance(th, games, teams, bal):
                 color=th["accent"], clip_on=False, zorder=9,
                 arrowprops=dict(arrowstyle="-", color=th["accent"], lw=1.4,
                                 shrinkA=0, shrinkB=3))
+    weighted = sum(v * (3 if g >= ERAS[-1][0] else 1)
+                   for g, v in zip(games, per_game_nets(bal[US])))
     ax.text(n + 3.2, final - 0.10 * spread,
-            f"{rank}th of 17   {eur(final)}", ha="left", va="top",
-            fontsize=14, color=th["accent"], zorder=9)
+            f"{rank}th of 17   {eur(final)}\n{eur(weighted)} on the weighted board",
+            ha="left", va="top", fontsize=13.5, color=th["accent"],
+            zorder=9, linespacing=1.75)
 
     # "17th of 17" callout on our line
     g9 = games.index(9)
@@ -321,7 +324,7 @@ def fig_balance(th, games, teams, bal):
     fig.text(0.065, 0.955, "Last place to 5th", fontsize=34, fontweight="bold",
              color=th["fg"], va="top")
     fig.text(0.065, 0.902,
-             f"cumulative net over {n} settled Games  ·  {US} against "
+             f"unweighted cumulative net over {n} settled Games  ·  {US} against "
              f"{len(teams) - 1} rival teams  ·  {off_axis} teams run off the "
              f"bottom of the axis, to {worst_m}",
              fontsize=15, color=th["muted"], va="top")
