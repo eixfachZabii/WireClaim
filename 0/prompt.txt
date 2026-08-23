@@ -1,0 +1,6 @@
+[Image #4] I like your graphic maybe we should do a second that is after our strat went live at around 20 where we index everyone at 0 and taxe change from there and see where we would land.    │            file            │                               what                                │
+  ├────────────────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ WRITEUP.md                 │ the judged write-up at root, where Hailong said to put it         │
+  ├────────────────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ presentation/writeup.pdf   │ 4-page LaTeX paper with the derivations + balance figure (source) │
+  ├────────────────────────────┼───────────────────────────────────────────────────────────────────┤ yeah but writeup.pdf should also be the one pager
