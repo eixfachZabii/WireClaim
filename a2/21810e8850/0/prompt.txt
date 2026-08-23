@@ -5,3 +5,7 @@ The hundred games have finished. Retest all past 100 games and its resulst on ou
 '/Users/sebastianrogg/PycharmProjects/Hackathons  Projekte/WireClaim/docs/POSTMORTEM.md' I agree with it but I want to see it live. I want a fully analysis what would have happened if we had our optimized strategy from the start of 1 till 100 The cold start, not the ceiling
 
 Replaying all 100 Games with the finished Price Memory, letting a hit price the item outright, scores +855,591 against our real +224,840 — positive on all five folds, and first place. The caveat is larger than the result. And what our placement would have been assuming all other members acted same
+
+---
+
+commit and push all
