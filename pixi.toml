@@ -44,6 +44,14 @@ watch = { cmd = "python scripts/learn_watch.py", env = { PYTHONPATH = "." } }
 # runs it by hand for one Game, e.g. to reread it after editing the prompt in review_game.py.
 review-game = { cmd = "python scripts/review_game.py", env = { PYTHONPATH = "." } }
 
+# Flatten every Line Item we have priced into one table for backtesting: what we believed at
+# submission time, what we submitted, what the Game settled at, and what each Strategy would
+# have done instead. Nothing in it is estimated -- see the docstring on the Fair Value
+# brackets before computing anything conditional on the true `t`.
+export = { cmd = "python scripts/export_runs.py", env = { PYTHONPATH = "." } }
+backtest-sync = { cmd = "python -m backtesting sync", env = { PYTHONPATH = "." } }
+backtest-run = { cmd = "python -m backtesting run --spec backtesting/specs/default.json", env = { PYTHONPATH = "." } }
+
 [pypi-dependencies]
 openai = ">=3.3.1, <4"
 python-dotenv = ">=1.2.3, <2"

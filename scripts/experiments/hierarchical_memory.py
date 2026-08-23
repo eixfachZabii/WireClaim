@@ -35,9 +35,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import build_price_memory as bpm  # noqa: E402
 from level_anchors import bin_of  # noqa: E402
-from src.domain.pricing.engine import Evidence  # noqa: E402
-from src.domain.pricing.memory import PriceMemory, build_entries  # noqa: E402
-from src.services.strategies.strategy2.blend import blend  # noqa: E402
+from src.pricing.engine import Evidence  # noqa: E402
+from src.evidence.memory import PriceMemory, build_entries  # noqa: E402
+from src.strategies.strategy2.blend import blend  # noqa: E402
 
 CASES_DIR = ROOT / "[PUBLIC] EHL Cases" / "cases"
 TXN_CACHE = ROOT / "var" / "transactions"

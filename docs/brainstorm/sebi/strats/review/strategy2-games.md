@@ -207,7 +207,7 @@ the 17 Line Items of Games 21–24.** The tightest brackets are `b < 11` (G21/1)
 
 **Inferred, not measured:** those bounds are all consistent with a single flat value, and the
 only constant in the codebase that fits is `STANDARD_LIMIT = 35.0`
-(`src/services/strategies/fast_path.py:41`), which the fast path applies as a hard cap —
+(`src/strategies/fast_path.py:41`), which the fast path applies as a hard cap —
 `limit = min(max(limit, 0.0), median, STANDARD_LIMIT)` (`fast_path.py:182`) — and as the
 default for any Line Item a Strategy did not price (`fast_path.py:198`). Our `a` on the same
 items was 0.5–1.2× `t` on the covered ones, i.e. the price band was roughly right while the

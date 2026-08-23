@@ -498,8 +498,8 @@ def main() -> None:
 # anchor), never worse -- so it is a bias against finding "our estimate is the problem",
 # not for it.
 
-from src.pricing import Evidence as _Evidence  # noqa: E402
-from src.services.strategies.strategy2.blend import combine as _combine  # noqa: E402
+from src.pricing.engine import Evidence as _Evidence  # noqa: E402
+from src.strategies.strategy2.blend import combine as _combine  # noqa: E402
 
 EVIDENCE_DIR = Path("var/evidence")
 DECISIONS_DIR = Path("var/decisions")

@@ -1,4 +1,4 @@
-"""Cache `src.services.coverage.assess_coverage` for every extracted Case.
+"""Cache `src.evidence.policy.coverage.assess_coverage` for every extracted Case.
 
 Same reason as `scripts/dump_evidence.py`: the grading and the euro replay below get run
 dozens of times while a threshold is argued about, and the model call behind the verdict is
@@ -47,7 +47,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.case_loader import read_case  # noqa: E402
-from src.services.policy.coverage import CoverageVerdict, assess_coverage  # noqa: E402
+from src.evidence.policy.coverage import CoverageVerdict, assess_coverage  # noqa: E402
 
 CACHE = Path("var/coverage")
 CASES = Path("[PUBLIC] EHL Cases/cases")
@@ -103,7 +103,7 @@ class _ChunkFailureCounter(logging.Handler):
 
 async def _one_pass(case) -> tuple[tuple, float, int]:
     counter = _ChunkFailureCounter()
-    module_logger = logging.getLogger("src.services.coverage")
+    module_logger = logging.getLogger("src.evidence.policy.coverage")
     module_logger.addHandler(counter)
     try:
         started = time.monotonic()

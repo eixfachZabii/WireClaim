@@ -23,7 +23,7 @@ for extra in (str(ROOT), str(ROOT / "scripts")):
     if extra not in sys.path:
         sys.path.insert(0, extra)
 
-from src.domain.pricing.memory import (  # noqa: E402
+from src.evidence.memory import (  # noqa: E402
     SIGMA_LOG,
     PriceMemory,
     build_entries,
@@ -191,6 +191,77 @@ class TestQuantityBasis(unittest.TestCase):
         hit = memory.lookup("Drying fan", unit="pcs", quantity=3)
         self.assertEqual(hit.basis, "gross")
         self.assertEqual(hit.median, 75.0)
+
+    def test_a_per_piece_total_is_never_multiplied_by_a_metre_quantity(self):
+        """The Game 45/48 regression: one wording, two bases, pooled and rescaled.
+
+        "Replace skirting boards" carried a per-*piece* gross total of 134.60 beside
+        genuine per-*metre* rates. Asked for 15 m, the shipped lookup answered 1,772.55 --
+        118.77 per piece times fifteen metres -- for a Line Item that settled at 338.
+        """
+        memory = memory_from(
+            [
+                observation("Replace skirting boards", 12, 134.6, unit="pcs", quantity=1.0),
+                observation(
+                    "Replace skirting boards", 45, 19.05,
+                    unit="m", quantity=15.0, basis="per_unit",
+                ),
+                observation(
+                    "Replace skirting boards", 48, 21.88,
+                    unit="m", quantity=15.0, basis="per_unit",
+                ),
+            ]
+        )
+        hit = memory.lookup("Replace skirting boards", unit="m", quantity=15)
+        self.assertEqual(hit.basis, "per_unit")
+        self.assertAlmostEqual(hit.median, 306.98, places=2)
+
+    def test_linear_metres_join_the_per_metre_rates_instead_of_the_gross_pool(self):
+        """`linear m` was outside PER_UNIT_UNITS, so its total was stored as gross."""
+        memory = memory_from(
+            [
+                observation("Replace skirting boards", 18, 393.49, unit="linear m", quantity=25.0),
+                observation(
+                    "Replace skirting boards", 45, 19.05,
+                    unit="m", quantity=15.0, basis="per_unit",
+                ),
+            ]
+        )
+        hit = memory.lookup("Replace skirting boards", unit="m", quantity=15)
+        # 393.49 over 25 linear metres is 15.7396/m; with 19.05/m the median is 17.3948.
+        self.assertAlmostEqual(hit.median, 260.92, places=2)
+
+    def test_a_per_unit_query_with_no_matching_unit_falls_back_to_the_gross_pool(self):
+        """134.60 per piece is not a reading of a per-hour rate. Do not convert it."""
+        memory = memory_from(
+            [
+                observation("Make good the wall", 12, 134.6, unit="pcs", quantity=1.0),
+                observation("Make good the wall", 13, 150.0, unit="pcs", quantity=1.0),
+            ]
+        )
+        hit = memory.lookup("Make good the wall", unit="hrs", quantity=8)
+        self.assertEqual(hit.basis, "gross")
+        self.assertAlmostEqual(hit.median, 142.3, places=2)
+
+    def test_an_entry_without_per_sample_provenance_still_returns_a_hit(self):
+        """A store written before samples carried a basis must not lose its hits."""
+        memory = PriceMemory.from_dict(
+            {
+                "entries": {
+                    "helper hours": {
+                        "display_name": "Helper hours",
+                        "values": [40.0, 44.0],
+                        "games": [3, 4],
+                        "units": ["hrs", "hrs"],
+                        "advisory_zero_observations": 0,
+                        "advisory_zero_games": [],
+                    }
+                }
+            }
+        )
+        hit = memory.lookup("Helper hours", unit="hrs", quantity=8)
+        self.assertEqual(hit.basis, "per_unit")
+        self.assertAlmostEqual(hit.median, 336.0)
 
     def test_zero_or_missing_quantity_does_not_zero_the_price(self):
         memory = memory_from([observation("Helper hours", 11, 40.0, unit="hrs")])

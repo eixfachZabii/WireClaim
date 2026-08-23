@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from src.data.models import CaseData, LineItem
-from src.services.strategies.fast_path import (
+from src.strategies.fast_path import (
     LLM_TIMEOUT_SECONDS,
     STANDARD_LIMIT,
     _proposal_from_evidence,

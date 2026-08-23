@@ -4,7 +4,7 @@ import threading
 import unittest
 
 from src.data.models import ItemPrice
-from src.services.submission_coordinator import SubmissionCoordinator, format_submission_update
+from src.runtime.submission_coordinator import SubmissionCoordinator, format_submission_update
 
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 
@@ -115,7 +115,7 @@ class SubmissionCoordinatorTests(unittest.IsolatedAsyncioTestCase):
         )
         first = (ItemPrice(1, 100.0, 75.0),)
         second = (ItemPrice(1, 120.0, 0.0),)
-        with self.assertLogs("src.services.submission_coordinator", level="INFO") as logs:
+        with self.assertLogs("src.runtime.submission_coordinator", level="INFO") as logs:
             await coordinator.start()
             coordinator.publish(first, reason="standard")
             await asyncio.wait_for(coordinator.wait_until_idle(), timeout=0.5)

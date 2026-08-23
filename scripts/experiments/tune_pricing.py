@@ -1,8 +1,8 @@
-"""Measure the pricing constants in `src.domain.pricing.engine` against the real payoff table.
+"""Measure the pricing constants in `src.pricing.engine` against the real payoff table.
 
 Why this exists
 ---------------
-`src/domain/pricing/engine.py` carries three fitted numbers -- the Charge factor line, the Limit
+`src/pricing/engine.py` carries three fitted numbers -- the Charge factor line, the Limit
 quantile with its ceiling, and the coverage floor -- and its docstring says they came out
 of "a crude simulation". `scripts/replay_payoffs.py` reproduces all fourteen published
 nets to the cent, so the honest thing to do is to score the constants in euros against the
@@ -47,7 +47,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from dump_evidence import load as load_evidence  # noqa: E402
 from replay_payoffs import GameSnapshot, replay, snapshot  # noqa: E402
 
-from src.domain.pricing.engine import (  # noqa: E402
+from src.pricing.engine import (  # noqa: E402
     CHARGE_BOUNDS,
     CHARGE_INTERCEPT,
     CHARGE_SLOPE,

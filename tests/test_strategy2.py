@@ -5,26 +5,34 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.data.models import CaseData, LineItem
-from src.domain.pricing.engine import Evidence
-from src.services.strategies.strategy2.blend import blend as _blend, combine as _combine
-from src.services.strategies.strategy2.constants import (
+from src.pricing.engine import Evidence, price_item
+from src.strategies.strategy2.blend import blend as _blend, combine as _combine
+from src.strategies.strategy2.channels import aggregate_class_discount
+from src.strategies.strategy2.constants import (
     LLM_TIMEOUT_SECONDS,
+    SETTLED_MEDIAN,
     STRATEGY_NAME,
     SUBMISSION_RESERVE_SECONDS,
 )
-from src.services.strategies.strategy2.model import parse_items
-from src.services.strategies.strategy2.constants import SETTLED_MEDIAN
-from src.services.strategies.strategy2.prompts import (
+from src.strategies.strategy2.model import parse_items
+from src.strategies.strategy2.prompts import (
     ENSEMBLE_PROMPTS,
     PROMPT,
     PROMPT_UNANCHORED,
 )
-from src.services.strategies.strategy2.strategy import build_proposal, propose
+from src.strategies.strategy2.strategy import build_proposal, propose
 
 
 def case_with(*line_items: LineItem) -> CaseData:
     return CaseData(
-        game_id=42,
+        # 9042, not 42. A real Game id here means `build_proposal` -> `decisions.record()`
+        # writes into `var/decisions/game_042.json` on every `pixi run test`, quietly
+        # overwriting a settled Game's record with two fixture items. That is how Game 42's
+        # log came to say `no-decision-log` for sixteen of the seventeen Line Items it had
+        # actually priced, and it sent an hour of diagnosis after a pipeline failure that
+        # never happened. `var/decisions/` is tracked now, so it also dirtied the tree on
+        # every test run. Ids above 100 cannot collide with a Game.
+        game_id=9042,
         case_dir=Path(tempfile.gettempdir()),
         policy_text="PART 3 - EXCLUSIONS\n3.1 Wear and tear is not covered under this policy at all.\n",
         description_text="Water damage.",
@@ -243,10 +251,15 @@ class UncorrectedLevelTests(unittest.TestCase):
             self.assertAlmostEqual(blended[1].price_median, median, places=6)
 
     def test_the_charge_scales_linearly_with_the_stated_median(self) -> None:
-        """A level correction of any shape would break proportionality somewhere."""
+        """A level correction of any shape would break proportionality somewhere.
+
+        Still true, and still the point -- below `BIG_ITEM_THRESHOLD`. All three medians here
+        stay under it deliberately, so this guards the range where the estimator is calibrated
+        enough for a level correction to be the mistake it has been six times.
+        """
         case = case_with(LineItem(1, "Leak detection call-out"))
         charges = []
-        for median in (20.0, 200.0, 2000.0):
+        for median in (9.0, 90.0, 900.0):
             proposal = build_proposal(
                 case, {1: Evidence(1, 0.95, median * 0.8, median, median * 1.25)}, {}
             )
@@ -317,7 +330,7 @@ class ProposeTests(unittest.TestCase):
         case = case_with(LineItem(1, "Vehicle costs", quantity_missing=True))
 
         with patch(
-            "src.services.strategies.strategy2.strategy.request_evidence",
+            "src.strategies.strategy2.strategy.request_evidence",
             side_effect=RuntimeError("model down"),
         ):
             proposal = asyncio.run(propose(case))
@@ -338,8 +351,8 @@ class ProposeTests(unittest.TestCase):
             return {1: Evidence(1, 0.95, 80.0, 100.0, 125.0)}
 
         with patch(
-            "src.services.strategies.strategy2.strategy.request_evidence", side_effect=flaky
-        ), patch("src.domain.pricing.memory.lookup", return_value=None):
+            "src.strategies.strategy2.strategy.request_evidence", side_effect=flaky
+        ), patch("src.evidence.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertEqual(len(calls), 2)
@@ -357,9 +370,9 @@ class ProposeTests(unittest.TestCase):
         case = case_with(LineItem(1, "Something never seen before"), LineItem(2, "Nor this"))
 
         with patch(
-            "src.services.strategies.strategy2.strategy.request_evidence",
+            "src.strategies.strategy2.strategy.request_evidence",
             side_effect=RuntimeError("model down"),
-        ), patch("src.domain.pricing.memory.lookup", return_value=None):
+        ), patch("src.evidence.memory.lookup", return_value=None):
             proposal = asyncio.run(propose(case))
 
         self.assertIsNotNone(proposal)
@@ -372,3 +385,58 @@ class ProposeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AggregateClassSubLimit(unittest.TestCase):
+    """Channel D: two valuables in one Case share one pot, so only the dearest keeps cover.
+
+    Game 44 is the whole case for it -- watch `t >= 9,361` paid, ring `t < 884` and necklace
+    `t < 663` both zero, and the model gave all three an identical coverage of 0.925.
+    """
+
+    def _case(self, *names: str) -> CaseData:
+        return CaseData(
+            game_id=99,
+            case_dir=None,
+            policy_text="",
+            description_text="",
+            line_items=tuple(LineItem(i, n) for i, n in enumerate(names, start=1)),
+            image_paths=(),
+        )
+
+    def _evidence(self, *medians: float) -> dict[int, Evidence]:
+        return {
+            i: Evidence(index=i, coverage_probability=0.925, price_low=m * 0.5,
+                        price_median=m, price_high=m * 2.0)
+            for i, m in enumerate(medians, start=1)
+        }
+
+    def test_only_the_dearest_member_keeps_its_coverage(self) -> None:
+        case = self._case("Compensation for stolen watch", "Compensation for stolen ring")
+        out = aggregate_class_discount(case, self._evidence(6800.0, 2300.0))
+
+        self.assertEqual(out[1].coverage_probability, 0.925)
+        self.assertLess(out[2].coverage_probability, 1 / 3)
+
+    def test_it_moves_the_limit_and_never_the_charge(self) -> None:
+        """An uncovered item is worth `t = 0`, so a rejected Charge on it costs nothing
+        (R6c). Only the Limit should collapse."""
+        case = self._case("Compensation for stolen watch", "Compensation for stolen ring")
+        evidence = self._evidence(6800.0, 2300.0)
+        out = aggregate_class_discount(case, evidence)
+
+        self.assertEqual(price_item(out[2]).charge, price_item(evidence[2]).charge)
+        self.assertEqual(price_item(out[2]).limit, 0.0)
+
+    def test_a_single_valuables_item_is_untouched(self) -> None:
+        """The safety case. 43 of 44 settled Cases have at most one valuables item."""
+        case = self._case("Compensation for stolen watch", "Replace kitchen worktop")
+        evidence = self._evidence(6800.0, 2300.0)
+
+        self.assertEqual(aggregate_class_discount(case, evidence), evidence)
+
+    def test_a_case_with_no_valuables_at_all_is_untouched(self) -> None:
+        case = self._case("Skilled worker hours", "Replace kitchen worktop")
+        evidence = self._evidence(400.0, 2300.0)
+
+        self.assertEqual(aggregate_class_discount(case, evidence), evidence)

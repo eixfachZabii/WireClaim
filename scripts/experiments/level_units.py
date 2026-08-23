@@ -31,7 +31,7 @@ The two sides of one correction pull in opposite directions: the Charge wants th
 exactly where it is (-57,489 if it moves), the Limit mildly wants it shrunk (+2,776, inside
 the noise). An evidence-layer correction cannot separate them, because both numbers are
 derived from the same median. So any future level work belongs on the Limit side of
-`src/domain/pricing/engine.py` -- and it is worth about 2,800 euros, not the six figures the by-true-`t`
+`src/pricing/engine.py` -- and it is worth about 2,800 euros, not the six figures the by-true-`t`
 table seems to promise.
 
 `--decompose` answers a separate question that any evidence-layer correction has to face:
@@ -54,7 +54,7 @@ from level_fit import load, recalibrate  # noqa: E402
 from replay_payoffs import replay  # noqa: E402
 from level_compat import build_proposal, parse_games, unit_of as raw_unit_of  # noqa: E402
 
-from src.domain.pricing.engine import Evidence, price_item  # noqa: E402
+from src.pricing.engine import Evidence, price_item  # noqa: E402
 
 UNITS = ("pcs", "hrs", "m2", "m", "flat rate", "other")
 

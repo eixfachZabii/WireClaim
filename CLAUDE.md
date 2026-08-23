@@ -5,6 +5,7 @@ Agent knowledge file. Rules, conventions, and the mistakes we already paid for.
 - [`README.md`](README.md) — the game, the verified schedule, and the fifteen derived results (R1–R10). **The source of truth for anything about how the tournament works.**
 - [`CONTEXT.md`](docs/CONTEXT.md) — the ubiquitous language. Use these words; they were chosen to stop the drift that was already happening on day one.
 - [`docs/brainstorm/sebi/INDEX.md`](docs/brainstorm/sebi/INDEX.md) — what was pitched, what was picked, who owns what.
+- [`docs/handoffs/ORCHESTRATOR.md`](docs/handoffs/ORCHESTRATOR.md) — **start here if you are picking this up mid-tournament.** Where we stand, what first place costs in euros per Game, the seven fixes already measured and closed, and the subagent playbook. Invocable as `/handoff`.
 
 ---
 
@@ -30,6 +31,7 @@ Every single time someone reasoned about this game from intuition, they got it w
 | "Put `b` in the upper half of the confidence interval as a buffer." | Backwards. Generosity is ~8× more expensive than strictness (`4t` vs `0.5t`). The buffer goes **down** (R4, R6).                    | Would have handed the Cap to every exploiter.      |
 | "Estimate how many opponents accept an overcharge, then exploit."   | A **mis-measured** `p(a)` is worse than assuming `p = 0` (R5c).                                                                     | **60 % of net** in simulation; dropped 1st → 11th. |
 | "Above the Cap the acceptance bar rises, so never accept."          | The bar _falls_ (`q > c/(c+0.5a)`). Right conclusion, wrong reason — reject because `c ≥ 4t` makes it **provably** fraudulent (R4). | A wrong reason in a shared doc propagates.         |
+| "`t̂` is systematically too low on expensive items, so raise it."                  | A **regression artefact**, and it cost eight experiments. Bucketing `t̂/t` by the *true* `t` shows 0.92 in the 400–1,000 band and 1.54 under 50 — items land in a high-`t` bucket partly *because* we underestimated them. Bucket by **`t̂`**, the only split knowable at submission time, and the sign flips: **1.12 at 400–1,000 and 1.11 above 1,000 — we are too *high* where we think an item is expensive.** The "below the proven floor on 73 % of censored items" figure is the same trap: "censored" means nobody rightfully rejected, which is a selection on the outcome. Never condition on the answer. The real failures are a handful of individually-diagnosable misses (Game 41's watch: Price Memory matched "compensation for robbery damage" to an unrelated €3,011 claim and pulled a correct 18,000 read down to 5,524), not a level to correct. |
 | "The Limit should sit **above** `t̂`, so we never pay the lawyer."                | Right about the target, wrong about the action, and it flips on one substitution. Sweeping `b = m · t` against the **true** `t` gives a V with its minimum at exactly `m = 1.00` — `b = t`, costing more in both directions. Sweeping `b = m · t̂` against **our estimate** turns that V into a monotone increase whose cheapest point is as low as you can push it. **The flip between those two curves is the cost of our estimation error.** Also: rejecting a *fraudulent* claim is free — the `1.5×` only ever fires on a claim that was fair — so a high `b` buys no protection from the lawyer at all, it only converts zeros into payments. Measured: the field charges a median of **0.73 × `t`**, and 26 % of its Charges on real-money items are still above `t`. |
 | "`a = t = b` is optimal."                                           | Only under certainty. But closer than the "therefore `a > b`" correction that replaced it — both sit low, near each other (R6).     | An over-confident correction is still an error.    |
 
@@ -45,9 +47,14 @@ Every single time someone reasoned about this game from intuition, they got it w
 
 ```bash
 set -a && . .env && set +a          # once per terminal
-pixi run start                      # terminal 1: plays every Game on the schedule
+pixi run play                       # terminal 1: plays every Game on the schedule, restarts itself if it dies
 pixi run watch                      # terminal 2: analyses each Game as it settles
 ```
+
+**Use `play`, not `start`, for terminal 1.** `watch_games()` has no exception boundary, so an
+uncaught error there ends the whole tournament rather than costing one Game; `scripts/supervise.sh`
+(what `play` runs) turns that back into "restart and lose at most one Game." `pixi run start` is
+still there for a foreground debug session, never for an unattended stretch.
 
 **`watch` already does `cases` and `learn`** — every poll it runs `extract_cases`, then
 `learn_from_game` for the newly settled Games, then the Claude review of the digest
@@ -190,11 +197,11 @@ What runs, in the order a Game touches it:
 | layer | where | what it decides |
 | --- | --- | --- |
 | schedule + Case load | `main.py`, `src/data/` | unzip, parse the invoice, slice the Policy |
-| evidence | `strategy2/{prompts,model,channels}.py`, `src/services/policy/` | coverage probability, a price band, the clause quoted verbatim |
-| blend | `strategy2/blend.py` | two model draws + the Price Memory anchor, inverse-variance in log space |
-| pricing | `src/domain/pricing/engine.py` | the Charge and the Limit — the only place a scored number is decided |
-| submission | `src/api/`, `src/services/submission*` | four sequenced posts per Game, merged per Line Item |
-| learning | `scripts/learn_*.py`, `scripts/replay_payoffs.py`, `src/observability/` | decision log × recovered Fair Value → the stage that was wrong |
+| evidence | `src/strategies/strategy2/{prompts,model,channels}.py`, `src/evidence/policy/` | coverage probability, a price band, the clause quoted verbatim |
+| blend | `src/strategies/strategy2/blend.py` | two model draws + the Price Memory anchor, inverse-variance in log space |
+| pricing | `src/pricing/engine.py` | the Charge and the Limit — the only place a scored number is decided |
+| submission | `src/api/`, `src/runtime/submission_coordinator.py` | four sequenced posts per Game, merged per Line Item |
+| learning | `scripts/learn_*.py`, `scripts/replay_payoffs.py`, `src/runtime/` | decision log × recovered Fair Value → the stage that was wrong |
 
 Three strategies price every Case and a router picks one; `strategy2` wins most Games.
 `scripts/replay_payoffs.py` reproduces every published net to the cent, so any proposed
