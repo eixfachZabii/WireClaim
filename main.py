@@ -334,6 +334,10 @@ async def _run_with_executor_cleanup(operation: Awaitable[None]) -> None:
         await asyncio.get_running_loop().shutdown_default_executor()
 
 
+def _run_operation(operation: Awaitable[None]) -> None:
+    asyncio.run(_run_with_executor_cleanup(operation))
+
+
 async def watch_games() -> None:
     games = sorted(
         await asyncio.to_thread(list_games),
@@ -374,7 +378,7 @@ def main() -> None:
             operation = retry_expired_games()
         else:
             operation = watch_games()
-        asyncio.run(_run_with_executor_cleanup(operation))
+        _run_operation(operation)
     except KeyboardInterrupt:
         logger.info("Stopping WireClaim runner.")
 

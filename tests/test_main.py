@@ -235,7 +235,7 @@ class MainTests(unittest.TestCase):
         with (
             patch.object(main.argparse.ArgumentParser, "parse_args", return_value=args),
             patch.object(main, "watch_games", new=Mock(return_value=object())),
-            patch.object(main.asyncio, "run", side_effect=KeyboardInterrupt),
+            patch.object(main, "_run_operation", side_effect=KeyboardInterrupt),
             self.assertLogs("main", level="INFO") as logs,
         ):
             main.main()
