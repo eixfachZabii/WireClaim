@@ -1,0 +1,89 @@
+{
+  "game_id": 53,
+  "had_decision_log": true,
+  "log_schema": 2,
+  "mechanisms": {
+    "income": 73341.44,
+    "paid_on_accepts": 0.0,
+    "penalties": 77793.15000000001,
+    "net": -4451.710000000006,
+    "saved_by_rejecting": 0.0,
+    "lawyer_waste": 25931.05,
+    "fraud_let_through": 0.0,
+    "strictness_net": -25931.05
+  },
+  "items": [
+    {
+      "index": 1,
+      "name": "Compensation for items taken in robbery (watch and (1 pcs)",
+      "t_lo": 8626.5,
+      "t_hi": null,
+      "our_charge": 4583.84,
+      "our_limit_bracket": [
+        0.0,
+        176.75
+      ],
+      "estimate_median": 5916.079783099618,
+      "coverage_probability": 0.42,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 77793.15000000001,
+      "stage": "coverage-too-low",
+      "why": "Coverage came back 0.42 so the Limit collapsed, but the item is worth at least 8626."
+    },
+    {
+      "index": 2,
+      "name": "Translation and handling of police report for the claim1 flat rate",
+      "t_lo": 0.0,
+      "t_hi": null,
+      "our_charge": null,
+      "our_limit_bracket": [
+        0.0,
+        Infinity
+      ],
+      "estimate_median": 259.22962793631444,
+      "coverage_probability": 0.005,
+      "channels": [
+        "C:model"
+      ],
+      "rule": "uncovered-free-option",
+      "penalties_here": 0.0,
+      "stage": "ok",
+      "why": "Nothing obviously wrong with this item."
+    }
+  ],
+  "counterfactual": {
+    "available": true,
+    "note": "",
+    "winner": "strategy2",
+    "strategies": {
+      "strategy2": {
+        "net": -4451.710000000021,
+        "income": 73341.43999999997,
+        "cost": 77793.15,
+        "items_priced": 2,
+        "items_missing": []
+      }
+    },
+    "drivers": [],
+    "reconstructs": true,
+    "actual_net": -4451.710000000006,
+    "replayed_actual_net": -4451.710000000021,
+    "oracle_net": 86161.9,
+    "oracle_exact_net": 86161.9,
+    "line_items": 2,
+    "best_alternative": null,
+    "best_alternative_delta": 0.0
+  },
+  "estimate": {
+    "n_scorable": 0,
+    "median_log_error": null,
+    "rmsle": null
+  },
+  "cost_by_stage": {
+    "coverage-too-low": 77793.15000000001,
+    "ok": 0.0
+  }
+}

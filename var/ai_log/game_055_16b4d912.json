@@ -1,0 +1,10 @@
+{
+ "game_id": 55,
+ "draw": "16b4d912",
+ "model": "gpt-5.6-terra",
+ "service_tier": "priority",
+ "elapsed_seconds": 5.66,
+ "recorded_at": 1787444559.58305,
+ "reply_characters": 348,
+ "reply": "{\"items\":[{\"line_item\":1,\"coverage_probability\":0.93,\"price_low\":300.0,\"price_median\":480.0,\"price_high\":750.0,\"clause\":\"for damaged portable insured equipment - the necessary cost of repairing the unit, or, where the repair is uneconomic, the replacement amount, determined under 7.1.10, subject to the sum insured and any sub-limit under 4.4.\"}]}"
+}

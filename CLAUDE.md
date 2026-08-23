@@ -5,6 +5,7 @@ Agent knowledge file. Rules, conventions, and the mistakes we already paid for.
 - [`README.md`](README.md) — the game, the verified schedule, and the fifteen derived results (R1–R10). **The source of truth for anything about how the tournament works.**
 - [`CONTEXT.md`](docs/CONTEXT.md) — the ubiquitous language. Use these words; they were chosen to stop the drift that was already happening on day one.
 - [`docs/brainstorm/sebi/INDEX.md`](docs/brainstorm/sebi/INDEX.md) — what was pitched, what was picked, who owns what.
+- [`docs/handoffs/ORCHESTRATOR.md`](docs/handoffs/ORCHESTRATOR.md) — **start here if you are picking this up mid-tournament.** Where we stand, what first place costs in euros per Game, the seven fixes already measured and closed, and the subagent playbook. Invocable as `/handoff`.
 
 ---
 

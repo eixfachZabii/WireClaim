@@ -1,0 +1,38 @@
+{
+  "game_id": 55,
+  "items": [
+    {
+      "channels": [
+        "C:model"
+      ],
+      "charge": 379.98,
+      "coverage_probability": 0.9550000000000001,
+      "index": 1,
+      "limit": 233.31,
+      "name": "Laptop accidental damage repair (cracked screen and (1 pcs)",
+      "price_high": 795.46175171953,
+      "price_low": 337.9169387075392,
+      "price_median": 518.459255872629,
+      "quantity": 1.0,
+      "quantity_missing": false,
+      "rule": "priced",
+      "sigma": 0.2602196486329727
+    }
+  ],
+  "memory_items": 0,
+  "model_draws": 2,
+  "model_items": 1,
+  "proposals": {
+    "strategy2": {
+      "1": [
+        379.98,
+        233.31
+      ]
+    }
+  },
+  "proposals_recorded_at": 1787444559.75957,
+  "recorded_at": 1787444559.7586381,
+  "schema": 2,
+  "strategy": "strategy2",
+  "winner": "strategy2"
+}

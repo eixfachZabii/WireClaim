@@ -87,9 +87,18 @@ INF = float("inf")
 
 #: Every Game with a settled snapshot. Games that do not reconstruct are dropped loudly by
 #: `dataset()` rather than scored against.
-ALL_GAMES = tuple(range(1, 31))
-RECENT = tuple(range(21, 28))
-HELD_OUT = (28, 29, 30)
+#:
+#: Extended from 30 to 55 when the `memory_backed` omission was found (see `submission`).
+#: The original verdict was a 30-Game table and the per-Game column showed why that was not
+#: enough: `coverage.py`'s whole +14,844 over that window is **two Games** -- G10 at +10,873
+#: and G7 at +6,946 -- and it is negative on both sub-windows it was held out on. A lever
+#: worth two Games out of thirty is a lever worth nothing; the point of the wider range is
+#: to find out which it is.
+ALL_GAMES = tuple(range(1, 56))
+#: The window the original verdict never saw, because the dump stopped at 30.
+RECENT = tuple(range(31, 46))
+#: Never used to argue anything. Keep it that way.
+HELD_OUT = tuple(range(46, 56))
 
 #: `26,622 * sqrt(n / 18)` -- the measured spread of the replay over 18 Games. Any euro
 #: delta smaller than this is not a result.
@@ -115,6 +124,15 @@ class Row:
     t_hi: float
     #: `src/evidence/policy/coverage.py`'s reading, or None when the Case was not dumped
     p_coverage_module: float | None = None
+    #: Which channels spoke, as `strategy.py` recorded them. Load-bearing: "B:memory"
+    #: selects `LIMIT_CEILING_MEMORY` and lifts `LIMIT_CAP` in `price_item`, and half of
+    #: these rows are memory-backed. See `submission` for what omitting it cost.
+    channels: tuple[str, ...] = ()
+
+    @property
+    def memory_backed(self) -> bool:
+        """Exactly `strategy.build_proposal`'s condition, so the replay prices as we price."""
+        return "B:memory" in self.channels and not self.uncovered
 
     @property
     def worthless(self) -> bool:
@@ -162,6 +180,7 @@ def _logged_rows(game_id: int, brackets: dict[int, tuple[float, float]]) -> list
                 name=item.get("name") or "",
                 t_lo=brackets[index][0],
                 t_hi=brackets[index][1],
+                channels=tuple(item.get("channels") or ()),
             )
         )
     return rows
@@ -179,6 +198,13 @@ def _recon_rows(game_id: int, brackets: dict[int, tuple[float, float]]) -> list[
         merged = combine(model.get(index), memory.get(index))
         if merged is None:
             continue  # uninformed constants: not priced by the engine, so not ours to move
+        channels = []
+        if uncovered:
+            channels.append("A:no-quantity")
+        if memory.get(index) is not None and not uncovered:
+            channels.append("B:memory")
+        if model.get(index) is not None:
+            channels.append("C:model")
         rows.append(
             Row(
                 game=game_id,
@@ -189,6 +215,7 @@ def _recon_rows(game_id: int, brackets: dict[int, tuple[float, float]]) -> list[
                 name=name,
                 t_lo=bracket[0],
                 t_hi=bracket[1],
+                channels=tuple(channels),
             )
         )
     return rows
@@ -354,12 +381,37 @@ def grade(rows: list[Row]) -> None:
 
 
 def submission(rows: list[Row], estimator) -> dict[int, dict[int, tuple[float, float]]]:
-    """`{game: {index: (charge, limit)}}` -- the shipped pricing with one number swapped."""
+    """`{game: {index: (charge, limit)}}` -- the shipped pricing with one number swapped.
+
+    **`memory_backed` is load-bearing and this function used to omit it.** That omission is
+    what produced this script's original verdict, and the verdict did not survive it.
+
+    The argument for "coverage is not the lever" was: un-collapsing a Limit buys nothing,
+    because `LIMIT_CEILING * median` and `LIMIT_CAP` still sit below what the Field Charges.
+    That was true when it was measured. Eighty-two minutes later `be2361f` raised the
+    ceiling to `LIMIT_CEILING_MEMORY` (0.45 -> 0.75) and `6589feb` took `LIMIT_CAP` off
+    memory-backed items entirely -- so on the 51% of rows Price Memory reaches, the thing
+    that made un-collapsing worthless is gone, and a coverage verdict is worth real money
+    again. Pricing those rows without the flag replays a pricing engine we stopped running:
+
+        estimator        memory omitted      as we price
+        channel C (shipped)         +0               +0
+        coverage.py                +50          +14,844
+        oracle                 +10,849          +30,575
+
+    Every row here is priced through the same `price_item` the runner calls, with the same
+    flags `strategy.build_proposal` would pass, so the table isolates the coverage
+    probability and nothing else.
+    """
     out: dict[int, dict[int, tuple[float, float]]] = {}
     for row in rows:
         p = float(estimator(row))
         evidence = replace(row.evidence, coverage_probability=p)
-        price = price_item(evidence, confirmed_uncovered=row.uncovered)
+        price = price_item(
+            evidence,
+            confirmed_uncovered=row.uncovered,
+            memory_backed=row.memory_backed,
+        )
         out.setdefault(row.game, {})[row.index] = (price.charge, price.limit)
     return out
 
@@ -384,10 +436,18 @@ def euros(rows: list[Row], estimator, games) -> dict[int, float]:
 def euro_table(rows: list[Row]) -> None:
     rows = graded(rows)
     games = sorted({row.game for row in rows})
+    def _label(prefix: str, window: tuple[int, ...]) -> str:
+        # Derived, never hardcoded: these windows moved once already when the range grew
+        # from 30 to 55 Games, and a stale label on a live number is how a reader ends up
+        # arguing about the wrong sample.
+        return f"{prefix} G{window[0]}-{window[-1]}" if window else f"{prefix} (empty)"
+
+    recent = tuple(g for g in games if g in RECENT)
+    held_out = tuple(g for g in games if g in HELD_OUT)
     windows = [
         (f"all {len(games)}", tuple(games)),
-        ("G21-27", tuple(g for g in games if g in RECENT)),
-        ("held out G28-30", tuple(g for g in games if g in HELD_OUT)),
+        (_label("", recent).strip(), recent),
+        (_label("held out", held_out), held_out),
     ]
 
     per_game = {name: euros(rows, est, games) for name, est in ESTIMATORS.items()}
@@ -422,6 +482,37 @@ def euro_table(rows: list[Row]) -> None:
                 f"{value - baseline[game_id]:>+14,.0f}"
             )
         print(line)
+
+    concentration(per_game, baseline, games)
+
+
+def concentration(per_game, baseline, games) -> None:
+    """How much of each estimator's total is its two best Games?
+
+    A total is not a result if one Game carries it. The noise floor here is 26,622 over
+    18 Games, so a single Game routinely swings further than any of these deltas, and an
+    estimator that wins on two Games and loses on eighteen is a coin that landed twice --
+    which is exactly what the 30-Game table looked like once this column existed.
+
+    `ex-best-2` strips the two Games contributing most to the total; `won / lost` counts
+    the Games each way. An estimator worth shipping is positive on both.
+    """
+    print("\n  concentration -- an estimator carried by two Games is not an estimator")
+    print(
+        f"    {'estimator':<24}{'total':>12}{'ex-best-2':>12}"
+        f"{'won':>6}{'lost':>6}{'best Game':>16}"
+    )
+    for name in ESTIMATORS:
+        deltas = {g: per_game[name][g] - baseline[g] for g in games}
+        total = sum(deltas.values())
+        best = sorted(deltas, key=lambda g: deltas[g], reverse=True)[:2]
+        ex = total - sum(deltas[g] for g in best)
+        won = sum(1 for v in deltas.values() if v > 0.5)
+        lost = sum(1 for v in deltas.values() if v < -0.5)
+        top = f"G{best[0]} {deltas[best[0]]:+,.0f}" if best else "-"
+        print(
+            f"    {name:<24}{total:>+12,.0f}{ex:>+12,.0f}{won:>6}{lost:>6}{top:>16}"
+        )
 
 
 def blame(rows: list[Row]) -> None:
@@ -538,7 +629,9 @@ def main() -> None:
         default="all",
         nargs="?",
     )
-    parser.add_argument("--games", default="1-30")
+    # Derived from ALL_GAMES rather than written out, because it was written out: the
+    # constant moved to 55 Games and this default silently kept every table at 30.
+    parser.add_argument("--games", default=f"{ALL_GAMES[0]}-{ALL_GAMES[-1]}")
     args = parser.parse_args()
     start, _, end = args.games.partition("-")
     games = tuple(range(int(start), int(end or start) + 1))

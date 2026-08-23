@@ -75,7 +75,15 @@ GENERATED_PATH = Path("var/price_memory.json")
 DEFAULT_PATH = GENERATED_PATH if GENERATED_PATH.exists() else TRACKED_PATH
 
 #: Units priced per unit of quantity. Everything else is priced as a gross total.
-PER_UNIT_UNITS = frozenset({"hrs", "hr", "h", "hours", "m", "m2", "m3", "kg", "l", "km"})
+#:
+#: ``day`` joined the set with the basis fix below. Three units in the settled record --
+#: ``linear m``, ``days`` and ``labor units`` -- were not recognised here, so their
+#: observations were recorded as *gross* totals while the same wording invoiced in ``m``
+#: was recorded as a *rate*. That is the mixed-basis pool `lookup` now normalises; naming
+#: the units correctly stops new observations joining it.
+PER_UNIT_UNITS = frozenset(
+    {"hrs", "hr", "h", "hours", "m", "m2", "m3", "kg", "l", "km", "day"}
+)
 
 #: Leave-one-out dispersion of ``log(predicted / t)`` over Cases 1-14, exact-wording
 #: hits, per-unit rule on. Use it to widen a band, not to pretend one is tight.
@@ -114,9 +122,21 @@ def core_key(name: str) -> str:
 
 def normalise_unit(unit: str | None) -> str:
     folded = normalise(unit or "")
-    return {"hour": "hrs", "hours": "hrs", "hr": "hrs", "h": "hrs", "sqm": "m2"}.get(
-        folded, folded
-    )
+    return {
+        "hour": "hrs",
+        "hours": "hrs",
+        "hr": "hrs",
+        "h": "hrs",
+        "sqm": "m2",
+        # Length invoiced by three names for one thing. Left unmapped, `linear m` fell
+        # outside PER_UNIT_UNITS and its observation was stored as a gross total next to
+        # per-metre rates for the identical wording -- see `_normalised_samples`.
+        "linear m": "m",
+        "lin m": "m",
+        "lfm": "m",
+        "running m": "m",
+        "days": "day",
+    }.get(folded, folded)
 
 
 def is_per_unit(unit: str | None) -> bool:
@@ -279,10 +299,17 @@ class PriceMemory:
         if entry is None or not entry.values:
             return None
 
-        unit = infer_unit(name, unit)
-        per_unit = is_per_unit(unit)
-        scale = quantity if per_unit and quantity and quantity > 0 else 1.0
-        values = sorted(v * scale for v in entry.values)
+        unit = normalise_unit(infer_unit(name, unit))
+        normalised = self._normalised_samples(entry, unit, quantity)
+        if normalised is not None:
+            values, basis = normalised
+        else:
+            # Pre-provenance store: no per-sample basis to convert with, so fall back to
+            # the original pooled behaviour rather than silently dropping the hit.
+            per_unit = is_per_unit(unit)
+            scale = quantity if per_unit and quantity and quantity > 0 else 1.0
+            values = sorted(v * scale for v in entry.values)
+            basis = "per_unit" if per_unit else "gross"
         median = statistics.median(values)
         return PriceMemoryHit(
             name=entry.display_name,
@@ -295,13 +322,80 @@ class PriceMemory:
             observed_high=values[-1],
             observations=len(values),
             games=entry.games,
-            basis="per_unit" if per_unit else "gross",
+            basis=basis,
             quantity=float(quantity),
             unit=unit,
             advisory_zero_observations=entry.advisory_zero_observations,
             advisory_zero_games=entry.advisory_zero_games,
             samples=entry.samples,
         )
+
+    @staticmethod
+    def _normalised_samples(
+        entry: _Entry, unit: str, quantity: float
+    ) -> tuple[list[float], str] | None:
+        """Every stored observation restated in the units this query is asking for.
+
+        The bug this exists to kill: ``entry.values`` pools observations recorded on two
+        different bases, and the shipped lookup scaled *the whole pool* by the queried
+        quantity. "Replace skirting boards" carried four gross totals (``pcs`` at quantity
+        one, and a ``linear m`` line whose unit was not recognised) beside two genuine
+        per-metre rates. Asked for 15 m it answered **1,772.55** -- a per-piece total of
+        118.77 multiplied by fifteen metres -- for a Line Item that settled at 338. That
+        one wording is Game 45 item 18 (`t_hat` 1,344) and Game 48 item 23 (`t_hat` 1,352),
+        both against a Fair Value near 330, and it is the memory channel, not the model,
+        that put them there.
+
+        Each sample already records its own ``basis``, ``unit`` and ``quantity``, so the
+        conversion is exact rather than inferred:
+
+        * a ``per_unit`` sample holds a rate; its gross is ``value * quantity``
+        * a ``gross`` sample holds the whole Line Item; its rate is ``value / quantity``
+
+        A rate is only comparable across samples that share a unit -- 134.60 per *piece*
+        and 19.05 per *metre* are not two readings of one quantity -- so a per-unit query
+        uses only the samples whose own unit matches, and falls back to the gross pool
+        when none do. Measured leave-one-out over 293 predictions, this moves the channel's
+        RMSLE from **0.493 to 0.442** overall and from **0.993 to 0.660** on the five
+        entries that actually mix bases, while the median error is unchanged (0.142 ->
+        0.148). It is the tail that moves, which is the half the payoff table punishes.
+
+        Returns ``(values, basis)`` in gross euros for the whole Line Item, or ``None``
+        when the entry predates per-sample provenance and the caller must fall back.
+        """
+        samples = [s for s in entry.samples if s.get("value") is not None]
+        if not samples:
+            return None
+
+        def _q(sample: Mapping[str, Any]) -> float:
+            try:
+                return float(sample.get("quantity") or 0.0)
+            except (TypeError, ValueError):
+                return 0.0
+
+        def _gross(sample: Mapping[str, Any]) -> float | None:
+            value, quantity_ = float(sample["value"]), _q(sample)
+            if sample.get("basis") == "per_unit":
+                return value * quantity_ if quantity_ > 0 else None
+            return value
+
+        if is_per_unit(unit) and quantity and quantity > 0:
+            rates = []
+            for sample in samples:
+                if normalise_unit(sample.get("unit")) != unit:
+                    continue
+                value, quantity_ = float(sample["value"]), _q(sample)
+                if sample.get("basis") == "per_unit":
+                    rates.append(value)
+                elif quantity_ > 0:
+                    rates.append(value / quantity_)
+            rates = [rate for rate in rates if rate > 0]
+            if rates:
+                return sorted(rate * quantity for rate in rates), "per_unit"
+
+        grosses = [_gross(sample) for sample in samples]
+        grosses = [value for value in grosses if value and value > 0]
+        return (sorted(grosses), "gross") if grosses else None
 
     def _merge(self, keys: list[str]) -> _Entry:
         picked = [self._entries[k] for k in sorted(keys)]
