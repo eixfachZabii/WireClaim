@@ -1,24 +1,30 @@
 ---
 name: handoff
-description: Take over WireClaim as the orchestrator running the live tournament improvement loop. Use at the start of any session, when a Game settles, when the user shares `pixi run watch` output, or when asked what to fix next. Keywords: handoff, take over, orchestrate, game settled, watch digest, leaderboard, what should we fix, bottleneck.
+description: Take over WireClaim after the tournament. Use at the start of any session, when asked where the strategy stands, what the 100 Games proved, or what to fix before a rerun. Keywords: handoff, take over, orchestrate, postmortem, leaderboard, standings, what should we fix, bottleneck.
 ---
 
 # Orchestrate WireClaim
 
-Read [`docs/handoffs/ORCHESTRATOR.md`](../../../docs/handoffs/ORCHESTRATOR.md) in full before
-acting. It carries the standing, the arithmetic of what first place requires, the seven
-proposals already measured and closed, and the subagent playbook. This file is the checklist.
+**The tournament is over.** All 100 Games settled; we finished **5th of 17 on +238,255.07**.
+
+Read [`docs/POSTMORTEM.md`](../../../docs/POSTMORTEM.md) in full before acting — it carries the
+money decomposition, the ceiling, the price of accuracy, and the fully re-scored counterfactual
+standings. The archived mid-tournament handoff
+([`docs/handoffs/done/Version1.0/ORCHESTRATOR.md`](../../../docs/handoffs/done/Version1.0/ORCHESTRATOR.md))
+is stale on standings but its §3 still records seven proposals measured and closed. This file is
+the checklist.
 
 ## On taking over
 
-1. **Check the runner is alive.** `ps aux | grep -E "main\.py|supervise|learn_watch"`. If
-   `main.py` is not running, that is the emergency — nothing else matters until it is back.
-   Uptime outranks accuracy; break-even is 71%.
-2. **Read the standing**, not the rank: `curl -s https://c2f.public.quantco.cloud/leaderboard/api/matrix`.
-   Our deficit is historical (Games 1–25). Judge everything on the **per-Game rate**.
-3. **Top up the Cases**: `pixi run cases`. Then read the newest one.
+1. **Read the post-mortem's §3 and §7 first.** The decision rules are at their ceiling — the
+   best constant available scores *worse* than what we shipped — and 103% of what remains is
+   estimation. Do not open a constant sweep.
+2. **The record is archived, not live.** `data/tournament/` holds every team's per-Game net,
+   verified to the cent; `pixi run archive --offline` re-verifies it without the endpoints.
+3. **If a rerun is in prospect, the first move is the warm store.** `data/price_memory.json`
+   holds all 325 wordings from 100 Games. Shipping it cold cost us the tournament (§6).
 
-## On every settled Game
+## On every settled Game (if a rerun is live)
 
 1. Confirm Strategy 2 landed — a Limit of exactly `35` or a Charge of exactly `300` means it
    did not, and nothing else in the digest can be interpreted.
@@ -34,12 +40,14 @@ proposals already measured and closed, and the subagent playbook. This file is t
 
 ## What to work on
 
-`t̂` estimation, in the tail. 14 of 25 big estimates are proven too high and 4 too low, and the
-4 carry 242,028 of penalty. No observable yet separates them — finding one is the highest-value
-open question. The Charge is the lever on big items, worth 2.4× the Limit at the oracle.
+`t̂` estimation, and nothing else. `scripts/experiments/price_of_sigma.py` prices it: roughly
+**5.8 M weighted per unit of log error**, and we sat at an effective σ ≈ 0.52 on the steepest
+part of the curve. Estimate the σ a change buys, read the euros, then build it.
 
-Do not re-argue the seven closed proposals in §3 of the handoff without new data. Do not tune a
-constant; they are all at their measured optimum and the remaining gap is evidence quality.
+Two standing warnings. **Do not tune a constant** — H21 shows the best one available anywhere is
+worse than what we ship. **Do not correct a level error without fitting the residual as
+interval-censored** (`src/pricing/calibration.py`) — five findings in this project have died to
+conditioning on the outcome, most recently a "+19% bias" that does not exist.
 
 ## Reporting
 

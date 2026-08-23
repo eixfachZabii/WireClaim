@@ -1,0 +1,166 @@
+{
+ "teams": 17,
+ "games": 100,
+ "weighted_rounds": [
+  81,
+  82,
+  83,
+  84,
+  85,
+  86,
+  87,
+  88,
+  89,
+  90,
+  91,
+  92,
+  93,
+  94,
+  95,
+  96,
+  97,
+  98,
+  99,
+  100
+ ],
+ "final_round_weight": 3.0,
+ "verified": "every total reproduces the published leaderboard to the cent",
+ "standings": [
+  {
+   "rank": 1,
+   "team": "Codacabana",
+   "total": 830035.57,
+   "unweighted_total": 414924.6,
+   "games_1_80": 207369.11,
+   "games_81_100_unweighted": 207555.49
+  },
+  {
+   "rank": 2,
+   "team": "eyay",
+   "total": 737480.94,
+   "unweighted_total": 436378.07,
+   "games_1_80": 285826.64,
+   "games_81_100_unweighted": 150551.43
+  },
+  {
+   "rank": 3,
+   "team": "TakeTheMoneyAndRun",
+   "total": 571101.1,
+   "unweighted_total": 171500.21,
+   "games_1_80": -28300.23,
+   "games_81_100_unweighted": 199800.44
+  },
+  {
+   "rank": 4,
+   "team": "error404 ai",
+   "total": 427410.74,
+   "unweighted_total": 368503.92,
+   "games_1_80": 339050.52,
+   "games_81_100_unweighted": 29453.41
+  },
+  {
+   "rank": 5,
+   "team": "Bin busy",
+   "total": 238255.07,
+   "unweighted_total": 42255.53,
+   "games_1_80": -55744.23,
+   "games_81_100_unweighted": 97999.76
+  },
+  {
+   "rank": 6,
+   "team": "Non Deterministic",
+   "total": 146689.59,
+   "unweighted_total": -25454.32,
+   "games_1_80": -111526.27,
+   "games_81_100_unweighted": 86071.95
+  },
+  {
+   "rank": 7,
+   "team": "Teamers",
+   "total": -143065.97,
+   "unweighted_total": -182688.86,
+   "games_1_80": -202500.3,
+   "games_81_100_unweighted": 19811.44
+  },
+  {
+   "rank": 8,
+   "team": "AsianSuperNerds",
+   "total": -249848.28,
+   "unweighted_total": -307482.29,
+   "games_1_80": -336299.3,
+   "games_81_100_unweighted": 28817.01
+  },
+  {
+   "rank": 9,
+   "team": "Oasis",
+   "total": -356834.33,
+   "unweighted_total": -595203.92,
+   "games_1_80": -714388.72,
+   "games_81_100_unweighted": 119184.8
+  },
+  {
+   "rank": 10,
+   "team": "Claims Renaissance",
+   "total": -1172281.52,
+   "unweighted_total": -922954.19,
+   "games_1_80": -798290.53,
+   "games_81_100_unweighted": -124663.66
+  },
+  {
+   "rank": 11,
+   "team": "Alpha",
+   "total": -1581236.38,
+   "unweighted_total": -1004262.49,
+   "games_1_80": -715775.56,
+   "games_81_100_unweighted": -288486.94
+  },
+  {
+   "rank": 12,
+   "team": "TBD",
+   "total": -1605125.07,
+   "unweighted_total": -1131570.95,
+   "games_1_80": -894793.89,
+   "games_81_100_unweighted": -236777.06
+  },
+  {
+   "rank": 13,
+   "team": "Nullpointer Naan",
+   "total": -1634975.53,
+   "unweighted_total": -1011881.39,
+   "games_1_80": -700334.32,
+   "games_81_100_unweighted": -311547.07
+  },
+  {
+   "rank": 14,
+   "team": "Trust Nobody",
+   "total": -1867585.08,
+   "unweighted_total": -1344623.04,
+   "games_1_80": -1083142.02,
+   "games_81_100_unweighted": -261481.02
+  },
+  {
+   "rank": 15,
+   "team": "OPUSMOPUS",
+   "total": -1886255.72,
+   "unweighted_total": -932150.74,
+   "games_1_80": -455098.25,
+   "games_81_100_unweighted": -477052.49
+  },
+  {
+   "rank": 16,
+   "team": "harissa eagles",
+   "total": -2263218.29,
+   "unweighted_total": -1323922.88,
+   "games_1_80": -854275.17,
+   "games_81_100_unweighted": -469647.71
+  },
+  {
+   "rank": 17,
+   "team": "makalu",
+   "total": -4052816.56,
+   "unweighted_total": -2953746.69,
+   "games_1_80": -2404211.75,
+   "games_81_100_unweighted": -549534.94
+  }
+ ]
+}

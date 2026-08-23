@@ -19,12 +19,35 @@ recorded as an **advisory** count — how often this wording settled at zero els
 and is explicitly not a coverage verdict. Read it as "other policies have excluded this
 before, go and check the clause", never as "skip this item".
 
-Accuracy, measured leave-one-out over Cases 1-14 (each Case scored against a memory
-built from the other thirteen): recall 22 % of the items with a known non-zero Fair
-Value, and ``sigma = stdev(log(predicted / t))`` of **0.43**. That is worse than the
-0.35 break-even, so a hit is *evidence*, not an answer — hand it to the estimator as one
-anchor among several and let the posterior widen it. :data:`SIGMA_LOG` is that measured
-dispersion, exported so callers can size the band honestly instead of inventing one.
+Accuracy, re-measured leave-one-out over **all 100 settled Games** (each Game scored
+against a memory built from the other ninety-nine, ``build_price_memory.py --games
+1-100 --evaluate``):
+
+    recall  **79 %** (609 of 773 items with a known non-zero Fair Value)
+    sigma   **0.458**   ``stdev(log(predicted / t))``
+    bias    **+0.031**  essentially none
+    median absolute log error **0.260** — a typical hit lands within 30 %
+
+The paragraph this replaces reported **22 % recall over Cases 1-14** and said "four items
+in five are misses". That was true of a store built from thirteen Cases and had been
+false for most of the tournament: recall grows with the store, and the store finished at
+325 wordings drawn from 1,161 joined Line Items. The stale figure mattered — it is the
+sentence that justified treating a hit as a weak anchor to be averaged away, and
+``scripts/experiments/memory_first.py`` measures the cost of that: replaying all 100
+Games with the finished store and letting a hit price the item outright is worth
+**+630,751 weighted** against what we really submitted, positive on all five folds.
+
+A hit is still *evidence* rather than an answer, and sigma 0.458 is still above the 0.35
+target — but it is the most accurate channel we have by a wide margin, and it is measured
+rather than asserted. :data:`SIGMA_LOG` is that dispersion, exported so callers can size
+the band honestly instead of inventing one.
+
+What the same experiment does **not** support: raising memory's share of
+``blend.combine`` above the shipped 0.66. Swept walk-forward over 99 Games
+(``scripts/experiments/blend_weight_sweep.py``), the score falls monotonically as the
+share rises — 0.66 scores +62,827 against our real submission, 0.83 scores +48,638 and
+1.00 scores +13,372. The inverse-variance weighting is already right; what was wrong was
+the *store*, not the arithmetic over it.
 
 Quantity handling: for ``hrs``, ``m``, ``m2``/``m²``, ``kg`` (and friends) the store
 holds a **per-unit** price and multiplies by the queried quantity; for ``pcs`` and
@@ -87,8 +110,15 @@ PER_UNIT_UNITS = frozenset(
     {"hrs", "hr", "h", "hours", "m", "m2", "m3", "kg", "l", "km", "day"}
 )
 
-#: Leave-one-out dispersion of ``log(predicted / t)`` over Cases 1-14, exact-wording
-#: hits, per-unit rule on. Use it to widen a band, not to pretend one is tight.
+#: Leave-one-out dispersion of ``log(predicted / t)``, per-unit rule on. Use it to widen a
+#: band, not to pretend one is tight.
+#:
+#: Re-measured at the end of the tournament over all 100 Games at **0.458**, against the
+#: 0.43 taken from Cases 1-14. The value is left at 0.43 on purpose: it is not a knob but
+#: a *band width*, the two numbers differ by 6 %, and the difference is far inside the
+#: censoring uncertainty on both (56 % of Fair Value brackets are unbounded, so every sigma
+#: quoted anywhere in this repository is optimistic). Moving it would be a change with no
+#: measurement behind it, which is the thing this file exists to stop.
 SIGMA_LOG = 0.43
 
 
@@ -344,8 +374,11 @@ class PriceMemory:
         """Price band for this wording, or ``None`` on a miss.
 
         A miss means "no settled Line Item used these words" — it does **not** mean the
-        item is worthless, uncovered, or cheap. Recall is 22 %; four items in five are
-        misses and must be priced by the estimator as if the memory did not exist.
+        item is worthless, uncovered, or cheap. Recall against the finished 100-Game store
+        is **79 %**, so a miss is the exception rather than the rule; it must still be
+        priced by the estimator as if the memory did not exist. (This docstring said
+        "recall is 22 %; four items in five are misses" until the store was re-measured at
+        the end of the tournament — see the module docstring.)
         """
         key = normalise(name)
         entry, match = self._entries.get(key), "exact"

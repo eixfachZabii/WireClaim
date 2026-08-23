@@ -49,6 +49,22 @@ review-game = { cmd = "python scripts/review_game.py", env = { PYTHONPATH = "." 
 # have done instead. Nothing in it is estimated -- see the docstring on the Fair Value
 # brackets before computing anything conditional on the true `t`.
 export = { cmd = "python scripts/export_runs.py", env = { PYTHONPATH = "." } }
+# Freeze the finished tournament into `data/tournament/`, verified against the published
+# leaderboard to the cent for all seventeen teams. Refuses to write on any disagreement, so
+# a green run is itself the proof the archive is faithful. `--offline` re-verifies against
+# the archived matrix once the competition endpoints are gone.
+archive = { cmd = "python scripts/archive_tournament.py", env = { PYTHONPATH = "." } }
+
+# Which of the four payoff branches the money came out of, over every settled Game. The
+# three numbers it exists for -- lawyer waste, fraud let through, forfeited income -- are the
+# whole structural surface of the strategy; everything else is arithmetic.
+postmortem = { cmd = "python scripts/postmortem.py", env = { PYTHONPATH = "." } }
+
+# What the finished strategy would have scored run from Game 1 -- with all seventeen rows
+# recomputed, because our net alone cannot answer a question about placement. `--validate`
+# checks the cross terms against the settled rows before reporting anything.
+counterfactual = { cmd = "python scripts/experiments/counterfactual_standings.py", env = { PYTHONPATH = "." } }
+
 backtest-sync = { cmd = "python -m backtesting sync", env = { PYTHONPATH = "." } }
 backtest-run = { cmd = "python -m backtesting run --spec backtesting/specs/default.json", env = { PYTHONPATH = "." } }
 backtest-api = { cmd = "python -m backtesting serve-api", env = { PYTHONPATH = "." } }

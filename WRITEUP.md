@@ -170,6 +170,15 @@ result driven by a few *Games*, never one driven by a few *items*.
    point of coverage there is a direct reduction in σ — and by item 1, σ is what sets *both*
    numbers.
 
+   > **Post-tournament correction, left visible rather than edited away.** The 22 % is wrong, and
+   > it was the most expensive wrong number we carried. Re-measured leave-one-out over all 100
+   > settled Games the finished store reaches **79 %** at σ **0.458**; 22 % was measured over
+   > Cases 1–14 and recall grows with the store. Replaying the tournament with the store we
+   > ended up holding — and re-scoring all seventeen teams, since our bids are half of every
+   > opponent's fixtures against us — finishes **first at +885,401** against our real +238,255.
+   > The recommendation above was right; the number under it understated it by four times. See
+   > [`docs/POSTMORTEM.md`](docs/POSTMORTEM.md).
+
 ---
 
 **No claim data is checked into this repository.** Not the Cases, not the invoices, not the

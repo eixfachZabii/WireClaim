@@ -1168,3 +1168,208 @@ total cost against their 26 %.
 unvalidated edit to the pricing engine risked a whole Game — and a Game in this stretch is worth
 up to 96,869. Rule 8: uptime outranks accuracy. Recorded here as the measurement, which is what
 the next tournament needs from it.
+
+---
+
+# Post-tournament ledger — all 100 Games settled
+
+Everything below was measured **after** the last Game, against the complete public record: 100
+Games, 17 teams, 315,792 settled Transactions, reconstructed to the cent
+(`scripts/archive_tournament.py`). Final standing **5th of 17, +238,255.07**.
+
+The harness for all of it is `scripts/replay_payoffs.py` — our real Charge and Limit recovered
+from the rows, the Field held at what it really did, the real payoff table against the recovered
+Fair Value brackets. 99 of 100 Games reconstruct exactly; Game 67 is excluded for the known Cap
+collision.
+
+## H21 ✅ 103 % of everything left on the table is the *estimate*; the decision rules are done
+
+**Claim.** Constant-tuning of the Charge and Limit multipliers is exhausted, and every remaining
+euro is reachable only through a better Fair Value estimate.
+
+`scripts/experiments/ceiling.py`, four rungs over 99 Games, weighted:
+
+| rung | net |
+| --- | ---: |
+| DEFAULT `a = 0, b = 0` | −3,737,366 |
+| **ACTUAL (what we submitted)** | **224,840** |
+| BEST-KNOB — best `(α, β)` over a 72-cell grid on our own `t̂` | 109,248 |
+| ORACLE `a = b = t` | 4,488,842 |
+
+The middle rung is the result. **The best constant-only strategy available anywhere in the grid
+scores 115,593 *worse* than what we actually shipped** — the pricing rules are not merely near
+their optimum, they are past the point where a global multiplier can help, because the shipped
+rule varies its factor with the band and a constant cannot. So of the 4,264,002 still above
+ACTUAL, 103 % is estimation and −3 % is decision rules.
+
+This confirms what CLAUDE.md's Status section already claimed, on 3× the Games and with the
+counterfactual run rather than argued. **Do not open another constant sweep.**
+
+## H22 ✅ What a unit of accuracy is worth — and we sit on the steepest part of the curve
+
+`scripts/experiments/price_of_sigma.py` perturbs the *true* Fair Value by a lognormal of known
+width, prices it with the shipped rule, and replays. Weighted, best `β` per row:
+
+| σ | net | | σ | net |
+| ---: | ---: | --- | ---: | ---: |
+| 0.00 | 2,324,912 | | 0.60 | −155,324 |
+| 0.10 | 2,090,251 | | 0.75 | −604,370 |
+| 0.20 | 1,814,964 | | 0.90 | −1,013,234 |
+| 0.30 | 1,264,589 | | 1.10 | −1,431,169 |
+| 0.45 | 396,211 | | 1.40 | −1,934,149 |
+
+Our real submission (224,840) sits at an **effective σ ≈ 0.52**, and net crosses zero at
+σ ≈ 0.57 — so the break-even is far tighter than the 0.85 CLAUDE.md rule 10 records, once the
+Limit is allowed to move with the estimate.
+
+**σ 0.45 → 0.30 is worth +868,378.** That is the steepest segment in the table and it is the one
+adjacent to where we stand. Roughly **5.8 M weighted per unit of log error** in our operating
+region. Any evidence-layer proposal can now be priced: estimate the σ it buys, read the euros.
+
+## H23 ❌ "We overestimate the Fair Value by 19 %" — a censoring artefact, and the correction loses money
+
+**The diagnosis was wrong and the fix built on it lost at every cell.** Worth reading in full,
+because this is the fourth time this repository has been caught by the same selection.
+
+Scoring `log(t̂ / t)` on Line Items whose Fair Value bracket is **bounded** gives a median
+`t̂ / t` of **1.189** and an RMSLE of 0.658 — an apparently clear level error, and the same
+diagnostic said our published band understates our real error by **1.88×** and leaves 27.5 % of
+truths outside its own 90 % interval.
+
+But a bracket is bounded *only when somebody rightfully rejected*, which selects the
+sub-population where the Field — and so usually we — overestimated. Splitting the 531 usable
+Line Items:
+
+| | n | median |
+| --- | ---: | --- |
+| bounded brackets | 342 | `t = 0.841 × t̂` — we overestimate |
+| right-censored (`t ≥ t_lo` only) | 189 | `t ≥ 1.044 × t̂` — we **underestimate, provably** |
+
+85.2 % of the censored items have a proven floor above the bounded sample's median residual, and
+**60.8 % are provably worth more than our estimate.** Fitting the residual as interval-censored
+data instead (Turnbull NPMLE, `src/pricing/calibration.py`, 17 tests) moves the pooled median
+`t / t̂` to **0.982**. **We were essentially unbiased the whole time.**
+
+The layer built on the bad diagnosis was scored leave-one-Game-out over 73 Games and **lost at
+every one of 42 cells** — best −36,050 weighted, worst −2,812,204. Handling the censoring
+properly recovered +71k of that and it still loses. `calibration.py` is kept as a *measurement
+instrument only*, with a banner saying so; nothing in the pricing path reads it.
+
+**The rule this earns:** before correcting a level error in the estimator, fit the residual with
+the censored observations included. Three of the four intuitions in CLAUDE.md's table and both
+H2 and H16 died to conditioning on the outcome. This is the tool that stops it.
+
+## H24 ⚠️ Price Memory is four times bigger than its docstring claims — but the blend weight was already right
+
+**Confirmed.** Rebuilt from all 100 Games and scored leave-one-out
+(`build_price_memory.py --games 1-100 --evaluate`): **recall 79 % (609/773), σ 0.458, bias
++0.031, median |log error| 0.260.** The module docstring claimed **22 % recall** and "four items
+in five are misses" — measured over Cases 1–14, and stale for most of the tournament. Both the
+docstring and the tracked store are fixed; `data/price_memory.json` held **203 entries from
+Games 1–46** and now holds **325 from all 100**.
+
+**Falsified, and it was my own hypothesis.** From "memory is far more accurate than the model"
+it does *not* follow that memory should take more of `blend.combine`. Swept walk-forward over 99
+Games (`scripts/experiments/blend_weight_sweep.py`), memory's share against the gain over our
+real submission:
+
+| share | 0.66 (shipped) | 0.75 | 0.83 | 0.92 | 1.00 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| gain | **+62,827** | +61,190 | +48,638 | +31,173 | +13,372 |
+
+Monotonically **down**. The shipped inverse-variance weighting is already at its optimum; what
+was wrong was the *store*, not the arithmetic over it. `MEMORY_SIGMA` and `MODEL_SIGMA_PRIOR`
+stay as they are.
+
+## H25 ⚠️ Replaying with the finished store scores first place — but 97 % of it is eight Games
+
+**The arithmetic.** `scripts/experiments/memory_first.py`, leave-one-Game-out, memory hit prices
+the item outright: **+855,591 weighted against our real +224,840**, a gain of **+630,751**, and
+positive on all five folds (odd +226,457, even +404,293, 1–43 +554,723, 44–81 +33,724, 82–100
++42,304). Codacabana won on 830,036.
+
+**The caveat, which is larger than the result.** The gain is not distributed:
+
+- improved 54 Games, worsened 28, unchanged 17
+- **median Game gain +190** — the typical Game barely moves
+- top 8 Games carry **611,476 of 630,751**; without them the gain is **+19,275**
+- those 8 are G10, G8, G17, G100, G12, G68, G18, G7 — **seven of the eight are Games 7–18**
+
+And walk-forward — a store built only from *strictly earlier* Games, which is what the live
+pipeline had — the same arm is worth **+13,372**, not +630,751. The difference is the whole
+size of the hindsight.
+
+**What this actually says**, corroborated by `scripts/postmortem.py` independently ranking G8,
+G17, G10, G100, G12, G18, G11, G7 as the eight worst Games of the tournament:
+
+> **Games 1–25 cost −322,595 weighted. Games 26–100 earned +560,850.**
+
+The tournament was decided before the strategy was finished. Had Games 1–25 merely scored
+**zero** we finish 3rd; had they scored the per-Game average of Games 26–100 we finish **2nd**.
+The binding constraint was never steady-state accuracy — in steady state the finished store
+moves the median Game by €190 — it was the **cold start**: an empty Price Memory, and a pipeline
+that did not have Strategy 2 until Game 26.
+
+**The change this earns is not a constant, it is an asset.** Ship `data/price_memory.json` warm.
+It is the one thing measured here that is worth six figures and cannot be re-derived in sixty
+seconds.
+
+## H26 ✅ Run from Game 1, the finished strategy wins — and the whole table has to be re-scored to say so
+
+**The methodological point first, because it invalidates every earlier counterfactual in this
+file as a statement about *placement*.** H25 and everything before it report **our** net. That is
+not enough to claim a rank: the tournament is seventeen interlocking scores, not seventeen
+independent ones. Every euro we are paid is a euro an opponent pays, and every claim we accept
+is income for whoever issued it.
+
+    we Charge closer to `t`  ->  our income rises AND sixteen opponents' costs rise
+    we accept more claims     ->  our costs rise AND sixteen opponents' income rises
+
+Only fixtures involving us can move, so each opponent decomposes exactly:
+
+    net(T, counterfactual) = net(T, actual) - [T's fixtures vs us, as settled]
+                                            + [T's fixtures vs us, under our new submission]
+
+`scripts/experiments/counterfactual_standings.py --validate` computes the middle term through
+the replay model **and** straight from the settled Transaction rows: they agree to **0.0000**
+across every (Game, team) pair, and the `ACTUAL` arm reproduces the published standings exactly.
+
+**The arms**, weighted, rank recomputed against all sixteen opponents:
+
+| arm | weighted | Games 1-25 | Games 26-100 | rank |
+| --- | ---: | ---: | ---: | ---: |
+| ACTUAL | 238,255 | -322,595 | 547,435 | 5th |
+| NO-BLANKS | 645,362 | 69,872 | 562,075 | **3rd** |
+| WARM-STORE | 869,006 | 238,293 | 617,298 | **1st** |
+| FULL-PIPELINE * | **885,401** | 254,688 | 617,298 | **1st** |
+
+`*` the only arm with a synthetic component: Games 26-100 keep our real submission on a memory
+miss (that *is* the mature model channel), while Games 1-25 misses are drawn from the `C:model`
+residual measured later. Averaged over 5 seeds.
+
+Final table under FULL-PIPELINE: **Bin busy 885,401 (1st)**, Codacabana 818,984, eyay 733,018,
+TakeTheMoneyAndRun 547,290, error404 ai 436,410. First by **66,417**.
+
+**NO-BLANKS is the row that matters most**, because it assumes no better estimate anywhere.
+Games 1-25 failed in two ways that both produce *zero* income rather than inaccurate income:
+we Charged **exactly nothing** (22 of 22 Line Items in Game 11, 12 of 12 in Game 12, all of
+Games 2 and 3), and we Charged **so far above the Field that no reviewer's Limit reached it**
+(27 of 39 in Game 8, 13 of 20 in Game 17; Game 20's median Charge was 2,345). Replacing only
+those with the Field's own median Charge on the same item -- no model, no memory -- is worth
+**+407,107** and moves us to third. That is rule 1 (`the default submission is an incident`)
+priced.
+
+**The payoff table is not zero-sum, and it explains the residual.** Under WARM-STORE we gain
++630,751 while the other sixteen lose only -196,827 between them; the missing **+433,924** was
+being *destroyed*, not transferred -- on a wrongful rejection the reviewer pays `1.5a` and the
+issuer receives `a`, so `0.5a` leaves the system. Across all seventeen teams the tournament
+settled at **-13,862,270**. NO-BLANKS is the instructive counter-example: it *increases* total
+destruction by 80,314, because Charging the Field median on previously-blank items pushes more
+claims above opponents' Limits. Charging a *good* estimate at 0.69x stays under most Limits and
+burns less. **Playing well destroys less for everyone, not only more for us.**
+
+**Where the value is, one last time.** FULL-PIPELINE beats WARM-STORE by only **+16,395** -- the
+model channel adds almost nothing on top of the store -- and **89 % of the gain is in Games
+1-25** (a swing of 577,283, against 69,863 across the other seventy-five). The finished strategy
+was worth about seventy thousand over the mature phase and more than half a million over the
+phase where we did not yet have it. Which is H25's conclusion, now with a rank attached.

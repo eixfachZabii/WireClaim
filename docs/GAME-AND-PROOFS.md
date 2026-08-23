@@ -333,6 +333,55 @@ regimes:
 The phase where accuracy pays most is also the phase where we have accumulated the most
 calibration data (R9). The flywheel and the harvest compound.
 
+> **Post-tournament amendment.** The three-regime model above did not survive measurement:
+> Games 44–81 were **not** "mostly dark" (H12 in the hypothesis ledger, falsified). The
+> arithmetic of R10 is untouched — a dark team really is a one-way fountain — but the *schedule*
+> attached to it was a forecast, and the Field stayed awake. Read the table as the reasoning,
+> not as a description of what happened.
+
+---
+
+### R11 — `a = t = b` is exactly optimal under certainty, but the Charge is a cliff and the Limit is a valley
+
+Measured, not argued: the oracle sweep over the 99 reconstructable Games
+(`scripts/replay_payoffs.py`, holding the whole Field at what it really did), Games 81–100 at 3×.
+
+**Sweep the Charge, with `b = t`:**
+
+| `a / t` | 0.70 | 0.90 | 0.99 | **1.00** | **1.01** | 1.10 | 2.00 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| weighted net | 2,394,716 | 3,790,800 | 4,419,038 | **4,488,842** | **−1,549,760** | −1,590,879 | −1,958,844 |
+
+**One per cent over the Fair Value costs 6,038,602.** That is the single sharpest number in the
+whole record, and the mechanism is R2: at `a ≤ t` the Issuer is paid `a` by **all sixteen**
+whether they accept or wrongfully reject, because a wrongful rejection still owes the money.
+One cent above `t` and that guarantee evaporates — income collapses to only those opponents
+whose Limit happens to reach `a`, while our costs as Reviewer are unchanged. Net goes negative.
+
+**Sweep the Limit, with `a = t`:**
+
+| `b / t` | 0.50 | 0.90 | 0.99 | **1.00** | 1.01 | 1.10 | 2.00 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| weighted net | 3,480,755 | 4,181,915 | 4,375,315 | **4,488,842** | 4,483,439 | 4,339,686 | 3,644,135 |
+
+`b = t` is the argmax too, but the surface either side is nothing like the Charge's. It is a
+**valley, and an asymmetric one: 1 % low costs 113,527, 1 % high costs 5,403.** Erring high is
+**21× cheaper** than erring low, because a Limit below `t` pays the `1.5×` lawyer surcharge on
+claims that were fair, while a Limit above `t` merely pays face value on some Overcharges.
+
+**Why this settles the `a = 0.7·t̂` question.** Under certainty `a = t` is optimal; the moment
+`t̂ ≠ t` it is not, and the cliff is exactly why. Charging `a = t̂` puts us on the wrong side of
+a 6 M cliff on every Line Item we overestimate — and we overestimate about half of them. The
+0.7 multiplier is not timidity, it is **the price of insurance against a discontinuity**, and
+R5b's finding that it beats `a = t̂` at every σ ≥ 0.1 follows directly.
+
+The two shapes also say where effort belongs. The Charge must be *under* `t` and the penalty for
+missing is unbounded, so it is worth a deep discount. The Limit is flat near the top and cheap
+to overshoot, so it should sit at or slightly above the estimate rather than below it — which is
+the opposite of the "the buffer goes down" intuition, and is only safe because the estimate is
+what it is. Under uncertainty the V-curve in CLAUDE.md still governs; this is the certainty
+limit, and it is the boundary condition every rule here has to meet.
+
 **We are awake all night.** That converts R7 from a risk to be mitigated into our primary
 revenue source — but it does not remove the need for automation. A 60-second window is
 too tight for human pricing, and by Game 70 a tired human's intuition is worse than a

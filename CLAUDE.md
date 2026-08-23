@@ -6,7 +6,8 @@ Agent knowledge file. Rules, conventions, and the mistakes we already paid for.
 - [`README.md`](README.md) — the judge-facing entry point: what to read, in what order, and where every file lives. Navigation only; it proves nothing.
 - [`CONTEXT.md`](docs/CONTEXT.md) — the ubiquitous language. Use these words; they were chosen to stop the drift that was already happening on day one.
 - [`docs/brainstorm/sebi/INDEX.md`](docs/brainstorm/sebi/INDEX.md) — what was pitched, what was picked, who owns what.
-- [`docs/handoffs/ORCHESTRATOR.md`](docs/handoffs/ORCHESTRATOR.md) — **start here if you are picking this up mid-tournament.** Where we stand, what first place costs in euros per Game, the seven fixes already measured and closed, and the subagent playbook. Invocable as `/handoff`.
+- [`docs/POSTMORTEM.md`](docs/POSTMORTEM.md) — **start here if you are picking this up after the tournament.** Where the money went over all 100 Games, what the counterfactuals prove, and the fully re-scored standings. Invocable as `/handoff`.
+- [`docs/handoffs/done/Version1.0/ORCHESTRATOR.md`](docs/handoffs/done/Version1.0/ORCHESTRATOR.md) — the archived mid-tournament handoff. Its standings are a Game-62 snapshot and are stale; §3's seven measured-and-closed proposals are not, and are worth reading before reopening any of them.
 
 ---
 
@@ -32,9 +33,9 @@ Every single time someone reasoned about this game from intuition, they got it w
 | "Put `b` in the upper half of the confidence interval as a buffer." | Backwards. Generosity is ~8× more expensive than strictness (`4t` vs `0.5t`). The buffer goes **down** (R4, R6).                    | Would have handed the Cap to every exploiter.      |
 | "Estimate how many opponents accept an overcharge, then exploit."   | A **mis-measured** `p(a)` is worse than assuming `p = 0` (R5c).                                                                     | **60 % of net** in simulation; dropped 1st → 11th. |
 | "Above the Cap the acceptance bar rises, so never accept."          | The bar _falls_ (`q > c/(c+0.5a)`). Right conclusion, wrong reason — reject because `c ≥ 4t` makes it **provably** fraudulent (R4). | A wrong reason in a shared doc propagates.         |
-| "`t̂` is systematically too low on expensive items, so raise it."                  | A **regression artefact**, and it cost eight experiments. Bucketing `t̂/t` by the *true* `t` shows 0.92 in the 400–1,000 band and 1.54 under 50 — items land in a high-`t` bucket partly *because* we underestimated them. Bucket by **`t̂`**, the only split knowable at submission time, and the sign flips: **1.12 at 400–1,000 and 1.11 above 1,000 — we are too *high* where we think an item is expensive.** The "below the proven floor on 73 % of censored items" figure is the same trap: "censored" means nobody rightfully rejected, which is a selection on the outcome. Never condition on the answer. The real failures are a handful of individually-diagnosable misses (Game 41's watch: Price Memory matched "compensation for robbery damage" to an unrelated €3,011 claim and pulled a correct 18,000 read down to 5,524), not a level to correct. |
+| "`t̂` is systematically too low on expensive items, so raise it."                  | A **regression artefact**, and it cost eight experiments. Bucketing `t̂/t` by the *true* `t` shows 0.92 in the 400–1,000 band and 1.54 under 50 — items land in a high-`t` bucket partly *because* we underestimated them. Bucket by **`t̂`**, the only split knowable at submission time, and the sign flips: 1.12 at 400–1,000 and 1.11 above 1,000. The "below the proven floor on 73 % of censored items" figure is the same trap: "censored" means nobody rightfully rejected, which is a selection on the outcome. Never condition on the answer. **And that last sentence indicts this row's own conclusion, which was measured post-tournament and is wrong too.** Every ratio above is scored on *bounded* brackets — the sub-population where somebody rightfully rejected, i.e. where the Field overestimated. The 189 right-censored Line Items point the other way: `t ≥ 1.044 × t̂`, and **60.8 % of them are provably worth more than our estimate**. Fitting all 531 as interval-censored data (`src/pricing/calibration.py`, Turnbull's NPMLE) puts the median `t / t̂` at **0.982** — **there is no level error in either direction; we were unbiased the whole time.** The real failures are a handful of individually-diagnosable misses (Game 41's watch: Price Memory matched "compensation for robbery damage" to an unrelated €3,011 claim and pulled a correct 18,000 read down to 5,524), not a level to correct. |
 | "The Limit should sit **above** `t̂`, so we never pay the lawyer."                | Right about the target, wrong about the action, and it flips on one substitution. Sweeping `b = m · t` against the **true** `t` gives a V with its minimum at exactly `m = 1.00` — `b = t`, costing more in both directions. Sweeping `b = m · t̂` against **our estimate** turns that V into a monotone increase whose cheapest point is as low as you can push it. **The flip between those two curves is the cost of our estimation error.** Also: rejecting a *fraudulent* claim is free — the `1.5×` only ever fires on a claim that was fair. **The sentence that used to stand here — "so a high `b` buys no protection from the lawyer at all, it only converts zeros into payments" — was itself wrong, and is the fourth intuition in this table to be falsified.** Raising `b` to admit a claim that *was* fair converts a `1.5a` penalty into an `a` payment and **saves `0.5a`**; only on an Overcharge does it convert a zero into a payment. Which effect dominates is exactly R4's `q > 2/3` test, not a blanket "push `b` down". The V-curve above is still the reason `b` sits low — our estimate is noisy — but the reason is estimation error, not an absence of lawyer protection. Measured: the field charges a median of **0.73 × `t`**, and 26 % of its Charges on real-money items are still above `t`. |
-| "`a = t = b` is optimal."                                           | Only under certainty. But closer than the "therefore `a > b`" correction that replaced it — both sit low, near each other (R6).     | An over-confident correction is still an error.    |
+| "`a = t = b` is optimal."                                           | **Exactly right under certainty — now measured, not argued (R11).** Sweeping the oracle over 99 Games, `a = t` and `b = t` are both the argmax. But the two fail in wildly different shapes: the Charge is a **cliff** (`a = 1.01·t` costs **−6,038,602**), the Limit a gentle asymmetric valley (1 % low −113,527, 1 % high −5,403). That asymmetry *is* why `a = 0.7·t̂` beats `a = t̂` the moment `t̂ ≠ t`. | The correction that replaced it (`a > b`) was the real error. |
 
 **So: before you act on a claim about this game, check whether `docs/GAME-AND-PROOFS.md` already proves it. If it doesn't, write the arithmetic down and run it.** Three claims in the table above were written down as fact before a simulation falsified them. A claim without a number behind it is a guess wearing a suit.
 
@@ -161,9 +162,19 @@ it did — and quote the clause when you do.
 
 **10. Re-measure after every Game, and never tune a knob whose error you have not measured.** The Fair Value is **exactly recoverable** from settled Games: a rejected Transaction carrying a non-zero `amount` is a wrongful rejection, so it reveals the Charge *and* proves `a ≤ t`, while a rejected Transaction at `0` proves `a > t`. `scripts/invert_fair_values.py --verify` reproduces all published nets to the cent, so there is ground truth for every Line Item we have ever played.
 
-That makes one number the gate on everything: **σ, the log error of our Fair Value estimate.** Replaying the real payoff table over Games 1–14 with `a = 0.7·t̂` gives **+131,497 at σ = 0.35, +89,807 at 0.5, +31,725 at 0.75 and −20,915 at 1.0**, so **break-even is σ ≈ 0.85**. Price Memory measures 0.43 and clears it; a blind constant does not. The same sweep shows `a = 0.7·t̂` beating `a = t̂` at every σ ≥ 0.1, which is R5b confirmed on a validated harness rather than argued.
+That makes one number the gate on everything: **σ, the log error of our Fair Value estimate.**
 
-Two traps in measuring it. **Use total log error (RMSLE), not standard deviation** — a stdev cannot see a level error, and our failure mode is precisely a *bias*: median `a/t` was 1.06 when it should be ~0.7. And **an earlier "break-even σ ≈ 0.35" was from a cruder model** that proxied `t` with the field's median Charge and credited nothing for Overcharges; treat 0.35 as a target and 0.85 as the crossing.
+**Re-measured over all 100 settled Games** (`scripts/experiments/price_of_sigma.py`), perturbing the *true* Fair Value by a lognormal of known width and letting the Limit move with the estimate:
+
+| σ | 0.00 | 0.20 | 0.30 | 0.45 | 0.60 | 0.75 | 0.90 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| weighted net | 2,324,912 | 1,814,964 | 1,264,589 | 396,211 | −155,324 | −604,370 | −1,013,234 |
+
+**Break-even is σ ≈ 0.57, not 0.85** — the 0.85 figure came from Games 1–14 with a fixed Limit and is superseded. Our real submission (+224,840 weighted) sits at an **effective σ ≈ 0.52**, i.e. barely the right side of it. Price Memory measures **0.458** over the full record and clears it; a blind constant does not.
+
+The steepest segment is the one adjacent to where we stand: **σ 0.45 → 0.30 is worth +868,378**, roughly **5.8 M weighted per unit of log error**. Price any evidence-layer proposal against that curve before building it. The same harness shows `a = 0.7·t̂` beating `a = t̂` at every σ ≥ 0.1 — R5b confirmed on a validated harness rather than argued, and §R11 below explains *why* the discount has to be that deep.
+
+Three traps in measuring it. **Use total log error (RMSLE), not standard deviation** — a stdev cannot see a level error. **Earlier crossings are superseded**: "σ ≈ 0.35" came from a model that proxied `t` with the field's median Charge, "σ ≈ 0.85" from Games 1–14 with a fixed Limit; **0.57 is the measured crossing over 100 Games**. And above all, **fit the residual with the censored observations in** — see the bias row in the table above. Scoring only on bounded Fair Value brackets says we overestimate by 19 %; handling the censoring says we are unbiased, and the whole "median `a/t` was 1.06 when it should be ~0.7" diagnosis was an artefact of the same selection.
 
 So after every settled Game, recompute and record: **σ** (overall and per channel), the coverage confusion against the true `t = 0` set, income vs. the two cost sides, and the accept share. Append it to `field-findings.md`. Three specific risks stay open and must be watched rather than assumed away:
 
@@ -200,9 +211,25 @@ Read the leaderboard at the rate a browser would. Do not enumerate endpoints tha
 
 ## Status
 
-**The pipeline is live and has played 33 Games.** Everything the old version of this section
-called unimplemented — invoice parsing, policy analysis, pricing, submission — shipped long
-ago; there is no `TODO(api-submission)` boundary any more.
+**The tournament is over. All 100 Games are settled and we finished 5th of 17 on
++238,255.07.** The full record is archived and verified in
+[`data/tournament/`](data/tournament/standings.md) — per-Game nets for every team,
+reconstructed from 315,792 settled Transactions and agreeing with the published leaderboard
+**to the cent** for all seventeen teams (`scripts/archive_tournament.py`). Games 81–100 pay
+**3×**; that weighting is not in any handout, it is the unique factor that makes the rows
+reproduce the totals.
+
+The post-mortem is [`docs/POSTMORTEM.md`](docs/POSTMORTEM.md), and the measurements behind it
+are H21–H25 in the
+[hypothesis ledger](docs/brainstorm/sebi/strats/review/hypothesis-ledger.md). The one sentence
+worth carrying forward:
+
+> **Games 1–25 cost −322,595 weighted. Games 26–100 earned +560,850.** The tournament was
+> decided before the strategy was finished.
+
+Everything the old version of this section called unimplemented — invoice parsing, policy
+analysis, pricing, submission — shipped long ago; there is no `TODO(api-submission)` boundary
+any more.
 
 What runs, in the order a Game touches it:
 
@@ -222,10 +249,31 @@ change is a **measurement** rather than an argument — use it before touching a
 Running it needs `TEAM_API_KEY`, the Azure keys, the Case archives and the Pixi environment
 described in `README.md`.
 
-**Where the money still is.** Today's pricing replayed over all 33 settled Games nets about
-**+198k** against an oracle **+966k**. The decision rules are at their measured optimum — the
-Charge factor sits at the empirical argmax (0.70 measured, 0.69 shipped), and the best
-constant available anywhere in a full sweep moves the total by ~18k. **The rest is estimate
-quality, and only the evidence layer reaches it.** See H3 and H8 in the
-[hypothesis ledger](docs/brainstorm/sebi/strats/review/hypothesis-ledger.md) before proposing
-another constant; four of the obvious ones are already falsified there with numbers attached.
+**Where the money still is — settled over all 100 Games, not 33.** Four rungs, weighted
+(`scripts/experiments/ceiling.py`):
+
+| rung | net |
+| --- | ---: |
+| default `a = 0, b = 0` | −3,737,366 |
+| **what we submitted** | **224,840** |
+| best constant `(α, β)` anywhere in a 72-cell grid on our own `t̂` | 109,248 |
+| oracle `a = b = t` | 4,488,842 |
+
+**The best constant-only strategy scores 115,593 _worse_ than what we shipped.** So of
+everything above ACTUAL, **103 % is estimation and −3 % is decision rules**. This is no longer
+"the decision rules are near their optimum"; it is that a global multiplier can only make them
+worse, because the shipped rule already varies its factor with the band. **Do not open another
+constant sweep** — H21, and H2/H13/H16/H24 are four more already falsified with numbers.
+
+**What accuracy is worth, so a proposal can be priced before it is built** (H22). Perturbing
+the true Fair Value by a known lognormal and replaying puts our real submission at an
+**effective σ ≈ 0.52**, with net crossing zero at σ ≈ 0.57. The curve is steepest exactly where
+we stand: **σ 0.45 → 0.30 is worth +868,378**, about **5.8 M weighted per unit of log error**.
+Estimate the σ your change buys and read the euros off `price_of_sigma.py`.
+
+**And one trap, which has now caught this repository five times** (H23). Every residual scored
+on *bounded* Fair Value brackets is scored on the sub-population where somebody rightfully
+rejected — a selection on the outcome. It says we overestimate by 19 %; fitting the same data
+as interval-censored (`src/pricing/calibration.py`) says the median `t / t̂` is **0.982** and we
+were essentially unbiased all along. **Before correcting a level error, fit the residual with
+the censored observations in.**

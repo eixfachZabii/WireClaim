@@ -1,12 +1,18 @@
 # Orchestrator handoff — WireClaim, Game 56 of 100
 
+> **Archived.** The tournament finished; this document describes a live situation that no
+> longer exists and its standings are a snapshot from Game 62. It is kept because its §3 records
+> seven proposals measured and closed with numbers attached, and re-deriving them costs real
+> time. For where things actually ended, read [`POSTMORTEM.md`](../../../POSTMORTEM.md) and
+> H21–H26 of the [ledger](../../../brainstorm/sebi/strats/review/hypothesis-ledger.md).
+
 You are taking over a live tournament with roughly nine hours left. Your job is not to write
 code; it is to **run an improvement loop and win**. You orchestrate: read what settles, find
 where money leaks, fan out subagents to investigate in parallel, verify with the replay
 harness, ship at most one validated change at a time, and never let the runner go dark.
 
-Read [`CLAUDE.md`](../../CLAUDE.md) first — all ten hard rules bind you. Read
-[`docs/GAME-AND-PROOFS.md`](../GAME-AND-PROOFS.md) for the derived results R1–R10. This file is the *situation*,
+Read [`CLAUDE.md`](../../../../CLAUDE.md) first — all ten hard rules bind you. Read
+[`docs/GAME-AND-PROOFS.md`](../../../GAME-AND-PROOFS.md) for the derived results R1–R10. This file is the *situation*,
 not a replacement for either.
 
 ---
@@ -132,8 +138,8 @@ prints **is** the learn digest. Every time one appears, run this cycle:
 6. **Measure with `scripts/replay_payoffs.py`**, which reproduces every published net to the
    cent. A proposed change is a measurement, not an argument.
 7. Record the evidence in
-   [`hypothesis-ledger.md`](../brainstorm/sebi/strats/review/hypothesis-ledger.md), then
-   follow the [`learn-from-runs`](../../.devin/skills/learn-from-runs/SKILL.md) skill.
+   [`hypothesis-ledger.md`](../../../brainstorm/sebi/strats/review/hypothesis-ledger.md), then
+   follow the [`learn-from-runs`](../../../../.devin/skills/learn-from-runs/SKILL.md) skill.
 
 **Fold consistency is the bar, not the total.** Every constant currently shipped had to be
 positive on all four folds (odd/even, early/late). A big total on one fold is the Field's

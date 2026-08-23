@@ -102,6 +102,7 @@ The two scripts above are why we can say *measured* instead of *we think*. Start
 | --- | --- |
 | [`docs/GAME-AND-PROOFS.md`](docs/GAME-AND-PROOFS.md) | **the rules and the arithmetic** — the verified schedule and the fifteen derived results R1–R10, with §4 listing the claims we got wrong and corrected |
 | [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | how we decided things, in one denser page |
+| [`docs/POSTMORTEM.md`](docs/POSTMORTEM.md) | **written after all 100 Games settled** — where the money actually went, what the counterfactuals prove, and the fully re-scored standings |
 | [`docs/methodology-full.md`](docs/methodology-full.md) | the appendix, with every table |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | the design, and why the seams sit where they do |
 | [`docs/brainstorm/sebi/adr/`](docs/brainstorm/sebi/adr/) | architecture decision records — [ADR 0001](docs/brainstorm/sebi/adr/0001-the-model-reads-the-engine-prices.md) is the one that shaped everything |

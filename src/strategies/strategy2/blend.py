@@ -8,7 +8,8 @@ above `t` earns nothing at all, so a noisy estimate is hurt far worse than a bia
 
 More importantly it produces a width we can believe. `implied_sigma` in `src/pricing/engine.py`
 reads the width the *model asserts*, which has a median of 0.375 against a measured log
-error near 0.8, and which does not even correlate with the actual error — sorting Line Items
+error near 0.8 (**re-measured over 100 Games at ~1.0 for the model channel alone**, so the gap
+is wider still), and which does not even correlate with the actual error — sorting Line Items
 by asserted width puts the narrow third at a slightly *worse* error than the wide third. The
 spread *between framings* is a different quantity: disagreement we observed rather than
 confidence the model claimed. `blend` adds it in quadrature, so the band widens on exactly

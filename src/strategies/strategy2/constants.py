@@ -70,6 +70,15 @@ SETTLED_MEDIAN = 97.0
 #: measurement** — the one number in this file without evidence behind it. The estimator's
 #: real log error is nearer 0.8, so this is optimistic; `scripts/backtest.py` replaces it
 #: once a run is scored.
+#:
+#: **Re-measured post-tournament at ~1.0**, not 0.8 — the censoring-aware fit puts the model
+#: channel's residual at roughly a factor of 12 between its 20th and 90th percentiles
+#: (`C:model` stratum, `src/pricing/calibration.py`). So this prior is *more* optimistic than
+#: the comment above admits. It is deliberately **left at 0.6 anyway**: the only thing the value
+#: does is set memory's share of `blend.combine`, and that share was swept walk-forward over 99
+#: Games — 0.66 (what these two constants produce) is the argmax, and every larger share scores
+#: strictly worse. Correcting the number here would move a shipped optimum away from its
+#: measured peak. See H24 in the hypothesis ledger.
 MODEL_SIGMA_PRIOR = 0.6
 
 #: Price Memory's measured leave-one-out log error over Cases 1-14.

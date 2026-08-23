@@ -531,10 +531,20 @@ slicer and the rule that the index is the printed POS number.
 **Channel B — Price Memory, an anchor and not an answer.**
 [`src/evidence/memory.py`](../src/evidence/memory.py) holds the Fair Values reconstructed from
 settled Games, keyed on the normalised Line Item wording. Measured leave-one-out over Cases
-1–14 (each Case scored against a store built from the other thirteen) it reaches **22 %** of
+1–14 (each Case scored against a store built from the other thirteen) it reached **22 %** of
 the items with a known non-zero Fair Value at **σ = 0.43**. That is good enough to narrow a
 band and not good enough to settle a price on its own, so a hit is folded in as one estimate
 among several.
+
+**Re-measured over all 100 Games, that recall figure was four times too pessimistic, and it
+stayed in this file and in the module docstring for most of the tournament.** The finished store
+reaches **79 % (609/773) at σ = 0.458, bias +0.031**. Recall grows with the store, and the store
+finished at 325 wordings from 1,161 joined Line Items. The consequence was not academic: it is
+the sentence that justified treating a hit as a weak anchor, and replaying the tournament with
+the finished store — letting a hit price the item outright — scores **+630,751 weighted**, first
+place instead of fifth (`scripts/experiments/memory_first.py`, POSTMORTEM §5–6). What did *not*
+follow is raising memory's share of the blend: swept walk-forward, the score falls monotonically
+as the share rises above the shipped 0.66. The arithmetic was right; the store was wrong.
 
 Four measured details explain the shape of that module. Storing an hourly, per-metre,
 per-m² or per-kilogram position **per unit** and multiplying by the queried quantity on
@@ -779,8 +789,9 @@ plausible.
 
 [`scripts/replay_payoffs.py`](../scripts/replay_payoffs.py) answers the counterfactual that
 matters — *what would our net have been in Game g if we had submitted `(a, b)` instead?* —
-holding every opponent's real behaviour fixed. It self-checks by reproducing all fourteen of
-our published nets before it is trusted. Its output is the reason we are confident about the
+holding every opponent's real behaviour fixed. It self-checks by reproducing our published net
+before it is trusted — **99 of the 100 settled Games reconstruct exactly**, the exception being
+Game 67, where a Cap collision makes the Charges unrecoverable (`cap_collisions()`). Its output is the reason we are confident about the
 Charge multiplier: blurring a perfect estimate by a known log-noise gives
 
 | σ    | net over 14 Games, `a = t̂` | net over 14 Games, `a = 0.7 · t̂` |
@@ -824,8 +835,11 @@ bracket is bounded only when somebody was rightfully rejected on that item, so t
 ones are those nobody ever rightfully rejected — plausibly the expensive tail. **Every σ we
 quote is optimistic.**
 
-Where break-even sits is itself a measured quantity with an open disagreement, and it is worth
-knowing about rather than papering over: the payoff replay puts it at **σ ≈ 0.85** with
+Where break-even sits is itself a measured quantity, and the disagreement recorded below is now
+**closed**: over all 100 Games with the Limit free to move with the estimate, the crossing is
+**σ ≈ 0.57**, and our real submission sat at an effective **σ ≈ 0.52** — barely the right side.
+The 0.85 below came from Games 1–14 at a fixed Limit and is superseded; the paragraph is kept
+because the *reason* the two numbers differ is the point. The payoff replay puts it at **σ ≈ 0.85** with
 `a = 0.7 · t̂`, while `backtest.py`'s own blurred-oracle sweep puts it at **~0.75** with
 `a = t̂` and **~0.9** with `a = 0.7 · t̂`. An older figure of 0.35 came from a cruder model
 that proxied `t` with the field's median Charge and credited nothing for accepted Overcharges;
@@ -862,6 +876,31 @@ cost: Game 44's stolen watch carried 85 % of that Game's penalty and was tagged 
 by 58 EUR. It is the *median* that is wrong there, not the band — Game 44's posterior did
 contain the truth — which is why widening the band does not fix it and why it survives
 straight into the Charge.
+
+### After the hundredth Game — the post-mortem stack
+
+The tournament is over, and the measurement tooling grew a second layer that answers questions
+the per-Game learning loop cannot. All of it reads the same settled record; none of it calls a
+model. Full findings in [`POSTMORTEM.md`](POSTMORTEM.md), hypotheses **H21–H26** in the
+[ledger](brainstorm/sebi/strats/review/hypothesis-ledger.md).
+
+| module | what it answers |
+| --- | --- |
+| [`scripts/archive_tournament.py`](../scripts/archive_tournament.py) | Freezes the finished record into `data/tournament/` before the endpoints go away. **Refuses to write** unless every team's reconstructed total reproduces the published leaderboard to the cent — which is also how the undocumented 3× weighting on Games 81–100 was established. `pixi run archive`. |
+| [`scripts/postmortem.py`](../scripts/postmortem.py) | Splits every euro into its payoff branch, so the three avoidable losses — lawyer surcharge, fraud let through, forfeited income — are separated from the cost that was never avoidable. `pixi run postmortem`. |
+| [`scripts/experiments/ceiling.py`](../scripts/experiments/ceiling.py) | Default / actual / best-constant / oracle, on the same Games. The best constant scores **worse** than what we shipped, which is what retires constant-tuning as a source of value. |
+| [`scripts/experiments/price_of_sigma.py`](../scripts/experiments/price_of_sigma.py) | Converts estimator accuracy into euros, so an evidence-layer proposal can be costed before it is built. ≈ 5.8 M weighted per unit of log error in our operating region. |
+| [`scripts/experiments/counterfactual_standings.py`](../scripts/experiments/counterfactual_standings.py) | The only counterfactual here that can speak about **placement**: it recomputes all seventeen rows, because our Charges and Limits are half of every opponent's fixtures against us. `--validate` checks the cross terms against the settled rows first. `pixi run counterfactual`. |
+
+**One module sits in the pricing package but is deliberately not in the pricing path.**
+[`src/pricing/calibration.py`](../src/pricing/calibration.py) fits the log residual
+`log(t / t̂)` as **interval-censored** data — Turnbull's NPMLE — because a Fair Value bracket is
+bounded only when somebody rightfully rejected, which selects on the outcome. Scored
+leave-one-Game-out it **loses at every cell of a 42-cell sweep**, so it carries a `NOT WIRED IN`
+banner and `price_item` never calls it. It is kept because the measurement it makes corrected
+the diagnosis three experiments were built on: the apparent "+19 % estimation bias" is an
+artefact, and the censoring-aware median `t / t̂` is **0.982**. Before correcting a level error
+anywhere in this pipeline, fit the residual with the censored observations in.
 
 ---
 
