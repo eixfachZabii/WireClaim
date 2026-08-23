@@ -1373,3 +1373,33 @@ model channel adds almost nothing on top of the store -- and **89 % of the gain 
 1-25** (a swing of 577,283, against 69,863 across the other seventy-five). The finished strategy
 was worth about seventy thousand over the mature phase and more than half a million over the
 phase where we did not yet have it. Which is H25's conclusion, now with a rank attached.
+
+
+## H27 ⚠️ The Charge factor sits on the low edge of its optimum; the Limit must stay per-item
+
+**Two findings, opposite verdicts, from the same sweep** (`scripts/experiments/target_multipliers.py`,
+73 Games with a logged estimate, baseline 541,018 weighted).
+
+**The Limit: confirmed as-is, and emphatically.** Replacing the shipped stack (posterior quantile,
+capped by `LIMIT_CEILING` / `LIMIT_CEILING_MEMORY`, clamp released) with **any** flat multiple of
+`t_hat` loses money. The best flat value, `b = 1.0 * t_hat`, costs **-141,650**. The per-item
+logic carries real information a constant discards. R11 adds which way to err if forced: 1 % low
+costs 113,527, 1 % high costs 5,403, so **at or slightly above** the estimate, never below.
+
+**The Charge: the direction is supported, the value is not.** Derived, the argmax of
+`m * P(r >= log m)` at our measured sigma ~0.52 is **m = 0.78**, flat within 1 % over 0.70-0.86;
+the shipped rule yields **0.69** at a typical band -- inside the zone, on its bottom edge. Swept,
+every competitive cell has a shallower slope or higher intercept than `A=0.85, B=0.45`; the best
+is `A=0.85, B=0.25` at 636,422 (**+95,404**), positive on 4/4 folds, and a flat 0.75 reaches
+610,956.
+
+**Not shipped.** The surface is *jagged* -- 0.85/0.25 sits at 636,422 between neighbours at
+498,841 and 561,143 -- which is what an argmax riding specific Charges across specific opponents'
+Limits looks like, and the cell was selected in sample. Also of note: `m` is **nearly flat in
+sigma** (0.74-0.82 from 0.15 to 0.60, non-monotone), which is a direct argument against
+`CHARGE_SLOPE = 0.45` being that steep. A fold-clean fit of `(A, B)` is the open work; the grid
+here is not it.
+
+**Perspective.** All of this is worth tens of thousands. H21 puts 103 % of what remains in
+estimation and H22 prices it at ~5.8 M per unit of log error. The multiplier is nearly flat in
+sigma; the estimate is not.

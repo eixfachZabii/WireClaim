@@ -324,7 +324,63 @@ Recorded as **R11** in [`GAME-AND-PROOFS.md`](GAME-AND-PROOFS.md).
 
 ---
 
-## 8. What to do differently
+## 8. So what do we actually target for `a` and `b`?
+
+R11 gives the boundary condition; this is the working rule at the accuracy we actually have.
+Two independent routes, and they agree.
+
+### The Charge: `a ≈ 0.75–0.80 × t̂`, with a shallow σ-slope or none
+
+**Route one, derived.** Income from Charging `a = m · t̂` is `m · P(t ≥ a)` per opponent — at
+`a ≤ t` the Issuer is paid by all sixteen whether they accept or wrongfully reject, and R5c says
+to credit nothing above `t`. With the residual unbiased (§4) and `σ ≈ 0.52`, maximising
+`m · P(r ≥ log m)`:
+
+| σ | 0.15 | 0.25 | 0.35 | 0.458 | **0.52** | 0.60 | 0.75 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| best `m` | 0.805 | 0.760 | 0.745 | 0.760 | **0.780** | 0.820 | 0.945 |
+| flat within 1 % | .77–.83 | .71–.80 | .69–.80 | .69–.83 | **.70–.86** | .73–.92 | .82–1.07 |
+
+The striking thing is how **flat in σ** the optimum is: `m` sits at 0.74–0.82 across the entire
+practical range. It is *not* monotone — it dips to 0.745 at σ 0.35 and rises again in the
+high-σ tail, where the lognormal's long right tail makes a big Charge cheap to try. So the
+correct reading is not "better estimates let you charge more"; it is **the multiplier barely
+depends on σ at all**, which is a much stronger statement about the rule's shape.
+
+**Route two, swept.** Holding the Limit at what we really submitted and varying only
+`a = clamp(A − B·σ̂, 0.30, 0.80) · t̂` over the 73 Games with a logged estimate (baseline
+541,018): every competitive cell has a **shallower slope or higher intercept** than the shipped
+`A = 0.85, B = 0.45`. The best is `A = 0.85, B = 0.25` at **636,422 (+95,404), positive on all
+four folds**; `A = 0.75, B = 0` — a flat 0.75 — reaches 610,956.
+
+**Caveat, and it is why no constant is being changed on this alone.** The swept surface is
+*jagged*: `0.85/0.25` scores 636,422 between neighbours at 498,841 and 561,143. A jagged surface
+means the argmax is riding specific Charges crossing specific opponents' Limits, not sitting on
+a smooth optimum. The cell is in-sample. What survives is the **direction** — the shipped rule's
+effective factor of **0.69** at typical σ sits on the low edge of the derived flat zone
+(0.70–0.86), and both routes say it belongs nearer **0.78**.
+
+### The Limit: keep the shipped per-item stack — do not flatten it
+
+The one thing measured unambiguously here. Replacing the shipped Limit (a posterior quantile,
+capped by `LIMIT_CEILING` / `LIMIT_CEILING_MEMORY`, with the clamp released) by **any** flat
+multiple of `t̂` is expensive: `b = 1.0 · t̂`, the best flat value, costs **−141,650** against
+what we really submitted. The per-item logic is carrying real information that a constant
+discards.
+
+R11 says which way to err if you must: 1 % low costs 113,527 and 1 % high costs 5,403, so the
+Limit should sit **at or slightly above** the estimate, never below. The pipeline already
+reflects this — `LIMIT_CEILING_MEMORY` is 1.00 and the `b ≤ a` clamp was released at Game 66.
+
+### And `t̂ = t` is still the whole game
+
+Neither of the above is where the money is. §3 puts **103 % of everything still available** in
+estimation and §3's price list values it at ~5.8 M weighted per unit of log error. The Charge
+multiplier is worth tens of thousands and is nearly flat in σ; the estimate is worth millions.
+
+---
+
+## 9. What to do differently
 
 1. **Ship the store warm.** `data/price_memory.json` now holds all 325 wordings from 1,161
    joined Line Items across 100 Games, not 203 from 46. It is the one asset measured here that
@@ -359,6 +415,7 @@ PYTHONPATH=. python scripts/experiments/memory_first.py      # §5, both honesty
 PYTHONPATH=. python scripts/experiments/blend_weight_sweep.py     # §4, the blend weight
 PYTHONPATH=. python scripts/experiments/counterfactual_standings.py --validate  # §6
 PYTHONPATH=. python scripts/replay_payoffs.py --games all --sweep oracle        # §7
+PYTHONPATH=. python scripts/experiments/target_multipliers.py                   # §8
 ```
 
 `replay_payoffs.py --games all --self-check` reconstructs 99 of 100 Games exactly; Game 67 is

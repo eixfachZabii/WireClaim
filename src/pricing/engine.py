@@ -301,6 +301,31 @@ CHARGE_INTERCEPT = 0.85
 CHARGE_SLOPE = 0.45
 CHARGE_BOUNDS = (0.30, 0.80)
 
+# Post-tournament: these sit on the LOW EDGE of the optimum, and the slope is too steep.
+# Not changed, because the evidence says "direction" and not "value" -- see POSTMORTEM.md §8.
+#
+# Two independent routes agree. **Derived:** income from `a = m * t_hat` is `m * P(t >= a)` per
+# opponent, since at `a <= t` the Issuer is paid by all sixteen whether they accept or
+# wrongfully reject (R2) and R5c says to credit nothing above `t`. With the residual unbiased
+# (the censoring-aware fit puts median `t / t_hat` at 0.982) the argmax of `m * P(r >= log m)`
+# is **m = 0.78 at our measured sigma ~ 0.52**, flat within 1 % from 0.70 to 0.86. The shipped
+# rule yields 0.69 at a typical band -- inside that zone, on its bottom edge.
+#
+# The same table shows `m` is **nearly flat in sigma** (0.74-0.82 across 0.15 to 0.60, and not
+# monotone -- it dips at 0.35 and rises again in the high-sigma tail). That is an argument
+# against `CHARGE_SLOPE` being as large as 0.45 at all.
+#
+# **Swept**, Limit held at what we really submitted, 73 Games with a logged estimate, baseline
+# 541,018: every competitive cell has a shallower slope or higher intercept. Best is
+# `A = 0.85, B = 0.25` at 636,422 (+95,404), positive on all four folds; a flat 0.75 reaches
+# 610,956.
+#
+# **Why nothing is changed here.** The swept surface is jagged -- 0.85/0.25 scores 636,422
+# between neighbours at 498,841 and 561,143 -- which is the signature of an argmax riding
+# specific Charges across specific opponents' Limits rather than sitting on a smooth optimum,
+# and the cell was chosen in sample. Raising the factor toward 0.78 is the *direction* the
+# evidence supports; the exact pair needs a fold-clean fit, not this grid.
+
 # P(fair) > 2/3, so the Limit is the bottom-third quantile. Derived, not fitted -- and the
 # derivation is sound, but on the current evidence it is not what binds. Swept on its own
 # against the real Field it is worth almost nothing: every value from 0.20 to 0.90 lands
