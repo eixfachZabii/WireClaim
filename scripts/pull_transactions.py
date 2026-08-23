@@ -282,6 +282,39 @@ def line_item_count(rows: list[dict]) -> int:
     return max((row["line_item_index"] for row in rows), default=0)
 
 
+#: The organisers' final-rounds weighting, announced mid-tournament: "the final 20 of our 100
+#: rounds will receive 3x weighting ... every payment will be tripled -- money you pay to
+#: others; money you receive from others; and any penalties you incur. The weighted amounts
+#: will be reflected in the Games and Standings tabs. **The Transactions tab will remain
+#: unchanged** and will continue to show the original transaction amounts."
+#:
+#: That last sentence is why this lives here. `identity_net` below is arithmetic over the
+#: Transactions, so it stays unweighted, while the `/matrix` cell triples. Every cross-check in
+#: this repo compares those two -- `invert_fair_values.verify` and `replay_payoffs.snapshot` --
+#: and both would have called every Game from 81 a mismatch, dropping the 20 Games that carry
+#: ~35 % of the weighted `t` out of the learning loop entirely.
+WEIGHTED_ROUNDS = frozenset(range(81, 101))
+FINAL_ROUND_WEIGHT = 3.0
+
+
+def game_weight(game_id: int) -> float:
+    """The organisers' multiplier on every payment in this Game."""
+    return FINAL_ROUND_WEIGHT if game_id in WEIGHTED_ROUNDS else 1.0
+
+
+def cell_agrees(identity: float, cell: float) -> bool:
+    """Does a published cell match the rows, at either the plain or the tripled weight?
+
+    Both factors are accepted at every Game id rather than only inside `WEIGHTED_ROUNDS`, and
+    that is deliberate. The announcement says "the final 20 of our 100 rounds" while our
+    schedule holds 101 entries (Game 0 is the permanent test Case), so whether the window opens
+    at 80 or 81 is an inference and not something we were told. Accepting either factor is
+    correct whichever it is, and still rejects any *other* disagreement -- which is the only
+    thing the cross-check exists to catch. A near-zero net is unaffected: 1x and 3x coincide.
+    """
+    return abs(identity - cell) <= 0.01 or abs(identity * FINAL_ROUND_WEIGHT - cell) <= 0.01
+
+
 def identity_net(rows: list[dict], team: str) -> float:
     """The authoritative net from the rows alone (docs: the payoff identity).
 

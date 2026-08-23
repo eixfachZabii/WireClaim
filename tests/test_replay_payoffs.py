@@ -552,5 +552,45 @@ class BacktestTests(unittest.TestCase):
                 self.assertAlmostEqual(direct, scored, places=6)
 
 
+class FinalRoundWeightingTests(unittest.TestCase):
+    """The organisers triple every payment in the last 20 Games; the Transactions do not change.
+
+    Announced mid-tournament: "the final 20 of our 100 rounds will receive 3x weighting ...
+    The weighted amounts will be reflected in the Games and Standings tabs. **The Transactions
+    tab will remain unchanged.**"
+
+    So from Game 81 the `/matrix` cell is three times the identity computed from the rows, and
+    every cross-check in this repo compares exactly those two. Left alone,
+    `replay_payoffs.snapshot` and `invert_fair_values.verify` would have called every one of
+    those Games a mismatch and dropped the 20 Games carrying ~35 % of the weighted `t` out of
+    `usable_games()`, the pooled counterfactual and every sweep.
+
+    These tests exist because that path cannot be exercised until Game 81, which is precisely
+    when it would be most expensive to discover it had been refactored away.
+    """
+
+    def test_a_tripled_cell_is_accepted(self) -> None:
+        self.assertTrue(pt.cell_agrees(13_414.89, 13_414.89 * 3))
+        self.assertTrue(pt.cell_agrees(-9_720.0, -9_720.0 * 3))
+
+    def test_an_unweighted_cell_is_still_accepted(self) -> None:
+        self.assertTrue(pt.cell_agrees(13_414.89, 13_414.89))
+
+    def test_a_genuine_disagreement_is_still_rejected(self) -> None:
+        """The guard must not become a rubber stamp: only 1x and 3x, nothing between."""
+        self.assertFalse(pt.cell_agrees(13_414.89, 12_000.00))
+        self.assertFalse(pt.cell_agrees(13_414.89, 13_414.89 * 2))
+        self.assertFalse(pt.cell_agrees(13_414.89, 13_414.89 * 4))
+
+    def test_a_zero_net_is_unaffected(self) -> None:
+        self.assertTrue(pt.cell_agrees(0.0, 0.0))
+
+    def test_the_weight_switches_at_the_announced_boundary(self) -> None:
+        self.assertEqual(pt.game_weight(80), 1.0)
+        self.assertEqual(pt.game_weight(81), 3.0)
+        self.assertEqual(pt.game_weight(100), 3.0)
+        self.assertEqual(len(pt.WEIGHTED_ROUNDS), 20)
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
