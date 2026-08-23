@@ -29,6 +29,12 @@ This ran unattended 100 times, once every 12.6 minutes, in a 60-second window. A
 emits a number cannot be swept, folded or replayed; a prompt that emits evidence can, because the
 pricing is then a pure function we can re-run over the whole record in a minute.
 
+It also means there is something underneath when the model goes away — and it did. **Games 82–89,
+eight consecutive triple-weighted Games, ran with `model_draws=0`**: the model endpoint returned
+401 on every call for both draws and the fast path. The blind floor still posted at T+0, Price
+Memory priced what it recognised, the fitted constants covered the rest, and those eight Games
+banked **+254,092 weighted**. We did not notice until afterwards, which is the point.
+
 ## Why our counterfactuals are measurements, not arguments
 
 **The Fair Value is exactly recoverable.** A settled Transaction *rejected while carrying a
@@ -73,6 +79,13 @@ nudge, and the four-fold test had given false confidence: folds catch a result d
 *Games*, not one driven by a few *items*. A constant can be right about its data and wrong about
 its mechanism, and only the mechanism check catches it.
 
+That was not the only one. The eight dark Games above *look* like proof the model channel is dead
+weight — capture against the oracle ceiling was 28.4 % dark against 17.5 % live. A permutation test
+over 200,000 shuffles returns **p = 0.208**: capture has a standard deviation of 75 %, and one
+split in five is that lopsided by chance. Price Memory is measurably the better channel (log error
+0.43 against the model's realised 1.66–2.20), but "measurably better channel" and "switch the other
+one off" are different claims and only the first is evidenced.
+
 The two traps that each cost a working session: **conditioning on the outcome** (bucketing by what
 items turned out to be worth suggests raising the Limit on expensive items; bucketing by `t̂`, the
 only thing knowable at submission time, collapses the gradient — of 23 items we believed were
@@ -81,10 +94,11 @@ unbounded *because* nobody rightfully rejected, which is selection on the answer
 
 ## Where we stand, honestly
 
-Rank lags: Games 1–25 ran before the current estimator existed and cost 322,595, the whole of our
-deficit. Since the Charge fixes went live, eight settled Games run **+10,504 per Game**, against
-the best twenty-Game rate anyone in the field managed (+6,435). Eight Games is inside the noise
-floor and we say so rather than claiming the win.
+Rank lags the strategy. Games 1–25 ran before the current estimator existed and cost **322,595** —
+the whole of our deficit. Over the last twenty settled Games we are **2nd in the field by rate**
+(+17,302 per Game) while sitting 5th on season total, and the four teams above us on total are
+1st, 3rd, 4th and 5th by rate. We are not claiming that wins; we are saying the total measures
+when we started working and the rate measures what we built.
 
 The remaining gap is entirely `t̂`: **`a = b = t` reaches 100.3 % of the best possible play and is
 within 3 % on 70 of 70 Games**, while `a = b = t̂` scores −50,140. The 2,498,118 between them is
