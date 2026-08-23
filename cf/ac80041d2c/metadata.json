@@ -1,0 +1,24 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "cfac80041d2c",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/cf/ac80041d2c/0/metadata.json",
+      "transcript": "/cf/ac80041d2c/0/full.jsonl",
+      "compact_transcript": "/cf/ac80041d2c/0/transcript.jsonl",
+      "content_hash": "/cf/ac80041d2c/0/content_hash.txt",
+      "prompt": "/cf/ac80041d2c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 474,
+    "cache_creation_tokens": 870970,
+    "cache_read_tokens": 65892631,
+    "output_tokens": 292070,
+    "api_call_count": 237
+  }
+}
