@@ -37,8 +37,6 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 
 | game | item | name | a (actual) | b (actual) | t (derived) | a/t | b/t | item net | source |
 |---|---|---|---|---|---|---|---|---|---|
-| 52 | 1 | Internal frost-burst fitting repair including thermal- (1 flat rate) | 946.62 | 584.57 | 451.36 | 2.10 | 1.30 | -1,598.32 | submitted |
-| 52 | 2 | Exterior facade frost damage repair (re-plaster and (1 flat rate) | 1,829.33 | 0.00 | 22.50 | 81.30 | 0.00 | 0.00 | submitted |
 | 53 | 1 | Compensation for items taken in robbery (watch and (1 pcs) | 4,583.84 | 0.00 | 8,626.50 | 0.53 | 0.00 | -4,451.71 | submitted |
 | 53 | 2 | Translation and handling of police report for the claim1 flat rate | 169.13 | 0.00 | 0.00 | - | - | 0.00 | submitted |
 | 54 | 1 | - | 1,747.03 | 1,507.50 | 2,090.00 | 0.84 | 0.72 | 6,387.22 | reconstructed |
@@ -114,12 +112,21 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 | 61 | 13 | - | 26.26 | 5.80 | 45.00 | 0.58 | 0.13 | -100.60 | reconstructed |
 | 61 | 14 | - | 12.28 | 5.00 | 30.60 | 0.40 | 0.16 | -49.43 | reconstructed |
 | 61 | 15 | - | 587.66 | 130.47 | 800.00 | 0.73 | 0.16 | 16.05 | reconstructed |
+| 62 | 1 | - | 10,349.89 | 18.00 | 9,427.30 | 1.10 | 0.00 | -25,468.65 | reconstructed |
+| 62 | 2 | - | 597.25 | 17.00 | 214.84 | 2.78 | 0.08 | 836.00 | reconstructed |
+| 62 | 3 | - | 331.59 | 14.40 | 626.33 | 0.53 | 0.02 | -349.50 | reconstructed |
+| 62 | 4 | - | 58.95 | 2.51 | 84.42 | 0.70 | 0.03 | 87.59 | reconstructed |
+| 62 | 5 | - | 376.23 | 28.64 | 454.84 | 0.83 | 0.06 | 2,728.35 | reconstructed |
+| 62 | 6 | - | 58.95 | 3.14 | 40.34 | 1.46 | 0.08 | 360.57 | reconstructed |
+| 62 | 7 | - | 4,840.00 | 18.00 | 1,152.81 | 4.20 | 0.02 | 2,278.22 | reconstructed |
+| 62 | 8 | - | 134.79 | 16.50 | 16.50 | 8.17 | 1.00 | 134.79 | reconstructed |
+| 62 | 9 | - | 255.29 | 16.50 | 16.50 | 15.47 | 1.00 | 1,787.03 | reconstructed |
+| 62 | 10 | - | 90.82 | 10.39 | 50.54 | 1.80 | 0.21 | 329.91 | reconstructed |
 
 Net per round:
 
 | game | net |
 |---|---|
-| 52 | -1,598.32 |
 | 53 | -4,451.71 |
 | 54 | 6,941.68 |
 | 55 | -3,282.02 |
@@ -129,6 +136,7 @@ Net per round:
 | 59 | -7,370.56 |
 | 60 | 2,238.04 |
 | 61 | 4,131.32 |
+| 62 | -17,275.69 |
 <!-- OURVALUES:END -->
 
 ## Number tables
