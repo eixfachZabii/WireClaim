@@ -107,7 +107,7 @@ def windows(us: str = US) -> dict[str, tuple[int, ...]]:
 # --------------------------------------------------------------------------------- sweeps
 
 #: 0.00 is in the grid on purpose, and it is not a candidate: `b = 0` wrongfully rejects
-#: every fair Charge and is the incident default (README R7/R10). It is here as the *left*
+#: every fair Charge and is the incident default (GAME-AND-PROOFS R7/R10). It is here as the *left*
 #: end of the plateau, because a sweep that rises monotonically towards it is telling you the
 #: multiplier is not the binding constraint rather than telling you to reject everything.
 CEILINGS = (

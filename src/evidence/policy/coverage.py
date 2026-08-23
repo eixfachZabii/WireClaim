@@ -16,7 +16,7 @@ never collapse, and we paid in full on the 40% of positions that are worth nothi
 * It decides `p_covered` = P(the Policy indemnifies this position at all), i.e. P(t > 0).
   It does **not** decide whether the price is inflated; that is the pricing engine's job.
 * It never lowers the Charge. An uncovered item has `t = 0`, so a rejected Charge costs
-  nothing -- charging is a free option (README R6c, Game 3).
+  nothing -- charging is a free option (GAME-AND-PROOFS R6c, Game 3).
 * It never blocks or fails the submission. Every error path returns defaults, and
   `assess_coverage` does not raise.
 

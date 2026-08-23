@@ -80,7 +80,7 @@ def _all_games() -> tuple[int, ...]:
 
     This was `range(1, 28)` and stayed there while Games 28-32 settled, so every sweep run
     through this module was silently scoring five Games short — including the ones that
-    matter most, because a Field measurement does not survive a phase boundary (README R9).
+    matter most, because a Field measurement does not survive a phase boundary (GAME-AND-PROOFS R9).
     A literal range is also fragile the other way: widening it past the last settled Game
     raises `KeyError: 'items'` on the unsettled Game's cached payload. Ask the reconstructor.
     """

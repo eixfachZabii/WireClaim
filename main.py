@@ -137,7 +137,7 @@ def blind_floor() -> tuple[ItemPrice, ...]:
     game defaults of charge_price = 0 and acceptance_limit = 0. They still participate in
     transactions; omitting a line does not opt the team out of it." So silence is not
     abstention -- it is `a = 0, b = 0`, which earns nothing and wrongfully rejects every
-    fair claim at 1.5x (CLAUDE.md rule 1, README R7). Games 10-12 paid a combined 139,904
+    fair claim at 1.5x (CLAUDE.md rule 1, GAME-AND-PROOFS R7). Games 10-12 paid a combined 139,904
     to establish this, which is why `b5ba5dc` added this function.
 
     It was then deleted by `9b5ee55`, a 112-line refactor whose message does not mention it

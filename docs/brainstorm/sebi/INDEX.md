@@ -7,7 +7,7 @@ and the quick wins that stop the bleeding), then
 measured).
 
 The game itself, and the sixteen derived results, live in the root
-[`README.md`](../../../README.md). Vocabulary in [`CONTEXT.md`](../../CONTEXT.md).
+[`GAME-AND-PROOFS.md`](../../GAME-AND-PROOFS.md). Vocabulary in [`CONTEXT.md`](../../CONTEXT.md).
 
 ## The eight pitches
 

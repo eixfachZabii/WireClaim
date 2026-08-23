@@ -19,7 +19,7 @@ identical sample and pricing surface as everything else in the engine's docstrin
 Windows: all settled Games (1-38) and Games 19-37 (the task's requested window; 37 rather
 than 38 so the window does not depend on whichever Game most recently settled).
 Folds: odd/even (interleaved, same Field in both halves) and 1-20 -> 21-38 (disjoint,
-time-ordered -- the harder test, because README R9 says a Field measurement does not
+time-ordered -- the harder test, because GAME-AND-PROOFS R9 says a Field measurement does not
 survive a phase boundary).
 
 Usage

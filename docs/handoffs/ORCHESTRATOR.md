@@ -6,7 +6,7 @@ where money leaks, fan out subagents to investigate in parallel, verify with the
 harness, ship at most one validated change at a time, and never let the runner go dark.
 
 Read [`CLAUDE.md`](../../CLAUDE.md) first — all ten hard rules bind you. Read
-[`README.md`](../../README.md) for the derived results R1–R10. This file is the *situation*,
+[`docs/GAME-AND-PROOFS.md`](../GAME-AND-PROOFS.md) for the derived results R1–R10. This file is the *situation*,
 not a replacement for either.
 
 ---

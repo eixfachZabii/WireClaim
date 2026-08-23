@@ -1107,3 +1107,64 @@ blend is a bet against a measured noise floor, and the two changes tonight that 
 paper — the coverage recalibration and this — were both killed by a second look. The honest summary
 is that Price Memory is measurably the better channel and we ran out of evidence, not that the
 model should be switched off.
+
+## H20
+
+**The Limit is ~25 % too low, and it is a level error rather than a ranking error.** Measured
+over Games 82–97 against the settled cross-section, not simulated.
+
+The payoff table makes the reviewer's decision a single threshold. Rejecting costs `1.5a` when
+the Charge was fair and `0` when it was not; accepting costs `a` either way. So with `q = P(fair)`
+at the margin:
+
+    accept iff  1.5 * a * q  >  a      i.e.   q > 2/3
+
+Bucketing **our own rejections** by how far the opponent's Charge sat above **our own Limit**
+(`a / b`), with `a` recovered from any row where money moved and fairness read off any rejected
+row's `amount`:
+
+| `a / b` | n | `q = P(fair)` | cost if we reject | cost if we accept | gain from accepting |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1.00–1.25× | 412 | **83 %** | 170,151 | 136,253 | **+33,898** |
+| 1.25–1.50× | 145 | 54 % | 28,814 | 35,258 | −6,444 |
+| 1.50–2.00× | 134 | 44 % | 24,307 | 36,804 | −12,497 |
+| 2.00–3.00× | 145 | 32 % | 23,394 | 49,160 | −25,767 |
+| > 3× | 244 | 25 % | 42,920 | 116,362 | −73,441 |
+
+**`q` falls monotonically, so the Limit ranks claims correctly — it is simply set about 25 % too
+low.** Every band above 1.25× is already on the right side of the threshold; we are not too strict
+in general, we are too strict in exactly one narrow band. Unweighted that band is **+33,898** over
+sixteen Games; these are triple-weighted Games, so **≈ +101,700 weighted, ≈ 6.4k per Game.**
+
+**Why this is not the falsified "put `b` in the upper half" intuition.** That one raised `b` toward
+`t̂` as a *buffer*, which is unconditional generosity and stays wrong. This is a threshold crossing
+measured at the margin: the top row of the table is the only place the arithmetic flips, and it
+flips because `q = 83 % > 2/3` there. The CLAUDE.md line "a high `b` buys no protection from the
+lawyer at all, it only converts zeros into payments" is **wrong as stated** and should be corrected
+at the source: raising `b` converts a `1.5a` penalty into an `a` payment on every *fair* claim it
+newly admits, saving `0.5a` each. It only converts zeros into payments on *fraudulent* claims. Both
+effects are real; which dominates is exactly the `q > 2/3` test, and nothing else.
+
+**The censoring cuts the safe way, for once.** 217 of 1,297 rejections never revealed a Charge —
+every one of sixteen reviewers rejected them at `amount = 0`, which is the signature of a large
+*fraudulent* Charge. Dropping them therefore biases `q` **upward**. The finding breaks only if
+**101 of those 217** land in the narrowest, lowest band; they are by construction the largest
+Charges in the sample, so they land in `> 3×`. Survives.
+
+**Corroboration from the field, same Games, same Cases, same opponents (88–97, unweighted):**
+
+| | accept rate | wrongful-rejection penalty | claims paid | total Reviewer cost |
+| --- | ---: | ---: | ---: | ---: |
+| Codacabana (1st) | 61 % | 68,555 | 197,068 | **265,624** |
+| Bin busy (us) | 44 % | **259,575** | 65,238 | **324,812** |
+
+We accept the least of any scoring team and still pay the most. Our income over those Games
+(378,386) is within 11 % of Codacabana's (422,971) — **the Charge side is competitive and the gap
+to first place is 57 % Reviewer-side**, of which the wrongful-rejection penalty is 80 % of our
+total cost against their 26 %.
+
+**Not shipped, deliberately.** Found at Game 97 of 100 with two Games left. Maximum capture was
+~12.7k weighted against a 185k gap to fourth, so it could not change the standing, while an
+unvalidated edit to the pricing engine risked a whole Game — and a Game in this stretch is worth
+up to 96,869. Rule 8: uptime outranks accuracy. Recorded here as the measurement, which is what
+the next tournament needs from it.

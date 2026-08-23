@@ -429,19 +429,21 @@ Everyone gets a folder under `docs/brainstorm/`. Put ideas there, not in this
 README — this file is the shared understanding of the _game_, and it should only
 change when we learn something about the rules or prove a new result.
 
-## 9. Application scaffold
+## 9. What a Game touches, in order
 
-Minimal Python setup for the QuantCo Claim to Fame challenge.
+`main.py` owns the clock; everything below it is the pipeline that ran unattended for all 100
+Games. Architecture in [`ARCHITECTURE.md`](ARCHITECTURE.md), navigation in
+[`../README.md`](../README.md).
 
-`main.py` contains the complete flow:
-
-1. Read the game schedule.
-2. Notice when a game's UTC start time arrives.
-3. Fetch its decryption key.
-4. Extract the matching ZIP to `var/cases/case_XX`.
-5. Call `process_case()`, where the analysis code will be added.
-
-Submission is intentionally not implemented yet.
+1. Read the pinned schedule, wait for the Game's start time, fetch its decryption key.
+2. Extract the archive to `var/cases/case_XX` and parse policy, description and invoice.
+3. Gather **evidence** — coverage probability with the Policy clause quoted verbatim, a price
+   band with named anchors, the Price Memory anchor.
+4. Blend the channels in log space, then let `src/pricing/engine.py` — the only place a scored
+   number is decided — turn the posterior into a Charge and a Limit.
+5. Submit in four sequenced posts, merged per Line Item, so partial output is never discarded.
+6. When the Game settles, recover the true Fair Value from public Transactions and attribute the
+   miss to a stage.
 
 ## For anyone benchmarking this (the learning-loop record)
 

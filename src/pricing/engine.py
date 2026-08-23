@@ -29,7 +29,7 @@ fair*, and nothing otherwise. So accepting is right exactly when
 
     a < 1.5a * P(fair)      i.e.      P(fair) > 2/3
 
-which makes the Limit the **one-third quantile of the posterior over `t`** -- README R6's
+which makes the Limit the **one-third quantile of the posterior over `t`** -- GAME-AND-PROOFS R6's
 "bottom third", derived rather than asserted.
 
 Coverage uncertainty needs no separate branch: it is probability mass at zero. If an item
@@ -144,7 +144,7 @@ from dataclasses import dataclass
 # **First, the headline number is two populations added together, and one of them is free.**
 # 103 of the 320 Line Items have `t_lo = 0` -- nobody was ever owed money on them. A Charge
 # there is above `t` by construction, and a rejected Overcharge costs exactly nothing, so it
-# is the free option README R6c tells us to take. It accounts for **98 of the 135
+# is the free option GAME-AND-PROOFS R6c tells us to take. It accounts for **98 of the 135
 # unrecoverable Charges** and, replayed, for **zero euros** of forgone income. On the 217
 # Line Items that are actually worth something, this pricing over-charges **37 times (17%)
 # with median `a/t` 0.68** -- the same 0.68 the comparison holds up as the target. Every
@@ -534,7 +534,7 @@ LIMIT_QUANTILE = 1.0 / 3.0
 # Games 17 and 18 alone account for the reversal (-8,285 and -5,681 at 0.45). Over the full
 # set the two values differ by 2,802 on ~53,000, which is a coin flip, so this constant is
 # not really a pricing fact at all -- it is a fact about how generous the Field currently
-# is, and README R9 says a Field measurement does not survive a phase boundary. 0.85 was
+# is, and GAME-AND-PROOFS R9 says a Field measurement does not survive a phase boundary. 0.85 was
 # shipped on the strength of that four-Game window, "because we are paid on the Games that
 # come next".
 #
@@ -745,7 +745,7 @@ LIMIT_QUANTILE = 1.0 / 3.0
 # time -- train on Games 1-25, score on 26+ -- picks 0.70 and scores **-2,274**.
 #
 # The whole gain lives in Games 1-19 (+17,218 of the +17,835). The Field there was generous;
-# README R9 says that measurement does not survive a phase boundary, and Games 28-32 say it
+# GAME-AND-PROOFS R9 says that measurement does not survive a phase boundary, and Games 28-32 say it
 # did not. Every value above 0.45 loses on the most recent five Games. Left at 0.45.
 #
 # What would change it: three or four consecutive settled Games where 0.60 beats 0.45 on that
@@ -1068,7 +1068,7 @@ def price_item(
     `confirmed_uncovered` is for a proven exclusion — a policy clause quoted verbatim.
     It zeroes the Limit but never the Charge: an uncovered item has `t = 0`, so the
     honest branch pays nothing and a rejected Overcharge costs nothing, which makes the
-    Charge a free option (README R6c). Game 3 is the proof: every Line Item was
+    Charge a free option (GAME-AND-PROOFS R6c). Game 3 is the proof: every Line Item was
     uncovered, two teams Charged ~100 and were paid by 2 of 16, and the rest of the field
     scored zero.
 

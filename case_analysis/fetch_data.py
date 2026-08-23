@@ -15,7 +15,7 @@ Usage:
     python3 case_analysis/fetch_data.py --force    # re-fetch all games
 
 Only reads the same endpoints the public leaderboard page calls (allowed per
-README R9), at a polite rate.
+GAME-AND-PROOFS R9), at a polite rate.
 """
 
 from __future__ import annotations

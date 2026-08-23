@@ -146,7 +146,7 @@ def price_item(evidence: Evidence, *, confirmed_uncovered: bool = False) -> Pric
     `confirmed_uncovered` is for a proven exclusion — a policy clause quoted verbatim.
     It zeroes the Limit but never the Charge: an uncovered item has `t = 0`, so the
     honest branch pays nothing and a rejected Overcharge costs nothing, which makes the
-    Charge a free option (README R6c). Game 3 is the proof: every Line Item was
+    Charge a free option (GAME-AND-PROOFS R6c). Game 3 is the proof: every Line Item was
     uncovered, two teams Charged ~100 and were paid by 2 of 16, and the rest of the field
     scored zero.
     """

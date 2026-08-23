@@ -2,7 +2,8 @@
 
 Agent knowledge file. Rules, conventions, and the mistakes we already paid for.
 
-- [`README.md`](README.md) — the game, the verified schedule, and the fifteen derived results (R1–R10). **The source of truth for anything about how the tournament works.**
+- [`docs/GAME-AND-PROOFS.md`](docs/GAME-AND-PROOFS.md) — the game, the verified schedule, and the fifteen derived results (R1–R10). **The source of truth for anything about how the tournament works.** (This was `README.md` until the README became the judge-facing map.)
+- [`README.md`](README.md) — the judge-facing entry point: what to read, in what order, and where every file lives. Navigation only; it proves nothing.
 - [`CONTEXT.md`](docs/CONTEXT.md) — the ubiquitous language. Use these words; they were chosen to stop the drift that was already happening on day one.
 - [`docs/brainstorm/sebi/INDEX.md`](docs/brainstorm/sebi/INDEX.md) — what was pitched, what was picked, who owns what.
 - [`docs/handoffs/ORCHESTRATOR.md`](docs/handoffs/ORCHESTRATOR.md) — **start here if you are picking this up mid-tournament.** Where we stand, what first place costs in euros per Game, the seven fixes already measured and closed, and the subagent playbook. Invocable as `/handoff`.
@@ -35,7 +36,7 @@ Every single time someone reasoned about this game from intuition, they got it w
 | "The Limit should sit **above** `t̂`, so we never pay the lawyer."                | Right about the target, wrong about the action, and it flips on one substitution. Sweeping `b = m · t` against the **true** `t` gives a V with its minimum at exactly `m = 1.00` — `b = t`, costing more in both directions. Sweeping `b = m · t̂` against **our estimate** turns that V into a monotone increase whose cheapest point is as low as you can push it. **The flip between those two curves is the cost of our estimation error.** Also: rejecting a *fraudulent* claim is free — the `1.5×` only ever fires on a claim that was fair — so a high `b` buys no protection from the lawyer at all, it only converts zeros into payments. Measured: the field charges a median of **0.73 × `t`**, and 26 % of its Charges on real-money items are still above `t`. |
 | "`a = t = b` is optimal."                                           | Only under certainty. But closer than the "therefore `a > b`" correction that replaced it — both sit low, near each other (R6).     | An over-confident correction is still an error.    |
 
-**So: before you act on a claim about this game, check whether `README.md` already proves it. If it doesn't, write the arithmetic down and run it.** Three claims in the table above were written down as fact before a simulation falsified them. A claim without a number behind it is a guess wearing a suit.
+**So: before you act on a claim about this game, check whether `docs/GAME-AND-PROOFS.md` already proves it. If it doesn't, write the arithmetic down and run it.** Three claims in the table above were written down as fact before a simulation falsified them. A claim without a number behind it is a guess wearing a suit.
 
 ---
 
@@ -191,9 +192,9 @@ Read the leaderboard at the rate a browser would. Do not enumerate endpoints tha
 - **Vocabulary is not optional.** Charge / Limit / Fair Value / Estimate / Line Item / Case / Game / Issuer / Reviewer / Price Memory / Field. See [`CONTEXT.md`](docs/CONTEXT.md). "Track" always means a Strategy Track — the hackathon's QuantCo/Viktor/Cognition tracks are **Challenges**.
 - **Say "Overcharge", not "fraud".** A Charge above Fair Value is a priced bet with a known expected value, and the write-up has to describe it that way to a judge who sells insurance software.
 - **Never commit `TEAM_API_KEY`.** It lets anyone trade on our behalf. `.gitignore` covers `.env`, `*.key` and `secrets/`; keep it that way.
-- **Ideas go in `docs/brainstorm/<member>/`,** one folder each. `README.md` changes only when we learn something about the rules or prove a new result — it is shared understanding, not a scratchpad.
+- **Ideas go in `docs/brainstorm/<member>/`,** one folder each. `docs/GAME-AND-PROOFS.md` changes only when we learn something about the rules or prove a new result — it is shared understanding, not a scratchpad. `README.md` changes only when the repo's shape changes, because it is what a judge reads first.
 - **ADRs are for decisions that are hard to reverse, surprising without context, and the result of a real trade-off.** All three, or it is not an ADR.
-- **When you correct something, correct it at the source.** Every wrong claim in the table above was fixed in `README.md` itself, with the correction recorded. A stale doc is worse than no doc, because someone will build on it at 04:00.
+- **When you correct something, correct it at the source.** Every wrong claim in the table above was fixed in `docs/GAME-AND-PROOFS.md` itself, with the correction recorded. A stale doc is worse than no doc, because someone will build on it at 04:00.
 
 ---
 

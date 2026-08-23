@@ -4,7 +4,7 @@ Our entry to QuantCo's *Claim to Fame* challenge: a tournament in which every te
 simultaneously invoices and audits every other team, against a secret notion of a
 fair price. This glossary is the ubiquitous language — use these words in code,
 docs, commit messages and the pitch. It is a glossary only; mechanics live in
-`README.md`, decisions in `docs/adr/`.
+`GAME-AND-PROOFS.md`, decisions in `docs/adr/`.
 
 ## The game
 

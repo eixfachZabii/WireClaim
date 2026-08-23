@@ -99,7 +99,7 @@ def combine(model: Evidence | None, memory: Evidence | None) -> Evidence | None:
         #
         # `price_item` prices the Charge as if the item were covered on purpose: an
         # uncovered item has `t = 0`, so a rejected Charge costs nothing and charging is a
-        # free option (README R6c). Keep the model's coverage verdict — the Limit still
+        # free option (GAME-AND-PROOFS R6c). Keep the model's coverage verdict — the Limit still
         # collapses — and take the anchor's band. Replayed over the logged Games this is
         # +3,190, positive in all four Games it touches and neutral in the rest.
         return Evidence(

@@ -73,7 +73,7 @@ def worthless_evidence(index: int) -> Evidence:
 
     Coverage 0 collapses the Limit to zero in `price_item`, which is the point. The band is
     kept plausible rather than zero because an uncovered item has `t = 0`, so a rejected
-    Charge costs us nothing and charging is a free option (README R6c) — in Game 3, where
+    Charge costs us nothing and charging is a free option (GAME-AND-PROOFS R6c) — in Game 3, where
     every item was uncovered, two teams charged ~100 and were paid while the field scored 0.
     """
     return Evidence(
@@ -106,7 +106,7 @@ def aggregate_class_discount(
     Only the **Limit** moves, and only downward: `price_item` derives the Charge without ever
     reading `coverage_probability`, so Issuer income on the discounted members is untouched --
     which is right, because an uncovered item is worth `t = 0` and a rejected Charge on it
-    costs nothing (README R6c). Worth +2,026.89 replayed over Game 44.
+    costs nothing (GAME-AND-PROOFS R6c). Worth +2,026.89 replayed over Game 44.
 
     Deliberately narrow. It fires only where a class has two or more matched members that
     *both* carry model evidence to compare; one matched member, or a member the model never

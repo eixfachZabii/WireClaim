@@ -9,7 +9,7 @@ workflows:
 3. replay Proposals captured in live decision logs without calling a model; and
 4. expose historical Games through a local replacement for the Tournament API.
 
-The tournament rules and payoff arithmetic live in the repository [README](../README.md).
+The tournament rules and payoff arithmetic live in [`docs/GAME-AND-PROOFS.md`](../docs/GAME-AND-PROOFS.md).
 That document remains the source of truth for how the game works. This guide explains how to
 operate and extend the backtesting package without re-deriving those rules.
 

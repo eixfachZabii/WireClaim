@@ -3,7 +3,7 @@
 Reads case_analysis/data/raw/ (produced by fetch_data.py) and writes
 case_analysis/data/analysis.json with, per settled Game and Line Item:
 
-- every team's Charge `a` (recovered from published amounts, README R9 semantics:
+- every team's Charge `a` (recovered from published amounts, GAME-AND-PROOFS R9 semantics:
   the published `amount` is what the Issuer receives in BOTH branches — the 0.5a
   lawyer fee never appears in a Transaction row),
 - every team's Limit `b` as an interval [b_lo, b_hi) reconstructed from what the
@@ -36,7 +36,7 @@ DATA_DIR = Path(__file__).resolve().parent / "data"
 RAW_DIR = DATA_DIR / "raw"
 OUT_PATH = DATA_DIR / "analysis.json"
 
-# Deployed heuristic (README R5b): a well-calibrated issuer charges ~0.7 * t_hat.
+# Deployed heuristic (GAME-AND-PROOFS R5b): a well-calibrated issuer charges ~0.7 * t_hat.
 CHARGE_TO_T_RATIO = 0.7
 
 

@@ -9,7 +9,7 @@
 > Related reading, in the order you will want it: [`GAME_DESCRIPTION.md`](GAME_DESCRIPTION.md)
 > is the organisers' rulebook, [`CONTEXT.md`](CONTEXT.md) fixes the vocabulary,
 > [`../CLAUDE.md`](../CLAUDE.md) carries the working rules, and
-> [`../README.md`](../README.md) proves the tournament arithmetic. The design this document
+> [`GAME-AND-PROOFS.md`](GAME-AND-PROOFS.md) proves the tournament arithmetic. The design this document
 > describes was written up in
 > [`brainstorm/sebi/strats/review/strategy2-plan.md`](brainstorm/sebi/strats/review/strategy2-plan.md);
 > where the shipped code and that plan disagree, the disagreements are listed in

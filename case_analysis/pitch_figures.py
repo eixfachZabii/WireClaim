@@ -44,7 +44,8 @@ ERAS = [
 ]
 DARK_CHANNEL = (82, 89)  # model channel 401'd; model_draws = 0
 CONSISTENCY_WINDOW = (68, 97)  # the last 30 settled Games; over the narrower
-                               # 20-Game window we are 4th on mean/sigma, not 1st
+                               # 20-Game window we are 4th on mean/sigma, not 1st.
+                               # Recomputed from the data in main() -- never edit by hand.
 REBASE_ANCHOR = 20       # Strategy 2 went live around here
 REBASE_SENSITIVITY = 26  # conservative cut: G21-24 shipped the fallback Limit of 35
 
@@ -623,6 +624,8 @@ def fig_rebased(th, games, teams, bal):
 
 def main() -> None:
     games, teams, bal = load_balance()
+    global CONSISTENCY_WINDOW
+    CONSISTENCY_WINDOW = (games[-30], games[-1])
     mgames, nets = load_money()
     assert mgames == games, "balance.csv and binbusy_money.csv disagree on Games"
 
