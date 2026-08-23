@@ -360,8 +360,68 @@ CHARGE_BOUNDS = (0.30, 0.80)
 # What would falsify it: the tail bucket's direction balance shifting. Re-run
 # `scripts/export_runs.py` and re-bucket -- if "proven too high" falls near 50 %, the free
 # half of the asymmetry is gone and this constant should go back to 1.0.
+#
+# ## Reverted to 1.0 at Game 63, and not by the falsifier above
+#
+# The direction balance held: over Games 26-63 the tail bucket is **67 % proven too high and
+# 15 % proven too low at n=33**, with a median `t_hat / t` of 3.03 -- the same shape it was
+# fitted on. The stated falsifier is *not* tripped. What broke is the sentence above it:
+#
+#     "On an item already above `t` the income is ~0 whatever we Charge, so raising it costs
+#      nothing."
+#
+# Income above `t` is not ~0, and the gap is not small. The payoff table pays the issuer on a
+# **wrongful rejection too**: a Charge with `a <= t` is owed by every opponent whatever their
+# Limit, while an Overcharge is paid only by the few who accept. So a fair Charge collects
+# from 16 opponents and an Overcharge from about 3. Crossing `t` costs ~5x the income, and
+# raising the Charge is precisely what moves in-band items across. This note already conceded
+# the risk -- "the in-band items are the only real risk, since a scale can push them across
+# the cliff. At 1.25 most stay in band" -- and that is the half that turned out to be wrong.
+#
+# Game 62 is the worked example. Line Item 1, "Renew boiler system including flue gas
+# system", settled at `t in [8505, 10350)`. `charge_factor(sigma) * median = 8,280`, which is
+# fair. The 1.25 lifted it to **10,349.89**, one step past the ceiling: 13 of 16 opponents
+# rightfully rejected and paid nothing, income 31,050 where ~132,480 was available.
+# `error404 ai` Charged **8,504.71** on the same item, was owed it by all 16, and took
+# **136,075 -- 87 % of their whole Game** (their net +101,531 against our -17,276).
+#
+# Re-swept through `price_item` and `replay_payoffs.replay` over all 63 Games with a decision
+# log (`scripts/experiments/big_charge_floor_sweep.py`), delta against the shipped 1.25:
+#
+#     scale        all       odd      even   Games<=40   Games>40   crossings
+#      0.90    +25,869    -2,168   +28,037     +1,821    +24,049    11->fair  0->over
+#      1.00    +79,240    -6,318   +85,559     +5,490    +73,750     9->fair  0->over   <- shipped
+#      1.10    +72,900   -19,201   +92,100     -5,355    +78,255     4->fair  0->over
+#      1.25         +0        +0        +0         +0         +0     0->fair  0->over
+#
+# +79,240 clears the +/-49,805 noise floor at n=63, and the mechanism is visible and
+# one-directional: **nine Line Items move from Overcharge to fair and none move the other
+# way.** The odd fold is -6,318 against a half-fold noise floor of +/-35,496 -- 18 % of it,
+# which is flat, not negative. The original fit that chose 1.25 was +36,525 at n=26 against a
+# +/-31,996 floor; it only just passed then, and it reverses on 2.4x the sample.
+#
+# `scripts/experiments/big_charge_sweep_capped.py` also settles a suspicion worth recording as
+# closed: enforcing the payment Cap (`c = max(4t, 2000)`) instead of `replay_payoffs.py`'s
+# infinite-Cap simplification changes **nothing** -- every rule, every fold, identical to the
+# cent. The Cap can only bind on an *accepted* Overcharge, and the reconstructed Field's
+# Limits essentially never accept a Charge large enough. Our Charge constants were not fitted
+# on a Cap-biased harness.
+#
+# The multiplier is kept as a named constant at 1.0 rather than deleted because the live
+# candidate that replaces it needs the same branch: `charge = max(charge_factor(sigma) *
+# median, f * price_high)` scores +85,594 to +109,198 and is positive on **all four** folds
+# for every `f` in 0.20-0.40, a five-value plateau rather than an argmax. It is not shipped
+# with this change because that is two changes at once, and because the plateau is
+# non-monotone (+109,198 at 0.30, +85,594 at 0.35) in a way no mechanism yet explains -- and
+# an effect that cannot be explained should not be tuned to its peak. See H14 in
+# `docs/brainstorm/sebi/strats/review/hypothesis-ledger.md`.
+#
+# What would falsify *this* revision: the crossing count reversing. Re-run
+# `big_charge_floor_sweep.py`; if `scale 1.0` starts moving items from fair to Overcharge, or
+# the total falls inside the noise floor, the estimator's level has moved and the multiplier
+# should be re-swept rather than assumed dead.
 BIG_ITEM_THRESHOLD = 1000.0
-BIG_ITEM_CHARGE_SCALE = 1.25
+BIG_ITEM_CHARGE_SCALE = 1.0
 
 LIMIT_QUANTILE = 1.0 / 3.0
 

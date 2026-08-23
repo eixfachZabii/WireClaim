@@ -431,8 +431,14 @@ class TheChargeIsUnconditional(unittest.TestCase):
         below `BIG_ITEM_THRESHOLD`. The one exception is measured in the opposite
         direction to everything above: those figures are all *downward* multipliers on
         `t_hat >= 500`, and re-running that exact cell today still loses (-17,033 at 1.25).
-        `BIG_ITEM_CHARGE_SCALE` raises the Charge on `t_hat >= 1,000` instead, where two
-        thirds of our estimates are already above `t` and earning nothing.
+        `BIG_ITEM_CHARGE_SCALE` used to raise the Charge on `t_hat >= 1,000` instead, on
+        the argument that two thirds of our estimates there are already above `t` and
+        earning nothing. It is **1.0 as of Game 63**: income above `t` is not nothing (a
+        wrongful rejection still owes the issuer the full Charge, so a fair Charge is paid
+        by all 16 opponents and an Overcharge by about 3), and raising the Charge moved
+        nine Line Items across `t` for -79,240. See the constant's own note. The branch
+        below is kept, and multiplies by the constant rather than by a literal, so this
+        test states the invariant for whatever value that constant next takes.
         """
         for median in (10.0, 49.0, 51.0, 499.0, 501.0, 999.0):
             one = price_item(self.band(median))
