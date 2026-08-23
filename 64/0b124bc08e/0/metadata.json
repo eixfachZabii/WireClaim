@@ -1,0 +1,77 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "640b124bc08e",
+  "session_id": "42fab47d-dadc-46a5-a942-2e7cde39f064",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-23T09:54:35.85941Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "save_step_count": 1,
+  "files_touched": [
+    "case_analysis/data/analysis.json",
+    "case_analysis/data/balance.csv",
+    "case_analysis/data/balance.png",
+    "case_analysis/data/binbusy_money.csv",
+    "case_analysis/data/binbusy_money.png",
+    "case_analysis/data/dashboard.png",
+    "case_analysis/data/table_averages.csv",
+    "case_analysis/data/table_averages.png",
+    "case_analysis/data/table_binbusy.csv",
+    "case_analysis/data/table_binbusy.png",
+    "case_analysis/data/teams.csv"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5",
+  "turn_id": "0c1892bd2cc8",
+  "checkpoint_transcript_start": 862,
+  "transcript_lines_at_start": 862,
+  "compact_transcript_start": 116,
+  "token_usage": {
+    "input_tokens": 32,
+    "cache_creation_tokens": 30616,
+    "cache_read_tokens": 3488422,
+    "output_tokens": 19023,
+    "api_call_count": 16
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-23T09:54:35.610993Z",
+    "agent_lines": 359280,
+    "agent_removed": 358325,
+    "human_added": 32,
+    "human_modified": 66,
+    "human_removed": 0,
+    "total_committed": 359378,
+    "total_lines_changed": 717811,
+    "agent_percentage": 99.97130163789633,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 59,
+      "user_lines_removed": 76,
+      "agent_lines_added": 359346,
+      "agent_lines_removed": 358325,
+      "user_added_per_file": {
+        "case_analysis/dashboard.md": 4,
+        "case_analysis/data/ourvalues.csv": 3,
+        "case_analysis/data/tvalues.csv": 52
+      },
+      "user_removed_per_file": {
+        "case_analysis/dashboard.md": 10,
+        "case_analysis/data/ourvalues.csv": 9,
+        "case_analysis/data/tvalues.csv": 57
+      }
+    }
+  ]
+}
