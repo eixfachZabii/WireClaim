@@ -526,7 +526,7 @@ def fig_rebased(th, games, teams, bal):
     ax.set_xlim(a - 0.8, last + 0.8)
     ax.set_ylim(ymin, ymax)
     off_axis = sum(1 for t in teams if total[t] < ymin)
-    worst = min(total.values())
+    worst = f"{min(total.values()) / 1e6:.2f}M".replace("-", "−")
 
     draw_eras(ax, th, last, 0.955, xmin=a - 0.8)
     ax.grid(axis="y", color=th["grid"], lw=0.9, alpha=0.9, zorder=1)
@@ -575,8 +575,8 @@ def fig_rebased(th, games, teams, bal):
             f"{ordinal(rank)} of {len(teams)}   {eur(total[US])}",
             ha="left", va="top", fontsize=14, color=th["accent"], zorder=9)
     ax.text(last + 2.6, label_y[US] - 0.10 * spread - 0.055 * (ymax - ymin),
-            f"{eur(rate[US])} per Game", ha="left", va="top", fontsize=12.5,
-            color=th["muted"], zorder=9)
+            f"{eur(rate[US])} per Game  ·  {ordinal(rank_rate)}", ha="left",
+            va="top", fontsize=12.5, color=th["muted"], zorder=9)
 
     draw_dark_channel(ax, th, 0.072, 0.095, "G82–89 model channel dark")
 
@@ -594,7 +594,7 @@ def fig_rebased(th, games, teams, bal):
     fig.text(0.065, 0.910,
              f"cumulative net over Games {a}–{last}  ·  re-based to zero at "
              f"Game {a}  ·  unweighted per-Game nets  ·  {off_axis} teams run "
-             f"off the bottom, to {worst/1e6:.2f}M".replace("-", "−"),
+             f"off the bottom, to {worst}",
              fontsize=14.5, color=th["muted"], va="top")
     fig.text(0.065, 0.872,
              f"{ordinal(rank)} of {len(teams)} over the {last - a} Games "
