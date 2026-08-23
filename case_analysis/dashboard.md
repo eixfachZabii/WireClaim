@@ -37,15 +37,6 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 
 | game | item | name | a (actual) | b (actual) | t (derived) | a/t | b/t | item net | source |
 |---|---|---|---|---|---|---|---|---|---|
-| 58 | 1 | Made-to-measure replacement glass pane (1 pcs) | 169.20 | 0.00 | 35.00 | 4.83 | 0.00 | 507.60 | submitted |
-| 58 | 2 | Hole drilling (1 pcs) | 33.73 | 0.00 | 7.00 | 4.82 | 0.00 | 33.73 | submitted |
-| 58 | 3 | Installation of the new glass into the frame (1 pcs) | 112.47 | 0.00 | 20.40 | 5.51 | 0.00 | 112.47 | submitted |
-| 58 | 4 | Disposal of broken glass | 64.06 | 0.00 | 8.00 | 8.01 | 0.00 | 192.18 | submitted |
-| 58 | 5 | Repair of dented solid-wood side table (knocked over (1 flat rate) | 259.74 | 174.98 | 239.77 | 1.08 | 0.73 | -1,624.55 | submitted |
-| 58 | 6 | Touch-up of pre-existing scratches on a second cabinet | 64.06 | 0.00 | 0.00 | - | - | 0.00 | submitted |
-| 58 | 7 | Vehicle costs (1 pcs) | 49.62 | 49.62 | 6.97 | 7.11 | 7.11 | 79.59 | submitted |
-| 58 | 8 | Vehicle costs – return visit | 64.06 | 0.00 | 0.00 | - | - | 0.00 | submitted |
-| 58 | 9 | Administrative flat rate (1 flat rate) | 33.73 | 0.00 | 4.00 | 8.43 | 0.00 | 33.73 | submitted |
 | 59 | 1 | Remove water-damaged laminate in living room (18 m²) | 299.23 | 299.23 | 540.00 | 0.55 | 0.55 | -278.41 | submitted |
 | 59 | 2 | Supply & install premium oak laminate incl. impact (18 m²) | 1,428.18 | 701.77 | 1,451.09 | 0.98 | 0.48 | 3,211.92 | submitted |
 | 59 | 3 | Supply and install skirting boards (premium solid oak, | 321.94 | 321.94 | 1,036.19 | 0.31 | 0.31 | -3,546.22 | submitted |
@@ -126,12 +117,22 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 | 67 | 8 | - | - | 16.50 | 16.50 | - | 1.00 | 0.00 | reconstructed |
 | 67 | 9 | - | - | 16.50 | 16.50 | - | 1.00 | 0.00 | reconstructed |
 | 67 | 10 | - | - | 8.50 | 8.50 | - | 1.00 | 0.00 | reconstructed |
+| 68 | 1 | - | 551.11 | 387.06 | 1,554.59 | 0.35 | 0.25 | -3,676.94 | reconstructed |
+| 68 | 2 | - | 223.11 | 142.48 | 499.12 | 0.45 | 0.29 | -827.83 | reconstructed |
+| 68 | 3 | - | 256.20 | 224.55 | 855.00 | 0.30 | 0.26 | -66.74 | reconstructed |
+| 68 | 4 | - | 540.60 | 48.88 | 2,234.00 | 0.24 | 0.02 | -6,490.81 | reconstructed |
+| 68 | 5 | - | 5,941.79 | 525.39 | 2,635.50 | 2.25 | 0.20 | 734.12 | reconstructed |
+| 68 | 6 | - | - | 0.00 | 0.00 | - | - | 0.00 | reconstructed |
+| 68 | 7 | - | 15.94 | 2.70 | 2.70 | 5.90 | 1.00 | 15.94 | reconstructed |
+| 68 | 8 | - | - | 8.00 | 8.00 | - | 1.00 | 0.00 | reconstructed |
+| 68 | 9 | - | 309.24 | 226.46 | 177.61 | 1.74 | 1.28 | -25.73 | reconstructed |
+| 68 | 10 | - | 266.69 | 179.06 | 140.25 | 1.90 | 1.28 | 618.14 | reconstructed |
+| 68 | 11 | - | - | 10.62 | 10.62 | - | 1.00 | 0.00 | reconstructed |
 
 Net per round:
 
 | game | net |
 |---|---|
-| 58 | -665.25 |
 | 59 | -7,370.56 |
 | 60 | 2,238.04 |
 | 61 | 4,131.32 |
@@ -141,6 +142,7 @@ Net per round:
 | 65 | -1,014.30 |
 | 66 | 19,024.77 |
 | 67 | 13,414.89 |
+| 68 | -9,719.85 |
 <!-- OURVALUES:END -->
 
 ## Number tables
