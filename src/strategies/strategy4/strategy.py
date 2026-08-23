@@ -42,6 +42,7 @@ from src.strategies.strategy4.constants import (
     AGREEMENT_RATIO,
     CONFIRMATION_RATIO,
     CONFLICT_RATIO,
+    LARGE_ITEM_REREAD_THRESHOLD,
     MIN_ADJUDICATION_SECONDS,
     STRATEGY_NAME,
     TAIL_PROBABILITY,
@@ -172,10 +173,35 @@ def _find_conflicts(
         raw = items.get(line_item.index)
         if raw is None or raw.get("quantity_missing"):
             continue
-        if "B:memory" not in tuple(raw.get("channels") or ()):
-            continue
         combined = _logged_evidence(line_item.index, raw)
         if combined is None:
+            continue
+        if "B:memory" not in tuple(raw.get("channels") or ()):
+            # No memory anchor, so the disagreement gate below cannot be evaluated. Large
+            # estimates are still sent for adjudication, **for the record only** -- see
+            # `LARGE_ITEM_REREAD_THRESHOLD`. `memory` and `model` are deliberately the same
+            # object, which makes `_confirms_tail` structurally unable to fire (it needs the
+            # model to sit at twice the incumbent, and here they are equal), so the Proposal
+            # is unchanged and the whole value is the reread recorded in the trace.
+            if combined.price_median >= LARGE_ITEM_REREAD_THRESHOLD:
+                conflicts[line_item.index] = Conflict(
+                    line_item.index,
+                    line_item.name,
+                    PriceMemoryHit(
+                        name=line_item.name,
+                        key="",
+                        match="large-item-review",
+                        low=combined.price_low,
+                        median=combined.price_median,
+                        high=combined.price_high,
+                        observations=0,
+                        games=(),
+                        basis="gross",
+                    ),
+                    combined,
+                    combined,
+                    combined.coverage_probability,
+                )
             continue
         try:
             hit = lookup(

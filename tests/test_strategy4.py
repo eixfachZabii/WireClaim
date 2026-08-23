@@ -125,5 +125,102 @@ class Strategy4Tests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(candidate.prices[0].charge_price, baseline.prices[0].charge_price)
 
 
+def large_model_only_case() -> tuple[CaseData, dict]:
+    """Game 67 Line Item 1, verbatim: `C:model` alone, and it settled at `t < 33`."""
+    name = "Renew boiler system including flue gas system and (1   flat rate)"
+    case = CaseData(67, Path("case"), line_items=(LineItem(1, name), LineItem(2, "Vehicle costs")))
+    payload = {
+        "schema": 2,
+        "game_id": 67,
+        "strategy": "strategy2",
+        "items": [
+            {
+                "index": 1,
+                "name": name,
+                "quantity": 1.0,
+                "quantity_missing": False,
+                "channels": ["C:model"],
+                "coverage_probability": 0.98,
+                "price_low": 8_000.0,
+                "price_median": 13_730.0,
+                "price_high": 23_000.0,
+                "charge": 10_343.65,
+                "limit": 708.0,
+            },
+            {
+                "index": 2,
+                "name": "Vehicle costs",
+                "quantity": 1.0,
+                "quantity_missing": False,
+                "channels": ["C:model"],
+                "coverage_probability": 0.94,
+                "price_low": 50.0,
+                "price_median": 84.0,
+                "price_high": 140.0,
+                "charge": 66.58,
+                "limit": 68.94,
+            },
+        ],
+    }
+    return case, payload
+
+
+class LargeItemRereadTests(unittest.IsolatedAsyncioTestCase):
+    """A large model-only estimate is sent for a second reading, and never repriced on it.
+
+    The gates that existed before required a Price Memory hit, so nine Games produced zero
+    conflicts and this track tied Strategy 2 to the cent every time. The estimates that actually
+    cost money could not reach them: Game 67's boiler at 13,730 against a settled `t < 33` and
+    Game 68's ring at 8,000 against `t in [2421, 2850)` were both `C:model` alone.
+    """
+
+    def test_a_large_model_only_estimate_is_selected(self) -> None:
+        case, payload = large_model_only_case()
+        conflicts = _find_conflicts(case, payload)
+
+        self.assertEqual(set(conflicts), {1}, "only the item over the threshold")
+        self.assertEqual(conflicts[1].memory_hit.match, "large-item-review")
+
+    def test_a_small_model_only_estimate_is_left_alone(self) -> None:
+        """The threshold must not quietly become "adjudicate everything": each item added is
+        another line in a prompt the Case has 60 seconds to answer."""
+        case, payload = large_model_only_case()
+        payload["items"][0]["price_median"] = 1_999.0
+        self.assertEqual(_find_conflicts(case, payload), {})
+
+    def test_the_reread_is_recorded_but_never_changes_the_price(self) -> None:
+        """The whole first step is buying evidence. `_confirms_tail` cannot fire on this path
+        because the incumbent and the model reading are the same Evidence, so whatever the
+        adjudication says, the Proposal must equal Strategy 2's."""
+        case, payload = large_model_only_case()
+        baseline = Proposal(
+            "strategy2",
+            (
+                ItemPrice(1, 10_343.65, 708.0, "strategy2"),
+                ItemPrice(2, 66.58, 68.94, "strategy2"),
+            ),
+        )
+        # The reread disagrees violently in both directions; neither may move the Proposal.
+        for reread_median in (300.0, 90_000.0):
+            with self.subTest(reread=reread_median), tempfile.TemporaryDirectory() as directory, patch(
+                "src.strategies.strategy4.strategy.TRACE_DIR", Path(directory)
+            ), patch(
+                "src.strategies.strategy4.strategy.load_decisions", return_value=payload
+            ), patch(
+                "src.strategies.strategy4.strategy._adjudicate",
+                new=AsyncMock(
+                    return_value={1: Evidence(1, 0.98, reread_median * 0.7, reread_median, reread_median * 1.4)}
+                ),
+            ):
+                candidate = asyncio.run(propose(case, None, baseline=baseline))
+
+            self.assertIsNotNone(candidate)
+            self.assertEqual(candidate.source, STRATEGY_NAME)
+            self.assertEqual(
+                {p.index: (p.charge_price, p.acceptance_limit) for p in candidate.prices},
+                {1: (10_343.65, 708.0), 2: (66.58, 68.94)},
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
