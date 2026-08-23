@@ -84,3 +84,9 @@ var/decisions/game_[0-9][0-9][0-9][0-9].json
 # case_analysis raw leaderboard pulls (regenerable via case_analysis/fetch_data.py)
 case_analysis/data/raw/
 
+# Claim data belongs to QuantCo and must never enter this repository. The organisers were
+# explicit: checking in invoice PDFs or policies carries a ranking penalty, and these repos go
+# public. `cases/` below already covers the extracted Cases; these two lines cover the archives
+# and anything derived that reproduces invoice text verbatim.
+[PUBLIC] EHL Cases/cases/
+var/export/
