@@ -1,0 +1,166 @@
+Base directory for this skill: /Users/sebastianrogg/.claude/skills/plantuml-diagrams
+
+# PlantUML Diagramme
+
+## Zweck
+
+Dieser Skill produziert hochwertige PlantUML-Diagramme: erst der `.puml`-Quelltext, dann das gerenderte Bild (PNG/SVG/PDF). Er bündelt Vorlagen für jeden gängigen Diagrammtyp, ein einheitliches Styling und ein Render-Skript, das die lokale `plantuml`-CLI verwendet.
+
+## Wann verwenden
+
+Den Skill aktivieren, sobald der User:
+
+- ein Sequenz-, Klassen-, Komponenten-, Zustands-, Aktivitäts-, Use-Case-, Deployment-, ER-, Mindmap-, Gantt- oder C4-Diagramm anfragt
+- vorhandene `.puml`-Dateien rendern, ändern oder reviewen will
+- aus einer Code- oder Architekturbeschreibung ein Diagramm ableiten lassen will
+- explizit "PlantUML", "UML", "Sequenzdiagramm", "Klassendiagramm" o.ä. nennt
+
+Nicht verwenden für: handgezeichnete Skizzen, Mermaid-Diagramme (andere Syntax), TikZ-Architekturbilder (dafür ist `pdf-tech` zuständig).
+
+## Modi
+
+Nach dem Trigger danach routen, was der User tatsächlich will — danach läuft immer derselbe Render-/Validier-Loop (Workflow-Schritte 3–4):
+
+| Modus | Der User will… | Einstieg |
+|---|---|---|
+| **Generieren** (Default) | ein Diagramm aus einer Textbeschreibung | Workflow 1–4 |
+| **Aus Code** | ein Diagramm aus vorhandenem Quelltext (Klassen, Sequenz, Komponenten, ER) | Abschnitt „Modus: Aus Code“ → Workflow 3–4 |
+| **In Markdown** | eingebettete PlantUML-Blöcke in einem Markdown-Dokument zu Bildern rendern | Abschnitt „Modus: In Markdown“ |
+| **Anpassen** | ein bestehendes Diagramm ändern | `.puml` laden, minimale Änderung, neu rendern (Workflow 3–4) |
+| **Review** | wissen, ob ein Diagramm lesbar/korrekt ist | Vision-Self-Check (Workflow 4) auf dem Bild |
+
+## Voraussetzungen
+
+- `plantuml` CLI muss installiert sein (`brew install plantuml`). Mit `plantuml -version` verifizieren, falls Rendering fehlschlägt.
+- Java muss verfügbar sein (`java -version`) — `plantuml` ruft intern die JAR auf.
+
+## Workflow
+
+### 1. Diagrammtyp bestimmen
+
+Aus dem Userwunsch den Diagrammtyp ableiten und das passende Template aus `assets/templates/` als Startpunkt nutzen:
+
+| Userwunsch | Template |
+|---|---|
+| Ablauf, Interaktion zwischen Services | `sequence.puml` |
+| Klassen, Vererbung, Felder/Methoden | `class.puml` |
+| Module, Schnittstellen, Abhängigkeiten | `component.puml` |
+| Zustandsautomat, State Machine | `state.puml` |
+| Workflow, Geschäftsprozess | `activity.puml` |
+| Akteure, Anwendungsfälle | `usecase.puml` |
+| Server, Netz, Infrastruktur | `deployment.puml` |
+| Entitäten + Relationen (DB) | `er.puml` |
+| Hierarchie, Brainstorming | `mindmap.puml` |
+| Zeitplan, Projektplan | `gantt.puml` |
+| Architektur (Context/Container/Component) | `c4.puml` |
+
+### 2. Quelltext schreiben
+
+- Datei mit Endung `.puml` anlegen (Default-Ablage: das aktuelle Arbeitsverzeichnis des Users, sofern nicht anders verlangt)
+- Template kopieren, an Userdomäne anpassen, deutsche Bezeichner verwenden, wenn der User Deutsch spricht
+- Konsistentes Styling: Header aus dem Template übernehmen (`skinparam` + Theme). Nicht ohne Grund eigene Farben einführen.
+- Bei größeren/komplexeren Diagrammen die Syntax-Referenz konsultieren: `~/.claude/skills/plantuml-diagrams/references/syntax.md`
+- Für Styling, Themes, Farben, Skinparams: `~/.claude/skills/plantuml-diagrams/references/styling.md`
+
+### 3. Rendern
+
+Das mitgelieferte Skript verwenden:
+
+```bash
+~/.claude/skills/plantuml-diagrams/scripts/render.sh <input.puml> [format]
+```
+
+- `format`: `png` (Default), `svg`, `pdf`, `txt` (ASCII-Art)
+- Output landet neben der Quelldatei
+- Bei mehreren `.puml`-Dateien einen Glob übergeben: `~/.claude/skills/plantuml-diagrams/scripts/render.sh "diagrams/*.puml" svg`
+- **Auflösung**: PNG wird automatisch in 2× DPI gerendert (`render.sh` setzt `-SdpiScale=2`). Für Dokumentation `svg` bevorzugen — vektoriell, beliebig skalierbar.
+
+Direkter CLI-Aufruf (falls das Skript nicht passt):
+
+```bash
+plantuml -tsvg diagram.puml          # SVG
+plantuml -tpng -SdpiScale=2 diagram.puml  # PNG (Default, 2× DPI)
+plantuml -tpdf diagram.puml          # PDF (benötigt batik/fop)
+plantuml -checkonly diagram.puml     # Nur Syntaxcheck
+```
+
+### 4. Validieren
+
+Nach dem Rendern in zwei Stufen prüfen — nie blind „fertig“ melden:
+
+**Stufe 1 — Render-Erfolg.** Exit-Code des Render-Aufrufs prüfen. PlantUML schreibt Syntaxfehler auf stderr und gibt einen Exit-Code ≠ 0 zurück. Schlägt das Rendern fehl: Fehlermeldung lesen, die markierte Zeile korrigieren (siehe „Häufige Fehler“), erneut rendern. Nicht raten. Klärt eine gezielte Zeilen-Korrektur den Fehler nicht, die Degradations-Leiter abarbeiten (s.u.).
+
+**Stufe 2 — Vision-Self-Check (Lesbarkeit).** Ein erfolgreicher Render beweist nur gültige Syntax, nicht Lesbarkeit. PlantUML platziert per Auto-Layout (Graphviz) alles selbst — die typischen Defekte sind also Lesbarkeits-, keine Koordinaten-Probleme. Das gerenderte Bild mit dem Read-Tool öffnen und gegen diese Checkliste prüfen:
+
+| Check | Worauf achten | Fix |
+|---|---|---|
+| Label abgeschnitten | Text läuft aus der Box / wird geclippt | Label kürzen, in `"…"` setzen, mit `\n` umbrechen |
+| Überlappung / gedrängt | Boxen berühren sich, unlesbar | `together { }`, Layout-Hints, oder Diagramm aufteilen |
+| Falsche Orientierung | viel zu breit oder zu hoch | `left to right direction` ↔ `top to bottom direction` tauschen |
+| Kanten-Spaghetti | viele kreuzende Relationen | Deklarations-Reihenfolge ändern, `package`/`together` gruppieren, hidden edges |
+| Niedriger Kontrast | Text verschwimmt mit Füllung | `skinparam`/`!theme` anpassen, bis Text kontrastiert |
+| Falscher Diagrammtyp | Typ passt nicht zum Inhalt | Typ wechseln (Sequenz, State, C4, …) |
+
+- Max. **2 Self-Check-Runden** — bleiben danach Probleme, das Bild trotzdem zeigen und benennen.
+- **Nach jedem Fix neu rendern (Schritt 3) und neu validieren.**
+- Ist keine Vision verfügbar, Self-Check überspringen und das PNG direkt zeigen.
+
+#### Degradations-Leiter
+
+Wenn eine gezielte Korrektur das Rendern nicht klärt, in dieser Reihenfolge vereinfachen und nach jedem Schritt neu rendern — stoppen, sobald es rendert:
+
+1. exotische Shapes → einfaches `rectangle`/`component`/`node`
+2. `skinparam` / `!theme` entfernen (erst mal plain rendern)
+3. `note`-Zeilen entfernen
+4. Labels vereinfachen, in `"…"` einpacken
+5. Kanten reduzieren
+6. auf einen einfacheren Diagrammtyp wechseln, statt den aktuellen zu erzwingen
+
+## Modus: Aus Code
+
+Ein Diagramm aus vorhandenem Quelltext ableiten — Klassendiagramm eines Moduls, Sequenz aus einem Request-Handler, Komponentenkarte eines Repos, ER aus ORM-Modellen.
+
+1. Den relevanten Code lesen (Klassen, Funktionen, Imports, Routen, ORM-Modelle).
+2. Die **tatsächlichen** Entitäten und Beziehungen extrahieren — nur zeichnen, was wirklich da ist, nichts erfinden.
+3. Passenden Diagrammtyp wählen (Klassen → `class`, Request-Fluss → `sequence`, Modul-Abhängigkeiten → `component`, DB-Modelle → `er`).
+4. Template aus `assets/templates/` als Gerüst nehmen, mit den echten Namen füllen.
+5. Weiter mit Workflow 3–4 (Rendern + Validieren inkl. Vision-Self-Check).
+
+## Modus: In Markdown
+
+PlantUML, das in einem Markdown-Dokument eingebettet ist, zu Bildern rendern und das Dokument mit Bild-Links neu schreiben — z.B. um nach Confluence/Notion zu publizieren, die ` ```plantuml `-Blöcke nicht selbst rendern.
+
+1. Im Markdown alle ` ```plantuml ` / ` ```puml `-Blöcke (und verlinkte `.puml`-Dateien) finden.
+2. Jeden Block in eine eigene `.puml`-Datei schreiben (sprechender Name, z.B. `<doc>_<n>_<typ>.puml`).
+3. Jede Datei rendern (`render.sh`, SVG für Doku) und validieren.
+4. Das Markdown neu schreiben: jeden Code-Block durch einen Bild-Link ersetzen (`![Titel](pfad/zum/bild.svg)`), die `.puml`-Quelle für spätere Edits behalten.
+
+## Konventionen
+
+- **Header in jeder Datei**: Beginne jede `.puml`-Datei mit dem Standard-Header aus `~/.claude/skills/plantuml-diagrams/assets/templates/_header.puml` (Theme + Schriftart). Per `!include` einbinden oder direkt kopieren.
+- **Bezeichner**: Sprechende Namen statt `A`, `B`, `C`. Bei deutschen Domänen deutsche Begriffe.
+- **Notizen sparsam**: `note right of ... : ...` nur wenn die Information nicht aus dem Diagramm selbst ablesbar ist.
+- **Skinparams zentralisiert**: Custom-Styling oben in der Datei, nicht verstreut.
+- **Eine Datei pro Diagramm**: Keine Multi-Diagramm-Dateien (PlantUML unterstützt das per `newpage`, aber die meisten Tools rendern nur das erste). Stattdessen mehrere `.puml`-Files.
+
+## Häufige Fehler
+
+| Fehler | Fix |
+|---|---|
+| Fehlende `@startuml` / `@enduml` | Jedes Diagramm in diese Marker einfassen |
+| Pfeilrichtung unerwartet | Richtung explizit erzwingen: `-down->`, `-right->`, `-up->`, `-left->` |
+| Sonderzeichen im Label | In Anführungszeichen setzen: `"Label: Wert"` |
+| Diagramm zu groß / gedrängt | Aufteilen oder mit `package`/`rectangle` gruppieren; `together { }` |
+| Sequenz-Teilnehmer in falscher Reihenfolge | `participant` oben explizit in gewünschter Links-rechts-Folge deklarieren |
+| C4-Includes nicht gefunden | Gebündeltes `!include <C4/C4_Context>` nutzen, **nie** ein remote `!includeurl https://…` |
+| Komponenten überlappen | `together { }` oder Layout-Hint (`top to bottom direction`) |
+
+## Bundled Resources
+
+- `~/.claude/skills/plantuml-diagrams/scripts/render.sh` — Wrapper um die `plantuml`-CLI mit Default-Format PNG (2× DPI) und Glob-Support
+- `~/.claude/skills/plantuml-diagrams/references/syntax.md` — Vollständige Syntax-Referenz für alle Diagrammtypen mit konkreten Beispielen
+- `~/.claude/skills/plantuml-diagrams/references/styling.md` — Themes, Skinparams, Farben, Schriftarten, Sprites/Icons
+- `~/.claude/skills/plantuml-diagrams/assets/templates/` — Vorlagen für jeden Diagrammtyp inkl. gemeinsamer Header-Datei
+
+
+ARGUMENTS: Pitch-ready architecture diagram for WireClaim: model reads → evidence → engine prices → (a,b)
