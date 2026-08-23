@@ -104,6 +104,95 @@ class LoggedReplayTests(unittest.TestCase):
         self.assertEqual(result["scores"]["logged_strategy2"]["1"]["net"]["midpoint"], 0.0)
         self.assertTrue(report_exists)
 
+    def test_compares_strategy2_with_derived_strategy5_on_identical_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            logs = root / "decisions"
+            logs.mkdir()
+            (logs / "game_001.json").write_text(
+                json.dumps(
+                    {
+                        "schema": 2,
+                        "game_id": 1,
+                        "strategy": "strategy2",
+                        "items": [
+                            {
+                                "index": 1,
+                                "coverage_probability": 1.0,
+                                "price_low": 80.0,
+                                "price_median": 100.0,
+                                "price_high": 125.0,
+                                "charge": 100.0,
+                                "limit": 100.0,
+                            }
+                        ],
+                        "proposals": {"strategy2": {"1": [100, 100]}},
+                        "winner": "strategy2",
+                    }
+                )
+            )
+            with (
+                patch.object(decision_log, "DECISIONS_DIR", logs),
+                patch("backtesting.logged.load_dataset", return_value=self.dataset),
+                patch("backtesting.logged.RUNS", root / "runs"),
+            ):
+                _, result = replay_logged("1", source="strategy2,strategy5")
+
+        self.assertIn("logged_strategy2", result["scores"])
+        self.assertIn("logged_strategy5", result["scores"])
+        check = result["logged_replay"]["1"]["sources"]["strategy5"]
+        self.assertEqual(check["origin"], "strategy2-recorded-evidence")
+        self.assertFalse(check["compatibility_applicable"])
+        row = next(row for row in result["per_item"] if row["strategy"] == "logged_strategy5")
+        self.assertLessEqual(row["charge"], row["limit"])
+
+    def test_ignores_logged_parser_rows_that_are_not_in_the_settled_game(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            logs = root / "decisions"
+            logs.mkdir()
+            (logs / "game_001.json").write_text(
+                json.dumps(
+                    {
+                        "schema": 2,
+                        "game_id": 1,
+                        "strategy": "strategy2",
+                        "items": [
+                            {
+                                "index": 1,
+                                "price_median": 100,
+                                "charge": 100,
+                                "limit": 100,
+                            },
+                            {
+                                "index": 99,
+                                "price_median": 999,
+                                "charge": 999,
+                                "limit": 999,
+                            },
+                        ],
+                        "proposals": {"strategy2": {"1": [100, 100], "99": [999, 999]}},
+                        "winner": "strategy2",
+                    }
+                )
+            )
+            with (
+                patch("backtesting.logged.load_dataset", return_value=self.dataset),
+                patch("backtesting.logged.RUNS", root / "runs"),
+            ):
+                _, result = replay_logged(
+                    "1",
+                    source="strategy2,strategy5",
+                    decisions_dir=logs,
+                )
+
+        baseline = result["logged_replay"]["1"]["sources"]["strategy2"]
+        derived = result["logged_replay"]["1"]["sources"]["strategy5"]
+        self.assertEqual(baseline["ignored_extra_line_items"], [99])
+        self.assertEqual(derived["ignored_extra_line_items"], [])
+        self.assertEqual(baseline["line_items"], 1)
+        self.assertEqual(derived["line_items"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

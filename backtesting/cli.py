@@ -40,9 +40,20 @@ def main() -> None:
     logged = commands.add_parser("replay-logged", help="deterministically replay live decision logs")
     logged.add_argument("--games", required=True)
     logged.add_argument("--dataset", help="dataset ID prefix (default: current dataset)")
-    logged.add_argument("--source", default="winner", help="winner, all, strategy1, strategy2, ...")
+    logged.add_argument(
+        "--source",
+        default="winner",
+        help=(
+            "winner, all, one source, or a comma-separated comparison; strategy5 is "
+            "derived from recorded Strategy 2 evidence when not present in old logs"
+        ),
+    )
     logged.add_argument("--seat", default="Bin busy")
     logged.add_argument("--cap-mode", default="fitted", choices=("fitted", "rules_only"))
+    logged.add_argument(
+        "--decisions-dir",
+        help="alternate game_NNN.json directory (for example a fresh run's decisions/)",
+    )
 
     api = commands.add_parser("serve-api", help="serve a drop-in historical Tournament API")
     api.add_argument("--games", required=True)
@@ -94,6 +105,7 @@ def main() -> None:
             source=args.source,
             seat=args.seat,
             cap_mode=args.cap_mode,
+            decisions_dir=args.decisions_dir,
         )
         print(f"Wrote {run_dir}")
     elif args.command == "serve-api":

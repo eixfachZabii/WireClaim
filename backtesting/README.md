@@ -198,6 +198,10 @@ JSON submissions are needed.
 pixi run python -m backtesting replay-logged --games 40-53 --source winner
 pixi run python -m backtesting replay-logged --games 40-53 --source all
 pixi run python -m backtesting replay-logged --games 40-53 --source strategy2
+pixi run python -m backtesting replay-logged --games 26-41,43-53,55 --source strategy2,strategy5
+pixi run python -m backtesting replay-logged --games 62-67 \
+  --source strategy2,strategy5 \
+  --decisions-dir var/backtesting/runs/<fresh-run-id>/decisions
 ```
 
 This command reads zero-padded logs such as `var/decisions/game_040.json` and does not call a
@@ -205,7 +209,17 @@ model. `--source` accepts:
 
 - `winner`: replay the Proposal selected by the live coordinator;
 - `all`: replay every Proposal recorded in the log; or
-- a strategy name such as `strategy1` or `strategy2`.
+- a strategy name such as `strategy1` or `strategy2`;
+- a comma-separated list for a side-by-side comparison. Historical `strategy5` values are
+  deterministically derived from the combined Strategy 2 price evidence in each decision
+  log. Strategy 5 estimates one `t` (including its large-item tier) and submits that value as
+  both `a` and `b`, so this comparison makes no model calls and changes only the pricing
+  policy.
+
+`--decisions-dir` reads the same log schema from an isolated fresh experiment instead of
+`var/decisions`. This is useful for extending a comparison without overwriting the live
+record. Logged parser rows whose indices are absent from the settled Game are reported and
+ignored; a missing settled Line Item remains fatal.
 
 Every selected Game must have a readable decision log, and every selected Proposal must cover
 all expected Line Items. The replay checks that logged Charges and Limits lie inside the
@@ -215,6 +229,28 @@ reproduces actual net to the cent.
 
 Use this command for the historical live baseline. Do not replace it with a fresh Strategy 2
 draw: a fresh model call is a different sample running current code and prompts.
+
+Strategy 5 now uses five deliberately coarse point-estimate tiers: an uninformed prior of
+450 EUR, then `0.75`, `0.50`, `0.70`, and `1.35` times Strategy 2's combined median at the
+100, 500, and 3,000 EUR breakpoints. Every branch submits `a = b`, and only a proven
+dash-quantity exclusion submits zero.
+
+On the 35 Games with reusable live evidence through Game 61 (26-41 and 43-61), its
+identified midpoint is **97,595 EUR**, versus **51,620 EUR** for Strategy 2. The later
+validation slice 54-61 is independently positive (**13,142 vs 2,448**), after harmless
+phantom parser rows in Games 54 and 59 are ignored. The score envelopes still overlap, so
+this is a midpoint lead, not an identified-set proof.
+
+Games 62-67 have settled Transaction data and extracted Cases but no live decision logs.
+The reproducible extension spec
+[`strategy2_games_62_67.json`](specs/strategy2_games_62_67.json) runs Strategy 2 once per
+Game with past-only Price Memory and writes isolated decision logs. In the 2026-08-23 local
+run, model credentials were unavailable (`model_draws = 0`), so the extension measures the
+shared fallback/memory path only: Strategy 5 leads its same-evidence Strategy 2 baseline at
+the midpoint (**-77,353 vs -79,757**), but the envelopes overlap and the generated Strategy
+2 submissions are behaviorally incompatible with the historical live submissions. Do not
+present this as a victory over the Strategy 2 that actually played Games 62-67; rerun the
+spec with model credentials to close that evidence gap.
 
 ### `report`: rerender an existing run
 

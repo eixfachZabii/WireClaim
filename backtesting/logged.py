@@ -19,6 +19,8 @@ from backtesting.reporting import print_summary, write_report
 from backtesting.scoring import reconstructed_submission, score_game
 from src.runtime.decisions import load as load_decisions
 from src.runtime.decisions import path_for, proposals
+from src.strategies.strategy5.constants import STRATEGY_NAME as POSTERIOR_STRATEGY
+from src.strategies.strategy5.strategy import proposal_from_decisions
 
 
 def replay_logged(
@@ -28,6 +30,7 @@ def replay_logged(
     source: str = "winner",
     seat: str = "Bin busy",
     cap_mode: str = "fitted",
+    decisions_dir: str | Path | None = None,
 ) -> tuple[Path, dict[str, Any]]:
     dataset = load_dataset(dataset_id)
     game_ids = parse_games(games, sorted(dataset.games))
@@ -43,7 +46,7 @@ def replay_logged(
 
     for game_id in game_ids:
         game = dataset.games[game_id]
-        payload = load_decisions(game_id)
+        payload = _load_decisions(game_id, decisions_dir)
         if payload is None:
             raise FileNotFoundError(f"no readable decision log for Game {game_id}")
         logged = proposals(payload)
@@ -70,16 +73,34 @@ def replay_logged(
             if not raw and name == "strategy2":
                 raw = _strategy2_items(payload)
                 origin = "items"
+            if not raw and name == POSTERIOR_STRATEGY:
+                derived = proposal_from_decisions(game_id, payload, game.items)
+                raw = (
+                    {
+                        price.index: (price.charge_price, price.acceptance_limit)
+                        for price in derived.prices
+                    }
+                    if derived is not None
+                    else {}
+                )
+                origin = "strategy2-recorded-evidence"
             if not raw:
                 raise ValueError(f"Game {game_id} has no logged Proposal for {name!r}")
-            submission = {index: Submission(*pair) for index, pair in raw.items()}
+            extra = sorted(set(raw) - set(game.items))
+            submission = {
+                index: Submission(*pair) for index, pair in raw.items() if index in game.items
+            }
             missing = sorted(set(game.items) - set(submission))
-            extra = sorted(set(submission) - set(game.items))
-            if missing or extra:
+            if missing:
                 raise ValueError(
-                    f"Game {game_id} {name}: missing Line Items {missing}, extra {extra}"
+                    f"Game {game_id} {name}: missing Line Items {missing}"
                 )
-            compatibility = proposal_compatibility(game, submission, seat)
+            compatibility_applicable = origin != "strategy2-recorded-evidence"
+            compatibility = (
+                proposal_compatibility(game, submission, seat)
+                if compatibility_applicable
+                else []
+            )
             scored = score_game(game, submission, seat=seat, cap_mode=cap_mode)
             label = f"logged_{name}"
             scores.setdefault(label, {})[game_id] = scored
@@ -87,7 +108,9 @@ def replay_logged(
             game_checks["sources"][name] = {
                 "origin": origin,
                 "line_items": len(submission),
-                "behaviorally_compatible": not compatibility,
+                "ignored_extra_line_items": extra,
+                "compatibility_applicable": compatibility_applicable,
+                "behaviorally_compatible": not compatibility if compatibility_applicable else None,
                 "compatibility_errors": compatibility,
                 "midpoint_net": scored.net.midpoint,
                 "actual_net": actual,
@@ -140,6 +163,17 @@ def replay_logged(
     return run_dir, result
 
 
+def _load_decisions(game_id: int, decisions_dir: str | Path | None) -> dict[str, Any] | None:
+    if decisions_dir is None:
+        return load_decisions(game_id)
+    path = Path(decisions_dir) / f"game_{game_id:03d}.json"
+    try:
+        payload = json.loads(path.read_text())
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
 def proposal_compatibility(
     game: HistoricalGame, submission: Mapping[int, Submission], seat: str
 ) -> list[str]:
@@ -189,6 +223,11 @@ def score_dict(score: GameScore) -> dict[str, Any]:
 def _selected_sources(
     payload: Mapping[str, Any], logged: Mapping[str, Any], source: str
 ) -> tuple[str, ...]:
+    if "," in source:
+        names = tuple(dict.fromkeys(part.strip() for part in source.split(",") if part.strip()))
+        if not names:
+            raise ValueError("source list is empty")
+        return names
     if source == "all":
         names = tuple(sorted(logged))
         if not names and payload.get("items"):
@@ -277,7 +316,12 @@ def _print_checks(checks: Mapping[str, Any]) -> None:
         print(f"Game {game_id}: winner={game.get('winner')!r}, schema={game.get('schema')}")
         for source, check in game["sources"].items():
             status = "EXACT" if check["reproduces_actual_to_cent"] else "DIFF"
-            compatible = "compatible" if check["behaviorally_compatible"] else "INCOMPATIBLE"
+            if not check.get("compatibility_applicable", True):
+                compatible = "counterfactual"
+            else:
+                compatible = (
+                    "compatible" if check["behaviorally_compatible"] else "INCOMPATIBLE"
+                )
             print(
                 f"  {source}: {status}, midpoint {check['midpoint_net']:,.2f}, "
                 f"actual {check['actual_net']:,.2f}, delta {check['delta_to_actual']:+,.2f}, "

@@ -1,11 +1,11 @@
 """Run the active strategy, then lower-priority comparisons, and record every Proposal.
 
-Strategy 2 prices the Case first and remains the only live winner. Strategy 4 then reuses
-Strategy 2's recorded evidence for a lower-priority tail-aware comparison. Running it after
-Strategy 2 is intentional: it cannot consume model capacity from the submitted strategy,
-and it cannot briefly reach the coordinator before Strategy 2 merely because it finished
-first. `results()` writes both Proposals to the Game's decision log so the settled Field can
-score the experiment.
+Strategy 2 prices the Case first and remains the only live winner. Strategy 5 then reprices
+Strategy 2's recorded evidence with its coherent Fair-Value policy, followed by Strategy 4's
+tail-aware comparison. Running them after Strategy 2 is intentional: neither can consume
+model capacity from the submitted strategy or briefly reach the coordinator first.
+`results()` writes every Proposal to the Game's decision log so the settled Field can score
+the experiments.
 
 The logging is strictly subordinate to the Submission: it happens after `register`, it
 swallows every error, and it can only ever cost a small local write. A missing log costs one
@@ -29,6 +29,7 @@ from src.legacy.strategy1 import propose as strategy1
 from src.strategies.strategy2 import propose as strategy2
 from src.legacy.strategy3 import propose as strategy3
 from src.strategies.strategy4 import propose as strategy4
+from src.strategies.strategy5 import propose as strategy5
 from src.runtime.timing import format_error_card, format_skipped_strategy_card, log_timing, start_timer
 
 logger = logging.getLogger(__name__)
@@ -41,10 +42,10 @@ __all__ = ["SHADOW_STRATEGIES", "STRATEGY_PRIORITIES", "StrategyRouter"]
 
 class StrategyRouter:
     def __init__(self, strategies: tuple[Strategy, ...] | None = None) -> None:
-        #: Strategy 2 remains the live track. Strategy 4 is deliberately not placed in this
-        #: concurrent tuple: it runs only after Strategy 2 has completed and is passed that
-        #: winning Proposal as its immutable baseline. This prevents both endpoint
-        #: contention and a lower-priority transient submission.
+        #: Strategy 2 remains the live track. Strategies 5 and 4 are deliberately not placed
+        #: in this concurrent tuple: they run only after Strategy 2 has completed and are
+        #: passed that winning Proposal as their immutable baseline. This prevents both
+        #: endpoint contention and a lower-priority transient submission.
         #:
         #: Strategies 1 and 3 were retired for two reasons, and the second is the bigger
         #: one.
@@ -60,7 +61,7 @@ class StrategyRouter:
         #: from the endpoint. Two Games of the model channel, spent on two tracks that were
         #: never going to be submitted.
         self._strategies = (strategy2,) if strategies is None else strategies
-        self._comparisons = (strategy4,) if strategies is None else ()
+        self._comparisons = (strategy5, strategy4) if strategies is None else ()
         self._current: Proposal | None = None
         self._current_priority = -1
         #: Every Proposal seen this run, winners and losers alike: source -> {index: (a, b)}.
@@ -187,9 +188,9 @@ class StrategyRouter:
                     if active is not None:
                         yield active
 
-            # Default live router only: Strategy 4 is comparison-only and receives the
-            # already-winning Strategy 2 Proposal. It is never scheduled in parallel with
-            # Strategy 2, so it cannot steal request capacity or land first.
+            # Default live router only: comparison tracks receive the already-winning
+            # Strategy 2 Proposal. They are never scheduled in parallel with Strategy 2, so
+            # they cannot steal request capacity or land first.
             for comparison in self._comparisons:
                 name = (
                     comparison.__module__.split(".")[-2]
@@ -228,9 +229,9 @@ class StrategyRouter:
                 )
                 active = self._register_result(case, proposal, started_at)
                 if active is not None:
-                    # Defensive only: with Strategy 2 at priority 3 and Strategy 4 at 2,
-                    # this cannot happen. Keeping the generic contract makes a priority
-                    # table change visible rather than silently discarded.
+                    # Defensive only: with Strategy 2 above every comparison track, this
+                    # cannot happen. Keeping the generic contract makes a priority-table
+                    # change visible rather than silently discarded.
                     yield active
         finally:
             for task in jobs:

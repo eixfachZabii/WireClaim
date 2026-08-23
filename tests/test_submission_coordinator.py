@@ -137,7 +137,7 @@ class SubmissionCoordinatorTests(unittest.IsolatedAsyncioTestCase):
             "   1 |       100.00 |        75.00 ||    1 |       120.00 |         0.00",
             updates[1],
         )
-        self.assertIn("priority: 3", updates[1])
+        self.assertIn("priority: 4", updates[1])
 
     async def test_new_snapshot_follows_inflight_submission(self) -> None:
         calls: list[list[dict[str, float | int]]] = []

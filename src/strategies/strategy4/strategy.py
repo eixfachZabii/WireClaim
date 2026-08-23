@@ -8,7 +8,7 @@ anything changes.
 
 Strategy 4 intentionally runs *after* Strategy 2 in :mod:`src.strategies.router`. It does
 not launch a second copy of Strategy 2's two-draw ensemble, cannot contend with the winning
-track, and has priority 2 versus Strategy 2's priority 3. The router records its Proposal
+track, and has priority 2 versus Strategy 2's priority 4. The router records its Proposal
 for later replay but never submits it while Strategy 2 exists.
 """
 

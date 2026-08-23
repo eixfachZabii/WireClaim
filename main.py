@@ -106,10 +106,17 @@ class RunManager:
             for index, (_, price) in self._strategy.items()
             if index in valid_indices
         )
-        return tuple(
-            price.with_limit(0.0) if index in self._fraud_indices else price
-            for index, price in sorted(prices.items())
-        )
+        locked: list[ItemPrice] = []
+        for index, price in sorted(prices.items()):
+            if index not in self._fraud_indices:
+                locked.append(price)
+            elif price.source == "strategy5":
+                # Strategy 5's defining invariant is a <= b. Reuse the existing fraud
+                # verdict, but collapse both copies of its t estimate when it proves t = 0.
+                locked.append(ItemPrice(index, 0.0, 0.0, price.source))
+            else:
+                locked.append(price.with_limit(0.0))
+        return tuple(locked)
 
 
 #: How many Line Items the blind floor covers. Invoices in the settled record run to 39

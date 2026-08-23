@@ -195,6 +195,12 @@ Case loads at which some Line Item has no number.
 function: gather evidence, then price it. Nothing before `price_item` is allowed to compute
 a Charge or a Limit.
 
+After Strategy 2 records that evidence, Strategy 5 may produce a lower-priority comparison
+without another model call. It maps the same combined median through coarse magnitude tiers
+to one Fair-Value point and submits it as both Charge and Limit (`a = b`). It never replaces
+Strategy 2 in the live priority order; its decision log is accumulated for counterfactual
+validation.
+
 **Channels A and B, free and instant.**
 [`channels.local_evidence`](../src/strategies/strategy2/channels.py) walks every Line Item
 before any network call: a position whose quantity and unit print as a dash is Channel A's —
@@ -263,12 +269,12 @@ improves exactly those two and leaves the rest of the snapshot alone. Higher lay
 write indices that layer 1 already knows (`snapshot()` filters on `valid_indices`), so a
 model that hallucinates a Line Item 99 cannot inject one.
 
-Priorities live in [`router.py`](../src/strategies/router.py):
-`STRATEGY_PRIORITIES = {"strategy1": 1, "strategy3": 2, "strategy2": 3}`. `register()`
-rejects any proposal whose priority is below the incumbent's, so completion order does not
-matter — Strategy 2 wins whenever it produces anything, because it is the only estimator
-whose constants are fitted to reconstructed Fair Values and the only one that cannot return
-nothing.
+Priorities live in [`src/strategies/__init__.py`](../src/strategies/__init__.py). Strategy 2
+is priority 4; the Strategy 5 coherent Fair-Value comparison is immediately below it at 3,
+and Strategy 4 plus the retired Strategy 3 are at 2. `register()` rejects any proposal whose
+priority is below the incumbent's, so completion order does not matter. The default router
+runs Strategy 5 and Strategy 4 only after Strategy 2 has completed, records their
+counterfactuals, and never spends another model call on Strategy 5.
 
 ### T+50 to T+60 — the coverage mask and the final PUT
 
