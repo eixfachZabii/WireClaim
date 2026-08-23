@@ -1,17 +1,26 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import re
+import subprocess
 from dataclasses import replace
 from pathlib import Path
 
 from src.api import APIError, get_decryption_key
 from src.data.models import CaseData, LineItem
 
+logger = logging.getLogger(__name__)
+
 ARCHIVE_DIR = Path("[PUBLIC] EHL Cases/cases")
 OUTPUT_DIR = Path("var/cases")
 _NUMBERED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s*(?:[.)]|[-–])\s*(?P<name>\S.*)$")
-_SPACED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s+(?P<name>\S.*)$")
+#: A genuine POS row starts hard against the left margin. Measured over every extracted
+#: invoice, all 778 of them carry one or two leading spaces and never more -- while a wrapped
+#: description line is indented to the description column. Case 54 wraps as
+#: ``         80 kg)``, which ``^\s*`` read as position 80 named ``kg)``: a Line Item that
+#: does not exist, which we then posted a Charge on. Case 17 position 82 is the same shape.
+_SPACED_LINE_ITEM = re.compile(r"^\s{0,2}(?P<index>[1-9]\d{0,2})\s+(?P<name>\S.*)$")
 #: Every unit the invoices actually print. Multi-word units come FIRST: the alternation is
 #: ordered, and a bare ``m`` placed ahead of ``linear m`` would never let the longer one win.
 #:
@@ -26,7 +35,7 @@ _SPACED_LINE_ITEM = re.compile(r"^\s*(?P<index>[1-9]\d{0,2})\s+(?P<name>\S.*)$")
 #: ``labor units`` (47, twice) and ``lines`` (27).
 _UNIT_ALTERNATION = (
     r"linear\s+m|lin\.?\s*m|lfm|labou?r\s+units?|lines|"
-    r"pcs|hrs?|m2|m²|m|kg|days?|units?|flat rate"
+    r"pcs|hrs?|m2|m²|m|kg|days?|units?|flat rate|[-\u2010-\u2015\u2212]"
 )
 _TRAILING_QUANTITY = re.compile(
     rf"\s+(?P<quantity>\d+(?:[.,]\d+)?)\s+(?P<unit>{_UNIT_ALTERNATION})\s*$",
@@ -127,10 +136,55 @@ async def read_case(game_id: int, case_dir: Path) -> CaseData:
     )
 
 
-def read_invoice_line_items(invoice_path: Path) -> list[LineItem]:
+def _pypdf_text(invoice_path: Path) -> str:
     from pypdf import PdfReader
 
-    text = "\n".join(page.extract_text() or "" for page in PdfReader(invoice_path).pages)
+    return "\n".join(page.extract_text() or "" for page in PdfReader(invoice_path).pages)
+
+
+def invoice_text(invoice_path: Path) -> str:
+    """The invoice as text, with its column geometry intact.
+
+    ``pdftotext -layout`` first, ``pypdf`` only as a fallback, and the order is the whole
+    point. Every row regex below keys on the run of spaces between the description and the
+    AMOUNT column, and ``pypdf.extract_text()`` does not preserve it:
+
+        pdftotext  '7   Supply & install laminate incl. impact sound insulation    18   m²'
+        pypdf      '7 Supply & install laminate incl. impact sound insulation18 m²'
+
+    With the space gone ``_TRAILING_QUANTITY`` cannot match, the quantity falls back to 1.0,
+    and nothing reports it. Measured against the column-based parser in
+    ``scripts/build_price_memory.py`` -- which has always used ``-layout`` -- the two
+    disagreed on 11 of 686 Line Items across the settled record: nine quantities silently
+    lost (Case 17 positions 8 and 9 are **82.8 m² read as 1.0**; also Cases 13, 18, 24, 25,
+    35, 37) and two Line Items invented outright (Case 17 position 82, Case 54 position 80),
+    which we then posted Charges on.
+
+    The fallback is not decoration. Uptime outranks accuracy: if the binary is missing or
+    fails, a slightly worse parse beats no Submission.
+    """
+    try:
+        result = subprocess.run(
+            ["pdftotext", "-layout", str(invoice_path), "-"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout
+        logger.warning(
+            "pdftotext -layout gave nothing for %s (rc=%s); falling back to pypdf",
+            invoice_path,
+            result.returncode,
+        )
+    except Exception as error:  # pragma: no cover - never worth a Game
+        logger.warning("pdftotext -layout unavailable for %s (%s); falling back to pypdf", invoice_path, error)
+    return _pypdf_text(invoice_path)
+
+
+def read_invoice_line_items(invoice_path: Path) -> list[LineItem]:
+    text = invoice_text(invoice_path)
     line_items = parse_invoice_text(text)
     if not line_items:
         raise ValueError(f"Could not identify numbered Line Items in {invoice_path}.")

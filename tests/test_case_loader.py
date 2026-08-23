@@ -61,6 +61,39 @@ class CaseLoaderTests(unittest.TestCase):
 
         self.assertEqual([item.quantity for item in line_items], [9.0, 68.0])
 
+    def test_a_dash_in_the_unit_column_still_carries_its_quantity(self) -> None:
+        """``Skilled worker hours   14   -`` is qty 14, not qty 1.
+
+        Distinct from the dash *pair*, which really does mean no quantity was given.
+        Cases 25, 35 and 37 all print this row.
+        """
+        line_items = parse_invoice_text(
+            "POS. DESCRIPTION\n"
+            "13 Skilled worker hours 14 \u2013\n"
+            "Created on 2026-08-21\n"
+        )
+
+        self.assertEqual([item.quantity for item in line_items], [14.0])
+        self.assertFalse(line_items[0].quantity_missing)
+
+    def test_a_wrapped_description_line_is_not_a_position_row(self) -> None:
+        """Case 54 wraps as ``         80 kg)``.
+
+        ``^\\s*`` read that as position 80 named ``kg)`` -- a Line Item that does not exist
+        and that we posted a Charge on. Case 17 position 82 is the same shape. A genuine POS
+        row carries one or two leading spaces; a continuation is indented to the description
+        column.
+        """
+        line_items = parse_invoice_text(
+            "POS. DESCRIPTION\n"
+            " 1 Recover the tank assembly (cast iron, weighing over 2 pcs\n"
+            "         80 kg)\n"
+            "Created on 2026-08-21\n"
+        )
+
+        self.assertEqual([item.index for item in line_items], [1])
+        self.assertNotIn(80, [item.index for item in line_items])
+
     def test_inline_dash_pair_marks_the_quantity_as_missing(self) -> None:
         line_items = parse_invoice_text(
             "POS. DESCRIPTION AMOUNT UNIT TOTAL\n"
