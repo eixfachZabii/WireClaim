@@ -54,7 +54,7 @@ Three more Games settled and the 20-Game window slid from G75–94 to G78–97, 
 
 **What is still true and is now the stronger claim:** over the **last thirty** Games (G68–97) our mean/σ is **0.689 — the best in the field** — on the **second-lowest σ of any team**. Worst Game of the last twenty is still **−3,941** (Game 92). Season **+260,250**, 5th. G26–97 **2nd of 17 by rate**.
 
-**Two margins are knife-edge — do not lean on either:** we lead 3rd on the G26–97 rate by **€15/Game**, and error404 ai leads us on the G26 rebase by **1,121**. Games 98–100 can flip both.
+**Three margins are knife-edge — do not lean on any of them:** we lead 3rd on the G26–97 rate by **€15/Game**; error404 ai leads us on the G26 rebase by **1,121**; and our "2nd-lowest σ" is 11,041 against error404 ai's **10,931** — a 1 % gap. All three can flip on Games 98–100. The claims that are *not* fragile: **mean/σ 0.689, best in the field** (next is 0.661), **4 losing Games in 30**, and **worst Game −9,720** against a field where the next-shallowest worst is −6,645 and eleven teams are past −27,000.
 
 **Backup slides in `appendix.html`** for Q&A: the two traps (conditioning on the outcome, censoring), the R10/makalu slide in full, the 8 dark Games, the ceiling (`a=b=t` at 100.3 %), and what we would build next.
 

@@ -43,7 +43,8 @@ ERAS = [
     (81, 100, "G81–100", "3× weighted"),
 ]
 DARK_CHANNEL = (82, 89)  # model channel 401'd; model_draws = 0
-CONSISTENCY_WINDOW = (78, 97)
+CONSISTENCY_WINDOW = (68, 97)  # the last 30 settled Games; over the narrower
+                               # 20-Game window we are 4th on mean/sigma, not 1st
 REBASE_ANCHOR = 20       # Strategy 2 went live around here
 REBASE_SENSITIVITY = 26  # conservative cut: G21-24 shipped the fallback Limit of 35
 
@@ -139,6 +140,8 @@ def ordinal(n: int) -> str:
 
 WORDS = {1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six",
          7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten"}
+
+SPAN_WORDS = {10: "ten", 20: "twenty", 30: "thirty", 40: "forty", 50: "fifty"}
 
 
 # --------------------------------------------------------------------------- #
@@ -344,6 +347,7 @@ def fig_consistency(th, games, teams, bal):
     me = next(d for d in stats if d["team"] == US)
     my_rank = stats.index(me) + 1
     big = sum(1 for d in stats if d["worst"] < -80_000)
+    sd_rank = sorted(stats, key=lambda d: d["sd"]).index(me) + 1
 
     fig, ax = plt.subplots(figsize=(13, 10.5))
     fig.subplots_adjust(left=0.215, right=0.735, top=0.815, bottom=0.085)
@@ -396,18 +400,25 @@ def fig_consistency(th, games, teams, bal):
                 color=col, fontweight="bold" if mine else "normal",
                 clip_on=False)
 
-    fig.text(0.215, 0.965,
-             f"{ordinal(my_rank)}-best risk-adjusted return in the field",
+    head = ("Best risk-adjusted return in the field" if my_rank == 1
+            else f"{ordinal(my_rank)}-best risk-adjusted return in the field")
+    fig.text(0.215, 0.965, head,
              fontsize=30, fontweight="bold", color=th["fg"], va="top")
     fig.text(0.215, 0.916,
-             f"per-Game net over Games {lo}–{hi}  ·  all 17 teams  "
+             f"per-Game net over the last {SPAN_WORDS.get(span, span)} Games, "
+             f"{lo}–{hi}  ·  all 17 teams  "
              f"·  μ = {me['mean']:,.0f}, σ = {me['sd']:,.0f}, "
              f"μ/σ = {me['ratio']:.3f}",
              fontsize=14.5, color=th["muted"], va="top")
+    # Two lines, not one: at fontsize 14.5 from x=0.215 only ~100 characters
+    # clear the right edge, and the sigma-rank clause pushes this past that.
     fig.text(0.215, 0.874,
-             f"Only {me['losses']} losing Games in {span}; the worst cost "
-             f"{me['worst']:,.0f}".replace("-", "−") +
-             f".  {WORDS[big]} teams lost more than 80,000 in a single Game.",
+             (f"{me['losses']} losing Games in {span}; the worst cost "
+              f"{me['worst']:,.0f}".replace("-", "−")) +
+             f".  {ordinal(sd_rank)}-lowest σ of all {len(stats)} teams.",
+             fontsize=14.5, color=th["accent"], va="top")
+    fig.text(0.215, 0.836,
+             f"{WORDS[big]} teams lost more than 80,000 in a single Game.",
              fontsize=14.5, color=th["accent"], va="top")
     return save(fig, "consistency", th)
 
