@@ -947,3 +947,46 @@ conclusion tonight, after the global multiplier, the ceiling-and-clamp pair, and
 `LIMIT_QUANTILE`. What would change it: an observable, knowable at submission time, that
 separates the 9 genuinely-large items in the `t_hat >= 2k` bucket from the 14 that are not. That
 is §4a, still open.
+
+---
+
+## H17 ❌ Read policy-stated EUR caps instead of estimating them — the number is exact, the *row* is not identifiable
+
+Raised by the Game 72 review, and it looked like the cleanest lead of the night because the
+policy states the answer in figures rather than leaving it to be estimated:
+
+> "one travel or vehicle charge per contractor per invoice, **up to EUR 70** net of value added
+> tax" — `policy.txt` 5.2.6(c)
+
+`70 × 1.19 = 83.30` gross. And the settled record agrees to a startling degree. Of the 33
+vehicle/travel/call-out Line Items with a proven non-zero floor, the floors cluster at
+**79, 79, 79, 79, 79, 79, 79, 80, 81, 81, 82, 82, 82, 82**, and **83.30 falls inside every
+bounded bracket in the family** — G29 [80,86), G34 [82,86), G35 [82,92), G38 [71,140),
+G62 [79,90), G67 [79,86), G72 [79,86). The Fair Value of a covered vehicle charge is not
+approximately 83.30; it *is* 83.30. Our `t_hat` on those sits at 67–92 and our Charge at 51–67,
+and the family carries **−23,077** of penalty, nearly all of it Limit rather than Charge.
+
+**And pricing it loses anyway.** 80 of 775 Line Items match the wording, and most of them settle
+near zero, because the same clause that sets the cap also says only *one* such charge per trade
+invoice is indemnified (7.1.8(d)). Overriding the family:
+
+| rule | all | odd | even | ≤45 | >45 | last15 | folds+ |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `b = 83.30`, Charge shipped | −5,905 | −1,204 | −4,702 | −1,758 | −4,147 | −1,806 | 0/4 |
+| `a = 83.30`, Limit shipped | −21,290 | −14,968 | −6,322 | −12,882 | −8,407 | −4,243 | 0/4 |
+| `a = b = 83.30` | −27,195 | −16,172 | −11,023 | −14,641 | −12,554 | −6,049 | 0/4 |
+
+Raising `b` to the exact known value buys the Field's ~83 Charges on the rows worth nothing.
+
+**The discriminator is invoice membership, and we do not record it.** Ordinally the rule is
+visible but leaky — the first vehicle row in a Case is high 10 times and low 5, later rows are
+high 7 and low 13 — because a Case may contain several trade invoices, each entitled to one
+charge. G35 has three legitimate high rows, G37, G51 and G72 two. `case_loader` already parses
+positions across several invoices in one PDF (there is a test for it), so the boundary exists at
+parse time and is simply not carried into the decision log.
+
+Worth someone's time *if* the tournament were longer: carry an invoice id per Line Item, then
+"first vehicle charge per invoice = cap, the rest ≈ 0" becomes deterministic. It is not worth it
+at Game 72 with the 3× window opening at 81 — the whole family is ~500/Game of penalty against a
+±6,275 single-Game floor, and it needs a parser change, a log schema change and an engine rule
+to collect it. Recorded so the size is known rather than guessed at next time.
