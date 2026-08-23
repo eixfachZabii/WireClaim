@@ -398,6 +398,11 @@ multiplier is worth tens of thousands and is nearly flat in σ; the estimate is 
 5. **The Limit still deserves work, but not a multiplier.** §2 shows 657,382 of pure lawyer
    surcharge and §3 shows no constant reaches it. It is a per-item discrimination problem, which
    means it is an evidence problem too.
+6. **Any replacement `t̂` estimator has a hard spec: σ < 0.60 on the Line Items Price Memory
+   misses.** Below that it pays (0.458 → +118,864; 0.35 → +292,212), above it does not
+   (0.60 → −15,587). Robust on 4/4 folds. The model channel is at ~1.0 there. One candidate —
+   case-anchored recalibration — genuinely improves the estimate (0.887 → 0.756) and still does
+   **not** pay, because it does not cross 0.60. See H28.
 
 ---
 

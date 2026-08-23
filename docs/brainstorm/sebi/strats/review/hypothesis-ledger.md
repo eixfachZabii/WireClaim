@@ -1403,3 +1403,77 @@ here is not it.
 **Perspective.** All of this is worth tens of thousands. H21 puts 103 % of what remains in
 estimation and H22 prices it at ~5.8 M per unit of log error. The multiplier is nearly flat in
 sigma; the estimate is not.
+
+## H28 ⚠️ A replacement `t̂` estimator has a hard spec — σ < 0.60 on the misses — and one candidate already failed it
+
+**The spec, and it is the most useful thing in this entry.** Give the Line Items Price Memory
+**misses** an estimator of quality σ and replay all 99 Games against the real Field
+(`scripts/experiments/case_anchor_backtest.py`, ceiling arm), against our real +224,840 weighted:
+
+| σ on the misses | 0.20 | 0.35 | 0.458 | 0.60 | 0.80 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| weighted | 715,259 | 517,053 | 343,704 | 209,253 | 19,752 |
+| vs actual | **+490,419** | **+292,212** | **+118,864** | −15,587 | −205,088 |
+| folds positive | 4/4 | 4/4 | 4/4 | 1/4 | 0/4 |
+| Games up / down | 68/22 | 61/29 | 56/34 | 50/40 | 34/56 |
+
+Robust in a way nothing else measured post-tournament has been: 4/4 folds down to 0.458, and it
+survives removing the best Game (+393,765 at σ 0.20 without it). **The model channel sits at ~1.0
+on those items.** Anything that does not cross **0.60** is not worth shipping however good it
+looks in log error, and 0.458 — memory's own accuracy — is worth **+118,864**.
+
+### ❌ Candidate 1: case-anchored recalibration — real structure, no money
+
+29 % of the residual variance is a **Case-level shift** (Case medians σ 0.350). It is not a
+censoring artefact: fitted on half of each Case's items and applied to the other half it cuts
+held-out RMSLE **0.709 → 0.583**. And it is observable before settlement — memory hits inside the
+same Case measure the model's level error on that invoice, cutting the misses **0.887 → 0.756**
+with no true `t` used to fit anything.
+
+**It does not pay.** Replayed: +92,241 weighted, of which **Game 62 alone is +111,488**. Without
+it, −19,248; without the top three, −36,139; 17 Games improved against 18 worsened; median Game
+**0**; 2/4 folds. Shrinking to 0.25× or 0.5× turns the total outright negative; Charge-only is no
+better. Six variants, none robust.
+
+**Why, and it follows straight from the spec above:** 0.756 does not cross 0.60. Priced off the
+σ curve the correction is worth ~50k spread over a third of the items in 46 of 73 Games — inside
+the ±26,622 single-Game noise floor. Kept as `src/evidence/case_anchor.py` with a NOT WIRED IN
+banner, because it is the most natural idea available and the next person will have it.
+
+### 🔬 Candidate 2: retrieval-augmented estimation — right shape, **untested, and untestable here**
+
+The model is bad at absolute prices (σ ~1.0) and ought to be far better at *relative* judgements.
+So invert the task: retrieve K settled Line Items whose Fair Values we know, show them with their
+prices, and ask which one the unpriced item resembles and **by what multiple**. The model emits a
+reference and a ratio; the engine supplies the level. ADR 0001's division of labour applied where
+it never has been.
+
+**Not tested. The Azure deployment is gone** — `gpt-5.6-terra` returns `404, no existing
+deployment` — so no live model call is possible from this repository any more. Nothing below is
+evidence that it works.
+
+What the offline evidence does and does not say (`scripts/experiments/retrieval_ceiling.py`,
+105 bounded memory-miss items, leave-one-Game-out):
+
+| arm | RMSLE |
+| --- | ---: |
+| ORACLE-BEST over all ~325 entries | 0.013 |
+| TOP-8 by lexical similarity | 0.358 |
+| **RANDOM-8 (control)** | 0.508 |
+| **RANDOM-30 (control)** | **0.206** |
+| LEXICAL-1, no oracle | 1.348 |
+
+**The first version of that script reported ORACLE-BEST = 0.013 as "the information is all
+there". That was wrong and the controls prove it:** with ~325 entries spread over orders of
+magnitude, some number lands near any target by chance — and **RANDOM-30 beats TOP-8**. The
+oracle arms are dominated by candidate-set *size*.
+
+The one line carrying information is TOP-K against RANDOM-K at the same K: **0.358 vs 0.508**, so
+lexical similarity ranks better than chance but only modestly. And `LEXICAL-1` at **1.348** is
+what unaided retrieval actually picks — worse than the model channel it would replace, which
+independently reproduces `memory.core_key`'s documented negative.
+
+So the open question is well-posed and genuinely open: **can a model, shown eight candidates with
+their settled prices, choose better than the 1.348 that lexical ranking manages alone — and reach
+past 0.60?** The gap between 1.348 and the 0.358 sitting inside those same eight candidates is
+the whole prize. It cannot be answered without a working model endpoint.
