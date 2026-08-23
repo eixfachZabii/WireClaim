@@ -1,7 +1,6 @@
 """WireClaim Strategy Tracks: the router (`router.py`), the always-on blind floor
-(`fast_path.py`), and the live estimator (`strategy2/`). `strategy1` and `strategy3` are
-priced identically by `STRATEGY_PRIORITIES` below but live in `src.legacy` -- see that
-package's docstring for why they still run at all.
+(`fast_path.py`), the active estimator (`strategy2/`) and its lower-priority tail-aware
+comparison (`strategy4/`). `strategy1` and `strategy3` live in `src.legacy`.
 
 `STRATEGY_PRIORITIES` lives here, and only here, because it is metadata about the tracks
 themselves rather than about the router or the coordinator. It used to be declared in both
@@ -15,10 +14,16 @@ above it, so our own submission logs labelled the winning track with the wrong p
 #: a string tag -- not by module path, so `strategy1`/`strategy3` living in `src.legacy`
 #: does not touch this dict.
 #:
-#: Strategy 2 is top because it is the only track whose constants are fitted to the
-#: reconstructed Fair Values, and the only one that always answers. 1 and 3 keep running as
-#: a free ensemble and a disagreement signal until Strategy 2 has a measured sigma of its
-#: own; see `docs/brainstorm/sebi/strats/review/strategy2-plan.md`.
-STRATEGY_PRIORITIES = {"strategy1": 1, "strategy3": 2, "strategy2": 3}
+#: Strategy 2 remains top and is the only Proposal the live router may submit. Strategy 4
+#: is deliberately second: it is recorded as a counterfactual after Strategy 2 has already
+#: won, so the tail experiment can accumulate live evidence without changing a Game.
+#: Strategies 1 and 3 are dormant legacy tracks; their values remain for old logs and
+#: explicitly constructed test/backtest routers.
+STRATEGY_PRIORITIES = {
+    "strategy1": 1,
+    "strategy3": 2,
+    "strategy4": 2,
+    "strategy2": 3,
+}
 
 __all__ = ["STRATEGY_PRIORITIES"]

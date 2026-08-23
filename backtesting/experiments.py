@@ -152,7 +152,12 @@ async def run_experiment(
             _put(scores, track, game_id, _average_scores(track_draw_scores[track][game_id]))
         _put(scores, "merged", game_id, _average_scores(merged_draw_scores[game_id]))
 
-        context = StrategyContext(case, history.before(game_id), spec.seed + game_id)
+        context = StrategyContext(
+            case,
+            history.before(game_id),
+            spec.seed + game_id,
+            run_dir / "candidate_artifacts",
+        )
         for candidate in spec.candidates:
             params_list = sweep_params.get(candidate.name, [dict(candidate.params)])
             if dict(candidate.params) not in params_list:

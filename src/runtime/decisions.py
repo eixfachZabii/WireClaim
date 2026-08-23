@@ -17,10 +17,11 @@ settles, which turns "we lost 5,548" into "the coverage probability on item 3 wa
 the item was worth at least 150".
 
 The same file also holds **every Proposal the router saw, not only the one that won**
-(`proposals`, written by `StrategyRouter.results`). Three strategies price every Case
-concurrently and only the winner's numbers were ever recorded, so there was no way to ask
-whether `strategy1` or `strategy3` would have scored better on the Game we just played.
-With the losing Proposals on disk, `scripts/replay_payoffs.py` answers that to the cent.
+(`proposals`, written by `StrategyRouter.results`). The live router now records Strategy 2
+and its lower-priority Strategy 4 tail comparison, so settlement can score the experiment
+without ever submitting it. Explicit test/backtest routers may still record the legacy
+Strategies 1 and 3. With losing Proposals on disk, `scripts/replay_payoffs.py` answers each
+counterfactual to the cent.
 
 Out of scope, deliberately: the **`fast_path`** layer is emitted from `main.py` rather than
 from the router, so it never passes through here and is *not* in the `proposals` section.

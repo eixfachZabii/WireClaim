@@ -23,9 +23,11 @@ class StrategyRouterTests(unittest.TestCase):
 
         self.assertEqual(router.register(proposal("strategy1", 100.0)).source, "strategy1")
         self.assertEqual(router.register(proposal("strategy3", 300.0)).source, "strategy3")
+        self.assertEqual(router.register(proposal("strategy4", 350.0)).source, "strategy4")
         self.assertEqual(router.register(proposal("strategy2", 200.0)).source, "strategy2")
         self.assertIsNone(router.register(proposal("strategy1", 400.0)))
         self.assertIsNone(router.register(proposal("strategy3", 500.0)))
+        self.assertIsNone(router.register(proposal("strategy4", 600.0)))
         self.assertEqual(router.current.source, "strategy2")
 
     def test_strategy2_wins_even_when_it_lands_first(self) -> None:
@@ -104,6 +106,38 @@ class StrategyRouterConcurrencyTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("TimeoutError", logs.output[0])
         self.assertIn("model request timed out", logs.output[0])
         self.assertNotIn("Traceback", logs.output[0])
+
+    async def test_default_router_records_strategy4_but_only_yields_strategy2(self) -> None:
+        calls: list[str] = []
+
+        async def active(case: CaseData, deadline: float | None = None) -> Proposal:
+            calls.append("strategy2")
+            return proposal("strategy2", 200.0)
+
+        async def comparison(
+            case: CaseData,
+            deadline: float | None = None,
+            *,
+            baseline: Proposal | None = None,
+        ) -> Proposal:
+            calls.append("strategy4")
+            self.assertIsNotNone(baseline)
+            self.assertEqual(baseline.source, "strategy2")
+            return proposal("strategy4", 400.0)
+
+        with patch.object(strategy_router, "strategy2", active), patch.object(
+            strategy_router, "strategy4", comparison
+        ):
+            router = StrategyRouter()
+
+        case = CaseData(game_id=26, case_dir=Path("var/cases/case_26"))
+        yielded = [value async for value in router.results(case, deadline=1.0)]
+
+        self.assertEqual(calls, ["strategy2", "strategy4"])
+        self.assertEqual([value.source for value in yielded], ["strategy2"])
+        self.assertEqual(router.current.source, "strategy2")
+        self.assertEqual(sorted(router.seen), ["strategy2", "strategy4"])
+        self.assertEqual(load(26)["winner"], "strategy2")
 
     async def test_logs_a_gray_comparison_for_a_lower_priority_strategy(self) -> None:
         release_strategy1 = asyncio.Event()

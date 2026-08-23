@@ -23,6 +23,7 @@ class StrategyContext:
     case: CaseData
     history: HistoryView
     seed: int
+    artifact_dir: Path | None = None
 
     @property
     def game_id(self) -> int:
