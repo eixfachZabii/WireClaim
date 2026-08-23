@@ -37,24 +37,6 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 
 | game | item | name | a (actual) | b (actual) | t (derived) | a/t | b/t | item net | source |
 |---|---|---|---|---|---|---|---|---|---|
-| 65 | 1 | Filling valve (internal frost-burst fitting) (1   pcs) | 43.63 | 43.63 | 51.80 | 0.84 | 0.84 | 464.82 | submitted |
-| 65 | 2 | Connection hose (1   pcs) | 20.98 | 20.98 | 27.54 | 0.76 | 0.76 | 33.85 | submitted |
-| 65 | 3 | Senior installer hours (3   hrs) | 199.01 | 199.01 | 291.34 | 0.68 | 0.68 | -1,930.74 | submitted |
-| 65 | 4 | Auxiliary and cleaning material (1   pcs) | 24.79 | 18.44 | 3.19 | 7.77 | 5.78 | 109.32 | submitted |
-| 65 | 5 | Vehicle costs (1   pcs) | 31.55 | 31.55 | 42.34 | 0.75 | 0.75 | 398.08 | submitted |
-| 65 | 6 | Thermal imaging camera (leak detection) (1   pcs) | 450.23 | 267.74 | 28.50 | 15.80 | 9.39 | -1,030.95 | submitted |
-| 65 | 7 | Facade frost damage from outdoor freeze-thaw (1   pcs) | 289.21 | 0.00 | 22.50 | 12.85 | 0.00 | 289.21 | submitted |
-| 65 | 8 | Loose plaster removal (1   pcs) | 292.78 | 0.00 | 14.53 | 20.16 | 0.00 | 0.00 | submitted |
-| 65 | 9 | Base plaster (1   pcs) | 91.37 | 0.00 | 12.00 | 7.61 | 0.00 | 0.00 | submitted |
-| 65 | 10 | Premium insulated render system (upgrade on former (1   pcs) | 3,919.93 | 0.00 | 22.50 | 174.22 | 0.00 | 0.00 | submitted |
-| 65 | 11 | Newly plastered substrate (1   pcs) | 63.22 | 0.00 | 7.50 | 8.43 | 0.00 | 0.00 | submitted |
-| 65 | 12 | Facade paint (4 coats) (1   pcs) | 114.10 | 0.00 | 14.50 | 7.87 | 0.00 | 0.00 | submitted |
-| 65 | 13 | Repaint of undamaged elevations (1   flat rate) | 1,269.33 | 0.00 | 0.00 | - | - | 0.00 | submitted |
-| 65 | 14 | Priming (1   pcs) | 147.17 | 0.00 | 9.16 | 16.06 | 0.00 | 0.00 | submitted |
-| 65 | 15 | Painter hours (5   hrs) | 215.88 | 0.00 | 30.55 | 7.07 | 0.00 | 431.76 | submitted |
-| 65 | 16 | Flat rate (1   pcs) | 220.36 | 0.00 | 22.50 | 9.79 | 0.00 | 220.36 | submitted |
-| 66 | 1 | Replacement of stolen household contents (clothing, (1   pcs) | 2,207.47 | 708.00 | 2,207.47 | 1.00 | 0.32 | 19,239.91 | submitted |
-| 66 | 2 | Emergency repair and re-securing of the forced entry (1   pcs) | 597.29 | 399.34 | 326.66 | 1.83 | 1.22 | -215.14 | submitted |
 | 67 | 1 | Renew boiler system including flue gas system and (1   flat rate) | 10,343.65 | 708.00 | 16.50 | 626.89 | 42.91 | 3,925.35 | submitted |
 | 67 | 2 | Adjust supply pipework to fit the replacement boiler (1   flat rate) | 290.57 | 308.61 | 344.78 | 0.84 | 0.90 | 3,901.22 | submitted |
 | 67 | 3 | Dispose of the old boiler system (1   –) | 401.29 | 426.19 | 698.84 | 0.57 | 0.61 | -492.03 | submitted |
@@ -159,13 +141,46 @@ Per line item, last 10 settled games (full file: `data/ourvalues.csv`):
 | 74 | 29 | - | 490.75 | 30.00 | 490.75 | 1.00 | 0.06 | 4,623.74 | reconstructed |
 | 74 | 30 | - | 398.33 | 30.00 | 30.00 | 13.28 | 1.00 | 398.33 | reconstructed |
 | 74 | 31 | - | 131.94 | 29.73 | 29.73 | 4.44 | 1.00 | 131.94 | reconstructed |
+| 75 | 1 | - | 396.27 | 414.70 | 475.00 | 0.83 | 0.87 | 1,259.49 | reconstructed |
+| 75 | 2 | - | 281.69 | 22.50 | 22.50 | 12.52 | 1.00 | 281.69 | reconstructed |
+| 75 | 3 | - | - | 30.43 | 30.43 | - | 1.00 | 0.00 | reconstructed |
+| 75 | 4 | - | 88.11 | 22.50 | 22.50 | 3.92 | 1.00 | 176.22 | reconstructed |
+| 75 | 5 | - | 217.88 | 225.00 | 225.00 | 0.97 | 1.00 | 1,220.26 | reconstructed |
+| 75 | 6 | - | 197.15 | 208.72 | 266.80 | 0.74 | 0.78 | 404.89 | reconstructed |
+| 75 | 7 | - | 471.42 | 489.91 | 540.66 | 0.87 | 0.91 | 4,037.81 | reconstructed |
+| 75 | 8 | - | 143.83 | 104.38 | 63.77 | 2.26 | 1.64 | -517.44 | reconstructed |
+| 75 | 9 | - | 83.29 | 83.25 | 72.00 | 1.16 | 1.16 | -454.49 | reconstructed |
+| 75 | 10 | - | 252.68 | 222.87 | 608.67 | 0.42 | 0.37 | -903.82 | reconstructed |
+| 75 | 11 | - | 176.32 | 166.50 | 224.68 | 0.78 | 0.74 | 557.41 | reconstructed |
+| 75 | 12 | - | 233.07 | 233.85 | 268.77 | 0.87 | 0.87 | 897.22 | reconstructed |
+| 75 | 13 | - | 284.34 | 22.50 | 22.50 | 12.64 | 1.00 | 284.34 | reconstructed |
+| 75 | 14 | - | 632.61 | 34.50 | 34.50 | 18.34 | 1.00 | 632.61 | reconstructed |
+| 75 | 15 | - | 224.21 | 22.50 | 22.50 | 9.96 | 1.00 | 224.21 | reconstructed |
+| 75 | 16 | - | 529.70 | 479.51 | 613.94 | 0.86 | 0.78 | 1,058.75 | reconstructed |
+| 75 | 17 | - | 146.95 | 164.68 | 191.53 | 0.77 | 0.86 | 422.92 | reconstructed |
+| 75 | 18 | - | 63.47 | 63.99 | 82.96 | 0.77 | 0.77 | 7.50 | reconstructed |
+| 76 | 1 | - | 475.93 | 459.26 | 599.00 | 0.79 | 0.77 | 1,645.54 | reconstructed |
+| 76 | 2 | - | 446.84 | 487.12 | 522.00 | 0.86 | 0.93 | 1,017.33 | reconstructed |
+| 76 | 3 | - | 200.09 | 206.88 | 246.33 | 0.81 | 0.84 | -52.72 | reconstructed |
+| 76 | 4 | - | 65.35 | 67.04 | 114.89 | 0.57 | 0.58 | -25.14 | reconstructed |
+| 76 | 5 | - | 98.41 | 19.34 | 122.50 | 0.80 | 0.16 | -265.32 | reconstructed |
+| 76 | 6 | - | 1,301.54 | 1,460.53 | 1,812.99 | 0.72 | 0.81 | 1,606.00 | reconstructed |
+| 76 | 7 | - | 550.38 | 622.61 | 622.61 | 0.88 | 1.00 | 5,049.30 | reconstructed |
+| 76 | 8 | - | 75.91 | 106.79 | 57.70 | 1.32 | 1.85 | 115.03 | reconstructed |
+| 76 | 9 | - | 124.65 | 124.92 | 146.37 | 0.85 | 0.85 | -114.80 | reconstructed |
+| 76 | 10 | - | 150.43 | 33.85 | 167.14 | 0.90 | 0.20 | 72.25 | reconstructed |
+| 76 | 11 | - | 172.65 | 34.50 | 34.50 | 5.00 | 1.00 | 172.65 | reconstructed |
+| 76 | 12 | - | 1,942.41 | 2,141.12 | 2,600.00 | 0.75 | 0.82 | 3,447.31 | reconstructed |
+| 76 | 13 | - | 453.21 | 420.12 | 261.39 | 1.73 | 1.61 | 1,619.88 | reconstructed |
+| 76 | 14 | - | 307.81 | 323.41 | 334.56 | 0.92 | 0.97 | 1,345.42 | reconstructed |
+| 76 | 15 | - | 63.67 | 66.41 | 79.13 | 0.80 | 0.84 | -3.36 | reconstructed |
+| 76 | 16 | - | - | 10.72 | 10.72 | - | 1.00 | 0.00 | reconstructed |
+| 76 | 17 | - | 75.91 | 19.12 | 19.12 | 3.97 | 1.00 | 227.73 | reconstructed |
 
 Net per round:
 
 | game | net |
 |---|---|
-| 65 | -1,014.30 |
-| 66 | 19,024.77 |
 | 67 | 13,414.89 |
 | 68 | -9,719.85 |
 | 69 | 7,024.65 |
@@ -174,6 +189,8 @@ Net per round:
 | 72 | 7,522.23 |
 | 73 | 6,527.59 |
 | 74 | 29,149.50 |
+| 75 | 9,589.55 |
+| 76 | 15,857.08 |
 <!-- OURVALUES:END -->
 
 ## Number tables
