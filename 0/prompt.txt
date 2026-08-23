@@ -1,0 +1,1 @@
+lastly afterwards update the readme so the judges can easily navigate to the files they need make it super simple and write it new only judge focus so they insta find all files in the repo
