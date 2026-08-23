@@ -41,7 +41,7 @@ def render_markdown(result: Mapping[str, Any]) -> str:
         f"- Measured noise floor over this window: {manifest.get('noise_floor', 0):,.0f} EUR",
         "",
         "Bounds are identified-set envelopes conditional on the selected Cap mode; they are not confidence intervals.",
-        "`actual` is the authoritative Transaction identity; `actual_reconstructed` replays interval representatives and is the reconstruction self-check.",
+        "`actual` is the authoritative Transaction identity; `actual_reconstructed` replays interval representatives as an identifiability diagnostic.",
         "Current model prompts/constants are evaluated retrospectively, while dynamic history and Price Memory are restricted to earlier Games.",
         "",
         "## Strategy comparison",

@@ -25,8 +25,10 @@ values.
 - **The envelopes are not confidence intervals.** A wide envelope means the public record
   cannot conclusively rank the compared strategies.
 - `actual` is the authoritative net calculated directly from the settled Transactions.
-  `actual_reconstructed` replays representative reconstructed values as a reconstruction
-  check.
+  `actual_reconstructed` replays representative reconstructed values as a diagnostic. A
+  cap-censored historical Charge can make that representative differ from the actual
+  submission even when the authoritative Transaction identity is valid (Game 67 item 1 is
+  the first observed example).
 
 Never compare only midpoint totals when the score envelopes overlap.
 
