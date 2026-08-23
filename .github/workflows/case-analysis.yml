@@ -52,7 +52,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add case_analysis/data  # raw/ is gitignored; adds every generated artifact
+          git add case_analysis/data case_analysis/dashboard.md  # raw/ is gitignored
           if git diff --cached --quiet; then
             echo "no changes"
             exit 0
