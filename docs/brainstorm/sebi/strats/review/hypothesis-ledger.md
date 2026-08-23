@@ -897,3 +897,53 @@ Issuer side — H15's Game 68 finding (`t_hat` 2–2.5× too low on theft/conten
 income forfeited, zero of eleven Line Items memory-backed) is worth an order of magnitude more than
 anything on the Reviewer side, and it is the same conclusion H3 and H8 reached from other
 directions.
+
+---
+
+## H16 ❌ The Limit is too low on *large* items — a real diagnosis that does not survive the only split we can act on
+
+The sharpest version of the Limit complaint yet, and the one worth writing up, because the
+diagnosis is correct and the rule built from it still loses.
+
+**Bucketed on what the item turned out to be worth**, strictness is wonderful on cheap items and
+ruinous on expensive ones. Over every reconstructing Game, our real submissions:
+
+| item worth | items | lawyer paid | saved by rejecting | ratio |
+| --- | ---: | ---: | ---: | ---: |
+| `t < 100` | 243 | −24,356 | 241,578 | **9.9 : 1** |
+| 100–500 | 145 | −225,180 | 251,722 | 1.1 : 1 |
+| 500–2k | 60 | **−391,522** | 113,924 | **0.3 : 1** |
+| 2k+ | 12 | **−381,554** | 129,302 | **0.3 : 1** |
+
+773,076 of lawyer on items worth ≥500, to save 243,226. It also explains why three global sweeps
+found nothing (H15): a global multiplier moves both bands at once and the 9.9:1 gain on cheap
+items cancels the 0.3:1 loss on expensive ones.
+
+**Then bucket the identical table on `t_hat`, the only quantity a rule can key on:**
+
+| `t_hat` band | items | lawyer | saved | ratio | `t < t_hat/2` |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| < 100 | 187 | −88,441 | 111,356 | 1.3 : 1 | 79/187 |
+| 100–500 | 166 | −222,076 | 174,464 | 0.8 : 1 | 65/166 |
+| 500–2k | 84 | −357,163 | 193,107 | 0.5 : 1 | 31/84 |
+| 2k+ | 23 | −354,932 | 257,598 | **0.7 : 1** | **14/23** |
+
+The gradient collapses — 1.3 / 0.8 / 0.5 / 0.7, no clean ordering — and the last column says why.
+**Fourteen of the 23 Line Items we believed were worth over 2,000 turned out to be worth less
+than half that.** "We think it is big" is not "it is big", so raising `b` there raises it on a
+bucket that is mostly our own overestimates, and buys their Overcharges.
+
+The first table is selection on the outcome: an item lands in the low-true-`t` bucket partly
+*because* everyone's Charges on it were low, which is exactly when rejecting is cheap.
+
+**Swept anyway, keyed on `t_hat`** — Limit multiplied by `k` above a threshold, with the option
+of lifting `LIMIT_CAP` there too. Ten cells, thresholds 500 and 1,000, `k` from 1.0 to 3.0:
+**every single one loses**, best case `t_hat >= 1000, k = 1.5, cap kept` at +1,416 on 3/4 folds,
+worst −280,775. Lifting the cap alone on large items is −69,548, reproducing the −62,278 already
+in `ORCHESTRATOR.md` §3.
+
+So the Limit rule is right and the money is in `t_hat` — the fourth independent route to that
+conclusion tonight, after the global multiplier, the ceiling-and-clamp pair, and
+`LIMIT_QUANTILE`. What would change it: an observable, knowable at submission time, that
+separates the 9 genuinely-large items in the `t_hat >= 2k` bucket from the 14 that are not. That
+is §4a, still open.
