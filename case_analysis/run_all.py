@@ -1,6 +1,6 @@
 """Run the whole case_analysis pipeline in order and produce every output.
 
-Steps: fetch_data -> analyze -> dashboard --save -> report -> money -> diagnose.
+Steps: fetch_data -> analyze -> dashboard --save -> report -> money -> balance -> teams -> tvalues -> ourvalues.
 All outputs land in case_analysis/data/ (see dashboard.md for the overview page).
 
 Usage:
@@ -25,8 +25,7 @@ STEPS = [
     ["balance.py"],
     ["teams.py"],
     ["tvalues.py"],
-    ["activity.py"],
-    ["diagnose.py"],
+    ["ourvalues.py"],
 ]
 
 
